@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<!--
+APP_NAME: لینک
+APP_VERSION: 1.1-appwrite
+داده (Appwrite TablesDB): users{name,email} · chats{memberA,memberB,pairKey,nameA,nameB,last,lastAt,unreadA,unreadB} · messages{chatId,fromId,text,replyTo,pinned,readByOther}
+نسخهٔ آزمایشی روی Appwrite؛ جدا از برنامهٔ توت فرنگی.
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>لینک</title>
+<meta name="theme-color" content="#2f5d50">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="لینک">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{--bg:#eef2f0;--cd:#ffffff;--tx:#1d2b27;--mu:#6b7a75;--bd:#dce4e1;--ac:#2f5d50;--ac2:#3b7a69;--onac:#ffffff;--me:#d6eee3;--th:#ffffff;--rd:#c0392b;--hv:#f2f6f4;--sel:#e3efea;--sh:0 6px 24px #0002}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1614;--cd:#16211e;--tx:#e6efec;--mu:#8da29b;--bd:#26352f;--ac:#3f7d6b;--ac2:#4c917c;--me:#1d4a3c;--th:#1b2825;--rd:#e5675a;--hv:#1b2926;--sel:#203530;--sh:0 6px 24px #0008}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.7 "Vazirmatn","Segoe UI",Tahoma,"Noto Sans Arabic",sans-serif;overflow:hidden;overscroll-behavior:none}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.mu{color:var(--mu)}
+.er{color:var(--rd);margin:0}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.flip{transform:scaleX(-1)}
+
+/* ورود */
+#auth{position:fixed;inset:0;display:flex;padding:18px;overflow:auto;background:var(--bg);padding-top:max(18px,env(safe-area-inset-top));padding-bottom:max(18px,env(safe-area-inset-bottom))}
+.card{margin:auto;width:min(420px,100%);background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--sh)}
+.card h2{margin:0;display:flex;align-items:center;gap:8px;font-size:20px}
+.card p{margin:0}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld>label{font-size:13px;color:var(--mu)}
+input,textarea{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:9px 12px;outline:0;width:100%}
+input:focus,textarea:focus{border-color:var(--ac2)}
+input[type=email],input[type=password]{direction:ltr;text-align:left}
+.pw{position:relative;display:block}
+.pw input{padding-left:42px}
+.eye{position:absolute;left:6px;top:50%;transform:translateY(-50%);border:0;background:none;padding:6px;line-height:0;color:var(--mu)}
+.eye:hover{color:var(--tx)}
+.pri{background:var(--ac);color:var(--onac);border:0;border-radius:10px;padding:10px 14px;font-weight:700}
+.pri:disabled{opacity:.6;cursor:default}
+.lnk{background:none;border:0;color:var(--ac2);text-decoration:underline;padding:4px}
+.sec{background:var(--hv);border:1px solid var(--bd);border-radius:10px;padding:9px 14px}
+
+/* قاب اصلی */
+#main{display:flex;height:100vh;height:100dvh;position:relative;overflow:hidden}
+#side{width:350px;max-width:100%;flex:none;display:flex;flex-direction:column;background:var(--cd);border-inline-end:1px solid var(--bd);min-width:0}
+.bar{display:flex;align-items:center;gap:8px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top));background:var(--ac);color:var(--onac);min-height:54px}
+.bar b{font-size:17px}
+.bar .fl{flex:1}
+.bar button{background:#ffffff22;border:0;border-radius:10px;padding:7px;line-height:0;color:inherit}
+.bar button:hover{background:#ffffff38}
+.chip{font-size:12px;background:#ffffff26;border-radius:20px;padding:1px 9px}
+.newc{display:flex;gap:6px;padding:10px 12px 6px}
+.newc input{direction:ltr;text-align:left;min-width:0}
+.newc button{white-space:nowrap;background:var(--ac);color:var(--onac);border:0;border-radius:10px;padding:0 12px;font-size:13px}
+#q{margin:4px 12px 8px;width:calc(100% - 24px)}
+#list{flex:1;overflow-y:auto;overscroll-behavior:contain}
+.ci{display:flex;gap:10px;align-items:center;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--bd)}
+.ci:hover{background:var(--hv)}
+.ci.on{background:var(--sel)}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:18px;flex:none}
+.cm{flex:1;min-width:0}
+.r1,.r2{display:flex;align-items:center;gap:8px}
+.r1 b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r1 small{color:var(--mu);font-size:12px;flex:none}
+.lm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mu);font-size:13px}
+.bd{background:var(--ac2);color:#fff;border-radius:20px;min-width:22px;height:22px;display:grid;place-items:center;font-size:12px;font-style:normal;padding:0 6px;flex:none}
+.none{padding:30px 16px;text-align:center;color:var(--mu)}
+
+#chat{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);position:relative}
+#empty{margin:auto;color:var(--mu);text-align:center;padding:20px}
+#cv{flex:1;display:flex;flex-direction:column;min-height:0}
+.ch{display:flex;align-items:center;gap:10px;padding:8px 12px;padding-top:max(8px,env(safe-area-inset-top));background:var(--cd);border-bottom:1px solid var(--bd);min-height:54px}
+.ch .av{width:38px;height:38px;font-size:16px}
+.ch b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib{background:none;border:0;border-radius:10px;padding:7px;line-height:0;color:var(--tx)}
+.ib:hover{background:var(--hv)}
+#bBack{display:none}
+#pnb{display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--cd);border-bottom:1px solid var(--bd);cursor:pointer;font-size:13px}
+#pnb span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#msgs{flex:1;overflow-y:auto;padding:12px 12px 6px;display:flex;flex-direction:column;gap:4px;overscroll-behavior:contain}
+.dsep{align-self:center;background:var(--cd);border:1px solid var(--bd);color:var(--mu);font-size:12px;border-radius:20px;padding:1px 12px;margin:8px 0 4px}
+.m{max-width:min(78%,560px);border-radius:14px;padding:6px 10px 4px;position:relative;box-shadow:0 1px 2px #0001;word-break:break-word}
+.m.me{align-self:flex-start;background:var(--me);border-end-start-radius:4px}
+.m.th{align-self:flex-end;background:var(--th);border-end-end-radius:4px}
+.m.flash{animation:fl 1.2s ease}
+@keyframes fl{0%,60%{outline:2px solid var(--ac2)}100%{outline:2px solid transparent}}
+.tx{white-space:pre-wrap}
+.tx a{color:var(--ac2)}
+.rp{border-inline-start:3px solid var(--ac2);background:#00000010;border-radius:6px;padding:2px 8px;margin-bottom:4px;font-size:13px;cursor:pointer;display:flex;flex-direction:column}
+.rp b{font-size:12px;color:var(--ac2)}
+.rp span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.mt{display:flex;align-items:center;gap:4px;justify-content:flex-end;font-size:11px;color:var(--mu);margin-top:1px}
+.mt .ic{width:14px;height:14px}
+.mt .rd{color:var(--ac2)}
+.mb{background:none;border:0;padding:0 2px;line-height:0;color:var(--mu);opacity:0}
+.m:hover .mb,.m:focus-within .mb{opacity:1}
+@media (hover:none){.mb{opacity:.7}}
+#rb{display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--cd);border-top:1px solid var(--bd);font-size:13px}
+#rb .rp{flex:1;min-width:0;margin:0;cursor:default}
+.cp{display:flex;align-items:flex-end;gap:8px;padding:8px 10px;padding-bottom:max(8px,env(safe-area-inset-bottom));background:var(--cd);border-top:1px solid var(--bd)}
+#tx{resize:none;max-height:120px;min-height:40px;border-radius:20px;padding:8px 14px;line-height:1.7}
+#bSend{background:var(--ac);color:var(--onac);border:0;border-radius:50%;width:42px;height:42px;display:grid;place-items:center;flex:none}
+#bSend:disabled{opacity:.5}
+
+/* منو و پنجره */
+#mn{position:fixed;z-index:50;background:var(--cd);border:1px solid var(--bd);border-radius:12px;box-shadow:var(--sh);padding:4px;min-width:170px}
+#mn button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;border-radius:8px;padding:8px 12px;text-align:start}
+#mn button:hover{background:var(--hv)}
+#mn .dg{color:var(--rd)}
+.ov{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.md{background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:18px;width:min(420px,100%);display:flex;flex-direction:column;gap:10px;max-height:100%;overflow:auto}
+.md h3{margin:0}
+.act{display:flex;gap:8px;justify-content:center}
+.act button{border:1px solid var(--bd);background:var(--hv);border-radius:10px;padding:8px 16px}
+.act .ok{background:var(--ac);color:var(--onac);border-color:var(--ac)}
+.act .dn{background:var(--rd);color:#fff;border-color:var(--rd)}
+hr{border:0;border-top:1px solid var(--bd);width:100%;margin:2px 0}
+#ts{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#222;color:#fff;border-radius:20px;padding:8px 18px;z-index:99;max-width:92vw;font-size:14px;text-align:center}
+
+/* موبایل */
+@media (max-width:760px){
+ #side{width:100%;border:0}
+ #chat{position:absolute;inset:0;transform:translateX(-100%);transition:transform .2s ease;z-index:5}
+ #main.chat-open #chat{transform:none}
+ #bBack{display:inline-block}
+ #empty{display:none}
+ input,textarea{font-size:16px}
+}
+</style>
+</head>
+<body>
+<noscript><p style="padding:20px">برای اجرای لینک، جاوااسکریپت را فعال کن.</p></noscript>
+
+<div id="auth"></div>
+
+<div id="main" class="hidden">
+  <aside id="side">
+    <div class="bar"><b>لینک</b><span id="off" class="chip hidden">آفلاین</span><span class="fl"></span><button onclick="openAcc()" title="حساب" aria-label="حساب" id="bAcc"></button></div>
+    <div class="newc"><input id="nE" type="email" placeholder="ایمیل مخاطب…" autocomplete="off" onkeydown="if(event.key==='Enter')newChat()"><button onclick="newChat()">گفتگوی جدید</button></div>
+    <input id="q" placeholder="جستجوی گفتگو…" oninput="paintList()" autocomplete="off">
+    <div id="list"></div>
+  </aside>
+  <section id="chat">
+    <div id="empty">یک گفتگو را انتخاب کن یا با ایمیل مخاطب گفتگوی جدید بساز.</div>
+    <div id="cv" class="hidden">
+      <div class="ch"><button class="ib" id="bBack" onclick="closeChat()" title="بازگشت" aria-label="بازگشت"></button><span class="av" id="chAv"></span><b id="chN"></b></div>
+      <div id="pnb" class="hidden" onclick="goPin()"></div>
+      <div id="msgs"></div>
+      <div id="rb" class="hidden"></div>
+      <div class="cp"><textarea id="tx" rows="1" placeholder="پیام…" oninput="onTx()" onkeydown="onTxKey(event)"></textarea><button id="bSend" onclick="send()" title="ارسال" aria-label="ارسال"></button></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const AW={ep:'https://fra.cloud.appwrite.io/v1',pj:'6ad968ee002c73c4ca9a',db:'6ad969a5001ae9582c3e',tU:'6ad96bc700117baf5a06',tC:'6ad9c6e9001f15568d17',tM:'6ad9ca3a001a0e48e86c'};
+const SDKS=['https://cdn.jsdelivr.net/npm/appwrite@22.3.0/dist/iife/sdk.js','appwrite-sdk.js'];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const S={st:'init',reg:0,err:'',busy:0,v:{},cl:null,au:null,db:null,uid:'',me:null,chats:[],ent:{},raw:{},mg:{},dr:{},cid:null,rep:null,ip:null,fresh:0,qs:{},sg:{},zr:{},cs:'',lc:0,lm:0,sub:null,poll:null};
+
+/* ---------- آیکون‌های خطی ---------- */
+const IC={
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+ back:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+ send:'<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-8-8-4z"/>',
+ reply:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 016 6v3"/>',
+ pin:'<path d="M12 17v5"/><path d="M8 3h8l-1 7 3 4H6l3-4z"/>',
+ copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 012-2h9"/>',
+ trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+ eye:'<path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+ eyeoff:'<path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
+ more:'<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
+ check:'<path d="M5 12l4 4 10-10"/>',
+ check2:'<path d="M1.5 12.5l4 4L14 7"/><path d="M10 15l1.5 1.5L21 7"/>',
+ x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'
+};
+const ic=(n,c)=>`<svg class="ic${c?' '+c:''}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]||''}</svg>`;
+
+/* ---------- ابزارها ---------- */
+const FA=new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit'});
+const tmF=d=>FA.format(d);
+const sameDay=(a,b)=>a.getFullYear()==b.getFullYear()&&a.getMonth()==b.getMonth()&&a.getDate()==b.getDate();
+function dayLbl(d){const n=new Date(),y=new Date(Date.now()-864e5);if(sameDay(d,n))return 'امروز';if(sameDay(d,y))return 'دیروز';return d.toLocaleDateString('fa-IR',{year:'numeric',month:'long',day:'numeric'})}
+function listTm(d){if(!d)return '';return sameDay(d,new Date())?tmF(d):d.toLocaleDateString('fa-IR',{month:'short',day:'numeric'})}
+const norm=s=>String(s||'').toLowerCase().replace(/ي/g,'ی').replace(/ك/g,'ک').trim();
+const first=n=>Array.from(String(n||'?').trim())[0]||'?';
+function hue(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%360;return h}
+const avSt=n=>`background:hsl(${hue(n)},42%,42%)`;
+const linkify=t=>t.replace(/(https?:\/\/[^\s<]+)/g,u=>`<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
+let tt;function toast(t){let e=$('#ts');if(!e){e=document.createElement('div');e.id='ts';e.onclick=()=>e.remove();document.body.append(e)}e.textContent=t;clearTimeout(tt);tt=setTimeout(()=>e.remove(),3500)}
+function dlg(msg,label,cb,danger){const o=document.createElement('div');o.className='ov';o.innerHTML=`<div class="md"><p style="margin:0;text-align:center">${esc(msg)}</p><div class="act"><button class="${danger?'dn':'ok'}" id="y">${esc(label)}</button><button id="n">لغو</button></div></div>`;document.body.append(o);o.querySelector('#y').onclick=()=>{o.remove();cb()};o.querySelector('#n').onclick=()=>o.remove();o.onclick=e=>{if(e.target===o)o.remove()}}
+
+const awErr=e=>{
+  if(!e)return 'خطای نامشخص';
+  const t=e.type||'',m=String(e.message||e),c=e.code;
+  const M={'user_invalid_credentials':'ایمیل یا رمز اشتباه است','user_not_found':'حسابی با این ایمیل نیست','user_already_exists':'این ایمیل قبلاً ثبت شده است','user_email_already_exists':'این ایمیل قبلاً ثبت شده است','general_rate_limit_exceeded':'تلاش‌ها زیاد بود؛ کمی بعد دوباره امتحان کن','user_blocked':'این حساب مسدود شده است','user_session_already_exists':'یک نشست فعال وجود دارد؛ صفحه را تازه کن','user_unauthorized':'اجازهٔ دسترسی نیست؛ دسترسی‌های جدول (Security) را بررسی کن','general_unauthorized_scope':'اجازهٔ دسترسی نیست؛ دسترسی‌های جدول (Security) را بررسی کن'};
+  if(M[t])return M[t];
+  if(m==='sdk')return 'کتابخانهٔ Appwrite بارگذاری نشد؛ اینترنت را بررسی کن';
+  if(t==='general_argument_invalid'&&/password/i.test(m))return 'رمز باید دست‌کم ۸ نویسه باشد و ساده و رایج نباشد';
+  if(t==='general_argument_invalid'&&/email/i.test(m))return 'ایمیل معتبر نیست';
+  if(/origin|platform|hostname/i.test(m)&&/regist|invalid|allow/i.test(m))return 'نشانی این سایت در Appwrite ثبت نشده؛ صفحه را از روی http://localhost باز کن (Apps ← Web ← Hostname)';
+  if(/index/i.test(m)&&/not found/i.test(m))return 'ایندکس لازم در جدول ساخته نشده: '+m;
+  if(c===0||/failed to fetch|network|load failed/i.test(m))return 'اتصال برقرار نیست';
+  return 'خطا: '+m;
+};
+
+/* ---------- بارگذاری Appwrite ---------- */
+const loadJs=(u,ms)=>new Promise((ok,no)=>{
+  const s=document.createElement('script');let d=0,tm;
+  const f=r=>{if(d)return;d=1;clearTimeout(tm);if(r)ok();else{s.remove();no(new Error('sdk'))}};
+  tm=setTimeout(()=>f(0),ms||9000);s.src=u;s.onload=()=>f(1);s.onerror=()=>f(0);document.head.appendChild(s);
+});
+async function loadSdk(){
+  if(window.Appwrite&&Appwrite.Client)return;
+  for(const u of SDKS){try{await loadJs(u);if(window.Appwrite&&Appwrite.Client)return}catch(e){}}
+  throw new Error('sdk');
+}
+function initAw(){
+  const c=new Appwrite.Client().setEndpoint(AW.ep).setProject(AW.pj);
+  S.cl=c;S.au=new Appwrite.Account(c);S.db=new Appwrite.TablesDB(c);
+}
+const rowsOf=async(t,q)=>(await S.db.listRows({databaseId:AW.db,tableId:t,queries:q})).rows;
+const mkRow=(t,id,data,perm)=>S.db.createRow({databaseId:AW.db,tableId:t,rowId:id,data,permissions:perm});
+const upRow=(t,id,data)=>S.db.updateRow({databaseId:AW.db,tableId:t,rowId:id,data});
+const delRow=(t,id)=>S.db.deleteRow({databaseId:AW.db,tableId:t,rowId:id});
+const ownPerm=id=>[Appwrite.Permission.update(Appwrite.Role.user(id)),Appwrite.Permission.delete(Appwrite.Role.user(id))];
+
+async function boot(){
+  if(S.busy)return;S.busy=1;S.err='';S.st='load';paintAuth();
+  try{
+    if(!S.au){await loadSdk();initAw()}
+    let u=null;
+    try{u=await S.au.get()}catch(e){if(!(e&&e.code===401))throw e}
+    S.busy=0;
+    if(u)await onIn(u);else onOut();
+    return;
+  }catch(e){S.err=awErr(e);S.st='err'}
+  S.busy=0;paintAuth();
+}
+
+/* ---------- صفحهٔ ورود ---------- */
+function pwF(id,label,ac,val){return `<div class="fld"><label for="${id}">${label}</label><span class="pw"><input id="${id}" type="password" autocomplete="${ac}" value="${esc(val||'')}"><button type="button" class="eye" tabindex="-1" onclick="togPw('${id}',this)" title="نمایش رمز" aria-label="نمایش رمز">${ic('eye')}</button></span></div>`}
+function togPw(id,b){const i=document.getElementById(id);if(!i)return;const sh=i.type==='password';i.type=sh?'text':'password';b.innerHTML=ic(sh?'eyeoff':'eye');b.title=sh?'پنهان کردن رمز':'نمایش رمز';b.setAttribute('aria-label',b.title)}
+function authHTML(){
+  const er=S.err?`<p class="er">${esc(S.err)}</p>`:'';
+  if(S.st==='init'||S.st==='load')return `<div class="card"><h2>${ic('link')}لینک</h2><p class="mu">در حال اتصال…</p></div>`;
+  if(S.st==='err')return `<div class="card"><h2>${ic('link')}لینک</h2>${er}<p class="mu">اتصال برقرار نشد. اینترنت (و در صورت نیاز فیلترشکن) را بررسی کن.</p><button class="pri" onclick="boot()">تلاش دوباره</button></div>`;
+  const v=S.v,r=S.reg;
+  return `<form class="card" onsubmit="submitAuth();return false"><h2>${ic('link')}${r?'ساخت حساب در لینک':'ورود به لینک'}</h2>`+
+   (r?`<div class="fld"><label for="aN">نام نمایشی</label><input id="aN" type="text" autocomplete="name" maxlength="40" value="${esc(v.n||'')}"></div>`:'')+
+   `<div class="fld"><label for="aE">ایمیل</label><input id="aE" type="email" autocomplete="email" value="${esc(v.e||'')}"></div>`+
+   pwF('aP','رمز (دست‌کم ۸ نویسه)',r?'new-password':'current-password',v.p)+
+   `${er}<button class="pri" type="submit"${S.busy?' disabled':''}>${r?'ساخت حساب':'ورود'}</button><button type="button" class="lnk" onclick="togReg()">${r?'حساب دارم؛ ورود':'ساخت حساب تازه'}</button></form>`;
+}
+function readAuth(){const g=i=>{const e=document.getElementById(i);return e?e.value:undefined};const n=g('aN'),e=g('aE'),p=g('aP');if(n!==undefined)S.v.n=n;if(e!==undefined)S.v.e=e;if(p!==undefined)S.v.p=p}
+function paintAuth(){
+  const a=$('#auth'),m=$('#main');
+  if(S.st==='on'){a.classList.add('hidden');m.classList.remove('hidden');return}
+  m.classList.add('hidden');a.classList.remove('hidden');
+  readAuth();a.innerHTML=authHTML();
+  if(S.st==='login'&&!S.busy){const i=document.getElementById(S.reg&&!S.v.n?'aN':!S.v.e?'aE':'aP');i&&i.focus()}
+}
+function togReg(){readAuth();S.reg=S.reg?0:1;S.err='';paintAuth()}
+async function submitAuth(){
+  if(S.busy)return;readAuth();
+  const em=(S.v.e||'').trim(),pw=S.v.p||'',nm=(S.v.n||'').trim();S.v.n=nm;S.v.e=em;
+  if(!em||!pw||(S.reg&&!nm)){S.err='همهٔ کادرها را پر کن';return paintAuth()}
+  S.busy=1;S.err='';paintAuth();
+  try{
+    if(S.reg){
+      await S.au.create({userId:Appwrite.ID.unique(),email:em,password:pw,name:nm});
+      await S.au.createEmailPasswordSession({email:em,password:pw});
+      const u=await S.au.get();
+      try{await mkRow(AW.tU,u.$id,{name:nm,email:em.toLowerCase()},ownPerm(u.$id))}catch(e){}
+      S.v.p='';S.busy=0;await onIn(u);return;
+    }
+    await S.au.createEmailPasswordSession({email:em,password:pw});
+    const u=await S.au.get();
+    S.v.p='';S.busy=0;await onIn(u);return;
+  }catch(e){S.err=awErr(e)}
+  S.busy=0;if(S.st!=='on')paintAuth();
+}
+
+/* ---------- ورود و خروج ---------- */
+async function onIn(u){
+  S.uid=u.$id;let d=null;
+  try{d=await S.db.getRow({databaseId:AW.db,tableId:AW.tU,rowId:u.$id})}catch(e){}
+  const nm=(d&&d.name)||S.v.n||u.name||u.email;
+  if(!d)mkRow(AW.tU,u.$id,{name:nm,email:(u.email||'').toLowerCase()},ownPerm(u.$id)).catch(()=>{});
+  S.me={id:u.$id,name:nm,email:u.email||''};S.st='on';S.err='';
+  paintAuth();paintList();startLive();loadChats();
+}
+function onOut(){
+  stopLive();
+  const ac=$('#acc');if(ac)ac.remove();
+  Object.assign(S,{st:'login',uid:'',me:null,chats:[],ent:{},raw:{},mg:{},sg:{},zr:{},qs:{},cs:'',cid:null,rep:null,busy:0});
+  closeUI();setBadge(0);paintAuth();
+}
+
+/* ---------- به‌روزرسانی زنده (Realtime) + بررسی دوره‌ای ---------- */
+function schedChats(){clearTimeout(S.t1);S.t1=setTimeout(loadChats,200)}
+function schedMsgs(){clearTimeout(S.t2);S.t2=setTimeout(()=>loadMsgs(S.cid),200)}
+async function startLive(){
+  stopLive();
+  const ch=[];for(const t of[AW.tC,AW.tM])ch.push('tablesdb.'+AW.db+'.tables.'+t+'.rows','databases.'+AW.db+'.tables.'+t+'.rows');
+  const cb=r=>{const p=(r&&r.payload)||{};if('chatId' in p){if(p.chatId===S.cid)schedMsgs()}else if('memberA' in p)schedChats()};
+  try{
+    if(Appwrite.Realtime){const rt=new Appwrite.Realtime(S.cl);const sub=await rt.subscribe(ch,cb);S.sub=()=>{try{sub.close()}catch(e){}}}
+    else if(S.cl.subscribe){const un=S.cl.subscribe(ch,cb);S.sub=()=>{try{un()}catch(e){}}}
+  }catch(e){}
+  S.poll=setInterval(()=>{if(S.st!=='on'||document.hidden)return;loadChats();if(S.cid)loadMsgs(S.cid)},7000);
+}
+function stopLive(){if(S.sub){S.sub();S.sub=null}clearInterval(S.poll);S.poll=null}
+
+/* ---------- فهرست گفتگوها ---------- */
+async function loadChats(){
+  if(!S.uid)return;
+  if(S.lc){S.lcAg=1;return}
+  S.lc=1;const me=S.uid;
+  try{
+    const Q=Appwrite.Query;
+    const[a,b]=await Promise.all([rowsOf(AW.tC,[Q.equal('memberA',[me]),Q.limit(100)]),rowsOf(AW.tC,[Q.equal('memberB',[me]),Q.limit(100)])]);
+    if(S.uid===me)onChats(a.concat(b));
+    S.lcE=0;
+  }catch(e){if(!S.lcE){S.lcE=1;toast('دریافت گفتگوها ناموفق بود: '+awErr(e))}}
+  S.lc=0;if(S.lcAg){S.lcAg=0;loadChats()}
+}
+function mapChat(x){
+  const me=S.uid,side=x.memberA===me?'A':'B',o=side==='A'?x.memberB:x.memberA;
+  S.raw[x.$id]=x;S.ent[x.$id]=o;
+  const t=x.lastAt?new Date(x.lastAt):null;
+  return{id:x.$id,n:(side==='A'?x.nameB:x.nameA)||'کاربر',lm:x.last||'',d:t,_t:t?t.getTime():new Date(x.$createdAt).getTime(),
+    un:S.cid===x.$id&&!document.hidden?0:(x['unread'+side]||0)};
+}
+function onChats(rs){
+  const seen={};
+  S.chats=rs.filter(x=>!seen[x.$id]&&(seen[x.$id]=1)).map(mapChat).sort((a,b)=>b._t-a._t);
+  const sg=JSON.stringify(S.chats.map(c=>[c.id,c.n,c.lm,c._t,c.un]));
+  if(sg===S.cs)return;S.cs=sg;
+  paintList();
+  if(S.cid){const c=S.chats.find(x=>x.id===S.cid);if(c){$('#chN').textContent=c.n;$('#chAv').textContent=first(c.n);$('#chAv').style.cssText=avSt(c.n)}}
+  setBadge(S.chats.reduce((n,c)=>n+c.un,0));
+}
+
+function setBadge(n){document.title=(n?'('+n+') ':'')+'لینک';try{n?navigator.setAppBadge&&navigator.setAppBadge(n):navigator.clearAppBadge&&navigator.clearAppBadge()}catch(e){}}
+function paintList(){
+  const L=$('#list');if(!L)return;
+  const q=norm(($('#q')||{}).value);
+  const a=S.chats.filter(c=>!q||norm(c.n).includes(q));
+  if(!a.length){L.innerHTML=`<div class="none">${S.chats.length?'گفتگویی پیدا نشد.':'هنوز گفتگویی نداری؛ بالا ایمیل مخاطب را بنویس.'}</div>`;return}
+  L.innerHTML=a.map(c=>`<div class="ci${c.id===S.cid?' on':''}" data-id="${esc(c.id)}" onclick="openChat(this.dataset.id)"><span class="av" style="${avSt(c.n)}">${esc(first(c.n))}</span><div class="cm"><div class="r1"><b>${esc(c.n)}</b><small>${esc(listTm(c.d))}</small></div><div class="r2"><span class="lm">${esc(c.lm)}</span>${c.un?`<i class="bd">${c.un>99?'۹۹+':c.un.toLocaleString('fa-IR')}</i>`:''}</div></div></div>`).join('');
+}
+
+async function newChat(){
+  const i=$('#nE'),em=(i.value||'').trim().toLowerCase();if(!em)return;
+  if(em===(S.me.email||'').toLowerCase())return toast('این ایمیل خودِ توست');
+  try{
+    const Q=Appwrite.Query;
+    const f=await rowsOf(AW.tU,[Q.equal('email',[em]),Q.limit(1)]);
+    if(!f.length)return toast('کاربری با این ایمیل پیدا نشد؛ اول باید در «لینک» ساخت حساب کند');
+    const u=f[0],nm=u.name||em,ids=[S.uid,u.$id].sort(),key=ids.join('_');
+    let row=(await rowsOf(AW.tC,[Q.equal('pairKey',[key]),Q.limit(1)]))[0];
+    if(!row){
+      const nA=ids[0]===S.uid?S.me.name:nm,nB=ids[1]===S.uid?S.me.name:nm;
+      try{row=await mkRow(AW.tC,Appwrite.ID.unique(),{memberA:ids[0],memberB:ids[1],pairKey:key,nameA:nA,nameB:nB,last:'',unreadA:0,unreadB:0})}
+      catch(e){if(e&&e.code===409)row=(await rowsOf(AW.tC,[Q.equal('pairKey',[key]),Q.limit(1)]))[0];else throw e}
+    }
+    if(!row)throw new Error('گفتگو ساخته نشد');
+    const c=mapChat(row);
+    if(!S.chats.find(x=>x.id===c.id)){S.chats.unshift(c);S.cs='';paintList()}
+    i.value='';openChat(c.id);loadChats();
+  }catch(e){toast('شروع گفتگو ناموفق بود: '+awErr(e))}
+}
+
+/* ---------- باز و بسته کردن گفتگو ---------- */
+function openChat(id){
+  if(S.cid===id){$('#main').classList.add('chat-open');return}
+  if(S.cid)S.dr[S.cid]=$('#tx').value;
+  S.cid=id;S.rep=null;
+  if(!(history.state&&history.state.c))try{history.pushState({c:1},'')}catch(e){}
+  const c=S.chats.find(x=>x.id===id);
+  $('#chN').textContent=c?c.n:'';$('#chAv').textContent=first(c?c.n:'');$('#chAv').style.cssText=avSt(c?c.n:'');
+  $('#empty').classList.add('hidden');$('#cv').classList.remove('hidden');$('#main').classList.add('chat-open');
+  $('#tx').value=S.dr[id]||'';onTx();
+  S.fresh=1;$('#msgs').innerHTML='';paintRep();paintPin();paintList();
+  if(S.mg[id]&&S.mg[id].length){paintMsgs();paintPin()}
+  loadMsgs(id);
+  if(!matchMedia('(pointer:coarse)').matches)setTimeout(()=>{const t=$('#tx');t&&t.focus()},50);
+}
+
+function closeUI(){
+  S.cid=null;S.rep=null;
+  const m=$('#main');if(m)m.classList.remove('chat-open');
+  const cv=$('#cv'),em=$('#empty');if(cv)cv.classList.add('hidden');if(em)em.classList.remove('hidden');
+  mnX();paintList();
+}
+function closeChat(){if(S.cid&&S.dr)S.dr[S.cid]=$('#tx').value;closeUI();if(history.state&&history.state.c)try{history.back()}catch(e){}}
+addEventListener('popstate',()=>{if(S.cid)closeUI()});
+
+
+/* ---------- پیام‌ها ---------- */
+const mapMsg=x=>({id:x.$id,mine:x.fromId===S.uid,from:x.fromId,x:x.text||'',at:new Date(x.$createdAt),pend:false,rb:!!x.readByOther,read:x.fromId===S.uid&&!!x.readByOther,r:x.replyTo||null,pn:!!x.pinned});
+async function loadMsgs(cid){
+  if(!cid||!S.uid)return;
+  if(S.lm){S.lmAg=cid;return}
+  S.lm=1;
+  try{
+    const Q=Appwrite.Query;
+    const rs=await rowsOf(AW.tM,[Q.equal('chatId',[cid]),Q.orderDesc('$createdAt'),Q.limit(100)]);
+    onMsgs(cid,rs.reverse());S.lmE=0;
+  }catch(e){if(!S.lmE){S.lmE=1;toast('دریافت پیام‌ها ناموفق بود: '+awErr(e))}}
+  S.lm=0;if(S.lmAg){const c=S.lmAg;S.lmAg=0;loadMsgs(c)}
+}
+function onMsgs(cid,rs){
+  const real=rs.map(mapMsg),ids=new Set(real.map(m=>m.id));
+  const pend=(S.mg[cid]||[]).filter(m=>m.pend&&!ids.has(m.id));
+  S.mg[cid]=real.concat(pend);
+  if(S.cid!==cid)return;
+  const sg=JSON.stringify(real.map(m=>[m.id,m.rb,m.pn,m.x.length]))+pend.length;
+  if(S.sg[cid]===sg&&!S.fresh)return;
+  S.sg[cid]=sg;
+  paintMsgs();paintPin();markRead();
+}
+const MK=new Set();
+function markRead(){
+  const cid=S.cid;if(!cid||document.hidden)return;
+  const L=S.mg[cid]||[];
+  L.filter(m=>!m.mine&&!m.rb&&!m.pend&&!MK.has(m.id)).forEach(m=>{MK.add(m.id);upRow(AW.tM,m.id,{readByOther:true}).then(()=>{m.rb=true},()=>{MK.delete(m.id)})});
+  const raw=S.raw[cid];if(!raw)return;
+  const side=raw.memberA===S.uid?'A':'B';
+  if((raw['unread'+side]||0)>0&&!S.zr[cid]){S.zr[cid]=1;upRow(AW.tC,cid,{['unread'+side]:0}).then(r=>{S.raw[cid]=r;S.zr[cid]=0;S.cs='';loadChats()},()=>{S.zr[cid]=0})}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){markRead();if(S.st==='on'){loadChats();if(S.cid)loadMsgs(S.cid)}}});
+
+function paintMsgs(){
+  const box=$('#msgs'),L=S.mg[S.cid]||[];
+  const atBottom=S.fresh||box.scrollHeight-box.scrollTop-box.clientHeight<90;
+  let h='',last=null;
+  const by={};L.forEach(m=>by[m.id]=m);
+  L.forEach(m=>{
+    if(!last||!sameDay(last,m.at))h+=`<div class="dsep">${esc(dayLbl(m.at))}</div>`;
+    last=m.at;
+    let rp='';
+    if(m.r){const q=by[m.r];rp=`<div class="rp" data-id="${esc(m.r)}" onclick="goMsg(this.dataset.id)"><b>${q?(q.mine?'تو':esc(chName())):'پیام'}</b><span>${q?esc(q.x):'پیام حذف شده است'}</span></div>`}
+    const tk=m.mine?(m.pend?ic('check'):ic(m.read?'check2':'check',m.read?'rd':'')):'';
+    h+=`<div class="m ${m.mine?'me':'th'}" id="m_${esc(m.id)}" data-id="${esc(m.id)}" oncontextmenu="msgMenu(event,this.dataset.id)">${rp}<div class="tx" dir="auto">${linkify(esc(m.x))}</div><div class="mt">${m.pn?ic('pin'):''}<span>${esc(tmF(m.at))}</span>${tk}<button class="mb" onclick="msgMenu(event,this.closest('.m').dataset.id)" title="گزینه‌ها" aria-label="گزینه‌ها">${ic('more')}</button></div></div>`;
+  });
+  box.innerHTML=h;
+  if(atBottom)box.scrollTop=box.scrollHeight;
+  S.fresh=0;
+}
+const chName=()=>{const c=S.chats.find(x=>x.id===S.cid);return c?c.n:'کاربر'};
+function goMsg(id){const e=document.getElementById('m_'+id);if(!e)return toast('پیام پیدا نشد');e.scrollIntoView({block:'center',behavior:'smooth'});e.classList.remove('flash');void e.offsetWidth;e.classList.add('flash')}
+function paintPin(){
+  const b=$('#pnb'),L=(S.mg[S.cid]||[]).filter(m=>m.pn),m=L[L.length-1];
+  if(!m){b.classList.add('hidden');b.innerHTML='';b.dataset.id='';return}
+  b.dataset.id=m.id;b.classList.remove('hidden');b.innerHTML=ic('pin')+`<span>${esc(m.x)}</span>`+(L.length>1?`<small class="mu">${L.length.toLocaleString('fa-IR')} سنجاق</small>`:'');
+}
+function goPin(){const id=$('#pnb').dataset.id;id&&goMsg(id)}
+function paintRep(){
+  const b=$('#rb');
+  if(!S.rep){b.classList.add('hidden');b.innerHTML='';return}
+  const m=(S.mg[S.cid]||[]).find(x=>x.id===S.rep);
+  if(!m){S.rep=null;return paintRep()}
+  b.classList.remove('hidden');
+  b.innerHTML=ic('reply')+`<div class="rp"><b>${m.mine?'تو':esc(chName())}</b><span>${esc(m.x)}</span></div><button class="ib" onclick="setRep(null)" title="لغو پاسخ" aria-label="لغو پاسخ">${ic('x')}</button>`;
+}
+function setRep(id){S.rep=id;paintRep();if(id){const t=$('#tx');t&&t.focus()}}
+
+/* ---------- ارسال ---------- */
+function onTx(){const t=$('#tx');t.style.height='auto';t.style.height=Math.min(t.scrollHeight,120)+'px';if(S.cid)S.dr[S.cid]=t.value}
+function onTxKey(e){e.stopPropagation();if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&!matchMedia('(pointer:coarse)').matches){e.preventDefault();if(!e.repeat)send()}}
+
+function send(){
+  const t=$('#tx'),text=t.value.trim(),cid=S.cid;
+  if(!text||!cid)return;
+  if(!S.raw[cid])return toast('گفتگو آماده نیست؛ دوباره باز کن');
+  const rep=S.rep,tmp={id:'t'+Date.now()+Math.random().toString(36).slice(2,6),mine:true,from:S.uid,x:text,at:new Date(),pend:true,rb:false,read:false,r:rep||null,pn:false};
+  (S.mg[cid]=S.mg[cid]||[]).push(tmp);
+  t.value='';S.dr[cid]='';onTx();S.rep=null;paintRep();S.fresh=1;paintMsgs();
+  S.qs[cid]=(S.qs[cid]||Promise.resolve()).then(async()=>{
+    let row;
+    try{
+      row=await mkRow(AW.tM,Appwrite.ID.unique(),{chatId:cid,fromId:S.uid,text:text.slice(0,4000),replyTo:rep||null,pinned:false,readByOther:false},[Appwrite.Permission.delete(Appwrite.Role.user(S.uid))]);
+    }catch(e){
+      const L=S.mg[cid]||[],k=L.findIndex(m=>m.id===tmp.id);if(k>=0)L.splice(k,1);
+      if(S.cid===cid){paintMsgs();if(!$('#tx').value){$('#tx').value=text;onTx()}}
+      toast('ارسال ناموفق بود: '+awErr(e));return;
+    }
+    const L=S.mg[cid]||[],k=L.findIndex(m=>m.id===tmp.id),real=mapMsg(row);
+    if(L.some(m=>m.id===real.id)){if(k>=0)L.splice(k,1)}else if(k>=0)L[k]=real;
+    if(S.cid===cid){paintMsgs();paintPin()}
+    try{
+      const r0=S.raw[cid],side=r0.memberA===S.uid?'A':'B',o=side==='A'?'B':'A';
+      S.raw[cid]=await upRow(AW.tC,cid,{last:text.slice(0,80),lastAt:new Date().toISOString(),['unread'+o]:(r0['unread'+o]||0)+1});
+      S.cs='';loadChats();
+    }catch(e){toast('پیام رفت ولی فهرست گفتگو به‌روز نشد: '+awErr(e))}
+  });
+}
+
+/* ---------- منوی پیام ---------- */
+function mnX(){const m=$('#mn');if(m)m.remove()}
+function msgMenu(e,id){
+  e.preventDefault();e.stopPropagation();mnX();
+  const m=(S.mg[S.cid]||[]).find(x=>x.id===id);if(!m)return;
+  const d=document.createElement('div');d.id='mn';
+  d.innerHTML=`<button data-a="rep">${ic('reply')}پاسخ</button><button data-a="cp">${ic('copy')}کپی متن</button><button data-a="pin">${ic('pin')}${m.pn?'برداشتن سنجاق':'سنجاق'}</button>`+(m.mine?`<button data-a="del" class="dg">${ic('trash')}حذف</button>`:'');
+  document.body.append(d);
+  d.onclick=ev=>{const b=ev.target.closest('button');if(!b)return;mnX();msgAct(b.dataset.a,id)};
+  let x,y;
+  if(e.type==='contextmenu'){x=e.clientX;y=e.clientY}else{const r=(e.currentTarget||e.target).getBoundingClientRect();x=r.left;y=r.bottom}
+  const w=d.offsetWidth,h=d.offsetHeight;
+  x=Math.max(8,Math.min(x,innerWidth-w-8));y=Math.max(8,Math.min(y,innerHeight-h-8));
+  d.style.left=x+'px';d.style.top=y+'px';
+}
+document.addEventListener('click',e=>{if(!e.target.closest('#mn'))mnX()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){mnX();const a=$('#acc');if(a)a.remove()}});
+addEventListener('resize',mnX);
+
+function msgAct(a,id){
+  const m=(S.mg[S.cid]||[]).find(x=>x.id===id);if(!m)return;
+  if(a==='rep')setRep(id);
+  else if(a==='cp'){navigator.clipboard&&navigator.clipboard.writeText(m.x).then(()=>toast('کپی شد'),()=>toast('کپی نشد'))}
+  else if(a==='pin'){const v=!m.pn;m.pn=v;paintMsgs();paintPin();upRow(AW.tM,id,{pinned:v}).catch(()=>{m.pn=!v;paintMsgs();paintPin();toast('تغییر سنجاق انجام نشد')})}
+  else if(a==='del')dlg('این پیام حذف شود؟','حذف',()=>{
+    const cid=S.cid;
+    delRow(AW.tM,id).then(()=>{const L=S.mg[cid]||[],k=L.findIndex(x=>x.id===id);if(k>=0)L.splice(k,1);if(S.cid===cid){paintMsgs();paintPin()}loadMsgs(cid)}).catch(()=>toast('حذف انجام نشد؛ فقط پیام‌های خودت را می‌شود حذف کرد'));
+    if(S.rep===id)setRep(null);
+  },1);
+}
+
+/* ---------- حساب: نام، رمز، خروج، نصب ---------- */
+const isIos=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone=()=>matchMedia('(display-mode:standalone)').matches||navigator.standalone;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();S.ip=e});
+function openAcc(){
+  if(!S.me||$('#acc'))return;
+  const o=document.createElement('div');o.className='ov';o.id='acc';
+  const inst=isStandalone()?'':S.ip?`<button class="sec" onclick="installApp()">نصب برنامه روی این دستگاه</button>`:isIos?`<p class="mu" style="font-size:13px;margin:0">برای نصب روی iPhone: دکمهٔ Share ← Add to Home Screen</p>`:'';
+  o.innerHTML=`<div class="md"><h3>حساب لینک</h3><small class="mu" dir="ltr" style="text-align:right">${esc(S.me.email)}</small>
+  <div class="fld"><label for="aaN">نام نمایشی</label><input id="aaN" maxlength="40" value="${esc(S.me.name)}" onkeydown="event.stopPropagation();if(event.key==='Enter')saveName()"></div>
+  <button class="pri" onclick="saveName()">ذخیرهٔ نام</button><hr>
+  ${pwF('aaC','رمز فعلی','current-password')}${pwF('aaP','رمز تازه (دست‌کم ۸ نویسه)','new-password')}${pwF('aaQ','تکرار رمز تازه','new-password')}
+  <button class="pri" onclick="savePw()">تغییر رمز</button><hr>${inst}
+  <button class="sec" style="color:var(--rd)" onclick="logout()">خروج از حساب</button>
+  <button class="sec" onclick="document.getElementById('acc').remove()">بستن</button></div>`;
+  o.onclick=e=>{if(e.target===o)o.remove()};
+  document.body.append(o);
+}
+async function installApp(){const p=S.ip;if(!p)return;p.prompt();try{await p.userChoice}catch(e){}S.ip=null;const a=$('#acc');if(a)a.remove()}
+
+async function saveName(){
+  const v=(($('#aaN')||{}).value||'').trim();
+  if(!v)return toast('نام را بنویس');if(v===S.me.name)return toast('نام تغییری نکرده است');
+  try{
+    await S.au.updateName({name:v});
+    await upRow(AW.tU,S.uid,{name:v});
+    S.me.name=v;
+    await Promise.all(S.chats.map(c=>{const raw=S.raw[c.id];if(!raw)return null;const side=raw.memberA===S.uid?'A':'B';return upRow(AW.tC,c.id,{['name'+side]:v})}));
+    toast('نام تغییر کرد ✓');loadChats();
+  }catch(e){toast('تغییر نام ناموفق بود: '+awErr(e))}
+}
+async function savePw(){
+  const g=i=>(document.getElementById(i)||{}).value||'',c=g('aaC'),p=g('aaP'),q=g('aaQ');
+  if(!c||!p||!q)return toast('همهٔ کادرهای رمز را پر کن');
+  if(p.length<8)return toast('رمز تازه دست‌کم ۸ نویسه باشد');
+  if(p!==q)return toast('تکرار رمز با رمز تازه یکی نیست');
+  if(p===c)return toast('رمز تازه با رمز فعلی یکی است');
+  try{await S.au.updatePassword({password:p,oldPassword:c});['aaC','aaP','aaQ'].forEach(i=>{const e=document.getElementById(i);if(e)e.value=''});toast('رمز تغییر کرد ✓')}
+  catch(e){toast(e&&e.type==='user_invalid_credentials'?'رمز فعلی اشتباه است':'تغییر رمز ناموفق بود: '+awErr(e))}
+}
+function logout(){dlg('از حساب لینک خارج شوم؟','خروج',()=>{S.au.deleteSession({sessionId:'current'}).catch(()=>{}).then(onOut)},1)}
+
+/* ---------- راه‌اندازی ---------- */
+$('#bAcc').innerHTML=ic('user');
+$('#bBack').innerHTML=ic('back');
+$('#bSend').innerHTML=ic('send','flip');
+function netUi(){$('#off').classList.toggle('hidden',navigator.onLine)}
+addEventListener('online',netUi);addEventListener('offline',netUi);netUi();
+if('serviceWorker' in navigator)addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})});
+boot();
+</script>
+</body>
+</html>
