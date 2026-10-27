@@ -433,12 +433,52 @@ html.kb-open .ms .m_cp{padding-bottom:8px}
 .m_b>.m_swr.go{background:var(--ac);color:#fff}
 .m_b.swb{transition:transform .22s cubic-bezier(.22,1,.36,1)}
 </style>
+<style>
+.cache-start{min-height:100%;display:grid;place-items:center;padding:24px;background:var(--bg);color:var(--tx)}
+.cache-start-card{width:min(440px,100%);padding:24px;border:1px solid var(--bd);border-radius:18px;background:var(--cd);box-shadow:0 10px 36px #0002}
+.cache-start-card h1{margin:0 0 10px;font-size:1.35rem}
+.cache-start-card p{line-height:1.9;color:var(--mu)}
+.cache-start-card button{width:100%;justify-content:center;padding:11px 14px;margin-top:8px;border-radius:11px}
+.cache-start-card .ok{background:var(--ac);color:#fff}
+.cache-note{font-size:.88rem}
+@media(max-width:700px){
+  html,body{width:100%;height:100%;overflow:hidden}
+  #root{height:var(--vvh,100dvh);min-height:0}
+  .cache-start{min-height:100%;padding:16px}
+  .cache-start-card{padding:20px 16px}
+  .cache-start-card button{min-height:48px}
+  .ms{font-size:16px}
+  .m_lgw{min-height:0;align-items:center;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .m_lg{width:min(430px,100%);margin:auto;padding:20px 16px;gap:12px}
+  .m_lg input{width:100%;min-height:48px;font-size:16px!important;padding:10px 12px}
+  .m_lg button{min-height:46px}
+  .m_lg .lk{min-height:44px}
+  .m_tb{padding-inline:10px;gap:8px}
+  .m_tb>input{min-width:0}
+  .m_ch{padding-inline:8px}
+  .m_cr{padding-inline:8px}
+  .m_cr button{min-width:42px;min-height:42px}
+  .m_ti textarea{min-height:40px;max-height:120px}
+  .m_bn button{min-height:48px}
+  .m_cm .m_cmb{max-height:calc(var(--vvh,100dvh) - 24px);overflow-y:auto}
+  :root.kb-open .m_lgw{align-items:flex-start;padding-top:12px;padding-bottom:12px}
+  :root.kb-open .m_lg{margin:0 auto}
+  :root.kb-open .m_mg{overscroll-behavior:contain}
+}
+@media(max-width:700px) and (hover:none){
+  button:hover:not(:disabled){filter:none}
+  button:active:not(:disabled){filter:brightness(.92)}
+}
+</style>
 </head>
 <body><main id="root"></main><div id="ts" hidden></div>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pd=s=>String(s).replace(/[0-9]/g,c=>'۰۱۲۳۴۵۶۷۸۹'[+c]);
+const SE={theme:'auto'};
+try{SE.theme=localStorage.getItem('link-theme')||'auto';if(SE.theme!=='auto')document.documentElement.dataset.theme=SE.theme}catch(e){}
+function setSE(k,v){if(k!=='theme')return;SE.theme=v;try{localStorage.setItem('link-theme',v)}catch(e){}if(v==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=v}
 const _icons={};
 function icAdd(name,svg){_icons[name]=svg}
 function ico(name,attrs=''){return `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${attrs}>${_icons[name]||'<circle cx="12" cy="12" r="8"/>'}</svg>`}
@@ -447,6 +487,37 @@ let _toastTimer;
 function toast(message){const el=$('#ts');el.innerHTML=message;el.hidden=false;clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>el.hidden=true,3500)}
 function ask(message,yes,yesLabel='تأیید',noLabel='لغو'){const overlay=document.createElement('div');overlay.className='ov';overlay.innerHTML=`<div class="md"><p>${message}</p><div class="act"><button class="ok" id="yes">${yesLabel}</button><button id="no">${noLabel}</button></div></div>`;document.body.append(overlay);overlay.querySelector('#yes').onclick=()=>{overlay.remove();yes()};overlay.querySelector('#no').onclick=()=>overlay.remove()}
 function R(){const root=$('#root');if(root&&typeof msView==='function')root.innerHTML=msView()}
+const MST=(()=>{
+  const DB='link-messenger-cache-v1',FILES='files',SETTINGS='settings';
+  let dbPromise=null,rootHandle=null,savedHandle=null,mode='';
+  const open=()=>dbPromise||(dbPromise=new Promise((resolve,reject)=>{
+    const r=indexedDB.open(DB,1);
+    r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains(FILES))d.createObjectStore(FILES,{keyPath:'key'});if(!d.objectStoreNames.contains(SETTINGS))d.createObjectStore(SETTINGS,{keyPath:'key'})};
+    r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||new Error('ذخیره‌سازی محلی در دسترس نیست'));
+  }));
+  async function req(store,op,value){const d=await open();return new Promise((resolve,reject)=>{const t=d.transaction(store,op==='get'?'readonly':'readwrite'),s=t.objectStore(store),r=op==='get'?s.get(value):op==='delete'?s.delete(value):s.put(value);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||new Error('خطا در ذخیره‌سازی محلی'))})}
+  const setting=key=>req(SETTINGS,'get',key).then(x=>x&&x.value);
+  const saveSetting=(key,value)=>req(SETTINGS,'put',{key,value});
+  const parts=path=>String(path||'').split('/').filter(x=>x&&x!=='.'&&x!=='..');
+  async function dir(path,create){let h=rootHandle;if(!h)throw new Error('پوشهٔ حافظه انتخاب نشده است');for(const p of ['Messenger',...parts(path).slice(0,-1)])h=await h.getDirectoryHandle(p,{create});return h}
+  async function kGet(path){if(mode==='folder'&&rootHandle){const ps=parts(path);if(!ps.length)return null;try{const d=await dir(path,false),f=await d.getFileHandle(ps.at(-1));return await f.getFile()}catch(e){if(e.name==='NotFoundError')return null;throw e}}const x=await req(FILES,'get',String(path));return x&&x.blob||null}
+  async function kPut(path,blob){if(mode==='folder'&&rootHandle){const ps=parts(path);if(!ps.length)throw new Error('مسیر فایل نامعتبر است');const d=await dir(path,true),f=await d.getFileHandle(ps.at(-1),{create:true}),w=await f.createWritable();try{await w.write(blob);await w.close()}catch(e){try{await w.abort()}catch(_){}throw e}return}await req(FILES,'put',{key:String(path),blob})}
+  async function kDel(path){if(mode==='folder'&&rootHandle){const ps=parts(path);if(!ps.length)return;try{const d=await dir(path,false);await d.removeEntry(ps.at(-1))}catch(e){if(e.name!=='NotFoundError')throw e}return}await req(FILES,'delete',String(path))}
+  async function init(){await open();if(await setting('choice')==='device'){mode='device';return mode}const saved=await setting('root');savedHandle=saved||null;if(saved){try{const p=await saved.queryPermission({mode:'readwrite'});if(p==='granted'){rootHandle=saved;mode='folder';return mode}}catch(e){}}
+    mode='';return mode}
+  async function chooseFolder(){if(typeof window.showDirectoryPicker!=='function'||!window.isSecureContext)throw new Error('انتخاب پوشه در این مرورگر در دسترس نیست؛ از Chrome روی Android و نشانی امن یا localhost استفاده کن');const h=await window.showDirectoryPicker({mode:'readwrite',id:'link-messenger-cache'});const p=await h.requestPermission({mode:'readwrite'});if(p!=='granted')throw new Error('اجازهٔ نوشتن در پوشه داده نشد');rootHandle=savedHandle=h;mode='folder';await saveSetting('root',h);await saveSetting('choice','folder');return h.name}
+  async function reconnect(){const h=await setting('root');if(!h)throw new Error('پوشهٔ قبلی پیدا نشد؛ پوشه را دوباره انتخاب کن');const p=await h.requestPermission({mode:'readwrite'});if(p!=='granted')throw new Error('اجازهٔ دسترسی به پوشه داده نشد');rootHandle=h;mode='folder';await saveSetting('choice','folder');return h.name}
+  async function useDevice(){rootHandle=null;mode='device';await saveSetting('choice','device')}
+  async function usage(){let b=0,n=0;if(mode==='folder'&&rootHandle){async function walk(h){for await(const [name,x]of h.entries()){if(x.kind==='directory')await walk(x);else{const f=await x.getFile();b+=f.size;n++}}}try{const m=await rootHandle.getDirectoryHandle('Messenger');const c=await m.getDirectoryHandle('Cache');await walk(c)}catch(e){if(e.name!=='NotFoundError')throw e}}else{const d=await open();await new Promise((resolve,reject)=>{const r=d.transaction(FILES,'readonly').objectStore(FILES).openCursor();r.onsuccess=()=>{const c=r.result;if(!c)return resolve();const x=c.value.blob;if(String(c.value.key).startsWith('Cache/')){b+=x&&x.size||0;n++}c.continue()};r.onerror=()=>reject(r.error)})}return{o:{Cache:{b,n}}}}
+  async function clearCache(){let b=0;if(mode==='folder'&&rootHandle){try{const m=await rootHandle.getDirectoryHandle('Messenger');try{const c=await m.getDirectoryHandle('Cache');async function walk(h){for await(const [name,x]of h.entries()){if(x.kind==='directory')await walk(x);else{const f=await x.getFile();b+=f.size}}}await walk(c);await m.removeEntry('Cache',{recursive:true})}catch(e){if(e.name!=='NotFoundError')throw e}}catch(e){if(e.name!=='NotFoundError')throw e}}else{const d=await open();await new Promise((resolve,reject)=>{const t=d.transaction(FILES,'readwrite'),s=t.objectStore(FILES),r=s.openCursor();r.onsuccess=()=>{const c=r.result;if(!c)return;const x=c.value;if(String(x.key).startsWith('Cache/')){b+=x.blob&&x.blob.size||0;c.delete()}c.continue()};r.onerror=()=>reject(r.error);t.oncomplete=resolve;t.onerror=()=>reject(t.error)})}return b}
+  const fmt=b=>b<1048576?(b/1024).toFixed(0)+' KB':(b/1048576).toFixed(1)+' MB';
+  return{init,chooseFolder,reconnect,useDevice,kGet,kPut,kDel,usage,clearCache,fmt,get mode(){return mode},get folderName(){return(rootHandle||savedHandle)&&((rootHandle||savedHandle).name)||''},get supported(){return typeof window.showDirectoryPicker==='function'&&!!window.isSecureContext}};
+})();
+function cacheStart(){const e=$('#root');if(!e)return;const can=MST.supported,hasFolder=!!MST.folderName;e.innerHTML=`<section class="cache-start"><div class="cache-start-card"><h1>حافظهٔ پیام‌رسان</h1><p>برای نگه‌داری کش گفتگوها و فایل‌ها، یک پوشه در گوشی انتخاب کن. پوشه فقط برای ذخیرهٔ محلی برنامه استفاده می‌شود.</p>${hasFolder?`<button class="ok" onclick="cacheReconnect()">استفاده از پوشهٔ قبلی (${esc(MST.folderName)})</button>`:''}${can?'<button class="ok" onclick="cacheChoose()">انتخاب پوشه در گوشی</button>':''}<button onclick="cacheDevice()">ادامه با حافظهٔ داخلی مرورگر</button><p class="cache-note">${can?'انتخاب پوشه در Chrome اندروید و مرورگرهای پشتیبان، از طریق پنجرهٔ خود مرورگر انجام می‌شود.':'این مرورگر انتخاب پوشه را پشتیبانی نمی‌کند؛ حافظهٔ داخلی مرورگر استفاده می‌شود. در iPhone/iPad معمولاً باید از حافظهٔ داخلی استفاده کرد.'} انتخاب «حافظهٔ داخلی» به معنی ذخیرهٔ محلی در مرورگر است، نه ارسال به سرور.</p></div></section>`}
+async function cacheStartApp(){MS.p='link';R();await lnkBoot()}
+async function cacheChoose(){try{await MST.chooseFolder();await cacheStartApp()}catch(e){if(e.name!=='AbortError')toast(esc(e.message||'انتخاب پوشه انجام نشد'))}}
+async function cacheReconnect(){try{await MST.reconnect();await cacheStartApp()}catch(e){toast(esc(e.message||'دسترسی به پوشه برقرار نشد'));cacheStart()}}
+async function cacheDevice(){try{await MST.useDevice();await cacheStartApp()}catch(e){toast(esc(e.message||'ذخیره‌سازی در دسترس نیست'))}}
 /* ===== v38.8: کلاس درس ← پیام‌رسان (فقط رابط کاربری؛ بدون ورود و ارسال واقعی — اتصال شاد در پرامپت ۱۲۴) =====
    جداسازی UI از انتقال: رابط فقط از MSGP[i].ad می‌خواند. آداپتور آینده: {data():{cv,mg}, send(o):Promise, act(type,o)}.
    cv=[{id,n,t:p|g|c|o,lm,tm,un,pn}]  mg[id]=[{id,o,x,tm,st:sent|read|prog|err,r,pn,a:{k:image|video|file,n,s,u,pr}}]
@@ -1803,9 +1874,7 @@ function msTitle(){if(MS._t0===undefined)MS._t0=document.title;const n=(LNK.cv||
 document.addEventListener('visibilitychange',msTitle);
 {const f=lnkOnChats;lnkOnChats=function(rs){const pr={};(LNK.cv||[]).forEach(c=>pr[c.id]=c.un||0);const had=LNK._nfOn,r=f.apply(this,arguments);if(had)(LNK.cv||[]).forEach(c=>{if((c.un||0)>(pr[c.id]||0)&&(document.hidden||MS.p!='link'||MS.cid!=c.id))msNotify(c)});LNK._nfOn=1;msTitle();return r}}
 
-MS.p='link';
-R();
-lnkBoot();
+MST.init().then(()=>{if(MST.mode)cacheStartApp();else cacheStart()}).catch(e=>{cacheStart();toast(esc(e.message||'حافظهٔ محلی در دسترس نیست'))});
 </script><script>
 (function(){var v=window.visualViewport,r=document.documentElement;
 function up(){var h=v?v.height:innerHeight,t=v?v.offsetTop:0,m=document.getElementById('msMg'),pb=m?m.clientHeight:0,pt=m?m.scrollTop:0;
