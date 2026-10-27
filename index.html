@@ -426,6 +426,12 @@ html,body{position:fixed;inset:0;width:100%;overflow:hidden;overscroll-behavior:
 #root{position:relative;top:var(--kb-t,0px);height:var(--kb-h,100dvh)}
 .ms .m_cp{padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
 html.kb-open .ms .m_cp{padding-bottom:8px}
+/* لینک: کشیدن پیام از راست به چپ = پاسخ به پیام (مثل تلگرام) */
+.ms .m_mg .m_b{touch-action:pan-y}
+.m_b>.m_swr{position:absolute;left:100%;top:50%;margin:-15px 0 0 8px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--ac) 22%,transparent);color:var(--ac);opacity:0;transform:scale(.4);pointer-events:none;transition:background .15s}
+.m_b>.m_swr svg{width:17px;height:17px;fill:currentColor;stroke:none}
+.m_b>.m_swr.go{background:var(--ac);color:#fff}
+.m_b.swb{transition:transform .22s cubic-bezier(.22,1,.36,1)}
 </style>
 </head>
 <body><main id="root"></main><div id="ts" hidden></div>
@@ -814,7 +820,7 @@ if(v.duration===Infinity)await new Promise(ok=>{v.ontimeupdate=()=>{v.ontimeupda
 await new Promise(ok=>{v.onseeked=()=>{v.onseeked=null;ok()};v.currentTime=s});
 ac=new AC();const sc=ac.createMediaElementSource(v),ds=ac.createMediaStreamDestination();sc.connect(ds);try{await ac.resume()}catch(x){}
 const cs=(v.captureStream||v.mozCaptureStream).call(v),st=new MediaStream([...cs.getVideoTracks(),...ds.stream.getAudioTracks()]),mt=vvPick();let rec;
-try{rec=new MediaRecorder(st,Object.assign({videoBitsPerSecond:440000,audioBitsPerSecond:32000},mt?{mimeType:mt}:{}))}catch(x){rec=new MediaRecorder(st)}
+try{rec=new MediaRecorder(st,Object.assign({videoBitsPerSecond:440000,audioBitsPerSecond:128000},mt?{mimeType:mt}:{}))}catch(x){rec=new MediaRecorder(st)}
 const ch=[],fin=new Promise(ok=>{rec.onstop=ok});rec.ondataavailable=x=>{x.data&&x.data.size&&ch.push(x.data)};rec.start(500);await v.play();
 await new Promise(ok=>{const t0=performance.now(),iv=setInterval(()=>{if(v.currentTime>=e-.02||v.ended||performance.now()-t0>(e-s+4)*1000){clearInterval(iv);ok()}},40)});
 rec.stop();await fin;const out=new Blob(ch,{type:String(rec.mimeType||mt||'video/webm').split(';')[0]});if(!out.size)throw 0;return out}
@@ -828,7 +834,7 @@ VV.st='req';const tk=++VV.tk,cid=MS.cid;let stm;
 try{stm=await msmGet('video','av',()=>{if(VV.stm===stm&&(VV.st=='rec'||VV.st=='lock'||VV.st=='pause'))vvStop('prev')})}catch(e){if(VV.tk==tk&&VV.st=='req'){VV.st='';vvErr(e)}return}
 if(VV.tk!=tk||VV.st!='req'||MS.cid!=cid||!$('#msCp')||(!lk&&!VV.hold)){if(VV.tk==tk){msmFree('video');VV.st='';if(MS.cid==cid&&$('#msCp')&&!lk&&!VV.hold){toast('دوربین آماده است؛ برای ضبط، دکمه را نگه دار');msmUi()}}return}
 const mt=vvPick();let rec;
-try{rec=new MediaRecorder(stm,Object.assign({videoBitsPerSecond:440000,audioBitsPerSecond:32000},mt?{mimeType:mt}:{}))}catch(e){try{rec=new MediaRecorder(stm)}catch(x){msmFree('video');VV.st='';return toast('ضبط ویدیو شروع نشد')}}
+try{rec=new MediaRecorder(stm,Object.assign({videoBitsPerSecond:440000,audioBitsPerSecond:128000},mt?{mimeType:mt}:{}))}catch(e){try{rec=new MediaRecorder(stm)}catch(x){msmFree('video');VV.st='';return toast('ضبط ویدیو شروع نشد')}}
 VV.stm=stm;VV.rec=rec;VV.ch=[];VV.mime=rec.mimeType||mt||'video/webm';VV.cid=cid;VV.mode='';
 rec.ondataavailable=e=>{if(e.data&&e.data.size)VV.ch.push(e.data)};rec.onstop=()=>vvDone(rec);
 try{rec.start(1000)}catch(e){vvRel();return toast('ضبط ویدیو شروع نشد')}
@@ -1812,4 +1818,18 @@ addEventListener('resize',up);addEventListener('orientationchange',function(){se
 document.addEventListener('focusin',function(){up();setTimeout(up,120);setTimeout(up,400)});
 document.addEventListener('focusout',function(){setTimeout(up,120);setTimeout(up,400)});
 up()})();
+</script><script>
+(function(){var T=62,S=null,block=0;
+function ok(t){return t&&t.closest&&!t.closest('video,audio,input,textarea,select,.m_vtw,.m_wf,.m_mvv,.m_pp,.m_mn')}
+document.addEventListener('touchstart',function(e){S=null;if(e.touches.length!=1||(window.MS&&MS.sel))return;var t=e.target;if(!ok(t))return;var b=t.closest('#msMg .m_b');if(!b||!b.dataset.m)return;var q=e.touches[0];S={b:b,x:q.clientX,y:q.clientY,l:0,d:0,g:0,i:null}},{passive:true});
+document.addEventListener('touchmove',function(e){if(!S)return;var q=e.touches[0],dx=q.clientX-S.x,dy=q.clientY-S.y;
+if(!S.l){if(Math.abs(dx)<8&&Math.abs(dy)<8)return;if(dx<0&&Math.abs(dx)>Math.abs(dy)*1.2){S.l=1;S.b.classList.remove('swb');var i=document.createElement('span');i.className='m_swr';i.innerHTML=(typeof ico=='function')?ico('ms-reply'):'';S.b.appendChild(i);S.i=i}else{S=null;return}}
+if(e.cancelable)e.preventDefault();var d=Math.min(-dx,T*1.6);if(d<0)d=0;var v=d>T?T+(d-T)*.35:d;S.d=d;S.b.style.transform='translateX('+(-v)+'px)';var p=Math.min(1,d/T);S.i.style.opacity=p;S.i.style.transform='scale('+(.4+.6*p)+')';
+if(d>=T&&!S.g){S.g=1;S.i.classList.add('go');try{navigator.vibrate&&navigator.vibrate(12)}catch(x){}}else if(d<T&&S.g){S.g=0;S.i.classList.remove('go')}},{passive:false});
+function end(c){if(!S)return;var s=S;S=null;if(!s.l)return;block=Date.now()+400;var b=s.b,id=b.dataset.m,go=!c&&s.d>=T;b.classList.add('swb');b.style.transform='';if(s.i){s.i.style.opacity=0}
+setTimeout(function(){b.classList.remove('swb');if(s.i&&s.i.parentNode)s.i.remove()},260);
+if(go&&typeof msAct=='function')msAct('rep',id)}
+document.addEventListener('touchend',function(){end(0)},{passive:true});document.addEventListener('touchcancel',function(){end(1)},{passive:true});
+document.addEventListener('click',function(e){if(Date.now()<block){e.stopPropagation();e.preventDefault()}},true);
+})();
 </script></body></html>
