@@ -1769,7 +1769,7 @@ function lnkPlay(cid,id){
   return lnkBlob(a.fid,a.mm).then(u=>{a.u=u;delete a.ld},()=>{delete a.ld;a.er=1;toast('دریافت فایل ناموفق بود؛ اینترنت را بررسی کن')}).then(()=>{
     if(!(MS.p=='link'&&MS.cid==cid))return;msUpMg();
     if(a.k=='video'&&a.rd&&MS._rdPlay==id){const v=document.querySelector('#msMg [data-m="'+id+'"] video');if(v)msRdLoaded(v,id)}
-    else if(a.k=='video'&&a.u&&!a.rd&&!(typeof MV!='undefined'&&MV.on)){const v=document.querySelector('#msMg [data-m="'+id+'"] video');v&&v.play().catch(()=>{})}
+    else if(a.k=='video'&&!a.rd&&MS._inlinePlay==id){delete MS._inlinePlay;if(a.u)msInlineVid(id)}
   });
 }
 async function lnkFull(cid,id){const m=(LNK.mg[cid]||[]).find(x=>x.id==id),a=m&&m.a;if(!a||!a.fid)return'';await lnkBlob(a.fid,a.mm);return LNK.bb[a.fid]?URL.createObjectURL(LNK.bb[a.fid]):''}
