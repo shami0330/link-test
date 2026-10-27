@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#3390ec">
 <title>لینک — پیام‌رسان</title>
 <style>
@@ -424,7 +424,7 @@ html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
 
 
 /* لینک: نوار تایپ بالای کیبورد مثل تلگرام — هدر و بالای برنامه ثابت می‌مانند */
-html,body{position:fixed;inset:0;width:100%;overflow:hidden;overscroll-behavior:none}
+html,body{position:fixed;inset:0;width:100%;overflow:hidden;overscroll-behavior:none;touch-action:pan-x pan-y}
 #root{position:relative;top:var(--kb-t,0px);height:var(--kb-h,100dvh)}
 .ms .m_cp{padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
 html.kb-open .ms .m_cp{padding-bottom:8px}
@@ -559,6 +559,7 @@ icAdd('ms-link','<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><p
 icAdd('ms-call','<path class="f" d="M6.6 3.5h3l1.4 4-2 1.4a11 11 0 0 0 5.1 5.1l1.4-2 4 1.4v3a2 2 0 0 1-2.2 2A15.5 15.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/>',[]);
 icAdd('ms-cont','<rect class="f" x="5" y="3.5" width="14" height="17" rx="2"/><circle cx="12" cy="10" r="2.4"/><path d="M8.2 16.5c.5-2 2-3 3.8-3s3.3 1 3.8 3M3 8h2M3 12h2M3 16h2"/>',[]);
 icAdd('ms-edit','<path class="f" d="M5 19l.8-4L15.5 5.3a1.8 1.8 0 0 1 2.5 0l.7.7a1.8 1.8 0 0 1 0 2.5L9 18.2z"/><path d="M13.5 7.5l3 3"/>',[]);
+icAdd('ms-clk','<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/>',[]);
 icAdd('trash','<path d="M4.5 7h15M10 11v6M14 11v6M6.5 7l.8 12a2 2 0 0 0 2 1.8h5.4a2 2 0 0 0 2-1.8l.8-12M9 7V4.8a1.3 1.3 0 0 1 1.3-1.3h3.4A1.3 1.3 0 0 1 15 4.8V7"/>',[]);
 icAdd('ms-up','<path d="M6 14l6-6 6 6"/>',[]);
 icAdd('ms-dn','<path d="M6 10l6 6 6-6"/>',[]);
@@ -603,13 +604,14 @@ if(a.k=='voice')return `<div class="m_vw">${msVoH(a,m)}${dl}</div>${pr}`;
 if(a.k=='file')return `<div class="m_at">${ico('ms-file')}<span><b>${esc(a.n)}</b><small>${esc(a.s||'')}</small></span>${dl}</div>${a.aud?`<div class="m_vw">${msVoH(a,m)}</div>`:''}${pr}`;
 const vw=m.st!='prog'&&m.st!='err',mk=vw?` onclick="${a.k=='video'?'msInlineVidClk':'msMvClk'}(event,'${m.id}')"`:'',mq=vw?' m_mo':'';
 if(a.k=='video'&&a.rd)return msRdH(a,m)+(m.st=='prog'?'':pr);const rg=msRing(a,m),bz=m.st=='prog'||m.st=='err'||(!a.u&&a.ld),cl=a.k=='video'&&!a.u&&a.fid&&m.st!='prog'&&m.st!='err';
-return a.k=='video'?`<div class="m_am m_vd${cl?' cl':''}${mq}"${mk} data-f="${esc(a.fid||'')}">${a.u?`<video src="${esc(a.u)}#t=0.1"${a.p?` poster="${esc(a.p)}"`:''} playsinline preload="metadata" muted onplay="msInlineVidUi(this)" onpause="msInlineVidUi(this)" onended="msInlineVidUi(this)" onerror="msVidErr()"></video>`:a.p?`<img src="${esc(a.p)}">`:ico('ms-vid')}${bz?'':`<i class="m_pl" title="پخش">${ico('ms-play')}</i>`}${rg}${!a.u&&a.s?`<small class="m_dls">${esc(a.s)}</small>`:''}</div>`:`<div class="m_am${a.u?' ph':''}${mq}"${mk}>${a.u?`<img src="${esc(a.u)}" onload="msImgLd(this)">`:ico('ms-img')}${rg}</div>`};
+return a.k=='video'?`<div class="m_am m_vd${cl?' cl':''}${mq}"${mk} data-f="${esc(a.fid||'')}">${a.u?`<video src="${esc(a.u)}#t=0.1"${a.p?` poster="${esc(a.p)}"`:''} playsinline preload="metadata" muted onplay="msInlineVidUi(this)" onpause="msInlineVidUi(this)" onended="msInlineVidEnd(this)" onerror="msVidErr()"></video>`:a.p?`<img src="${esc(a.p)}">`:ico('ms-vid')}${bz?'':`<i class="m_pl" title="پخش">${ico('ms-play')}</i>`}${rg}${!a.u&&a.s?`<small class="m_dls">${esc(a.s)}</small>`:''}</div>`:`<div class="m_am${a.u?' ph':''}${mq}"${mk}>${a.u?`<img src="${esc(a.u)}" onload="msImgLd(this)">`:ico('ms-img')}${rg}</div>`};
 function msInlineVidClk(e,id){e.stopPropagation();msInlineVid(id,e.currentTarget)}
 function msInlineVidUi(v){const box=v.closest('.m_am');if(!box)return;box.classList.toggle('playing',!v.paused&&!v.ended);const b=box.querySelector('.m_pl');if(b){b.innerHTML=ico(v.paused||v.ended?'ms-play':'ms-pause');b.title=v.paused||v.ended?'پخش':'مکث'}}
+function msInlineVidEnd(v){try{v.pause();v.currentTime=0}catch(e){}msInlineVidUi(v)}
 function msInlineVid(id,box){const m=msMs().find(x=>x.id==id),a=m&&m.a;if(!a||a.k!='video')return;box=box||document.querySelector('#msMg [data-m="'+id+'"] .m_am');if(!a.u){if(a.fid){MS._inlinePlay=id;msPlay(id)}else toast('این ویدیو در دسترس نیست');return}const v=box&&box.querySelector('video');if(!v)return;document.querySelectorAll('#msMg .m_am video,#msMg .m_rv video').forEach(x=>{if(x!==v&&!x.paused){x.pause();msInlineVidUi(x)}});if(v.paused||v.ended){v.muted=false;const p=v.play();if(p&&p.then)p.then(()=>msInlineVidUi(v)).catch(()=>{msInlineVidUi(v);toast('پخش ویدیوپیام ممکن نشد')});else msInlineVidUi(v)}else v.pause()}
 function msPlay(id){const a=msAd();a&&a.play?a.play(MS.cid,id):toast('این ویدیو نمایشی است و پخش واقعی ندارد')}
 function msVidErr(){toast('این قالب ویدیو در مرورگر پخش نمی‌شود؛ با دکمهٔ دانلود ذخیره‌اش کن')}
-const msBbH=m=>{const rp=m.r&&msMs().find(z=>z.id==m.r),ck=m.st=='read'?`<span class="rd">${ico('ms-dc')}</span>`:m.st=='sent'?ico('ms-ck'):m.st=='pend'?`<span class="pd">${ico('ms-clk')}</span>`:'',sl=MS.sel&&MS.sel.includes(m.id);
+const msBbH=m=>{const rp=m.r&&msMs().find(z=>z.id==m.r),ck=m.st=='read'?`<span class="rd">${ico('ms-dc')}</span>`:m.st=='sent'?ico('ms-ck'):m.st=='pend'||m.st=='prog'?`<span class="pd">${ico('ms-clk')}</span>`:'',sl=MS.sel&&MS.sel.includes(m.id);
 return `<div class="m_b ${m.o?'o':'i'}${sl?' sl':''}${msMo(m)?' mo':''}${m._new?' snd':''}${m._tk?' tk':''}" data-m="${m.id}" onclick="msClk('${m.id}')">${MS.sel?`<i class="m_mk">${sl?ico('ms-ck'):''}</i>`:''}<div class="m_bb">${m.sn?`<div class="m_sn">${esc(m.sn)}</div>`:''}${rp?`<div class="m_rq" onclick="event.stopPropagation();msGoMsg('${m.r}')" title="رفتن به پیام اصلی">${esc(rp.x||(rp.a&&rp.a.n)||'')}</div>`:m.r?`<div class="m_rq" onclick="event.stopPropagation();msGoMsg('${m.r}')" title="رفتن به پیام اصلی">پاسخ به پیام قدیمی‌تر</div>`:''}${m.a?msAtH(m.a,m):''}${m.x?`<div>${msHl(m.x)}</div>`:''}<div class="m_mt">${m.pn?ico('ms-pin'):''}${m.st=='err'?`<span class="er">${ico('ms-x')}ناموفق <a onclick="event.stopPropagation();msRetry()">تلاش دوباره</a></span>`:''}<span>${esc(m.tm||'')}</span>${m.o?ck:''}</div></div><button class="m_mm" onclick="event.stopPropagation();msMenu('${m.id}',this)" title="گزینه‌ها">${ico('ms-more')}</button></div>`};
 const msMgH=()=>{if(!msCv())return msEmH('گفتگویی انتخاب نشده','یک گفتگو را از فهرست سمت چپ باز کن.');const a=msMs(),ad=msAd();if(!a.length&&ad&&ad.busy&&ad.busy(MS.cid))return msEmH('در حال بارگذاری پیام‌ها…','');return a.length?(ad&&ad.more&&ad.more(MS.cid)?'<button class="m_ol" onclick="msOlder()">پیام‌های قدیمی‌تر</button>':'')+a.map(msBbH).join(''):msEmH('هنوز پیامی نیست','')};
 const msChH=()=>{const c=msCv();if(!c)return'';const s=MS.sel;
@@ -763,7 +765,7 @@ const MSM={t:{a:null,v:null},src:[],ow:null,pn:null,ps:{a:'none',v:'none'},iv:0,
 /* وضعیت هر نوع: none (هنوز اجازه خواسته نشده) | req | ready | denied | na (در دسترس نیست) | lost (قطع شد)؛ «ready» فقط وقتی که Track واقعاً زنده باشد */
 const msmSt=k=>{k=k||'a';const t=MSM.t[k],s=MSM.ps[k];return s=='ready'?(t&&t.readyState=='live'?'ready':'lost'):s};
 const msmTip=()=>{const s=msmSt('a');return 'ضبط پیام صوتی'+(s=='ready'?' — میکروفون آماده است':s=='req'?' — در انتظار اجازهٔ میکروفون…':s=='denied'?' — اجازهٔ میکروفون داده نشده است':s=='na'?' — میکروفون در دسترس نیست':s=='lost'?' — میکروفون قطع شد؛ با ضبط بعدی دوباره باز می‌شود':' — اجازهٔ میکروفون هنگام اولین ضبط پرسیده می‌شود')};
-const msmIn=()=>!!(v&&v.tab=='enter'&&v.et=='msg');
+const msmIn=()=>!!(MS.p=='link'&&MS.cid&&$('#msCp'));
 function msmUi(){if(!$('#msCp')||VR.hold||VV.st||vrRec()||VR.st=='stop'||VR.st=='req')return;try{msUpCp()}catch(e){}}
 function msmDrop(k,st){const t=MSM.t[k];MSM.t[k]=null;if(t)try{if(t.readyState=='live')t.stop()}catch(e){}if(st)MSM.ps[k]=st;MSM.src=MSM.src.filter(s=>s.getTracks().some(x=>x===MSM.t.a||x===MSM.t.v))}
 /* قطع شدن Track: اگر ضبطی مالک آن است به او خبر می‌دهد (ضبط جاری بی‌گیرکردن به پیش‌نمایش می‌رود)، وگرنه فقط وضعیت و پیام کوتاه */
@@ -933,11 +935,12 @@ addEventListener('keydown',e=>{if(e.key=='Escape'&&VV.st&&VV.st!='stop'){e.preve
 /* حباب پیام تصویری گرد */
 const msDlRing=a=>{const v=(typeof LNK!='undefined'&&LNK.dg&&LNK.dg[a.fid])||0;return `<div class="m_ring"><svg viewBox="0 0 44 44"><circle class="bg" cx="22" cy="22" r="19"/><circle class="fg" cx="22" cy="22" r="19" style="stroke-dashoffset:${(119.4*(1-Math.max(.06,Math.min(1,v/100)))).toFixed(1)}"/></svg></div>`};
 function msRdCl(a,m){return `<div class="m_rv cl${a.ld?' ld':''}" data-f="${esc(a.fid)}" onclick="event.stopPropagation();${a.ld?'':`msRdBig('${m.id}',this)`}">${a.ld?msDlRing(a):`<i class="m_rvp m_dlb">${ico('ms-dl')}</i>`}<small>${a.du?vrFmt(a.du)+'  ':''}${esc(a.s||'')}</small></div>`}
-const msRdH=(a,m)=>(!a.u&&a.fid&&m.st!='prog')?msRdCl(a,m):`<div class="m_rv${m.st=='prog'?' up':''}" onclick="event.stopPropagation();msRdBig('${m.id}',this)">${a.u?`<video src="${esc(a.u)}" playsinline muted loop autoplay preload="auto" onloadeddata="msRdLoaded(this,'${m.id}')"></video>`:ico('ms-vid')}<i class="m_rvp">${ico('ms-play')}</i>${m.st=='prog'?msRing(a,m):''}${a.du?`<small>${vrFmt(a.du)}</small>`:''}</div>`;
+const msRdH=(a,m)=>(!a.u&&a.fid&&m.st!='prog')?msRdCl(a,m):`<div class="m_rv${m.st=='prog'?' up':''}" onclick="event.stopPropagation();msRdBig('${m.id}',this)">${a.u?`<video src="${esc(a.u)}" playsinline muted autoplay preload="auto" onloadeddata="msRdLoaded(this,'${m.id}')" ontimeupdate="msRdProgress(this)" onended="msRdEnd(this)"></video>`:ico('ms-vid')}<i class="m_rvp">${ico('ms-play')}</i>${a.u&&m.st!='prog'?'<svg class="m_rbg" viewBox="0 0 100 100" aria-hidden="true"><circle class="bg" cx="50" cy="50" r="48"/><circle class="fg" cx="50" cy="50" r="48"/></svg>':''}${m.st=='prog'?msRing(a,m):''}${a.du?`<small>${vrFmt(a.du)}</small>`:''}</div>`;
+function msRdProgress(v){const c=v.closest('.m_rv')?.querySelector('.m_rbg .fg');if(!c)return;const p=v.duration>0&&isFinite(v.duration)?Math.max(0,Math.min(1,v.currentTime/v.duration)):0;c.style.strokeDashoffset=(301.6*(1-p)).toFixed(1)}
 function msRdLoaded(v,id){v.muted=true;const p=v.play();if(p&&p.then)p.then(()=>{if(MS._rdPlay===id){delete MS._rdPlay;v.muted=false;const el=v.closest('.m_rv');el&&el.classList.remove('paused');el&&el.classList.add('pl','big')}}).catch(()=>{})}
 function msRdBig(id,el){const m=msMs().find(x=>x.id==id);if(!m||!m.a)return;if(!m.a.u&&m.a.fid){if(m.a.ld)return;MS._rdPlay=id;msPlay(id);return}msRdPlay(el||document.querySelector('#msMg [data-m="'+id+'"] .m_rv'))}
 function msRdPlay(el){const v=el&&el.querySelector('video');if(!v)return;document.querySelectorAll('#msMg .m_rv.pl').forEach(x=>{if(x!==el){x.classList.remove('pl','big');x.classList.add('paused');const y=x.querySelector('video');y&&y.pause()}});if(v.paused){v.muted=false;el.classList.remove('paused');const p=v.play();if(p&&p.then)p.then(()=>el.classList.add('pl','big')).catch(()=>{el.classList.remove('pl','big');el.classList.add('paused');toast('پخش ویدیوپیام ممکن نشد')});else el.classList.add('pl','big')}else if(v.muted){v.muted=false;el.classList.remove('paused');el.classList.add('pl','big')}else{v.pause();el.classList.remove('pl','big');el.classList.add('paused')}}
-function msRdEnd(v){v.parentNode.classList.remove('pl','big');v.parentNode.classList.add('paused');try{v.currentTime=0}catch(e){}}
+function msRdEnd(v){try{v.pause();v.currentTime=0}catch(e){}msRdProgress(v);v.parentNode.classList.remove('pl','big');v.parentNode.classList.add('paused')}
 
 /* عکس و ویدیو به سبک تلگرام: فقط کادر رسانه + حلقهٔ چرخان پیشرفت ارسال/دریافت */
 const msMo=m=>!!(m.a&&(m.a.k=='image'||m.a.k=='video')&&!m.a.rd&&!m.x&&!m.r&&!m.sn);
@@ -962,7 +965,7 @@ VR.st='req';VR.er='';const tk=++VR.tk,cid=MS.cid;let stm;
 try{stm=await msmGet('voice','a',()=>{if(VR.stm===stm&&vrRec())vrFail()})}catch(e){if(VR.tk==tk&&VR.st=='req'){VR.st='';vrErr(e,cid)}return}
 if(VR.tk!=tk||VR.st!='req'||MS.cid!=cid||!$('#msCp')||(!lk&&!VR.hold)){if(VR.tk==tk)msmFree('voice');if(VR.tk==tk&&VR.st=='req'){VR.st='';if(MS.cid==cid&&$('#msCp')&&!lk&&!VR.hold){toast('دسترسی میکروفون فعال است؛ برای ضبط، دکمهٔ میکروفون را نگه دار');msmUi()}}return}
 const mime=vrPick();let rec;
-try{rec=new MediaRecorder(stm,Object.assign({audioBitsPerSecond:32000},mime?{mimeType:mime}:{}))}catch(e){try{rec=new MediaRecorder(stm)}catch(x){msmFree('voice');VR.st='';return toast('ضبط صدا شروع نشد')}}
+try{rec=new MediaRecorder(stm,Object.assign({audioBitsPerSecond:256000},mime?{mimeType:mime}:{}))}catch(e){try{rec=new MediaRecorder(stm)}catch(x){msmFree('voice');VR.st='';return toast('ضبط صدا شروع نشد')}}
 VR.stm=stm;VR.rec=rec;VR.ch=[];VR.segs=[];VR.segp=0;VR.mime=rec.mimeType||mime||'';VR.base=(VR.mime||'audio/webm').split(';')[0];VR.nat=typeof rec.pause=='function'&&typeof rec.resume=='function';VR.cid=cid;VR.mode=0;VR.fail=0;VR.acc=0;VR.s0=0;VR.lv=[];
 vrWire(rec);
 try{rec.start(1000)}catch(e){vrRel();return toast('ضبط صدا شروع نشد')}
@@ -970,7 +973,7 @@ VR.s0=performance.now();vrAn(stm);VR.st=lk?'lock':'rec';msUpCp();clearInterval(V
 function vrWire(rec){rec.ondataavailable=e=>{if(e.data&&e.data.size)VR.ch.push(e.data)};rec.onerror=()=>vrFail();rec.onstop=()=>{if(VR.segp){VR.segp=0;if(VR.ch.length)VR.segs.push(new Blob(VR.ch,{type:VR.base}));VR.ch=[];if(VR.st=='stop')vrDone(rec)}else vrDone(rec)}}
 function vrTick(){const s=VR.st;if(!vrRec())return;if(!$('#msCp')||MS.cid!=VR.cid)return vrCancel();msmCheck();if(!vrRec())return;const x=vrEl(),e=$('#vrT');if(e)e.textContent=vrFmt(x);if(s!='pause'){VR.lv.push(vrLv());if(VR.lv.length>VRB)VR.lv.shift();const b=$('#vrLb');if(b)vrLbU(b)}if(x>=VR.max)vrStop('prev')}
 /* ---- مکث و ادامه: مکث بومی MediaRecorder؛ در نبودش بخش‌ها جدا ضبط و به ترتیب وصل می‌شوند ---- */
-function vrPause(){const r=VR.rec;if(!r||VR.segp)return;try{if(VR.st=='lock'){if(VR.nat)r.pause();else{VR.segp=1;r.stop()}VR.acc+=performance.now()-VR.s0;VR.s0=0;VR.st='pause'}else if(VR.st=='pause'){if(VR.nat)r.resume();else{const n=new MediaRecorder(VR.stm,Object.assign({audioBitsPerSecond:32000},VR.mime?{mimeType:VR.mime}:{}));vrWire(n);VR.rec=n;n.start(1000)}VR.s0=performance.now();VR.st='lock'}else return}catch(e){toast('مکث یا ادامهٔ ضبط ممکن نشد');return}msUpCp()}
+function vrPause(){const r=VR.rec;if(!r||VR.segp)return;try{if(VR.st=='lock'){if(VR.nat)r.pause();else{VR.segp=1;r.stop()}VR.acc+=performance.now()-VR.s0;VR.s0=0;VR.st='pause'}else if(VR.st=='pause'){if(VR.nat)r.resume();else{const n=new MediaRecorder(VR.stm,Object.assign({audioBitsPerSecond:256000},VR.mime?{mimeType:VR.mime}:{}));vrWire(n);VR.rec=n;n.start(1000)}VR.s0=performance.now();VR.st='lock'}else return}catch(e){toast('مکث یا ادامهٔ ضبط ممکن نشد');return}msUpCp()}
 /* ---- پایان: m='send' ارسال، m='prev' پیش‌نمایش بدون ارسال ---- */
 function vrStop(m){if(!vrRec())return;if(VR.s0){VR.acc+=performance.now()-VR.s0;VR.s0=0}VR.mode=m;VR.st='stop';clearInterval(VR.iv);vrHoldX();msUpCp();const r=VR.rec;try{if(r.state!='inactive')r.stop();else if(!VR.segp)vrDone(r)}catch(e){vrDone(r)}}
 function vrFail(){if(!vrRec())return;VR.fail=1;vrStop('prev')}
@@ -1027,15 +1030,14 @@ function vtPM(e){if(VR.tg&&e.pointerId===VR.tid)vtMv(vtAt(e))}
 function vtPU(e){if(e.pointerId===VR.tid){VR.tg='';VR.tid=null}}
 /* ---- ارسال، لغو و ضبط دوباره ---- */
 function vpClear(){vpStop();VR.pv=null;VR.tg='';VR.st=''}
-async function vpSend(){const pv=VR.pv;if(!pv||VR.st!='prev'||MS.cid!=pv.cid)return;vpStop();VR.st='send';msUpCp();const c=pv.c,nm=pv.nm+'.'+c.x,f=new File([c.b],nm,{type:c.t}),ok=await vrSend(pv.cid,{n:nm,s:f.size,t:'voice',k:'voice',f,u:'',vd:{d:c.d,wf:c.w||undefined,mm:c.t}});
-if(VR.pv===pv){if(ok){VR.st='sent';vpClear()}else VR.st='prev'}if(MS.cid==pv.cid)msUpCp()}
+function vpSend(){const pv=VR.pv;if(!pv||VR.st!='prev'||MS.cid!=pv.cid)return;vpStop();const c=pv.c,nm=pv.nm+'.'+c.x,f=new File([c.b],nm,{type:c.t}),send=vrSend(pv.cid,{n:nm,s:f.size,t:'voice',k:'voice',f,u:'',vd:{d:c.d,wf:c.w||undefined,mm:c.t}});vpClear();if(MS.cid==pv.cid)msUpCp();Promise.resolve(send).then(ok=>{if(!ok&&MS.cid==pv.cid&&!VR.pv&&!VR.st&&!(MS.dr[pv.cid]||'').trim()&&!MS.files.length){VR.pv=pv;VR.st='prev';msUpCp()}})}
 function vpCancel(){if(VR.st!='prev')return;vpClear();msUpCp()}
 function vpRetake(){if(VR.st!='prev')return;vpClear();msUpCp();vrStart(1)}
 function vrSend(cid,vf){if(MS.cid!=cid)return Promise.resolve(false);const a=msAd();
 if(msIsD()){const c=msCv(),d=msDt(),L=d.mg[cid]||(d.mg[cid]=[]),n=new Date(),tm=pd(String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'));L.push({id:'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),o:1,x:'',tm,st:'sent',r:MS.rep||undefined,a:{k:'voice',m:'voice',n:vf.n,s:msSz(vf.s),u:URL.createObjectURL(vf.f),du:vf.vd.d,wf:vf.vd.wf,mm:vf.vd.mm}});MS.rep=null;if(c){c.lm='پیام صوتی';c.tm=tm}msUpL();msUpMg(1);return Promise.resolve(true)}
 if(!a||!a.send){toast('ارسال فعال نیست؛ پیام صوتی در پیش‌نمایش نگه داشته شد');return Promise.resolve(false)}
 const rep=MS.rep;
-return Promise.resolve(a.send({cid,text:'',files:[vf],reply:rep})).then(()=>{if(MS.rep===rep)MS.rep=null;if(MS.cid==cid)msUpMg(1);return true},e=>{const em='اتصال برقرار نیست';toast('ارسال پیام صوتی ناموفق بود: '+em+' (پیش‌نمایش نگه داشته شد؛ دوباره بفرست)');return false})}
+return Promise.resolve(a.send({cid,text:'',files:[vf],reply:rep})).then(()=>{if(MS.rep===rep)MS.rep=null;if(MS.cid==cid)msUpMg(1);return true},e=>{const em=e&&e.fa?e.fa:'اتصال برقرار نیست';toast('ارسال پیام صوتی ناموفق بود: '+em);return false})}
 addEventListener('pagehide',()=>{vrCancel();vvCancel();msmStop()});document.addEventListener('visibilitychange',()=>{if(!document.hidden)msmCheck()});try{navigator.mediaDevices&&navigator.mediaDevices.addEventListener&&navigator.mediaDevices.addEventListener('devicechange',msmCheck)}catch(e){}
 /* پخش پیام صوتی: فقط یک پیام هم‌زمان؛ پیشرفت در حالت VC نگه داشته می‌شود تا با دوباره‌کشیدن فهرست پیام‌ها از بین نرود */
 const VC={id:null,au:null,t:0,d:0,pl:0,req:null,raf:0};
@@ -1043,7 +1045,7 @@ function vcSt(a,id){const on=VC.id==id;
 if(a.ld)return{ic:'ms-dl',tt:'در حال دانلود…',pc:(a.dp||0)*100,tx:a.dp?pd(Math.round(a.dp*100))+'٪':'…',er:0,dis:1};
 if(a.er)return{ic:'ms-dl',tt:'تلاش دوباره',pc:0,tx:'خطا',er:1,dis:0};
 if(!a.u)return{ic:'ms-dl',tt:'دانلود و پخش',pc:0,tx:vrFmt(a.du||0),er:0,dis:0};
-const du=(on&&VC.d)||a.du||0,cu=on?VC.t:0,pl=on&&VC.pl;return{ic:pl?'ms-pause':'ms-play',tt:pl?'توقف':'پخش',pc:du?Math.min(100,cu/du*100):0,tx:vrFmt(cu||du),er:0,dis:0}}
+const du=(on&&VC.d)||a.du||0,cu=on?VC.t:0,pl=on&&VC.pl;return{ic:pl?'ms-pause':'ms-play',tt:pl?'توقف':'پخش',pc:du?Math.min(100,cu/du*100):0,tx:vrFmt(on?cu:du),er:0,dis:0}}
 const msVoH=(a,m)=>{const x=vcSt(a,m.id);
 if(a.k=='voice')return `<div class="m_vo m_vv" data-v="${m.id}"><button data-ic="${x.ic}" ${x.dis?'disabled':''} onmousedown="event.stopPropagation()" onclick="event.stopPropagation();msVP('${m.id}')" title="${x.tt}">${ico(x.ic)}</button><div class="m_vc"><div class="m_wf${a.wf&&a.wf.length?'':' nw'}" style="--d:${vwD()}" onclick="event.stopPropagation();msVS(event,'${m.id}')" title="جابه‌جایی">${vwBars(a.wf,x.pc)}</div><span class="m_vt${x.er?' er':''}">${x.tx}</span></div></div>`;
 return `<div class="m_vo" data-v="${m.id}"><button data-ic="${x.ic}" ${x.dis?'disabled':''} onmousedown="event.stopPropagation()" onclick="event.stopPropagation();msVP('${m.id}')" title="${x.tt}">${ico(x.ic)}</button><div class="m_vb" onclick="event.stopPropagation();msVS(event,'${m.id}')" title="جابه‌جایی"><i style="width:${x.pc.toFixed(1)}%"></i></div><span class="m_vt${x.er?' er':''}">${x.tx}</span></div>`};
@@ -1056,7 +1058,7 @@ if(VC.id==id&&VC.au){if(VC.au.paused)VC.au.play().catch(()=>{});else VC.au.pause
 VC.req=id;/* v41.2: اگر هنوز دانلود نشده، اول دانلود و ذخیره در Messenger/Media/Audio؛ پخش فقط بعد از دانلود کامل و ذخیرهٔ موفق */
 if(!m.a.u){m.a.er=0;const a=msAd();if(a&&a.play)await a.play(cid,id);if(!m.a.u||VC.req!=id||MS.cid!=cid)return}
 vpStop();vcStop();const au=new Audio(m.a.u);VC.id=id;VC.au=au;VC.t=0;VC.d=m.a.du||0;VC.pl=0;
-au.onplay=()=>{VC.pl=1;vcUp();if(!VC.raf)VC.raf=requestAnimationFrame(vcLoop)};au.onpause=()=>{VC.pl=0;vcUp()};au.onended=()=>{VC.pl=0;VC.t=0;vcUp()};
+au.onplay=()=>{VC.pl=1;vcUp();if(!VC.raf)VC.raf=requestAnimationFrame(vcLoop)};au.onpause=()=>{VC.pl=0;vcUp()};au.onended=()=>{VC.pl=0;try{au.currentTime=0}catch(e){}VC.t=0;vcUp()};
 au.ontimeupdate=()=>{VC.t=au.currentTime;if(isFinite(au.duration)&&au.duration>0)VC.d=au.duration;vcUp()};
 const bad=()=>{vcStop();const x=msMs().find(z=>z.id==id);if(x&&x.a){x.a.u='';x.a.er=1}toast('پخش این صدا ممکن نشد؛ فایل ذخیره‌شده گم یا خراب شده یا قالبش در مرورگر پشتیبانی نمی‌شود. دوباره روی دکمه بزن تا دوباره دانلود شود، یا با دکمهٔ دانلود ذخیره‌اش کن');if(MS.cid==cid)msUpMg()};
 au.onerror=bad;/* v41.5: play() قطع‌شده با pause/جابه‌جایی (AbortError) یا برای پخش‌کنندهٔ قدیمی خطا نیست و نسخهٔ محلی را از دست نمی‌دهد */au.play().catch(e=>{if(VC.au!==au||!e||e.name=='AbortError')return;if(e.name=='NotAllowedError')vcStop();else bad()});vcUp()}
@@ -1941,6 +1943,8 @@ addEventListener('resize',up);addEventListener('orientationchange',function(){se
 document.addEventListener('focusin',function(){up();setTimeout(up,120);setTimeout(up,400)});
 document.addEventListener('focusout',function(){setTimeout(up,120);setTimeout(up,400)});
 up()})();
+</script><script>
+(function(){function stopPageZoom(e){if(e.cancelable)e.preventDefault()}['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,stopPageZoom,{passive:false})})})();
 </script><script>
 (function(){var T=62,S=null,block=0,blockId='';
 function ok(t){return t&&t.closest&&!t.closest('audio,input,textarea,select,.m_vtw,.m_wf,.m_mvv,.m_pp,.m_mn')}
