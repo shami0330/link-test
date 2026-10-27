@@ -925,7 +925,8 @@ addEventListener('keydown',e=>{if(e.key=='Escape'&&VV.st&&VV.st!='stop'){e.preve
 /* حباب پیام تصویری گرد */
 const msDlRing=a=>{const v=(typeof LNK!='undefined'&&LNK.dg&&LNK.dg[a.fid])||0;return `<div class="m_ring"><svg viewBox="0 0 44 44"><circle class="bg" cx="22" cy="22" r="19"/><circle class="fg" cx="22" cy="22" r="19" style="stroke-dashoffset:${(119.4*(1-Math.max(.06,Math.min(1,v/100)))).toFixed(1)}"/></svg></div>`};
 function msRdCl(a,m){return `<div class="m_rv cl${a.ld?' ld':''}" data-f="${esc(a.fid)}" onclick="event.stopPropagation();${a.ld?'':`msPlay('${m.id}')`}">${a.ld?msDlRing(a):`<i class="m_rvp m_dlb">${ico('ms-dl')}</i>`}<small>${a.du?vrFmt(a.du)+'  ':''}${esc(a.s||'')}</small></div>`}
-const msRdH=(a,m)=>(!a.u&&a.fid&&m.st!='prog')?msRdCl(a,m):`<div class="m_rv${m.st=='prog'?' up':''}" onclick="event.stopPropagation();msRdBig('${m.id}',this)">${a.u?`<video src="${esc(a.u)}" playsinline muted loop autoplay preload="auto" onloadeddata="this.muted=true;this.play().catch(()=>{})"></video>`:ico('ms-vid')}<i class="m_rvp">${ico('ms-play')}</i>${m.st=='prog'?msRing(a,m):''}${a.du?`<small>${vrFmt(a.du)}</small>`:''}</div>`;
+const msRdH=(a,m)=>(!a.u&&a.fid&&m.st!='prog')?msRdCl(a,m):`<div class="m_rv${m.st=='prog'?' up':''}" onclick="event.stopPropagation();msRdBig('${m.id}')">${a.u?`<video src="${esc(a.u)}" playsinline muted loop autoplay preload="auto" onloadeddata="this.muted=true;this.play().catch(()=>{})"></video>`:ico('ms-vid')}<i class="m_rvp">${ico('ms-vid')}</i>${m.st=='prog'?msRing(a,m):''}${a.du?`<small>${vrFmt(a.du)}</small>`:''}</div>`;
+function msRdBig(id){msMvOpen(id)}
 function msRdPlay(el){const v=el.querySelector('video');if(!v)return;document.querySelectorAll('#msMg .m_rv.pl').forEach(x=>{if(x!==el){x.classList.remove('pl');const y=x.querySelector('video');y&&y.pause()}});if(v.paused){v.muted=false;v.play().catch(()=>{});el.classList.add('pl')}else{v.pause();el.classList.remove('pl')}}
 function msRdEnd(v){v.parentNode.classList.remove('pl');try{v.currentTime=0}catch(e){}}
 
@@ -1136,7 +1137,7 @@ return (src?`<img id="mvI" class="m_mvi" src="${esc(src)}" data-u="${u?esc(u):''
 function msMvInner(m,i,n){const c=msCv(),vd=m.a.k=='video',nm=esc(m.o?'شما':(m.sn||(c&&c.n)||'')),dt=esc(m.tm||'');
 return `<div class="m_mvt"><button onclick="msMvClose()" title="بستن (Esc)" aria-label="بستن">${ico('ms-x')}</button><div class="m_mvf"><b>${nm}</b><small>${dt}</small></div>${n>1?`<span class="m_mvc" id="mvCt" dir="ltr">${pd(i+1)} / ${pd(n)}</span>`:''}<button onclick="msDl('${m.id}')" title="دانلود" aria-label="دانلود">${ico('ms-dl')}</button></div><div class="m_mvw"><div class="m_mvs" id="mvS" onpointerdown="msMvPd(event)" onpointermove="msMvPm(event)" onpointerup="msMvPu(event)" onpointercancel="msMvPc(event)">${msMvStageH(m)}</div><div class="m_mvk0" id="mvK"></div>${n>1?`<button class="m_mvn p" id="mvP" onclick="msMvGo(-1)"${i>0?'':' disabled'} title="قبلی (←)" aria-label="قبلی">${ico('ms-back')}</button><button class="m_mvn x" id="mvX" onclick="msMvGo(1)"${i<n-1?'':' disabled'} title="بعدی (→)" aria-label="بعدی">${ico('ms-back')}</button>`:''}</div>${vd?'':`<div class="m_mvb"><button id="mvZo" onclick="msMvZ(1/1.4)" title="کوچک‌نمایی (−)" aria-label="کوچک‌نمایی" disabled>${ico('ms-zo')}</button><span class="m_mvz" id="mvZ">${pd(100)}٪</span><button id="mvZi" onclick="msMvZ(1.4)" title="بزرگ‌نمایی (+)" aria-label="بزرگ‌نمایی">${ico('ms-zi')}</button><button id="mvZr" onclick="msMvReset()" title="جا شدن در صفحه (۰)" aria-label="جا شدن در صفحه" disabled>${ico('ms-fit')}</button></div>`}`}
 function msMvRootH(){if(!MV.on||MV.c!=MS.cid)return'';const L=msMvList(),i=L.findIndex(z=>z.id==MV.id);if(i<0)return'';return `<div id="msMv" class="m_mv" role="dialog" aria-modal="true" aria-label="نمایشگر رسانه">${msMvInner(L[i],i,L.length)}</div>`}
-function msMvOpen(id){if(MV.on||MS.pv||MS.pf||!msCv()||!$('.ms'))return;if(!msMvList().some(z=>z.id==id))return;msMenuX();document.querySelectorAll('#msMg video').forEach(v=>{try{v.pause()}catch(e){}});MV.on=1;MV.c=MS.cid;MV.id=id;MV.u={};MV.er={};MV.pr={};MV.bad={};MV.vb='';MV.pt={};MV.g=null;msMvUp()}
+function msMvOpen(id){if(MV.on||MS.pv||MS.pf||!msCv()||!$('.ms'))return;const m=msMvList().find(z=>z.id==id);if(!m)return;msMenuX();document.querySelectorAll('#msMg video').forEach(v=>{try{v.pause()}catch(e){}});MV.on=1;MV.c=MS.cid;MV.id=id;MV.u={};MV.er={};MV.pr={};MV.bad={};MV.vb='';MV.pt={};MV.g=null;msMvUp();if(m.a.k=='video'){const v=$('#mvV');if(v){v.muted=false;const p=v.play();if(p&&p.catch)p.catch(()=>{v.muted=true})}}}
 function msMvClk(e,id){if(MS.sel)return;e.stopPropagation();{const m=msMs().find(x=>x.id==id);if(m&&m.a&&m.a.k=='video'&&!m.a.u&&m.a.fid){if(!m.a.ld)msPlay(id);return}}msMvOpen(id)}
 function msMvUp(){const L=msMvList(),i=L.findIndex(z=>z.id==MV.id);if(i<0){msMvClose();return}const box=msMvBox();if(!box){msMvClose();return}msMvRelV();MV.i=i;MV.s=1;MV.x=0;MV.y=0;MV.nw=0;MV.nh=0;MV.pt={};MV.g=null;box.innerHTML=msMvInner(L[i],i,L.length);msMvTrim(L,i);msMvObs();msMvFit();msMvLoad()}
 function msMvAfter(){if(!MV.on)return;if(!$('#msMv')){msMvUp();return}MV.s=1;MV.x=0;MV.y=0;msMvApply();msMvObs();msMvFit();msMvLoad()}
@@ -1226,8 +1227,8 @@ const lnkJs=(u,ms)=>new Promise((ok,no)=>{const s=document.createElement('script
 async function lnkSdk(){if(window.Appwrite&&Appwrite.Client)return;for(const u of LNC.sdk){try{await lnkJs(u)}catch(e){}if(window.Appwrite&&Appwrite.Client)return}throw new Error('sdk')}
 function lnkInit(){const c=new Appwrite.Client().setEndpoint(LNC.ep).setProject(LNC.pj);LNK.cl=c;LNK.au=new Appwrite.Account(c);LNK.db=new Appwrite.TablesDB(c);LNK.sv=new Appwrite.Storage(c)}
 const lnkRows=async(t,q)=>(await LNK.db.listRows({databaseId:LNC.db,tableId:t,queries:q})).rows,
-lnkMk=(t,id,data,perm)=>LNK.db.createRow({databaseId:LNC.db,tableId:t,rowId:id,data,permissions:perm}),
-lnkUp=(t,id,data)=>LNK.db.updateRow({databaseId:LNC.db,tableId:t,rowId:id,data}),
+lnkMk=async(t,id,data,perm)=>{const r=await LNK.db.createRow({databaseId:LNC.db,tableId:t,rowId:id,data,permissions:perm});if(t===LNC.tM&&r.kind!=='call')await lnkMcPut(r.chatId,r);if(t===LNC.tC&&LNK.uid)lnkOnChats([...Object.values(LNK.raw),r]);return r},
+lnkUp=async(t,id,data)=>{const r=await LNK.db.updateRow({databaseId:LNC.db,tableId:t,rowId:id,data});if(t===LNC.tM&&r.kind!=='call')await lnkMcPut(r.chatId,r);if(t===LNC.tC&&LNK.uid)lnkOnChats([...Object.values(LNK.raw).filter(x=>x.$id!==r.$id),r]);return r},
 lnkDel=(t,id)=>LNK.db.deleteRow({databaseId:LNC.db,tableId:t,rowId:id}),
 lnkOwn=id=>[Appwrite.Permission.update(Appwrite.Role.user(id)),Appwrite.Permission.delete(Appwrite.Role.user(id))];
 function lnkEr(e){
@@ -1260,7 +1261,7 @@ function lnkK(e){e.stopPropagation();if(e.key=='Enter'&&!e.isComposing){e.preven
 function lnkTog(){lnkRd();LNK.reg=LNK.reg?0:1;LNK.err='';lnkUpLg()}
 async function lnkBoot(){
   if(LNK.busy)return;
-  if(LNK.st=='on'){lnkLoadChats();return}
+  if(LNK.st=='on'){if(!LNK.sub||!LNK.cv.length)lnkLoadChats();return}
   if(LNK.st=='login'&&LNK.au)return;
   LNK.busy=1;LNK.err='';LNK.st='conn';lnkUpLg();
   try{
@@ -1313,43 +1314,75 @@ async function lnkOut(){
 
 /* ===== v6.8: صرفه‌جویی در سهمیه — حافظهٔ دستگاه برای پیام‌ها و فایل‌ها، دریافت افزایشی، کم‌کردن بررسی‌های دوره‌ای ===== */
 /* ذخیره‌سازی در پوشهٔ Messenger/Cache/Link (یا IndexedDB وقتی پوشه نیست) از طریق MST؛ هر تغییر همان‌جا بازنویسی می‌شود */
+const lnkWriteQ=new Map(),lnkMcWriteQ=new Map(),lnkMcLoads=new Map(),lnkCacheWarn=e=>{const s=String(e&&e.message||e||'خطای ذخیره‌سازی');if(LNK.cacheWarn===s&&Date.now()-(LNK.cacheWarnAt||0)<10000)return;LNK.cacheWarn=s;LNK.cacheWarnAt=Date.now();toast('ذخیرهٔ کش روی دستگاه ناموفق بود: '+esc(s))};
 const lnkIdb={p:k=>'Cache/Link/'+String(k).replace(/[^\w.-]/g,'_')+'.json',
-  async get(k){try{const f=await MST.kGet(lnkIdb.p(k));return f?JSON.parse(await f.text()):undefined}catch(e){return undefined}},
-  set:(k,v)=>MST.kPut(lnkIdb.p(k),new Blob([JSON.stringify(v)],{type:'application/json'})).catch(()=>{}),
-  del:k=>MST.kDel(lnkIdb.p(k)).catch(()=>{})};
-function lnkCacheReset(){try{Object.values(LNK._ms||{}).forEach(clearTimeout)}catch(e){}LNK.mc={};LNK.sg='';try{if(LNK.st=='on'&&MS.p=='link'&&MS.cid)lnkLoadMsgs(MS.cid)}catch(e){}}
-async function lnkCacheDrop(cid){try{clearTimeout((LNK._ms||{})[cid]);const C=await lnkMcGet(cid);Object.values(C.rows||{}).forEach(r=>{if(r.fileId)lnkFc.del(r.fileId)});if(LNK.mc)delete LNK.mc[cid];await lnkIdb.del('m:'+LNK.uid+':'+cid)}catch(e){}}
-async function lnkMcGet(cid){let C=(LNK.mc||(LNK.mc={}))[cid];if(C)return C;const v=await lnkIdb.get('m:'+LNK.uid+':'+cid);C=LNK.mc[cid]=v&&v.rows?v:{rows:{},ts:0,lim:0,rc:0,more:0};C.fo=0;return C}
-function lnkMcSave(cid,now){const T=LNK._ms||(LNK._ms={});clearTimeout(T[cid]);T[cid]=setTimeout(()=>{const C=(LNK.mc||{})[cid];if(!C||!LNK.uid)return;const ks=Object.keys(C.rows).sort((a,b)=>C.rows[a].$createdAt<C.rows[b].$createdAt?1:-1).slice(0,200),rows={};ks.forEach(k=>{rows[k]=C.rows[k]});lnkIdb.set('m:'+LNK.uid+':'+cid,{rows,ts:C.ts,lim:C.lim,rc:C.rc,more:C.more})},now?0:1200)}
-function lnkMcPut(cid,row){const C=(LNK.mc||{})[cid];if(C&&C.ts){C.rows[row.$id]=row;lnkMcSave(cid)}}
+  async get(k){try{const f=await MST.kGet(lnkIdb.p(k));return f?JSON.parse(await f.text()):undefined}catch(e){lnkCacheWarn(e);return undefined}},
+  async set(k,v){const p=lnkIdb.p(k),prev=lnkWriteQ.get(p)||Promise.resolve(),task=prev.catch(()=>{}).then(()=>MST.kPut(p,new Blob([JSON.stringify(v)],{type:'application/json'})));lnkWriteQ.set(p,task);try{await task;return true}catch(e){lnkCacheWarn(e);return false}finally{if(lnkWriteQ.get(p)===task)lnkWriteQ.delete(p)}},
+  async del(k){const p=lnkIdb.p(k),prev=lnkWriteQ.get(p)||Promise.resolve(),task=prev.catch(()=>{}).then(()=>MST.kDel(p));lnkWriteQ.set(p,task);try{await task;return true}catch(e){lnkCacheWarn(e);return false}finally{if(lnkWriteQ.get(p)===task)lnkWriteQ.delete(p)}}};
+function lnkCacheReset(){LNK.mc={};LNK.sg='';try{if(LNK.st=='on'&&MS.p=='link'&&MS.cid)lnkLoadMsgs(MS.cid)}catch(e){}}
+async function lnkCacheDrop(cid){const C=await lnkMcGet(cid),ids=new Set([...(C.persisted||[]),...Object.keys(C.rows||{})]);await Promise.all(Object.values(C.rows||{}).map(r=>r.fileId?lnkFc.del(r.fileId):Promise.resolve()));await Promise.all([...ids].map(id=>lnkIdb.del('msg:'+LNK.uid+':'+cid+':'+id)));if(LNK.mc)delete LNK.mc[cid];await lnkIdb.del('m:'+LNK.uid+':'+cid)}
+async function lnkMcGet(cid){
+  let C=(LNK.mc||(LNK.mc={}))[cid];if(C)return C;
+  if(lnkMcLoads.has(cid))return lnkMcLoads.get(cid);
+  const task=(async()=>{const v=await lnkIdb.get('m:'+LNK.uid+':'+cid),rows={};
+    if(v&&v.rows)Object.assign(rows,v.rows);
+    else if(v&&Array.isArray(v.ids)){const rs=await Promise.all(v.ids.map(id=>lnkIdb.get('msg:'+LNK.uid+':'+cid+':'+id)));v.ids.forEach((id,i)=>{if(rs[i])rows[id]=rs[i]})}
+    C=LNK.mc[cid]=Object.assign({rows,ts:0,lim:0,rc:0,more:0,persisted:Object.keys(rows)},v||{});
+    C.rows=rows;C.persisted=Array.isArray(C.persisted)?C.persisted:Object.keys(rows);C.dirty=new Set(v&&v.rows?Object.keys(rows):[]);C.deleted=new Set();C.fo=0;return C
+  })();lnkMcLoads.set(cid,task);
+  try{return await task}finally{if(lnkMcLoads.get(cid)===task)lnkMcLoads.delete(cid)}
+}
+async function lnkMcSave(cid){
+  const prev=lnkMcWriteQ.get(cid)||Promise.resolve(),task=prev.catch(()=>{}).then(()=>lnkMcSaveNow(cid));lnkMcWriteQ.set(cid,task);
+  try{return await task}finally{if(lnkMcWriteQ.get(cid)===task)lnkMcWriteQ.delete(cid)}
+}
+async function lnkMcSaveNow(cid){
+  const C=(LNK.mc||{})[cid];if(!C||!LNK.uid)return false;
+  const ids=Object.keys(C.rows),dirty=[...(C.dirty||[])].filter(id=>C.rows[id]),deleted=[...(C.deleted||[])];
+  const snapshots=new Map(dirty.map(id=>[id,C.rows[id]]));
+  const writes=await Promise.all(dirty.map(async id=>[id,await lnkIdb.set('msg:'+LNK.uid+':'+cid+':'+id,C.rows[id])]));
+  const removes=await Promise.all(deleted.map(async id=>[id,await lnkIdb.del('msg:'+LNK.uid+':'+cid+':'+id)]));
+  if(writes.some(x=>!x[1])||removes.some(x=>!x[1]))return false;
+  const ok=await lnkIdb.set('m:'+LNK.uid+':'+cid,{ids,ts:C.ts,lim:C.lim,rc:C.rc,more:C.more});
+  if(ok){writes.forEach(([id])=>{if(C.rows[id]===snapshots.get(id))C.dirty.delete(id)});removes.forEach(([id])=>{if(!C.rows[id])C.deleted.delete(id)});C.persisted=ids}return ok
+}
+async function lnkMcPut(cid,row){
+  if(!cid||!row||!row.$id)return;
+  const C=await lnkMcGet(cid);C.rows[row.$id]=row;C.dirty.add(row.$id);C.deleted.delete(row.$id);if(!C.ts)C.ts=Date.parse(row.$updatedAt||row.$createdAt)||Date.now();
+  await lnkMcSave(cid)
+}
+async function lnkMcDel(cid,id){
+  const C=await lnkMcGet(cid);delete C.rows[id];C.dirty.delete(id);C.deleted.add(id);await lnkMcSave(cid)
+}
 function lnkWin(cid,C){const lim=LNK.lim[cid]||100;return Object.values(C.rows).sort((a,b)=>a.$createdAt<b.$createdAt?-1:a.$createdAt>b.$createdAt?1:(a.$id<b.$id?-1:1)).slice(-lim).filter(r=>r.kind!=='call'&&!lnkCleared(cid,r)&&!lnkHm()[r.$id])}
 /* خبر زندهٔ Realtime مستقیم در حافظه اعمال می‌شود؛ بدون هیچ درخواستی */
-function lnkRtMsg(r,p){const cid=p.chatId;if(!LNK.raw[cid])return;const C=(LNK.mc||{})[cid];
-  if(!C||!C.ts){if(MS.p=='link'&&cid==MS.cid)lnkSM();return}
+async function lnkRtMsg(r,p){const cid=p.chatId;if(!LNK.raw[cid])return;const C=await lnkMcGet(cid);
+  if(!C.ts){if(MS.p=='link'&&cid==MS.cid)lnkSM();return}
   const del=(r.events||[]).some(e=>/\.delete$/.test(e));
-  if(del){const o=C.rows[p.$id],f=p.fileId||(o&&o.fileId);if(f)lnkFc.del(f);delete C.rows[p.$id]}else C.rows[p.$id]=Object.assign(C.rows[p.$id]||{},p);
-  lnkMcSave(cid,del);if(MS.p=='link'&&cid==MS.cid){clearTimeout(LNK.t2);LNK.t2=setTimeout(()=>lnkOnMsgs(cid,lnkWin(cid,C)),60)}}
+  if(del){const o=C.rows[p.$id],f=p.fileId||(o&&o.fileId);if(f)await lnkFc.del(f);await lnkMcDel(cid,p.$id)}else{C.rows[p.$id]=Object.assign(C.rows[p.$id]||{},p);C.dirty.add(p.$id);await lnkMcSave(cid)}
+  if(MS.p=='link'&&cid==MS.cid){clearTimeout(LNK.t2);LNK.t2=setTimeout(()=>lnkOnMsgs(cid,lnkWin(cid,C)),60)}}
 /* حافظهٔ ماندگار فایل‌ها (Cache Storage): عکس و ویدیوی دانلودشده یا ارسال‌شده دیگر دوباره دانلود نمی‌شود */
 const lnkFc={p:f=>'Cache/Link/files/'+String(f).replace(/[^\w.-]/g,'_'),
-  async get(fid,exp){try{const b=await MST.kGet(lnkFc.p(fid));return b&&b.size&&(!exp||b.size==exp)?b:null}catch(e){return null}},
-  async put(fid,b){try{await MST.kPut(lnkFc.p(fid),b)}catch(e){}},
-  async del(fid){try{await MST.kDel(lnkFc.p(fid))}catch(e){}}};
+  async get(fid,exp){try{const b=await MST.kGet(lnkFc.p(fid));return b&&b.size&&(!exp||b.size==exp)?b:null}catch(e){lnkCacheWarn(e);return null}},
+  async put(fid,b){try{await MST.kPut(lnkFc.p(fid),b);return true}catch(e){lnkCacheWarn(e);return false}},
+  async del(fid){try{await MST.kDel(lnkFc.p(fid));return true}catch(e){lnkCacheWarn(e);return false}}};
 ['pointerdown','keydown','touchstart'].forEach(n=>document.addEventListener(n,()=>{try{LNK.act=Date.now()}catch(e){}},true));
 /* ---------- به‌روزرسانی زنده (Realtime) + بررسی دوره‌ای ---------- */
-const lnkSC=()=>{clearTimeout(LNK.t1);LNK.t1=setTimeout(lnkLoadChats,200)},lnkSM=()=>{clearTimeout(LNK.t2);LNK.t2=setTimeout(()=>lnkLoadMsgs(MS.cid),200)};
+const lnkSC=()=>{clearTimeout(LNK.t1);LNK.t1=setTimeout(lnkLoadChats,200)},lnkSM=()=>{clearTimeout(LNK.t2);LNK.t2=setTimeout(()=>lnkLoadMsgs(MS.cid,1),200)};
+function lnkRtChat(r,p){if(!p.$id){lnkSC();return}const del=(r.events||[]).some(e=>/\.delete$/.test(e));if(del){const old=LNK.raw[p.$id];delete LNK.raw[p.$id];lnkOnChats(Object.values(LNK.raw));if(old)lnkCacheDrop(p.$id).catch(lnkCacheWarn)}else lnkOnChats([...Object.values(LNK.raw).filter(x=>x.$id!==p.$id),p])}
 async function lnkLive(){
   lnkStop();
   const ch=[];for(const t of[LNC.tC,LNC.tM])ch.push('tablesdb.'+LNC.db+'.tables.'+t+'.rows','databases.'+LNC.db+'.tables.'+t+'.rows');
-  const cb=r=>{const p=(r&&r.payload)||{};if('chatId' in p){if(p.kind==='call'){if(p.fromId!==LNK.uid&&(r.events||[]).some(e=>/\.create$/.test(e)))lnkCallSig(p);return}lnkRtMsg(r,p)}else if('memberA' in p)lnkSC()};
+  const cb=r=>{const p=(r&&r.payload)||{};if('chatId' in p){if(p.kind==='call'){if(p.fromId!==LNK.uid&&(r.events||[]).some(e=>/\.create$/.test(e)))lnkCallSig(p);return}lnkRtMsg(r,p)}else if('memberA' in p||Array.isArray(p.members))lnkRtChat(r,p);else lnkSC()};
   try{
-    if(Appwrite.Realtime){const rt=new Appwrite.Realtime(LNK.cl);const sub=await rt.subscribe(ch,cb);LNK.sub=()=>{try{sub.close()}catch(e){}}}
+    if(Appwrite.Realtime){const rt=new Appwrite.Realtime(LNK.cl),close=[];const sub=await rt.subscribe(ch,cb);close.push(()=>sub.close());try{const av=await rt.subscribe(['buckets.'+LNC.bk+'.files'],r=>lnkAvChanged(r));close.push(()=>av.close());LNK.avRt=1}catch(e){LNK.avRt=0}LNK.sub=()=>close.forEach(f=>{try{f()}catch(e){}})}
     else if(LNK.cl.subscribe){const un=LNK.cl.subscribe(ch,cb);LNK.sub=()=>{try{un()}catch(e){}}}
   }catch(e){}
-  LNK.act=Date.now();LNK.pn=0;LNK.poll=setInterval(()=>{if(LNK.st!='on'||document.hidden||MS.p!='link')return;LNK.pn++;if(Date.now()-LNK.act>300000&&LNK.pn%4)return;if(!LNK.sub||LNK.pn%2==0)lnkLoadChats();if(MS.cid)lnkLoadMsgs(MS.cid)},LNK.sub?20000:7000);
-  clearInterval(LNK.cp);LNK.cp=setInterval(()=>{if(LNK.st=='on'&&!document.hidden&&!CALL)lnkCallPoll()},LNK.sub?30000:6000);
+  LNK.act=Date.now();LNK.pn=0;LNK.poll=setInterval(()=>{if(LNK.st!='on'||document.hidden||MS.p!='link')return;if(Date.now()-LNK.act>300000)return;lnkLoadChats();if(MS.cid)lnkLoadMsgs(MS.cid,!!LNK.sub)},LNK.sub?300000:15000);
+  clearInterval(LNK.cp);LNK.cp=setInterval(()=>{if(LNK.st=='on'&&!document.hidden&&!CALL)lnkCallPoll()},LNK.sub?300000:10000);
 }
-function lnkStop(){if(LNK.sub){LNK.sub();LNK.sub=null}clearInterval(LNK.poll);LNK.poll=null;clearInterval(LNK.cp)}
-document.addEventListener('visibilitychange',()=>{if(document.hidden||LNK.st!='on'||MS.p!='link')return;lnkLoadChats();if(MS.cid){lnkLoadMsgs(MS.cid);lnkMarkRead(MS.cid)}});
+function lnkStop(){if(LNK.sub){LNK.sub();LNK.sub=null}LNK.avRt=0;clearInterval(LNK.poll);LNK.poll=null;clearInterval(LNK.cp)}
+document.addEventListener('visibilitychange',()=>{if(document.hidden||LNK.st!='on'||MS.p!='link')return;lnkLoadChats();if(MS.cid){lnkLoadMsgs(MS.cid,1);lnkMarkRead(MS.cid)}});
 
 /* ---------- گفتگوها ---------- */
 async function lnkLoadChats(){
@@ -1367,14 +1400,14 @@ async function lnkLoadChats(){
 /* v5.9: حذف گفتگو — «برای خودم» فقط روی همین دستگاه پنهان می‌کند؛ «برای هر دو» پیام‌ها، فایل‌ها و خود گفتگو را از سرور پاک می‌کند (به شرط دسترسی Delete در Appwrite) */
 function lnkHd(){if(LNK._hu!==LNK.uid){LNK._hu=LNK.uid;try{LNK._hd=JSON.parse(localStorage.getItem('cls_lnk_hd_'+LNK.uid)||'{}')}catch(e){LNK._hd={}}}return LNK._hd}
 function lnkHm(){if(LNK._hmu!==LNK.uid){LNK._hmu=LNK.uid;try{LNK._hm=JSON.parse(localStorage.getItem('cls_lnk_hm_'+LNK.uid)||'{}')}catch(e){LNK._hm={}}}return LNK._hm}
-function lnkHideMsgs(cid,ids){const h=lnkHm();ids.forEach(i=>{h[i]=1});{const C=(LNK.mc||{})[cid];if(C){ids.forEach(i=>{const r=C.rows[i];if(r&&r.fileId)lnkFc.del(r.fileId);delete C.rows[i]});lnkMcSave(cid,1)}}try{localStorage.setItem('cls_lnk_hm_'+LNK.uid,JSON.stringify(h))}catch(e){}}
+function lnkHideMsgs(cid,ids){const h=lnkHm();ids.forEach(i=>{h[i]=1});{const C=(LNK.mc||{})[cid];if(C){ids.forEach(i=>{const r=C.rows[i];if(r&&r.fileId)lnkFc.del(r.fileId);delete C.rows[i];C.dirty.delete(i);C.deleted.add(i)});lnkMcSave(cid)}}try{localStorage.setItem('cls_lnk_hm_'+LNK.uid,JSON.stringify(h))}catch(e){}}
 const lnkVs=()=>LNK._vs||(LNK._vs={}),lnkCleared=(cid,r)=>{const h=lnkHd()[cid];return !!h&&Date.parse(r.$createdAt)<=h};
 async function lnkDelChats(ids,both){
   const hd=lnkHd(),now=Date.now();
   ids.forEach(id=>{hd[id]=now;delete lnkVs()[id]});try{localStorage.setItem('cls_lnk_hd_'+LNK.uid,JSON.stringify(hd))}catch(e){}
   LNK.cv=LNK.cv.filter(c=>!ids.includes(c.id));LNK.sg='';
-  ids.forEach(id=>lnkCacheDrop(id));
-  if(!both){ids.forEach(id=>{delete LNK.mg[id];delete LNK.ms[id]});return}
+  await Promise.all(ids.map(id=>lnkCacheDrop(id)));
+  if(!both){ids.forEach(id=>{delete LNK.mg[id];delete LNK.ms[id]});lnkOnChats(Object.values(LNK.raw));return}
   let bad=0;const Q=Appwrite.Query;
   for(const cid of ids){
     const rg=LNK.raw[cid];if(rg&&lnkG(rg)&&rg.owner!=LNK.uid){try{await lnkUp(LNC.tC,cid,{members:(rg.members||[]).filter(x=>x!=LNK.uid)})}catch(e){bad++}delete LNK.raw[cid];continue}
@@ -1387,8 +1420,8 @@ async function lnkDelChats(ids,both){
     }catch(e){bad++}
     delete LNK.mg[cid];delete LNK.ms[cid];if(LNK.mc)delete LNK.mc[cid];lnkIdb.del('m:'+LNK.uid+':'+cid);
   }
-  if(bad)toast('بخشی از اطلاعات برای طرف مقابل پاک نشد؛ در Appwrite برای جدول‌های chats و messages دسترسی Delete را به Users بده');
-  lnkLoadChats();
+  lnkOnChats(Object.values(LNK.raw));
+  if(bad){toast('بخشی از اطلاعات برای طرف مقابل پاک نشد؛ در Appwrite برای جدول‌های chats و messages دسترسی Delete را به Users بده');lnkLoadChats()}
 }
 /* ===== v6.0: تماس صوتی (WebRTC): صدا مستقیم بین دو برنامه می‌رود؛ از Appwrite فقط چند پیام کوچک و موقتِ هماهنگی (kind=call) رد می‌شود و بعد از تماس پاک می‌شوند ===== */
 let CALL=null,INC=null,LNRG=null;const LNCALL={seen:new Set(),early:{},rec:[],q:Promise.resolve()},LNICE=[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}];
@@ -1478,8 +1511,9 @@ function lnkOnChats(rs){
     return{id:x.$id,_e:!(x.last||x.lastAt),n:gp?(x.title||'بدون نام'):(side=='A'?x.nameB:x.nameA)||'کاربر',t:gp?x.kind:'p',sb:gp?(x.kind=='c'?'کانال':'گروه')+' · '+pd((x.members||[]).length)+' عضو':'',lm:lnkPv(x.$id,x.last||''),tm:lnkTm(t,1),un:gp?lnkGU(x):(MS.p=='link'&&MS.cid==x.$id&&!document.hidden)?0:(x['unread'+side]||0),pn:0,_t:t.getTime()};
   }).filter(c=>!c._e||lnkVs()[c.id]||(MS.p=='link'&&MS.cid==c.id)).filter(c=>!(lnkHd()[c.id]&&!lnkVs()[c.id]&&c._t<=lnkHd()[c.id])).sort((a,b)=>b._t-a._t);
   const sg=JSON.stringify(cv.map(c=>[c.id,c.n,c.lm,c._t,c.un,c.sb]));
+  lnkIdb.set('chats:'+me,Object.values(LNK.raw));
   if(sg==LNK.sg&&LNK.cv.length==cv.length)return;
-  LNK.sg=sg;LNK.cv=cv;lnkIdb.set('chats:'+me,Object.values(LNK.raw));
+  LNK.sg=sg;LNK.cv=cv;
   if(MS.p=='link'){if(MS.cid&&!cv.some(c=>c.id==MS.cid))msClose();msUpT();msUpL();if(MS.cid)msUpCh()}
 }
 function lnkNewDlg(){
@@ -1508,7 +1542,7 @@ async function lnkNewGo(em,close){
     if(!row)throw{fa:'گفتگو ساخته نشد'};
     if(close)close();
     lnkVs()[row.$id]=1;lnkOnChats(Object.values(LNK.raw).concat([row]));
-    msOpen(row.$id);lnkLoadChats();
+    msOpen(row.$id);
   }catch(e){toast('شروع گفتگو ناموفق بود: '+esc(lnkEr(e)))}
 }
 
@@ -1536,29 +1570,32 @@ function lnkBlob(fid,mm){
     const tot=+r.headers.get('content-length')||(LNK.fz&&LNK.fz[fid])||0,rd=r.body.getReader(),ch=[];let got=0;
     for(;;){const q=await rd.read();if(q.done)break;ch.push(q.value);got+=q.value.length;lnkDp(fid,tot?Math.min(99,got/tot*100):0)}
     return await new Blob(ch).arrayBuffer()};
-  const p=lnkFc.get(fid,(LNK.fz||{})[fid]).then(cb=>cb?cb.arrayBuffer():viaFetch().catch(()=>{lnkDp(fid,0);return viaSdk()}).then(ab=>{lnkFc.put(fid,new Blob([ab],mm?{type:mm}:{}));return ab})).then(ab=>{const b=new Blob([ab],mm?{type:mm}:{});LNK.bb[fid]=b;const u=URL.createObjectURL(b);LNK.bl[fid]=u;lnkSetU(fid,u);return u}).finally(()=>{delete LNK.bp[fid];if(LNK.dg)delete LNK.dg[fid]});
+  const p=lnkFc.get(fid,(LNK.fz||{})[fid]).then(cb=>cb?cb.arrayBuffer():viaFetch().catch(()=>{lnkDp(fid,0);return viaSdk()}).then(async ab=>{await lnkFc.put(fid,new Blob([ab],mm?{type:mm}:{}));return ab})).then(ab=>{const b=new Blob([ab],mm?{type:mm}:{});LNK.bb[fid]=b;const u=URL.createObjectURL(b);LNK.bl[fid]=u;lnkSetU(fid,u);return u}).finally(()=>{delete LNK.bp[fid];if(LNK.dg)delete LNK.dg[fid]});
   LNK.bp[fid]=p;return p}
 /* عکس‌های گفتگوی باز خودکار (حداکثر ۳ تا هم‌زمان) دریافت می‌شوند تا درجا دیده شوند */
 const lnkQ=[];let lnkQn=0;
 function lnkQp(){while(lnkQn<3&&lnkQ.length){const f=lnkQ.shift();lnkQn++;f().catch(()=>{}).then(()=>{lnkQn--;lnkQp()})}}
 function lnkPre(cid){(LNK.mg[cid]||[]).forEach(m=>{const a=m.a,f=a&&a.fid;if(!a||a.k!='image'||a.u||!f||LNK.bq[f]||LNK.bp[f]||(LNK.bf[f]||0)>=2)return;LNK.bq[f]=1;lnkQ.push(()=>lnkBlob(f,a.mm).then(lnkRf,()=>{LNK.bf[f]=(LNK.bf[f]||0)+1}).then(()=>{delete LNK.bq[f]}))});lnkQp()}
 const lnkMap=x=>{const o=x.fromId==LNK.uid?1:0;if(o)LNK.mine.add(x.$id);const rw=LNK.raw[x.chatId],r={_f:rw&&lnkG(rw)&&!o?x.fromId:'',sn:rw&&lnkG(rw)&&!o?lnkUn(x.fromId):'',id:x.$id,o,x:x.text||'',tm:lnkTm(new Date(x.$createdAt)),st:o?(x.readByOther?'read':'sent'):'',r:x.replyTo||null,pn:x.pinned?1:0,_rb:!!x.readByOther};if(x.fileId)r.a=lnkFa(x);return r};
-async function lnkLoadMsgs(cid){
+async function lnkLoadMsgs(cid,force){
   if(!cid||!LNK.uid)return;
   if(LNK.lm){LNK.lmAg=cid;return}
   LNK.lm=1;
   try{
     const Q=Appwrite.Query,lim=LNK.lim[cid]||100,C=await lnkMcGet(cid),now=Date.now(),mx=(rs,t)=>rs.reduce((a,r)=>Math.max(a,Date.parse(r.$updatedAt)||0),t||0);
+    if(force){C.fo=1;C.rc=0}
     if(C.ts&&!(LNK.mg[cid]&&LNK.mg[cid].length))lnkOnMsgs(cid,lnkWin(cid,C));
-    const full=async()=>{const rs=await lnkRows(LNC.tM,[Q.equal('chatId',[cid]),Q.orderDesc('$createdAt'),Q.limit(lim)]);C.rows={};rs.forEach(r=>{C.rows[r.$id]=r});C.more=rs.length>=lim?1:0;C.lim=lim;C.rc=now;C.ts=mx(rs,0)||1};
-    if(!C.ts||C.lim<lim)await full();
-    else{try{
-      if(now-C.rc>(C.fo?60000:300000)){const ids=await lnkRows(LNC.tM,[Q.equal('chatId',[cid]),Q.orderDesc('$createdAt'),Q.limit(lim),Q.select(['$id','$createdAt'])]),set=new Set(ids.map(r=>r.$id)),mn=ids.length>=lim?ids[ids.length-1].$createdAt:'';Object.keys(C.rows).forEach(k=>{if(!set.has(k)&&(!mn||C.rows[k].$createdAt>=mn))delete C.rows[k]});C.rc=now;C.fo=0}
-      const rs=await lnkRows(LNC.tM,[Q.equal('chatId',[cid]),Q.greaterThan('$updatedAt',new Date(Math.max(0,C.ts-5000)).toISOString()),Q.orderAsc('$updatedAt'),Q.limit(100)]);
-      rs.forEach(r=>{C.rows[r.$id]=r});C.ts=mx(rs,C.ts);
-    }catch(e){await full()}}
+    if(!(C.ts&&LNK.sub&&!force)){
+      const full=async()=>{const rs=await lnkRows(LNC.tM,[Q.equal('chatId',[cid]),Q.orderDesc('$createdAt'),Q.limit(lim)]),old=Object.keys(C.rows);C.rows={};rs.forEach(r=>{C.rows[r.$id]=r;C.dirty.add(r.$id)});old.forEach(id=>{if(!C.rows[id])C.deleted.add(id)});C.more=rs.length>=lim?1:0;C.lim=lim;C.rc=now;C.ts=mx(rs,0)||1};
+      if(!C.ts||C.lim<lim)await full();
+      else{try{
+        if(now-C.rc>(C.fo?60000:300000)){const ids=await lnkRows(LNC.tM,[Q.equal('chatId',[cid]),Q.orderDesc('$createdAt'),Q.limit(lim),Q.select(['$id','$createdAt'])]),set=new Set(ids.map(r=>r.$id)),mn=ids.length>=lim?ids[ids.length-1].$createdAt:'';Object.keys(C.rows).forEach(k=>{if(!set.has(k)&&(!mn||C.rows[k].$createdAt>=mn)){delete C.rows[k];C.deleted.add(k)}});C.rc=now;C.fo=0}
+        const rs=await lnkRows(LNC.tM,[Q.equal('chatId',[cid]),Q.greaterThan('$updatedAt',new Date(Math.max(0,C.ts-5000)).toISOString()),Q.orderAsc('$updatedAt'),Q.limit(100)]);
+        rs.forEach(r=>{C.rows[r.$id]=r;C.dirty.add(r.$id)});C.ts=mx(rs,C.ts);
+      }catch(e){await full()}}
+    }
     LNK.mr[cid]=!!C.more;LNK.lb[cid]=0;LNK.lmE=0;
-    lnkOnMsgs(cid,lnkWin(cid,C));lnkMcSave(cid);
+    lnkOnMsgs(cid,lnkWin(cid,C));await lnkMcSave(cid);
   }catch(e){
     LNK.lb[cid]=0;if(MS.p=='link'&&MS.cid==cid)msUpMg();
     if(!LNK.lmE){LNK.lmE=1;toast('دریافت پیام‌ها ناموفق بود: '+esc(lnkEr(e)))}
@@ -1577,7 +1614,7 @@ function lnkMarkRead(cid){
   (LNK.mg[cid]||[]).filter(m=>!m.o&&!m._rb&&!LNK.mk.has(m.id)).forEach(m=>{LNK.mk.add(m.id);lnkUp(LNC.tM,m.id,{readByOther:true}).then(()=>{m._rb=true},()=>LNK.mk.delete(m.id))});
   const raw=LNK.raw[cid];if(!raw)return;
   const side=raw.memberA==LNK.uid?'A':'B';
-  if((raw['unread'+side]||0)>0&&!LNK.zr[cid]){LNK.zr[cid]=1;lnkUp(LNC.tC,cid,{['unread'+side]:0}).then(r=>{LNK.raw[cid]=r;LNK.zr[cid]=0;LNK.sg='';lnkLoadChats()},()=>{LNK.zr[cid]=0})}
+  if((raw['unread'+side]||0)>0&&!LNK.zr[cid]){LNK.zr[cid]=1;lnkUp(LNC.tC,cid,{['unread'+side]:0}).then(r=>{LNK.raw[cid]=r;LNK.zr[cid]=0;LNK.sg=''},()=>{LNK.zr[cid]=0})}
 }
 const lnkPg=(id,v)=>{{const g=document.querySelector('#msMg [data-m="'+id+'"] .m_ring .fg');if(g)g.style.strokeDashoffset=(119.4*(1-Math.max(.08,v/100))).toFixed(1)}const b=document.querySelector('#msMg [data-m="'+id+'"] .m_prg i'),t=document.querySelector('#msMg [data-m="'+id+'"] .m_prg+small');if(b)b.style.width=v+'%';if(t)t.textContent=pd(v)+'٪ در حال ارسال…'};
 /* آپلود یک فایل (با نوار پیشرفت) و ساخت ردیف پیام آن */
@@ -1593,8 +1630,8 @@ async function lnkSendF(cid,f,t,rp,perm){
     up=1;if(tmp.cx)throw{cx:1};
     const ft=(k=='voice'?tmp.a.mm+(tmp.a.wf?'|'+lnkWfE(tmp.a.wf):''):(fo.type||'')).slice(0,100);
     const row=await lnkMk(LNC.tM,Appwrite.ID.unique(),{chatId:cid,fromId:LNK.uid,text:t,replyTo:rp,pinned:false,readByOther:false,fileId:fid,fileName:String(f.n||'file').slice(0,255),fileType:ft,fileSize:fo.size,kind:k,dur:Math.round(vd.d||0)},[Appwrite.Permission.delete(Appwrite.Role.user(LNK.uid))]);
-    LNK.bl[fid]=lu;LNK.bb[fid]=fo;clean();lnkFc.put(fid,fo);
-    const L=LNK.mg[cid]||(LNK.mg[cid]=[]);if(!L.some(m=>m.id==row.$id))L.push(lnkMap(row));lnkMcPut(cid,row);
+    LNK.bl[fid]=lu;LNK.bb[fid]=fo;clean();await lnkFc.put(fid,fo);
+    const L=LNK.mg[cid]||(LNK.mg[cid]=[]);if(!L.some(m=>m.id==row.$id))L.push(lnkMap(row));
     return row;
   }catch(e){
     clean();try{URL.revokeObjectURL(lu)}catch(x){}
@@ -1695,7 +1732,7 @@ async function lnkSend(o){
       if(!f){
         let row;try{row=await lnkMk(LNC.tM,Appwrite.ID.unique(),{chatId:cid,fromId:me,text:t,replyTo:rp,pinned:false,readByOther:false},[Appwrite.Permission.delete(Appwrite.Role.user(me))])}
         catch(e){throw{fa:lnkEr(e)}}
-        const L=LNK.mg[cid]||(LNK.mg[cid]=[]);if(!L.some(m=>m.id==row.$id))L.push(lnkMap(row));lnkMcPut(cid,row);o.onRow&&o.onRow(row);
+        const L=LNK.mg[cid]||(LNK.mg[cid]=[]);if(!L.some(m=>m.id==row.$id))L.push(lnkMap(row));o.onRow&&o.onRow(row);
         last=t;
       }else{
         await lnkSendF(cid,f,t,rp,perm);
@@ -1710,7 +1747,7 @@ async function lnkSend(o){
       const side=r0.memberA==me?'A':'B',ob=side=='A'?'B':'A',cur=LNK.raw[cid]||r0;
       const gp=lnkG(r0),dd={last:last.slice(0,80),lastAt:new Date().toISOString()};if(gp)dd.msgCount=(cur.msgCount||0)+n;else dd['unread'+ob]=(cur['unread'+ob]||0)+n;
       LNK.raw[cid]=await lnkUp(LNC.tC,cid,dd);if(gp)lnkGs(cid,LNK.raw[cid].msgCount||0);
-      LNK.sg='';lnkLoadChats();
+      LNK.sg='';
     }catch(e){toast('پیام رفت ولی فهرست گفتگو به‌روز نشد: '+esc(lnkEr(e)))}
   }
   if(err)throw err;
@@ -1735,7 +1772,7 @@ function lnkDelMsgs(cid,ids){
   if(mine.length<ids.length){toast('فقط پیام‌های خودت را می‌شود حذف کرد');lnkLoadMsgs(cid)}
   if(!mine.length)return;
   const fs=mine.map(id=>LNK.fm[id]).filter(Boolean);
-  return Promise.all(mine.map(id=>lnkDel(LNC.tM,id))).then(()=>{{const C=(LNK.mc||{})[cid];if(C){mine.forEach(i=>{delete C.rows[i]});lnkMcSave(cid,1)}}fs.forEach(f=>{lnkFc.del(f);LNK.sv.deleteFile({bucketId:LNC.bk,fileId:f}).catch(()=>{})});lnkLoadMsgs(cid)},()=>{toast('حذف انجام نشد');lnkLoadMsgs(cid)});
+  return Promise.all(mine.map(id=>lnkDel(LNC.tM,id))).then(async()=>{const C=(LNK.mc||{})[cid];if(C){mine.forEach(i=>{delete C.rows[i];C.dirty.delete(i);C.deleted.add(i)});await lnkMcSave(cid);lnkOnMsgs(cid,lnkWin(cid,C))}await Promise.all(fs.map(f=>lnkFc.del(f)));fs.forEach(f=>LNK.sv.deleteFile({bucketId:LNC.bk,fileId:f}).catch(()=>{}))},()=>{toast('حذف انجام نشد');lnkLoadMsgs(cid,1)});
 }
 function lnkOpt(o){const cid=o.cid,tid='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),tmp={id:tid,o:1,x:o.text,tm:lnkTm(new Date()),st:'pend',r:o.reply||null,pn:0,_new:1};(LNK.mg[cid]||(LNK.mg[cid]=[])).push(tmp);LNK.up[cid]=(LNK.up[cid]||[]).concat([tmp]);setTimeout(()=>{tmp._new=0},500);return tid}
 function lnkOptShow(cid,tid){const h=document.getElementById('msMg'),m=(LNK.mg[cid]||[]).find(x=>x.id==tid);if(!h||!m||!h.querySelector('.m_b')){msUpMg(1);return}h.insertAdjacentHTML('beforeend',msBbH(m));const sc=h.closest('.m_mg')||h;try{sc.scrollTo({top:sc.scrollHeight,behavior:'smooth'})}catch(e){sc.scrollTop=sc.scrollHeight}}
@@ -1792,7 +1829,7 @@ async function lnkGrpGo(k){
     const me=LNK.uid,ids=[me],bad=[];
     for(const q of ls.slice(0,100)){let u=null;try{u=await lnkFind(q)}catch(e){}if(!u)bad.push(q);else if(!u.me&&!ids.includes(u.id))ids.push(u.id)}
     const id=Appwrite.ID.unique(),row=await lnkMk(LNC.tC,id,{memberA:me,memberB:me,pairKey:'g_'+id,nameA:nm,nameB:nm,last:(k=='c'?'کانال':'گروه')+' ساخته شد',lastAt:new Date().toISOString(),unreadA:0,unreadB:0,kind:k,title:nm,about:ab,owner:me,members:ids,msgCount:0});
-    msDgX();lnkVs()[id]=1;lnkOnChats(Object.values(LNK.raw).concat([row]));msOpen(id);lnkLoadChats();
+    msDgX();lnkVs()[id]=1;lnkOnChats(Object.values(LNK.raw).concat([row]));msOpen(id);
     if(bad.length)toast('این‌ها پیدا نشدند: '+esc(bad.join('، ')));
   }catch(e){if(b)b.disabled=false;toast('ساخت ناموفق بود: '+esc(lnkEr(e)))}}
 function lnkAddDlg(cid){msDlg(`<h3 class="m_dgh">افزودن عضو</h3><textarea id="gaM" class="m_dgi" rows="3" dir="ltr" placeholder="ایمیل یا @نام‌کاربری، با ویرگول یا خط جدید جدا کن" onkeydown="event.stopPropagation()"></textarea><div class="act" style="justify-content:center"><button class="ok" onclick="lnkAddGo('${cid}')">افزودن</button><button onclick="msDgX()">لغو</button></div>`);const i=$('#gaM');i&&i.focus()}
@@ -1825,20 +1862,22 @@ LNA.setUn=async v=>{v=String(v||'').trim().toLowerCase().replace(/^@/,'');if(v&&
 /* عکس پروفایل: فایل ۲۵۶×۲۵۶ با شناسهٔ ثابت av<uid> در همان Bucket؛ نسخهٔ محلی در Messenger/Cache/Link/files و هر نشست فقط یک بار با $updatedAt سنجیده می‌شود */
 const lnkAvU=()=>LNK.avU||(LNK.avU={}),lnkAvP=()=>LNK.avP||(LNK.avP={});
 function lnkAvSet(uid,b){const m=lnkAvU();if(m[uid])try{URL.revokeObjectURL(m[uid])}catch(e){}m[uid]=b?URL.createObjectURL(b):'';if(MS.p=='link'){msUpL();if(MS.cid)msUpCh();if(MS.nv=='prof')msNvUp()}}
+async function lnkAvChanged(r){const p=r&&r.payload||{},fid=p.$id;if(!fid||!/^av/.test(fid))return;const uid=fid.slice(2),del=(r.events||[]).some(e=>/\.delete$/.test(e));delete lnkAvP()[uid];await lnkIdb.del('av:'+uid);if(del){await lnkFc.del('av_'+uid);lnkAvSet(uid,null)}else lnkAvLoad(uid)}
 async function lnkAvLoad(uid){const P=lnkAvP();if(P[uid])return;P[uid]=1;const fid='av'+uid;let shown=0;
   try{const meta=await lnkIdb.get('av:'+uid);let b=meta?await lnkFc.get('av_'+uid):null;if(b){lnkAvSet(uid,b);shown=1}
+    if(b&&meta&&LNK.avRt)return;
     let f;try{f=await LNK.sv.getFile({bucketId:LNC.bk,fileId:fid})}catch(e){if(e&&e.code===404){lnkFc.del('av_'+uid);lnkIdb.del('av:'+uid);lnkAvSet(uid,null);return}throw e}
-    if(!b||!meta||meta.u!==f.$updatedAt){const ab=await LNK.cl.call('get',new URL(String(new URL(LNK.sv.getFileView({bucketId:LNC.bk,fileId:fid})))),{},{},'arrayBuffer');b=new Blob([ab],{type:'image/jpeg'});await lnkFc.put('av_'+uid,b);lnkIdb.set('av:'+uid,{u:f.$updatedAt});lnkAvSet(uid,b)}
+    if(!b||!meta||meta.u!==f.$updatedAt){const ab=await LNK.cl.call('get',new URL(String(new URL(LNK.sv.getFileView({bucketId:LNC.bk,fileId:fid})))),{},{},'arrayBuffer');b=new Blob([ab],{type:'image/jpeg'});await lnkFc.put('av_'+uid,b);await lnkIdb.set('av:'+uid,{u:f.$updatedAt});lnkAvSet(uid,b)}
   }catch(e){if(!shown)lnkAvU()[uid]=''}finally{delete P[uid]}}
 LNA.av=cid=>{const r=LNK.raw[cid];if(!r||lnkG(r))return'';const o=r.memberA==LNK.uid?r.memberB:r.memberA,m=lnkAvU();if(m[o]===undefined)lnkAvLoad(o);return m[o]||''};
 LNA.avErr=cid=>{const r=LNK.raw[cid];if(!r||lnkG(r))return;lnkAvU()[r.memberA==LNK.uid?r.memberB:r.memberA]=''};
-LNA.avDel=async()=>{const me=LNK.uid;try{await LNK.sv.deleteFile({bucketId:LNC.bk,fileId:'av'+me})}catch(e){if(e&&e.code===401)throw{fa:'سرور اجازهٔ حذف یا جایگزینی عکس را نمی‌دهد. در Appwrite ← Storage ← Bucket ← Settings گزینهٔ File security را روشن کن و Update بزن'};if(!(e&&e.code===404))throw{fa:lnkEr(e)}}try{lnkFc.del('av_'+me);lnkIdb.del('av:'+me)}catch(e){}lnkAvSet(me,null)};
+LNA.avDel=async()=>{const me=LNK.uid;try{await LNK.sv.deleteFile({bucketId:LNC.bk,fileId:'av'+me})}catch(e){if(e&&e.code===401)throw{fa:'سرور اجازهٔ حذف یا جایگزینی عکس را نمی‌دهد. در Appwrite ← Storage ← Bucket ← Settings گزینهٔ File security را روشن کن و Update بزن'};if(!(e&&e.code===404))throw{fa:lnkEr(e)}}await lnkFc.del('av_'+me);await lnkIdb.del('av:'+me);lnkAvSet(me,null)};
 LNA.avMe=()=>{const m=lnkAvU();if(m[LNK.uid]===undefined)lnkAvLoad(LNK.uid);return m[LNK.uid]||''};
 LNA.avSet=async f=>{const bm=await createImageBitmap(f),S=256,sc=Math.max(S/bm.width,S/bm.height),w=bm.width*sc,h=bm.height*sc,cv=document.createElement('canvas');cv.width=cv.height=S;const cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,S,S);cx.drawImage(bm,(S-w)/2,(S-h)/2,w,h);try{bm.close()}catch(e){}
   const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',.82));if(!b)throw{fa:'عکس پردازش نشد'};const me=LNK.uid,fid='av'+me;
   try{await LNK.sv.deleteFile({bucketId:LNC.bk,fileId:fid})}catch(e){if(e&&e.code===401)throw{fa:'سرور اجازهٔ حذف یا جایگزینی عکس را نمی‌دهد. در Appwrite ← Storage ← Bucket ← Settings گزینهٔ File security را روشن کن و Update بزن'}}
   let r;try{r=await LNK.sv.createFile({bucketId:LNC.bk,fileId:fid,file:new File([b],'avatar.jpg',{type:'image/jpeg'}),permissions:[Appwrite.Permission.read(Appwrite.Role.users()),Appwrite.Permission.update(Appwrite.Role.user(me)),Appwrite.Permission.delete(Appwrite.Role.user(me))]})}catch(e){throw{fa:lnkEr(e)}}
-  await lnkFc.put('av_'+me,b);lnkIdb.set('av:'+me,{u:r.$updatedAt});lnkAvSet(me,b)};
+  await lnkFc.put('av_'+me,b);await lnkIdb.set('av:'+me,{u:r.$updatedAt});lnkAvSet(me,b)};
 LNA.pw=(o,n)=>LNK.au.updatePassword({password:n,oldPassword:o});
 LNA.outAll=async()=>{try{await LNK.au.deleteSessions()}catch(e){}return lnkOut()};
 function msDlg(h){const x=$('#msDg');x&&x.remove();const o=document.createElement('div');o.className='ov';o.id='msDg';o.innerHTML=`<div class="md m_dg" dir="rtl">${h}</div>`;document.body.append(o);o.onclick=e=>{if(e.target===o)o.remove()};return o}
