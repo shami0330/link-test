@@ -376,7 +376,6 @@ html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
 .ms .m_tb>.m_av,.ms .m_tb>.m_st,.ms .m_tb>.m_dm{display:none}
 .ms .m_tb>b{font-size:1.2em;font-weight:700}
 .ms .m_tb>.m_fl{flex:1}
-.ms .m_tb>button:has(svg):not(:has(svg+*)){}
 .ms .m_tb>button{padding:0 12px;height:38px;border-radius:19px}
 .ms .m_tb>button[title="گروه، کانال یا گفتگوی جدید"],.ms .m_tb>button[title="خروج از حساب"]{width:38px;padding:0;border-radius:50%;justify-content:center;gap:0;font-size:0}
 .ms .m_tb>button svg{width:22px;height:22px;font-size:initial}
@@ -441,7 +440,7 @@ html.kb-open .ms .m_cp{padding-bottom:8px}
 .cache-start-card button{width:100%;justify-content:center;padding:11px 14px;margin-top:8px;border-radius:11px}
 .cache-start-card .ok{background:var(--ac);color:#fff}
 .cache-note{font-size:.88rem}
-@media(max-width:700px){
+@media(max-width:700px),(max-height:500px) and (max-width:950px){
   html,body{width:100%;height:100%;overflow:hidden}
   #root{height:var(--vvh,100dvh);min-height:0}
   .cache-start{min-height:100%;padding:16px}
@@ -450,6 +449,7 @@ html.kb-open .ms .m_cp{padding-bottom:8px}
   .ms{font-size:16px}
   .m_lgw{min-height:0;align-items:center;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .m_lg{width:min(430px,100%);margin:auto;padding:20px 16px;gap:12px}
+  .ms:has(>.m_lgw)>.m_tb{display:none}
   .m_lg input{width:100%;min-height:48px;font-size:16px!important;padding:10px 12px}
   .m_lg button{min-height:46px}
   .m_lg .lk{min-height:44px}
@@ -465,7 +465,7 @@ html.kb-open .ms .m_cp{padding-bottom:8px}
   :root.kb-open .m_lg{margin:0 auto}
   :root.kb-open .m_mg{overscroll-behavior:contain}
 }
-@media(max-width:700px) and (hover:none){
+@media(max-width:700px) and (hover:none),(max-height:500px) and (pointer:coarse) and (hover:none){
   button:hover:not(:disabled){filter:none}
   button:active:not(:disabled){filter:brightness(.92)}
 }
