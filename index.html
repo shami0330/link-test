@@ -829,6 +829,7 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 <div class="pg-row" id="pgCam" data-s="prompt"><div class="pg-ic"><svg viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div class="pg-txt"><b>دوربین</b><span>برای ضبط پیام ویدیویی و عکس</span></div><div class="pg-st" id="pgCamSt">!</div></div>
 <div class="pg-row" id="pgMic" data-s="prompt"><div class="pg-ic"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></div><div class="pg-txt"><b>میکروفون</b><span>برای ضبط پیام صوتی و ویدیویی</span></div><div class="pg-st" id="pgMicSt">!</div></div>
 <div class="pg-row" id="pgSto" data-s="prompt"><div class="pg-ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div><div class="pg-txt"><b>حافظه دستگاه</b><span>برای ذخیره‌ی پیام‌ها و رسانه‌ها روی دستگاه</span></div><div class="pg-st" id="pgStoSt">!</div></div>
+<div class="pg-row" id="pgLoc" data-s="prompt"><div class="pg-ic"><svg viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div class="pg-txt"><b>موقعیت مکانی</b><span>برای ارسال موقعیت شما (اختیاری)</span></div><div class="pg-st" id="pgLocSt">!</div></div>
 </div>
 <button class="pg-btn" id="pgBtn" type="button">اعطای دسترسی‌ها</button>
 <div class="pg-hint" id="pgHint"></div>
@@ -1041,12 +1042,12 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 <div class="sheet-grab"></div>
 <div class="at-head" id="atHead"><button class="at-hbtn" id="atClose" aria-label="بستن"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="at-title" id="atTitle"></div><input class="at-search" id="atSearch" placeholder="جستجو…"><button class="at-hbtn" id="atSearchBtn" aria-label="جستجو"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button></div>
 <div class="at-body" id="atBody">
-<div class="at-panel" data-p="gallery"><div class="at-card"><button class="at-row act" data-act="gallery"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>انتخاب عکس و ویدیو از گالری</button></div><div class="at-sec">اخیراً در این گفتگو</div><div class="at-grid" id="atGal"></div></div>
+<div class="at-panel" data-p="gallery"><div class="at-card"><button class="at-row act" data-act="gallery"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>انتخاب عکس و ویدیو از گالری</button></div><div class="at-sec">عکس‌های اخیر</div><div class="at-grid" id="atGal"></div></div>
 <div class="at-panel" data-p="file"><div class="at-card"><button class="at-row act" data-act="gallery"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>انتخاب از گالری</button><button class="at-row act" data-act="file"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.96A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/></svg></span>انتخاب از فایل‌ها</button></div><div class="at-sec">فایل‌های ارسال‌شده‌ی اخیر</div><div class="at-card" id="atFiles"></div></div>
 <div class="at-panel" data-p="location"><div class="at-map"><svg class="svg-icon" style="width:44px;height:44px" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div class="at-card"><button class="at-row" data-act="loc-now"><span class="at-ic g"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span class="at-tx"><b>ارسال موقعیت فعلی من</b><span class="at-sub">دقیق‌ترین موقعیت دستگاه</span></span></button></div><div class="at-sec">یا یک مکان را انتخاب کنید</div><div class="at-card" id="atPlaces"></div></div>
 <div class="at-panel" data-p="checklist"><input class="at-in" id="clTitle" placeholder="عنوان چک‌لیست"><div id="clItems"></div><div class="at-card"><button class="at-row act" id="clAdd"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/></svg></span>افزودن مورد</button></div><button class="at-send" id="clSend">ارسال چک‌لیست</button></div>
 <div class="at-panel" data-p="audio"><div class="at-card"><button class="at-row act" data-act="music"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.96A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/></svg></span>انتخاب از فایل‌ها</button></div><div class="at-sec">موسیقی‌های ارسال‌شده‌ی اخیر</div><div class="at-card" id="atAudio"></div></div>
-<div class="at-panel" data-p="contact"><div class="at-card" id="atContacts"></div></div>
+<div class="at-panel" data-p="contact"><div class="at-card" id="atPhoneC" style="display:none;margin-bottom:8px"><button class="at-row act" data-act="phone-contact"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></span>انتخاب از مخاطبین گوشی</button></div><div class="at-card" id="atContacts"></div></div>
 </div>
 <div class="at-tabs" id="atTabs"><button class="at-tab" data-tab="gallery"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span>گالری</span></button><button class="at-tab" data-tab="file"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg><span>فایل</span></button><button class="at-tab" data-tab="location"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>موقعیت</span></button><button class="at-tab" data-tab="checklist"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/></svg><span>چک‌لیست</span></button><button class="at-tab" data-tab="audio"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/></svg><span>موسیقی</span></button><button class="at-tab" data-tab="contact"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span>مخاطب</span></button></div>
 </div>
@@ -1358,9 +1359,9 @@ finally{camAsking=false;}}
 const PermGate=(function(){
 const $g=id=>document.getElementById(id);
 const gate=$g('permGate'),inner=$g('pgInner'),btn=$g('pgBtn'),hint=$g('pgHint'),sub=$g('pgSub');
-const rows={cam:[$g('pgCam'),$g('pgCamSt')],mic:[$g('pgMic'),$g('pgMicSt')],sto:[$g('pgSto'),$g('pgStoSt')]};
+const rows={cam:[$g('pgCam'),$g('pgCamSt')],mic:[$g('pgMic'),$g('pgMicSt')],sto:[$g('pgSto'),$g('pgStoSt')],loc:[$g('pgLoc'),$g('pgLocSt')]};
 const MARK={granted:'✓',denied:'✕',unavailable:'!',prompt:'!'};
-let state={cam:'prompt',mic:'prompt',sto:'prompt'},busy=false,done=null,wasDenied=false;
+let state={cam:'prompt',mic:'prompt',sto:'prompt',loc:'prompt'},busy=false,done=null,wasDenied=false;
 const hasMedia=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 const flag=k=>{try{return localStorage.getItem(k)==='1';}catch(e){return false;}};
 
@@ -1381,13 +1382,14 @@ if(!window.indexedDB)return 'unavailable';
 try{if(navigator.storage&&navigator.storage.persisted){if(await navigator.storage.persisted())return 'granted';try{if(localStorage.getItem('link-st-asked')==='1')return 'granted';}catch(e){}return 'prompt';}}catch(e){}
 return 'granted'; /* browser has no persistence API: nothing more to ask */
 }
+async function checkLoc(){if(!navigator.geolocation)return 'unavailable';const asked=flag('link-loc-asked');const s=await q('geolocation');if(s==='granted'||s==='denied')return s;if(flag('link-loc-ok'))return 'granted';return asked?'unavailable':'prompt';}
 async function check(){
-const [cam,mic,sto]=await Promise.all([checkMedia('cam'),checkMedia('mic'),checkStorage()]);
-state={cam,mic,sto};
+const [cam,mic,sto,loc]=await Promise.all([checkMedia('cam'),checkMedia('mic'),checkStorage(),checkLoc()]);
+state={cam,mic,sto,loc};
 try{if(cam==='granted'&&mic==='granted'){setCamOK(true);setMicOK(true);}else{if(cam!=='granted')setCamOK(false);if(mic!=='granted')setMicOK(false);}}catch(e){}
 return state;
 }
-const allOK=()=>state.cam==='granted'&&state.mic==='granted'&&state.sto==='granted';
+const allOK=()=>state.cam==='granted'&&state.mic==='granted'&&state.sto==='granted'&&state.loc!=='prompt';
 
 function render(){
 for(const k in rows){const [r,s]=rows[k];r.dataset.s=state[k];s.textContent=MARK[state[k]]||'!';}
@@ -1423,6 +1425,7 @@ if(state.cam!=='granted'){try{const st=await navigator.mediaDevices.getUserMedia
 }
 /* 2) device storage */
 try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist();}catch(e){}
+try{if(navigator.geolocation&&state.loc==='prompt'){await new Promise(r=>navigator.geolocation.getCurrentPosition(()=>{try{localStorage.setItem('link-loc-ok','1');}catch(e){}r();},r,{timeout:10000,maximumAge:600000}));try{localStorage.setItem('link-loc-asked','1');}catch(e){}}}catch(e){}
 try{localStorage.setItem('link-st-asked','1');}catch(e){} /* asked once: browsers may refuse silently, which must not block entry */
 }finally{
 await check();
@@ -2162,14 +2165,14 @@ b.append(ic,tx);b.addEventListener('click',fn);return b;}
 function atSend(p){closeAttachSheet();if(currentChatId)sendOutgoingMessage(p);}
 function atFill(box,rows,empty){box.innerHTML='';if(!rows.length){box.appendChild(atEl('<div class="at-empty">'+empty+'</div>'));return;}rows.forEach(r=>box.appendChild(r));}
 function atBuild(tab){
-const ms=(currentMessages||[]);
-if(tab==='gallery'){const g=atQ('#atGal');g.innerHTML='';const seen=[];ms.forEach(m=>{const its=m.kind==='album'&&m.items?m.items:(m.kind==='photo'?[m]:[]);its.forEach(it=>{if(it.mediaId&&!it.video)seen.push(it);});});
+const ms=(currentMessages||[]);const allMs=[].concat(...((LINKServer.db&&LINKServer.db.chats)||[]).map(c=>c.messages||[]),ms);
+if(tab==='gallery'){const g=atQ('#atGal');g.innerHTML='';const seen=[];allMs.forEach(m=>{const its=m.kind==='album'&&m.items?m.items:(m.kind==='photo'?[m]:[]);its.forEach(it=>{if(it.mediaId&&!it.video)seen.push(it);});});
 seen.slice(-12).reverse().forEach(it=>{const u=mUrlSync(it);if(!u)return;const b=document.createElement('button');b.className='at-th';b.type='button';b.style.backgroundImage='url("'+u+'")';b.addEventListener('click',()=>atSend({kind:'photo',mediaId:it.mediaId,video:it.video,w:it.w,h:it.h,name:it.name}));g.appendChild(b);});
-if(!g.children.length)g.appendChild(atEl('<div class="at-empty" style="grid-column:1/-1">هنوز عکسی در این گفتگو نیست؛ از گزینه‌ی بالا انتخاب کنید.</div>'));}
+if(!g.children.length)g.appendChild(atEl('<div class="at-empty" style="grid-column:1/-1">هنوز عکسی ارسال نشده؛ از گزینه‌ی بالا انتخاب کنید.</div>'));}
 if(tab==='file'){atFill(atQ('#atFiles'),ms.filter(m=>m.kind==='file'&&m.mediaId).slice(-8).reverse().map(m=>atRow(I_FILE,m.name||'فایل',m.size||'',()=>atSend({kind:'file',name:m.name,size:m.size,bytes:m.bytes,mime:m.mime,mediaId:m.mediaId,_up:true}))),'فایلی ارسال نشده است');}
 if(tab==='audio'){atFill(atQ('#atAudio'),ms.filter(m=>m.kind==='music'&&m.mediaId).slice(-8).reverse().map(m=>atRow(I_MUS,m.mtitle||m.name||'موسیقی',m.artist||m.size||'',()=>atSend({kind:'music',name:m.name,mtitle:m.mtitle,artist:m.artist,duration:m.duration,size:m.size,bytes:m.bytes,mime:m.mime,mediaId:m.mediaId,_up:true}))),'موسیقی‌ای ارسال نشده است');}
 if(tab==='location'){const pl=[['میدان آزادی، تهران','میدان آزادی'],['برج میلاد، تهران','برج میلاد'],['میدان نقش جهان، اصفهان','میدان نقش جهان']];atFill(atQ('#atPlaces'),pl.map(p=>atRow(I_PIN,p[1],p[0],()=>atSend({kind:'location',addr:p[0]}))),'');}
-if(tab==='contact'){const cs=((LINKServer.db&&LINKServer.db.chats)||[]).filter(c=>c.phone);const rows=cs.map(c=>atRow((c.title||'؟').trim().charAt(0),c.title,c.phone,()=>atSend({kind:'contact',name:c.title,phone:c.phone})));if(!rows.length)rows.push(atRow('م','مریم کاظمی','۰۹۱۲ ۱۲۳ ۴۵۶۷',()=>atSend({kind:'contact',name:'مریم کاظمی',phone:'۰۹۱۲ ۱۲۳ ۴۵۶۷'})));atFill(atQ('#atContacts'),rows,'');}
+if(tab==='contact'){atQ('#atPhoneC').style.display=(navigator.contacts&&navigator.contacts.select)?'':'none';const cs=((LINKServer.db&&LINKServer.db.chats)||[]).filter(c=>c.phone);const rows=cs.map(c=>atRow((c.title||'؟').trim().charAt(0),c.title,c.phone,()=>atSend({kind:'contact',name:c.title,phone:c.phone})));if(!rows.length)rows.push(atRow('م','مریم کاظمی','۰۹۱۲ ۱۲۳ ۴۵۶۷',()=>atSend({kind:'contact',name:'مریم کاظمی',phone:'۰۹۱۲ ۱۲۳ ۴۵۶۷'})));atFill(atQ('#atContacts'),rows,'');}
 }
 const I_FILE='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg>',I_MUS='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',I_PIN='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg>';
 function atFilter(q){q=(q||'').trim();const p=atQ('.at-panel.on');if(!p)return;p.querySelectorAll('.at-card .at-row:not(.act)').forEach(r=>{r.style.display=!q||r.textContent.includes(q)?'':'none';});}
@@ -2185,6 +2188,7 @@ attachSheet.addEventListener('click',e=>{const a=e.target.closest('[data-act]');
 if(t==='gallery'){closeAttachSheet();setTimeout(()=>fileGallery.click(),150);}
 else if(t==='file'){closeAttachSheet();setTimeout(()=>fileAny.click(),150);}
 else if(t==='music'){closeAttachSheet();setTimeout(()=>fileMusic.click(),150);}
+else if(t==='phone-contact'){navigator.contacts.select(['name','tel'],{multiple:false}).then(r=>{if(!r||!r.length)return;const c=r[0];atSend({kind:'contact',name:(c.name&&c.name[0])||'بدون نام',phone:toFaDigits((c.tel&&c.tel[0])||'')});}).catch(()=>showToast('دسترسی به مخاطبین ممکن نشد'));}
 else if(t==='loc-now'){const fb=()=>atSend({kind:'location',addr:'میدان آزادی، تهران'});if(!navigator.geolocation){fb();return;}showToast('در حال یافتن موقعیت…');navigator.geolocation.getCurrentPosition(p=>atSend({kind:'location',addr:toFaDigits(p.coords.latitude.toFixed(5))+'، '+toFaDigits(p.coords.longitude.toFixed(5))}),fb,{timeout:5000,maximumAge:60000});}});
 /* چک‌لیست */
 function clAddRow(v){const i=document.createElement('input');i.className='at-in cl-it';i.placeholder='مورد جدید';i.value=v||'';atQ('#clItems').appendChild(i);return i;}
