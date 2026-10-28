@@ -930,13 +930,62 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 .mp-track{position:absolute;inset:0}
 .mp-slide{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden}
 .mp-slide img,.mp-slide video{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain}
+
+/* ===== animated LINK logo on the connecting screen ===== */
+.ln-anim{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--primary);margin-bottom:4px}
+.ln-svg{overflow:visible;display:block}
+.ln-svg circle,.ln-svg rect{fill:none}
+.ln-trk{stroke:currentColor;stroke-opacity:.16;stroke-width:2.5}
+.ln-arc{stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-dasharray:24 76;opacity:0;transform-origin:60px 60px}
+.ln-l{stroke:currentColor;stroke-width:6.5;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:0}
+.ln-u{stroke:var(--surface);stroke-width:13;stroke-dasharray:100;stroke-dashoffset:0}
+.ln-mark{transform-box:view-box;transform-origin:60px 60px}
+.ln-glow{transform-origin:60px 60px}
+.ln-word{display:flex;gap:7px;font-size:30px;font-weight:900;line-height:1}
+.ln-word span{display:inline-block}
+.is-conn .ln-glow{animation:lnGlow 2.4s ease-in-out infinite}
+.is-conn .ln-trk{stroke-dasharray:100;animation:lnDraw 1.3s cubic-bezier(.65,0,.35,1) both}
+.is-conn .ln-arc{animation:lnArcIn .4s ease 1.25s forwards,lnOrbit 1.5s linear 1.25s infinite}
+.is-conn .ln-mark{animation:lnPop .9s cubic-bezier(.34,1.56,.64,1) both,lnSpin 4.6s cubic-bezier(.65,0,.35,1) 2s infinite}
+.is-conn .ln-l1{animation:lnDraw 1.15s cubic-bezier(.65,0,.35,1) .15s both}
+.is-conn .ln-l2,.is-conn .ln-u.ln-l2{animation:lnDraw 1.15s cubic-bezier(.65,0,.35,1) .45s both}
+.is-conn .ln-word span{animation:lnLetter .7s cubic-bezier(.2,.8,.2,1) both}
+.is-conn .ln-word span:nth-child(1){animation-delay:1.15s}
+.is-conn .ln-word span:nth-child(2){animation-delay:1.23s}
+.is-conn .ln-word span:nth-child(3){animation-delay:1.31s}
+.is-conn .ln-word span:nth-child(4){animation-delay:1.39s}
+.is-conn #lnTitle,.is-conn #lnSub{animation:lnFade .7s ease .9s both}
+@keyframes lnDraw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+@keyframes lnArcIn{to{opacity:1}}
+@keyframes lnOrbit{to{transform:rotate(360deg)}}
+@keyframes lnPop{from{transform:scale(.55) rotate(-25deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes lnSpin{0%,45%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+@keyframes lnGlow{0%,100%{transform:scale(.92);opacity:.7}50%{transform:scale(1.12);opacity:1}}
+@keyframes lnLetter{from{opacity:0;transform:translateY(12px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes lnFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.is-conn *{animation:none!important}.is-conn .ln-arc{opacity:1}}
 </style>
 </head>
 <body>
 
 <div class="ln-auth" id="lnAuth" role="dialog" aria-modal="true" hidden>
 <div class="ln-box">
-<div class="ln-logo">LINK</div>
+<div class="ln-anim" aria-hidden="true">
+<svg class="ln-svg" viewBox="0 0 120 120" width="148" height="148">
+<defs><radialGradient id="lnGlow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="currentColor" stop-opacity=".30"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient>
+<clipPath id="lnClip"><rect x="40" y="38" width="40" height="22"/></clipPath></defs>
+<circle class="ln-glow" cx="60" cy="60" r="46" fill="url(#lnGlow)"/>
+<circle class="ln-trk" cx="60" cy="60" r="54" pathLength="100"/>
+<circle class="ln-arc" cx="60" cy="60" r="54" pathLength="100"/>
+<g class="ln-mark"><g transform="rotate(-45 60 60)">
+<rect class="ln-l ln-l1" x="26" y="47" width="46" height="26" rx="13" pathLength="100"/>
+<rect class="ln-u ln-l2" x="48" y="47" width="46" height="26" rx="13" pathLength="100"/>
+<rect class="ln-l ln-l2" x="48" y="47" width="46" height="26" rx="13" pathLength="100"/>
+<rect class="ln-l ln-l1" x="26" y="47" width="46" height="26" rx="13" pathLength="100" clip-path="url(#lnClip)"/>
+</g></g>
+</svg>
+<div class="ln-word"><span>L</span><span>I</span><span>N</span><span>K</span></div>
+</div>
 <div class="ln-title" id="lnTitle" dir="auto"></div>
 <div class="ln-sub" id="lnSub" dir="auto"></div>
 <div id="lnForm">
@@ -1466,7 +1515,7 @@ const LA={mode:'conn',reg:0,busy:0,err:'',res:null};
 const lnA=id=>document.getElementById(id);
 function lnRender(){
   const el=lnA('lnAuth');if(!el)return;el.hidden=false;
-  const conn=LA.mode==='conn',retry=LA.mode==='retry';
+  const conn=LA.mode==='conn',retry=LA.mode==='retry';el.classList.toggle('is-conn',conn);
   lnA('lnTitle').textContent=conn?LT('در حال اتصال…','Connecting…'):retry?LT('اتصال برقرار نشد','Could not connect'):LA.reg?LT('ساخت حساب','Create account'):LT('ورود به لینک','Sign in to LINK');
   lnA('lnForm').style.display=(conn||retry)?'none':'';
   lnA('lnName').style.display=LA.reg?'':'none';
