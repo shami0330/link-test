@@ -4157,6 +4157,7 @@ function finish(s,text){
  if(!s||s.ended)return;s.ended=true;stopTone();
  Object.keys(s.timers).forEach(function(k){clearTimeout(s.timers[k]);clearInterval(s.timers[k])});
  try{s.pc&&s.pc.close()}catch(e){}stopStream(s);try{au.srcObject=null}catch(e){}cleanAudio(s);try{s.wl&&s.wl.release()}catch(e){}
+ try{if(IOS){if(typeof au.setSinkId==='function')au.setSinkId('').catch(function(){});if(navigator.audioSession)navigator.audioSession.type='auto'}}catch(e){}
  if(S===s){s.st='ended';s.endText=text||X('تماس پایان یافت','Call ended');paint();chirp(false)}
  var ids=s.sigIds.slice();setTimeout(function(){ids.forEach(function(id){Promise.resolve(T.del(id)).catch(function(){})})},30000);
  setTimeout(function(){if(S===s){S=null;hideOv()}},1500)}
@@ -4451,7 +4452,7 @@ function ensureRcvChain(s){
 function attachRemote(s,stream){
  s.rstream=stream;try{au.muted=!!s.spkMuted}catch(e){}
  if((AP.rcv!==1||AP.pan)&&ensureRcvChain(s)){s.rcvG.gain.value=AP.rcv}else{au.srcObject=stream}
- applyPan();var p=au.play();if(p&&p.catch)p.catch(function(){});if(IOS&&AP.route!=='auto'){s.iosOn=false;s.spkG=null;iosRoute(AP.route)}}
+ applyPan();var p=au.play();if(p&&p.catch)p.catch(function(){});if(IOS&&AP.route!=='auto'){s.iosOn=false;s.spkG=null;iosRoute(AP.route).then(function(ok){if(!ok&&S===s&&!s.ended)applyRoute(true)}).catch(function(){})}}
 function ensureMicChain(s){
  if(s.micG)return true;if(!s.stream||!s.pc)return false;var a=ctxOK();if(!a)return false;
  try{var src=a.createMediaStreamSource(s.stream),g=a.createGain(),d=a.createMediaStreamDestination();
@@ -4517,18 +4518,33 @@ async function routeViaMic(r){
 function iosSync(){var s=S;if(!IOS||!s||s.ended||!s.iosOn)return;var spk=AP.route==='spk';
  try{au.muted=!!s.spkMuted||spk}catch(e){}
  if(s.spkG)s.spkG.gain.value=(spk&&!s.spkMuted)?AP.rcv:0}
-function iosRoute(r){var s=S;if(!IOS||!s||s.ended||!s.rstream)return false;
+function isRecv(d){var n=(d&&d.label)||'';return /earpiece|receiver|handset/i.test(n)&&!/speaker/i.test(n)}
+async function iosRoute(r){var s=S;if(!IOS||!s||s.ended||!s.rstream)return false;
  if(!setAS(r==='ear'?'ear':'spk'))return false;
  try{
-  var a=ctxOK();
-  if(r==='spk'){if(!a)return false;try{a.resume()}catch(e){}
+  var a=ctxOK(),sink=typeof au.setSinkId==='function';
+  if(r==='spk'){
+   /* leave the receiver first: WebKit keeps "receiver preferred" for the whole audio session until the element sink is reset */
+   if(sink){try{await au.setSinkId('')}catch(e){}}
+   if(!a)return false;try{a.resume()}catch(e){}
    if(!s.spkG){var src=a.createMediaStreamSource(s.rstream),g=a.createGain();g.gain.value=0;src.connect(g);g.connect(a.destination);s.spkS=src;s.spkG=g}}
+  else{
+   /* earpiece: Web Audio output always goes to the loudspeaker, so keep that path silent and play only through the media element, pinned to the receiver */
+   if(s.spkG)s.spkG.gain.value=0;
+   if(!sink)return false;
+   var l=await outDevs(),rc=null;
+   l.forEach(function(d){if(!rc&&isRecv(d))rc=d});
+   if(!rc)return false;
+   if(S!==s||s.ended)return false;
+   await au.setSinkId(rc.deviceId);
+   if(au.sinkId!==rc.deviceId)return false}
   setPan(false);
   if(au.srcObject!==s.rstream)au.srcObject=s.rstream;
   s.iosOn=true;iosSync();
   var p=au.play();if(p&&p.catch)p.catch(function(){});
   return true}catch(e){return false}}
 function iosRestore(){var s=S;if(!IOS||!s||!s.iosOn)return;s.iosOn=false;
+ try{if(typeof au.setSinkId==='function')au.setSinkId('').catch(function(){})}catch(e){}
  try{au.muted=!!s.spkMuted;if(s.spkG)s.spkG.gain.value=0;
   au.srcObject=(s.rcvD&&(AP.rcv!==1||AP.pan))?s.rcvD.stream:s.rstream;var p=au.play();if(p&&p.catch)p.catch(function(){})}catch(e){}}
 async function applyRoute(quiet){
@@ -4538,21 +4554,23 @@ async function applyRoute(quiet){
  var l=await outDevs(),cl=classify(l),n=l.length;
  try{
   if(r==='ear'){
-   if(IOS&&iosRoute('ear')){}
+   if(IOS){
+    if(await iosRoute('ear')){}
+    else if(ctxOK()&&Math.abs(window.orientation||0)===90&&setPan(true)){}
+    else res={ok:false,why:X('آیفون خروجی اسپیکر بالا را در اختیار برنامه نگذاشت (خروجی‌های قابل‌دسترس: '+n+'). iOS را به‌روز کنید و دوباره امتحان کنید','iOS did not expose the earpiece (outputs available: '+n+'). Update iOS and try again')}}
    else if(cl.ear&&sink){await au.setSinkId(cl.ear.deviceId);if(au.sinkId!==cl.ear.deviceId)throw new Error('sink')}
    else if(await routeViaMic('ear')){}
-    else if(setAS('ear')){setPan(false)}
-    else if(IOS&&ctxOK()&&Math.abs(window.orientation||0)===90&&setPan(true)){}
-    else res={ok:false,why:X('این مرورگر/دستگاه خروجی گوشی (اسپیکر بالا) را به برنامه نمی‌دهد (خروجی‌های قابل‌دسترس: '+n+')','This browser/device does not expose the earpiece (outputs available: '+n+')')}}
+   else if(setAS('ear')){setPan(false)}
+   else res={ok:false,why:X('این مرورگر/دستگاه خروجی گوشی (اسپیکر بالا) را به برنامه نمی‌دهد (خروجی‌های قابل‌دسترس: '+n+')','This browser/device does not expose the earpiece (outputs available: '+n+')')}}
   else{
    var spkExp=cl.spk&&/speaker/i.test(cl.spk.label||'')&&!/head/i.test(cl.spk.label||'');
-   if(IOS&&iosRoute('spk')){}
+   if(IOS&&await iosRoute('spk')){}
    else if(spkExp&&sink){await au.setSinkId(cl.spk.deviceId);if(au.sinkId!==cl.spk.deviceId)throw new Error('sink')}
    else if(await routeViaMic('spk')){}
    else if(cl.spk&&sink){await au.setSinkId(cl.spk.deviceId);if(au.sinkId!==cl.spk.deviceId)throw new Error('sink')}
    else if(!setAS('spk'))res={ok:false,why:X('انتخاب اسپیکر اصلی در این مرورگر ممکن نیست (خروجی‌های قابل‌دسترس: '+n+')','Speaker selection is not available in this browser (outputs available: '+n+')')}}
  }catch(e){res={ok:false,why:X('تغییر خروجی ناموفق بود','Could not switch the output')}}
- if(!res.ok){AP.route='auto';setPan(false);apSave();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
+ if(!res.ok){AP.route='auto';setPan(false);apSave();iosRestore();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
  return res}
 async function setRoute(r){AP.route=r;apSave();await applyRoute(false);if(!sm.hidden)paintSm();paint()}
 sm.addEventListener('click',function(e){var r=e.target.closest('[data-r]');if(!r)return;setRoute(r.dataset.r)});
