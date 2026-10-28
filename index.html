@@ -913,6 +913,17 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 .mp-cbar button[data-a=ok]{background:var(--primary,#2f9cf0)}
 .vp-exp{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.5);color:#fff;font-size:16px;line-height:1;z-index:3;cursor:pointer;display:grid;place-items:center}
 .photo video[data-il],.alb-cell video[data-il]{object-fit:contain;background:#000}
+.dl-ring{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);pointer-events:none}
+.dl-ring.ind{animation:dlspin .9s linear infinite}
+.dl-ring circle{fill:none;stroke-width:3}
+.dl-ring-bg{stroke:rgba(255,255,255,.3)}
+.dl-ring-fg{stroke:#fff;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .2s linear}
+.dl-badge.loading::after{width:12px;height:12px;border:none;border-radius:3px;background:#fff;animation:none}
+.alb-cell .dl-badge.loading::after{width:9px;height:9px}
+.voice-play{position:relative}
+.voice-play.dl-wait{opacity:1}
+.voice-play.dl-wait .svg-icon{opacity:0}
+.voice-play.dl-wait::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:3px;background:#fff}
 </style>
 </head>
 <body>
@@ -1522,7 +1533,7 @@ async function lnkSniff(src){
   return null;
 }
 const LINKServer={
-  db:null,names:{},users:{},_av:{},_dl:{},_nq:new Set(),_sending:new Set(),_cancel:new Set(),_sub:null,_poll:null,
+  db:null,names:{},users:{},_av:{},_dl:{},_dlp:{},_nq:new Set(),_sending:new Set(),_cancel:new Set(),_sub:null,_poll:null,
   clone(o){return JSON.parse(JSON.stringify(o,(k,v)=>k==='_raw'?undefined:v))},
   /* ----- ورود و آغاز ----- */
   async init(){
@@ -1949,19 +1960,27 @@ const LINKServer={
       await LNK.sv.createFile({bucketId:LNC.bk,fileId:f.id,file:new File([blob],f.id+'.'+ex,{type:mime||blob.type||'application/octet-stream'}),permissions:[Appwrite.Permission.read(Appwrite.Role.users()),Appwrite.Permission.update(Appwrite.Role.user(me)),Appwrite.Permission.delete(Appwrite.Role.user(me))]});
     }catch(e){if(!(e&&e.code===409))throw {fa:lnkEr(e)}}
   },
-  async fetchMedia(mid,mimeHint,kind){
+  async fetchMedia(mid,mimeHint,kind,onProg){
+    const PL=(this._dlp[mid]=this._dlp[mid]||new Set());if(onProg)PL.add(onProg);const emit=v=>PL.forEach(f=>{try{f(v)}catch(e){}});
     if(this._dl[mid])return this._dl[mid];
     const p=(async()=>{
       const url=String(new URL(LNK.sv.getFileView({bucketId:LNC.bk,fileId:mid})));
       let meta=null;
       try{meta=await LNK.sv.getFile({bucketId:LNC.bk,fileId:mid})}
       catch(e){if(e&&e.code===404){LNK._lastErr=lnkE('فایل روی سرور پیدا نشد (شاید ارسال آن کامل نشده)','The file was not found on the server (its upload may not have completed)');return null}throw e}
-      let ab;
-      try{ab=await LNK.cl.call('get',new URL(url),{},{},'arrayBuffer')}
-      catch(e){
+      let ab=null;const tot0=(meta&&meta.sizeOriginal)||0;
+      try{
         const h=Object.assign({},LNK.cl.headers||{});try{const fb=localStorage.getItem('cookieFallback');if(fb)h['X-Fallback-Cookies']=fb}catch(x){}
-        const r=await fetch(url,{headers:h,credentials:'include'});if(!r.ok)throw new Error('http '+r.status);ab=await r.arrayBuffer();
-      }
+        const r=await fetch(url,{headers:h,credentials:'include'});if(!r.ok)throw new Error('http '+r.status);
+        const tot=tot0||(+r.headers.get('content-length'))||0;
+        if(r.body&&r.body.getReader&&tot){const rd=r.body.getReader(),parts=[];let got=0;
+          for(;;){const q=await rd.read();if(q.done)break;parts.push(q.value);got+=q.value.length;emit(Math.min(.99,got/tot))}
+          const out=new Uint8Array(got);let o=0;parts.forEach(x=>{out.set(x,o);o+=x.length});ab=out.buffer}
+        else ab=await r.arrayBuffer();
+        if(!ab||!ab.byteLength)ab=null;
+      }catch(e){ab=null}
+      if(!ab)ab=await LNK.cl.call('get',new URL(url),{},{},'arrayBuffer');
+      emit(1);
       /* نوع واقعی از روی محتوا؛ نوع ثبت‌شدهٔ سرور فقط آخرین گزینه است */
       const sn=await lnkSniff(new Uint8Array(ab));
       let ty=sn?sn.t:(mimeHint||(meta&&meta.mimeType)||'');
@@ -1969,7 +1988,7 @@ const LINKServer={
       if(mimeHint&&/^audio\//.test(mimeHint)&&/^video\//.test(ty)&&kind!=='videoNote'&&kind!=='photo')ty=mimeHint;
       if(/zip|octet-stream/.test(ty)&&mimeHint)ty=mimeHint;
       return new Blob([ab],ty?{type:ty}:{});
-    })().finally(()=>{delete this._dl[mid]});
+    })().finally(()=>{delete this._dl[mid];delete this._dlp[mid]});
     this._dl[mid]=p;return p;
   },
   /* ----- به‌روزرسانی زنده ----- */
@@ -2112,12 +2131,15 @@ async size(){const db=await this.open();return new Promise((res,rej)=>{let n=0;c
 function dsCat(id){const p=String(id).split('-')[0];return({ph:'photo',vd:'video',vm:'video',va:'voice',fd:'file',au:'music',avc:'avatar'})[p]||'other';}
 const mediaAutoOn=()=>{try{return localStorage.getItem('link-autodl')==='1';}catch(e){return false;}};
 const DL_ICON='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>';
+function dlRingAttach(host){const sv=document.createElementNS('http://www.w3.org/2000/svg','svg');sv.setAttribute('viewBox','0 0 44 44');sv.setAttribute('class','dl-ring ind');
+sv.innerHTML='<circle class="dl-ring-bg" cx="22" cy="22" r="19"/><circle class="dl-ring-fg" cx="22" cy="22" r="19" stroke-dasharray="119.4" stroke-dashoffset="104"/>';host.appendChild(sv);const fg=sv.querySelector('.dl-ring-fg');
+return{set(p){sv.classList.remove('ind');fg.style.strokeDashoffset=String(119.4*(1-Math.max(.04,Math.min(1,p))));},done(){sv.remove();}};}
 function addDlBadge(host,m,cb){if(!host||host.querySelector(':scope>.dl-badge'))return;const b=document.createElement('button');b.type='button';b.className='dl-badge';b.setAttribute('aria-label','Download');b.innerHTML=DL_ICON;
-b.addEventListener('click',async e=>{e.stopPropagation();e.preventDefault();if(b.classList.contains('loading'))return;b.classList.add('loading');const u=await resolveMediaUrl(m,{force:true});if(u){b.remove();cb(u);}else{b.classList.remove('loading');showToast(LT('دانلود ناموفق بود','Download failed')+(LNK._lastErr?': '+lnkEr(LNK._lastErr):''));}});host.appendChild(b);}
+b.addEventListener('click',async e=>{e.stopPropagation();e.preventDefault();if(b.classList.contains('loading'))return;b.classList.add('loading');const rg=dlRingAttach(b);const u=await resolveMediaUrl(m,{force:true,onProgress:rg.set});rg.done();if(u){b.remove();cb(u);}else{b.classList.remove('loading');showToast(LT('دانلود ناموفق بود','Download failed')+(LNK._lastErr?': '+lnkEr(LNK._lastErr):''));}});host.appendChild(b);}
 async function loadMedia(m,host,cb){const u=await resolveMediaUrl(m);if(u){cb(u);return;}if(m.mediaId)addDlBadge(host,m,cb);}
 async function resolveMediaUrl(m,opt){if(m.src&&String(m.src).startsWith('blob:'))return m.src;if(m.dataUrl)return m.dataUrl;if(!m.mediaId)return null;let u=mediaUrls.get(m.mediaId);if(u)return u;try{const b=await MediaStore.get(m.mediaId);if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);return u;}}catch(e){}
 if(!(opt&&opt.force)&&!mediaAutoOn())return null;LNK._lastErr=null;
-try{if(typeof LINKServer!=='undefined'&&LINKServer.fetchMedia&&LINKServer.db){const b=await LINKServer.fetchMedia(m.mediaId,m.mime,m.kind||(m.video?'video':''));u=mediaUrls.get(m.mediaId);if(u)return u;if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);try{MediaStore.put(m.mediaId,b).catch(()=>{});}catch(e){}return u;}}}catch(e){LNK._lastErr=e}
+try{if(typeof LINKServer!=='undefined'&&LINKServer.fetchMedia&&LINKServer.db){const b=await LINKServer.fetchMedia(m.mediaId,m.mime,m.kind||(m.video?'video':''),opt&&opt.onProgress);u=mediaUrls.get(m.mediaId);if(u)return u;if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);try{MediaStore.put(m.mediaId,b).catch(()=>{});}catch(e){}return u;}}}catch(e){LNK._lastErr=e}
 return null;}
 const vnObserver=('IntersectionObserver' in window)?new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(v.dataset.ctl==='1')return;if(e.isIntersecting){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else v.pause();}),{threshold:.25}):null;
 async function attachRealVideo(b,m){if(!m.src&&!m.mediaId){const dn=b.querySelector('.video-note');if(dn)setTimeout(()=>dn.classList.add('dl'),900+Math.random()*1400);return;}const url=await resolveMediaUrl(m);if(!url){const nt=b.querySelector('.video-note');if(nt&&m.mediaId)addDlBadge(nt,m,()=>attachRealVideo(b,m));return;}const note=b.querySelector('.video-note');if(!note||note.querySelector('.vn-video'))return;
@@ -2367,7 +2389,7 @@ if(isVoice){const r=currentTime/duration,c=Math.floor(r*bars.length);bars.forEac
 else{progress.style.strokeDashoffset=circumference*(1-Math.min(1,currentTime/duration));vTime.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
 }
 function collapse(){if(!isVoice){note.classList.remove('expanded','playing');root.classList.remove('centered');const rv=getV();if(rv){rv.dataset.ctl='';rv.muted=true;rv.loop=true;rv.playbackRate=1;try{rv.currentTime=TS+0.05;const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}}}
-function play(){if(playing)return;if(isVoice&&needDl){needDl=false;playBtn.classList.add('dl-wait');resolveMediaUrl(message,{force:true}).then(u=>{playBtn.classList.remove('dl-wait');if(u){mkAudio(u);playBtn.innerHTML=PLAY_ICON;play();}else{needDl=true;showToast(LT('دانلود ناموفق بود','Download failed')+(LNK._lastErr?': '+lnkEr(LNK._lastErr):''));}});return;}if(isVoice&&!audioEl&&!message.src&&!message.dataUrl&&!mediaUrls.get(message.mediaId)){showToast('فایل صدا در دسترس نیست');return;}if(window.__stopMusic)window.__stopMusic();if(activeBarPlayer&&activeBarPlayer!==player&&activeBarPlayer.playing)activeBarPlayer.pause();
+function play(){if(playing)return;if(isVoice&&needDl){needDl=false;playBtn.classList.add('dl-wait');const rg=dlRingAttach(playBtn);resolveMediaUrl(message,{force:true,onProgress:rg.set}).then(u=>{rg.done();playBtn.classList.remove('dl-wait');if(u){mkAudio(u);playBtn.innerHTML=PLAY_ICON;play();}else{needDl=true;showToast(LT('دانلود ناموفق بود','Download failed')+(LNK._lastErr?': '+lnkEr(LNK._lastErr):''));}});return;}if(isVoice&&!audioEl&&!message.src&&!message.dataUrl&&!mediaUrls.get(message.mediaId)){showToast('فایل صدا در دسترس نیست');return;}if(window.__stopMusic)window.__stopMusic();if(activeBarPlayer&&activeBarPlayer!==player&&activeBarPlayer.playing)activeBarPlayer.pause();
 playing=true;showBar(player);if(isVoice&&audioEl){audioEl.playbackRate=speed;if(currentTime===0){try{audioEl.currentTime=TS;}catch(e){}}try{const pr=audioEl.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}if(!isVoice){const rv=getV();if(rv){rv.dataset.ctl='1';rv.loop=false;if(currentTime===0){try{rv.currentTime=TS;}catch(e){}}rv.playbackRate=speed;rv.muted=false;try{const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{try{rv.muted=true;const p2=rv.play();if(p2&&p2.catch)p2.catch(()=>{});}catch(e){}});}catch(e){}}}
 if(!isVoice){note.classList.add('expanded','playing');root.classList.add('centered');centerInMessages(root,true);}
 else playBtn.innerHTML=PAUSE_ICON;
