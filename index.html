@@ -897,7 +897,6 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 .ln-box{margin:0 auto;padding-top:min(12vh,110px)}
 
 /* v49+: photos keep their real aspect ratio; zoom / crop / swipe */
-.photo{width:min(260px,66vw,calc(min(420px,58vh)*var(--ar,.8)))}
 .alb-row{display:flex;gap:2px}
 .mp-stage{position:relative;touch-action:none;-webkit-user-select:none;user-select:none}
 .mp-stage img{will-change:transform;touch-action:none;transform-origin:center center}
@@ -912,6 +911,8 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 .mp-cbar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:16px;z-index:6}
 .mp-cbar button{width:46px;height:46px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:22px;cursor:pointer}
 .mp-cbar button[data-a=ok]{background:var(--primary,#2f9cf0)}
+.vp-exp{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.5);color:#fff;font-size:16px;line-height:1;z-index:3;cursor:pointer;display:grid;place-items:center}
+.photo video[data-il],.alb-cell video[data-il]{object-fit:contain;background:#000}
 </style>
 </head>
 <body>
@@ -2455,19 +2456,27 @@ if(p<1)raf=requestAnimationFrame(tick);else{ic.classList.remove('uploading');m._
 raf=requestAnimationFrame(tick);ic.__cancel=()=>{cancelAnimationFrame(raf);cancelUpload(m.id);};}
 async function downloadMsgFile(m){const u=await resolveMediaUrl(m,{force:true});if(!u){showToast('فایل در دسترس نیست');return;}const a=document.createElement('a');a.href=u;a.download=m.name||'file';document.body.appendChild(a);a.click();a.remove();}
 
+
+/* play a video right inside the chat bubble (native controls); the corner button opens the full viewer */
+function inlineVideo(host,m,idx){const v=host&&host.querySelector('video');if(!v)return false;
+if(!v.dataset.il){v.dataset.il='1';v.controls=true;v.muted=false;v.removeAttribute('muted');v.setAttribute('playsinline','');v.preload='auto';
+const bd=host.querySelector('.vid-badge');if(bd)bd.style.display='none';
+const x=document.createElement('button');x.type='button';x.className='vp-exp';x.setAttribute('aria-label','Expand');x.textContent='\u2922';
+x.addEventListener('click',ev=>{ev.stopPropagation();try{v.pause();}catch(e){}openMediaViewer(m,idx||0);});host.appendChild(x);}
+const pr=v.play();if(pr&&pr.catch)pr.catch(()=>{});return true;}
 function buildPhotoBubble(m){const b=document.createElement('div');b.className='bubble media';
 const ar=(m.w&&m.h)?Math.min(3,Math.max(.4,m.w/m.h)):.8,u=mUrlSync(m);
-b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<div class="photo" style="--ar:'+ar+';aspect-ratio:'+ar+';'+(u?'':'background:'+photoBg(m.seed||m.id))+'">'+(u?mediaTag(m,u):'')+(m.video?'<div class="vid-badge">'+PLAY_ICON+'</div>':'')+(m.caption?'':'<span class="time overlay">'+metaHtml(m)+'</span>')+'</div>'+(m.caption?'<div class="cap"><span class="txt">'+richText(m.caption)+'</span><span class="time">'+metaHtml(m)+'</span></div>':'');
+b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<div class="photo" style="width:min(260px,66vw,'+Math.round(420*ar)+'px);aspect-ratio:'+ar+';'+(u?'':'background:'+photoBg(m.seed||m.id))+'">'+(u?mediaTag(m,u):'')+(m.video?'<div class="vid-badge">'+PLAY_ICON+'</div>':'')+(m.caption?'':'<span class="time overlay">'+metaHtml(m)+'</span>')+'</div>'+(m.caption?'<div class="cap"><span class="txt">'+richText(m.caption)+'</span><span class="time">'+metaHtml(m)+'</span></div>':'');
 if(!u&&m.mediaId){const ph0=b.querySelector('.photo');loadMedia(m,ph0,x=>{ph0.style.background='';ph0.insertAdjacentHTML('afterbegin',mediaTag(m,x));});}return b;}
 
 function buildAlbumBubble(m){const b=document.createElement('div');b.className='bubble media album-bubble';const its=m.items||[];
 const rows=ALB_ROWS[Math.min(10,its.length)]||[Math.max(1,its.length)];let k=0,h='';
-rows.forEach(n=>{const rar=its.slice(k,k+n).map(x=>(x&&x.w&&x.h)?Math.min(3,Math.max(.4,x.w/x.h)):.8),rs=rar.reduce((a,b)=>a+b,0)||1;h+='<div class="alb-row" style="height:min(calc(min(260px,66vw)/'+rs+'),360px)">';
+rows.forEach(n=>{const rar=its.slice(k,k+n).map(x=>(x&&x.w&&x.h)?Math.min(3,Math.max(.4,x.w/x.h)):.8),rs=rar.reduce((a,b)=>a+b,0)||1;h+='<div class="alb-row" style="height:calc(min(260px,66vw)/'+rs+');max-height:360px">';
 for(let j=0;j<n&&k<its.length;j++,k++){const it=its[k],u=mUrlSync(it);h+='<div class="alb-cell" data-i="'+k+'" style="flex:'+rar[j]+' 1 0;'+(u?'':'background:'+photoBg((it.mediaId||m.id)+k))+'">'+(u?mediaTag(it,u):'')+(it.video?'<div class="vid-badge">'+PLAY_ICON+'</div>':'')+'</div>';}h+='</div>';});
 b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<div class="album">'+h+(m.caption?'':'<span class="time overlay">'+metaHtml(m)+'</span>')+'</div>'+(m.caption?'<div class="cap"><span class="txt">'+richText(m.caption)+'</span><span class="time">'+metaHtml(m)+'</span></div>':'');
 b.querySelectorAll('.alb-cell').forEach(c=>{const it=its[+c.dataset.i];
 if(it&&!mUrlSync(it)&&it.mediaId)loadMedia(it,c,x=>{c.style.background='';c.insertAdjacentHTML('afterbegin',mediaTag(it,x));});
-c.addEventListener('click',e=>{if(selecting)return;e.stopPropagation();openMediaViewer(m,+c.dataset.i);});});return b;}
+c.addEventListener('click',e=>{if(selecting)return;e.stopPropagation();const it2=its[+c.dataset.i];if(e.target.closest('.vp-exp'))return;if(it2&&it2.video){if(e.target.tagName==='VIDEO'&&e.target.dataset.il==='1')return;if(inlineVideo(c,m,+c.dataset.i))return;}openMediaViewer(m,+c.dataset.i);});});return b;}
 
 function buildFileBubble(m){const b=document.createElement('div');b.className='bubble file-bubble';
 const ext=fExt(m.name),main=ext?'<span class="ext">'+escapeHtml(ext.toUpperCase())+'</span>':FILE_SVG;
@@ -2647,7 +2656,7 @@ if(selecting){toggleSel(msg.dataset.messageId);return;}
 const m=findMsg(msg.dataset.messageId);if(!m)return;
 const rx=e.target.closest('.rx');if(rx){toggleReaction(m,rx.dataset.e,true);return;}
 const q=e.target.closest('.reply-quote');if(q&&q.dataset.reply){jumpTo(q.dataset.reply);return;}
-if(e.target.closest('.photo')){openMediaViewer(m);return;}
+if(e.target.closest('.photo')){if(m.kind==='photo'&&m.video){if(e.target.closest('.vp-exp'))return;if(e.target.tagName==='VIDEO'&&e.target.dataset.il==='1')return;if(inlineVideo(e.target.closest('.photo'),m,0))return;}openMediaViewer(m);return;}
 if(e.target.closest('.loc-map,.contact-row'))showToast('این بخش بعداً فعال می‌شود');});
 
 /* ---- لیست گفتگوها ---- */
