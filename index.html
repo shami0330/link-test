@@ -4271,11 +4271,11 @@ var cssA=document.createElement('style');cssA.textContent=`
 .call-q .qc{border-radius:0;border:2px solid #fff;background:#2a1a4a;color:#fff;padding:6px 10px;font:inherit;font-size:12.5px;cursor:pointer}
 .call-q .qc.on{background:#fff;color:#1b1030}
 .call-q .qc.on::before{content:"\\25B6 "}
-.call-ov>.call-sm{position:absolute;z-index:6;display:flex;flex-direction:column;gap:6px;padding:8px;max-width:250px;border:3px solid #fff;background:#1b1030;box-shadow:4px 4px 0 #000;color:#fff;font-family:ui-monospace,"Courier New",monospace}
+.call-ov>.call-sm{position:absolute;z-index:6;display:flex;flex-direction:row;gap:8px;padding:8px;border:3px solid #fff;background:#1b1030;box-shadow:4px 4px 0 #000;color:#fff;font-family:ui-monospace,"Courier New",monospace}
 .call-sm[hidden]{display:none}
-.call-sm .qc{border-radius:0;border:2px solid #fff;background:#2a1a4a;color:#fff;padding:7px 10px;font:inherit;font-size:12.5px;cursor:pointer;text-align:start}
+.call-sm .qc{border-radius:0;border:2px solid #fff;background:#2a1a4a;color:#fff;padding:9px 14px;font:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .call-sm .qc.on{background:#fff;color:#1b1030}
-.call-sm .qc.on::before{content:"\\25B6 "}
+.call-sm .qc .svg-icon{width:24px;height:24px;display:block}
 .call-b[data-a="spk"]{touch-action:manipulation;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
 .call-q .qa{margin-top:14px;padding-top:10px;border-top:2px solid #fff;font-size:15px}
 .call-q .qv2{display:flex;justify-content:space-between;align-items:center}
@@ -4326,8 +4326,9 @@ var SPKOFF='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5
 var spkT=null,spkHeld=false;
 var sm=document.createElement('div');sm.id='callSM';sm.className='call-sm';sm.hidden=true;sm.setAttribute('dir','auto');ov.appendChild(sm);
 function toggleSpk(){var s=S;if(!s)return;s.spkMuted=!s.spkMuted;try{au.muted=!!s.spkMuted}catch(e){}paint()}
-function paintSm(){sm.innerHTML='<button type="button" class="qc'+(AP.route==='ear'?' on':'')+'" data-r="ear">'+X('صدای تماس (اسپیکر بالا)','Call speaker (earpiece)')+'</button>'
- +'<button type="button" class="qc'+(AP.route==='spk'?' on':'')+'" data-r="spk">'+X('اسپیکر اصلی گوشی (استریو)','Phone speakers (stereo)')+'</button>'}
+var EARI='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+function paintSm(){sm.innerHTML='<button type="button" class="qc'+(AP.route==='ear'?' on':'')+'" data-r="ear" aria-label="Call speaker (earpiece)">'+EARI+'</button>'
+ +'<button type="button" class="qc'+(AP.route==='spk'?' on':'')+'" data-r="spk" aria-label="Phone speakers">'+SPKI+'</button>'}
 function smOpen(){var b=bot.querySelector('[data-a="spk"]');if(!b||!S||S.st==='ended')return;
  paintSm();sm.hidden=false;var o=ov.getBoundingClientRect(),r=b.getBoundingClientRect(),w=sm.offsetWidth;
  sm.style.bottom=(o.bottom-r.top+10)+'px';sm.style.left=Math.max(8,Math.min(o.width-w-8,r.left-o.left+r.width/2-w/2))+'px'}
@@ -4341,9 +4342,14 @@ function setAS(r){try{if(!navigator.audioSession)return false;navigator.audioSes
 async function applyRoute(quiet){
  var r=AP.route,sink=typeof au.setSinkId==='function',res={ok:true,why:''};
  if(r==='auto')return res;
- try{var cl=classify(await outDevs());
-  if(r==='ear'){if(cl.ear&&sink)await au.setSinkId(cl.ear.deviceId);else if(!setAS('ear'))res={ok:false,why:X('این دستگاه یا مرورگر، خروجی گوشی (اسپیکر بالا) را به برنامه نمی‌دهد','This device/browser does not expose the earpiece')}}
-  else{if(cl.spk&&sink)await au.setSinkId(cl.spk.deviceId);else if(!setAS('spk'))res={ok:false,why:X('انتخاب اسپیکر اصلی در این مرورگر ممکن نیست','Speaker selection is not available in this browser')}}
+ var l=await outDevs(),cl=classify(l),n=l.length;
+ try{
+  if(r==='ear'){
+   if(cl.ear&&sink){await au.setSinkId(cl.ear.deviceId);if(au.sinkId!==cl.ear.deviceId)throw new Error('sink')}
+   else if(!setAS('ear'))res={ok:false,why:X('این مرورگر/دستگاه خروجی گوشی (اسپیکر بالا) را به برنامه نمی‌دهد (خروجی‌های قابل‌دسترس: '+n+')','This browser/device does not expose the earpiece (outputs available: '+n+')')}}
+  else{
+   if(cl.spk&&sink){await au.setSinkId(cl.spk.deviceId);if(au.sinkId!==cl.spk.deviceId)throw new Error('sink')}
+   else if(!setAS('spk'))res={ok:false,why:X('انتخاب اسپیکر اصلی در این مرورگر ممکن نیست (خروجی‌های قابل‌دسترس: '+n+')','Speaker selection is not available in this browser (outputs available: '+n+')')}}
  }catch(e){res={ok:false,why:X('تغییر خروجی ناموفق بود','Could not switch the output')}}
  if(!res.ok){AP.route='auto';apSave();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
  return res}
