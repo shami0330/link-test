@@ -60,7 +60,6 @@ img,svg{-webkit-user-drag:none;user-drag:none;pointer-events:none}
 .icon-btn.dark{color:var(--icon-muted)}
 .icon-btn.dark:hover{background:var(--icon-hover)}
 .icon-btn.inv{color:#fff;background:rgba(255,255,255,.1)}
-.icon-btn.inv.active{background:rgba(255,255,255,.32)}
 .appbar-title{font-size:18px;font-weight:800}
 .appbar-spacer{flex:1}
 .pill-btn{border:none;border-radius:999px;padding:8px 18px;background:rgba(255,255,255,.16);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
@@ -109,6 +108,7 @@ img,svg{-webkit-user-drag:none;user-drag:none;pointer-events:none}
 .bubble{max-width:78%;padding:9px 12px 8px;border-radius:16px;font-size:15px;line-height:1.9;word-break:break-word;box-shadow:0 1px 1px rgba(0,0,0,.07);position:relative}
 .msg.incoming .bubble{background:var(--incoming-bubble);color:var(--text-main);border-radius:16px 16px 6px 16px}
 .msg.outgoing .bubble{background:var(--outgoing-bubble);color:var(--outgoing-text);border-radius:16px 16px 16px 6px}
+.msg.videoNote .bubble{background:transparent;box-shadow:none;padding:0;border-radius:50%;max-width:none}
 .reply-quote{border-inline-start:2px solid var(--primary);padding:2px 8px;margin-bottom:6px;border-radius:4px;background:rgba(47,156,240,.08)}
 .rq-name{color:var(--primary);font-size:12.5px;font-weight:700}
 .rq-text{color:var(--text-muted);font-size:12.5px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -117,7 +117,7 @@ img,svg{-webkit-user-drag:none;user-drag:none;pointer-events:none}
 .msg.outgoing .time{color:var(--outgoing-time)}
 .ticks{font-size:11px;letter-spacing:-1px}
 .voice-bubble{display:flex;flex-direction:column;gap:6px;min-width:220px;max-width:250px;padding:10px 12px}
-.voice-row{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.voice-row{display:flex;align-items:center;gap:10px}
 .voice-play{width:42px;height:42px;border:none;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;cursor:pointer;flex-shrink:0}
 .voice-play .svg-icon{width:20px;height:20px}
 .msg.outgoing .voice-play{background:#4fae4e}
@@ -129,7 +129,6 @@ html[data-theme="dark"] .msg.outgoing .voice-play{background:rgba(255,255,255,.1
 .voice-time{display:flex;align-items:center;gap:4px;font-size:11px}
 .msg.incoming .voice-time{color:var(--incoming-time)}
 .msg.outgoing .voice-time{color:var(--outgoing-time)}
-.msg.videoNote .bubble{background:transparent;box-shadow:none;padding:0;border-radius:50%}
 .video-note{position:relative;width:180px;aspect-ratio:1;border-radius:50%;overflow:hidden;background:#000;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.18);transition:width .28s ease}
 .video-note.expanded{width:calc(100vw - 60px);max-width:460px}
 .video-surface{position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.18),transparent 22%),radial-gradient(circle at 70% 65%,rgba(255,255,255,.12),transparent 18%),linear-gradient(135deg,#17324d,#2b5278,#17324d,#2b5278);background-size:220% 220%,200% 200%,350% 350%;animation:videoMove 7s ease infinite;animation-play-state:paused;opacity:.96}
@@ -142,10 +141,9 @@ html[data-theme="dark"] .msg.outgoing .voice-play{background:rgba(255,255,255,.1
 .video-note.playing .video-overlay{opacity:0}
 .video-overlay .svg-icon{width:42px;height:42px}
 .video-time{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.35);color:#fff;font-size:11px;padding:2px 8px;border-radius:999px;pointer-events:none}
-.video-mute{position:absolute;bottom:38%;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;border:none;background:rgba(0,0,0,.45);color:#fff;display:grid;place-items:center;cursor:pointer}
+.video-mute{position:absolute;bottom:38%;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;border:none;background:rgba(0,0,0,.45);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:2}
 .video-mute .svg-icon{width:16px;height:16px}
 .inputbar{flex-shrink:0;display:flex;flex-direction:column;gap:6px;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid rgba(0,0,0,.05);z-index:6}
-.inputbar.recording .input-row{display:none}
 .reply-preview{display:none;align-items:center;gap:8px;padding:6px 10px;background:var(--card);border-radius:14px}
 .reply-preview.active{display:flex}
 .rp-bar{width:2px;height:34px;border-radius:999px;background:var(--primary);flex-shrink:0}
@@ -161,7 +159,8 @@ html[data-theme="dark"] .msg.outgoing .voice-play{background:rgba(255,255,255,.1
 .send-btn.capture.video{color:var(--primary);border-color:rgba(47,156,240,.35)}
 .send-btn.capture:active{transform:scale(.96)}
 .send-btn.send{background:var(--primary);color:#fff;box-shadow:var(--fab-shadow)}
-.recording-bar{display:none;width:100%;align-items:center;gap:10px;padding:4px 8px;background:var(--field-bg);border-radius:24px;height:48px}
+.recording-bar{display:none;width:100%;align-items:center;gap:10px;padding:4px 8px;background:var(--field-bg);border-radius:24px;height:48px;touch-action:none}
+.inputbar.recording .input-field,.inputbar.recording .send-btn{display:none}
 .inputbar.recording .recording-bar{display:flex}
 .recording-indicator{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700}
 .rec-dot{width:10px;height:10px;border-radius:50%;background:var(--danger);animation:pulse 1s infinite;flex-shrink:0}
@@ -256,9 +255,247 @@ input:checked+.slider:before{transform:translateX(-20px)}
 .phone-icon::after{content:"";position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:26px;height:5px;border-radius:999px;background:#fff}
 @keyframes rotatePhone{from{transform:rotate(90deg)}to{transform:rotate(0deg)}}
 @media screen and (orientation:landscape) and (pointer:coarse) and (max-height:560px){.orientation-overlay{display:flex}}
+/* ================= v2 — Telegram-like chat ================= */
+:root{--ease:cubic-bezier(.22,.82,.25,1);--spring:cubic-bezier(.3,1.35,.5,1);--app-h:100dvh;--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--ib-h:64px;--chat-grad:linear-gradient(165deg,#a9cbe8 0%,#c9dfd3 55%,#e3dcc3 100%);--primary-soft:rgba(47,156,240,.14)}
+html[data-theme="dark"]{--chat-grad:linear-gradient(165deg,#0d1a28 0%,#102233 60%,#0f1d2a 100%)}
+html,body{position:fixed;inset:0;width:100%;overflow:hidden;overscroll-behavior:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+.phone-frame{position:fixed;left:0;top:0;width:100%;height:var(--app-h);display:block}
+.app{max-width:none;box-shadow:none}
+/* screens */
+.screen{will-change:transform}
+.chat-screen,.settings-screen,.appearance-screen,.placeholder-screen,.profile-screen{visibility:hidden;transition:transform .42s var(--ease),visibility 0s .42s,filter .42s;box-shadow:-8px 0 30px rgba(0,0,0,.18)}
+.chat-screen.active,.settings-screen.active,.appearance-screen.active,.placeholder-screen.active,.profile-screen.active{visibility:visible;transition:transform .42s var(--ease),visibility 0s,filter .42s}
+.placeholder-screen{z-index:8}
+.list-screen{transition:transform .42s var(--ease),filter .42s}
+.screen.under{transform:translateX(24%);filter:brightness(.9)}
+.appbar{height:calc(58px + var(--sat));padding-top:var(--sat)}
+.chat-header{min-height:calc(62px + var(--sat));padding-top:calc(8px + var(--sat))}
+.icon-btn{transition:background .2s,transform .2s var(--ease)}
+.icon-btn:active{transform:scale(.86);background:rgba(255,255,255,.18)}
+.icon-btn.dark:active{background:var(--icon-hover)}
+/* list */
+.searchbar{max-height:0;padding:0 12px;overflow:hidden;border-bottom-color:transparent;transition:max-height .35s var(--ease),padding .35s var(--ease)}
+.searchbar.open{max-height:64px;padding:10px 12px;border-bottom-color:var(--line)}
+.chat-item{border-bottom:none;padding:10px 12px;transition:background .2s}
+.chat-item.active{background:transparent}
+.chat-item:active{background:var(--active-bg)}
+.chat-item.enter{animation:itemIn .55s var(--ease) both;animation-delay:calc(var(--i,0)*45ms)}
+@keyframes itemIn{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+.av-wrap{position:relative;flex-shrink:0}
+.online-dot{position:absolute;right:1px;bottom:1px;width:15px;height:15px;border-radius:50%;background:#4cd964;border:2.5px solid var(--surface);animation:popIn .45s var(--spring)}
+@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+.ci-tick{display:inline-flex;color:var(--primary);margin-inline-end:4px;vertical-align:middle}
+.mute-ic{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-inline-start:5px;color:var(--text-muted)}
+.badge{animation:popIn .45s var(--spring)}
+.pin-ic{color:var(--badge-gray)}.pin-ic .svg-icon{width:18px;height:18px;transform:rotate(45deg)}
+.fab{bottom:calc(18px + var(--sab));transition:transform .25s var(--spring),background .2s}
+.fab:active{transform:scale(.9)}
+.drawer{transition:transform .4s var(--ease)}
+.drawer-header{padding-top:calc(18px + var(--sat))}.drawer-close{top:calc(12px + var(--sat))}
+.drawer-overlay,.sheet-overlay{transition:opacity .32s ease}
+.drawer-item,.settings-item{transition:background .2s}
+.drawer-item:active,.settings-item:active{background:var(--active-bg)}
+/* chat area */
+.messages{direction:ltr;padding:8px 0 10px;background-color:var(--chat-bg);background-image:radial-gradient(var(--chat-pattern) 1px,transparent 1px),radial-gradient(var(--chat-pattern) 1px,transparent 1.5px),var(--chat-grad);background-size:22px 22px,36px 36px,cover;background-position:0 0,11px 11px,0 0;-webkit-overflow-scrolling:touch}
+.messages>:first-child{margin-top:auto}
+.date-chip{position:sticky;top:4px;z-index:3;margin:10px auto 2px;background:rgba(0,0,0,.26);color:#fff;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-weight:600}
+.empty-chat{margin:auto;padding:8px 18px;border-radius:16px;background:rgba(0,0,0,.26);color:#fff;font-size:13.5px;font-weight:600;animation:popIn .5s var(--spring)}
+.msg{position:relative;margin:8px 8px 0;touch-action:pan-y;transition:padding .3s var(--ease)}
+.msg.g-top{margin-top:2px}
+.msg-shift{transition:transform .45s var(--spring)}
+.msg-shift.dragging{transition:none}
+.swipe-reply{right:14px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;display:grid;place-items:center;transform:translateY(-50%) scale(.4);transition:none}
+.swipe-reply .svg-icon{width:18px;height:18px}
+.bubble{direction:rtl;max-width:min(82%,340px);padding:7px 11px 6px;border-radius:18px;font-size:15.5px;line-height:1.75;box-shadow:0 1px 1.5px rgba(0,0,0,.13)}
+.msg.incoming .bubble{border-radius:18px 18px 18px 5px}
+.msg.incoming.g-top .bubble{border-top-left-radius:5px}
+.msg.outgoing .bubble{border-radius:18px 18px 5px 18px}
+.msg.outgoing.g-top .bubble{border-top-right-radius:5px}
+.msg.tail .bubble::before{content:"";position:absolute;bottom:0;width:10px;height:14px}
+.msg.incoming.tail .bubble::before{left:-8px;background:var(--incoming-bubble);clip-path:path('M10 0V14H1C5.5 13.4 9.5 10.5 10 0Z')}
+.msg.outgoing.tail .bubble::before{right:-8px;background:var(--outgoing-bubble);clip-path:path('M0 0V14H9C4.5 13.4 .5 10.5 0 0Z')}
+.msg.videoNote .bubble::before,.bubble.bigemoji::before{display:none!important}
+.msg.videoNote .bubble{border-radius:0;display:flex;flex-direction:column;align-items:center}
+.msg.videoNote .reactions{justify-content:center}
+.txt{white-space:pre-wrap;unicode-bidi:plaintext}
+.lnk{color:var(--primary);font-weight:600}
+.time{margin-top:8px;margin-bottom:-2px}
+.edited{margin-inline-end:4px;opacity:.85}
+.ticks{display:inline-flex;align-items:center}
+.msg.outgoing .ticks{color:var(--outgoing-time)}
+.tick{width:16px;height:11px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+.tick.clock{width:12px;height:12px;stroke-width:1.4}
+.tick.pop{animation:tickPop .45s var(--spring)}
+@keyframes tickPop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+.fwd{font-size:13px;color:var(--primary);margin-bottom:3px}.fwd b{font-weight:800}
+.reply-quote{border-inline-start:3px solid var(--primary);padding:3px 9px;margin-bottom:5px;border-radius:5px;background:var(--primary-soft);cursor:pointer;transition:opacity .15s}
+.reply-quote:active{opacity:.6}
+.msg.outgoing .reply-quote{border-color:#4fae4e;background:rgba(79,174,78,.14)}
+.msg.outgoing .rq-name{color:#3e9a3d}
+html[data-theme="dark"] .msg.outgoing .reply-quote{border-color:#7cc4ff;background:rgba(255,255,255,.1)}
+html[data-theme="dark"] .msg.outgoing .rq-name{color:#9ad1ff}
+.rq-text{max-width:210px}
+.bubble.bigemoji{background:transparent;box-shadow:none;padding:0;font-size:64px;line-height:1.25}
+.bubble.bigemoji .time{float:none;display:flex;width:max-content;margin:0 auto;padding:1px 9px;border-radius:10px;background:rgba(0,0,0,.28);color:#fff!important}
+.bubble.bigemoji .ticks{color:#fff!important}
+/* reactions */
+.reactions{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;clear:both}
+.rx{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px;border-radius:13px;background:var(--primary-soft);color:var(--primary);font-size:13px;font-weight:700;cursor:pointer;transition:transform .2s var(--spring),background .25s}
+.rx i{font-style:normal;font-size:15px}.rx.mine{background:var(--primary);color:#fff}.rx:active{transform:scale(.9)}
+.rx.pop{animation:rxPop .5s var(--spring)}@keyframes rxPop{from{transform:scale(.4)}to{transform:none}}
+.burst{position:absolute;left:50%;top:50%;font-size:60px;z-index:5;pointer-events:none;animation:burst .95s var(--ease) forwards}
+@keyframes burst{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}25%{transform:translate(-50%,-60%) scale(1.25);opacity:1}100%{transform:translate(-50%,-190%) scale(1);opacity:0}}
+/* media / files */
+.bubble.media{padding:3px}
+.bubble.media>.reply-quote,.bubble.media>.fwd{margin:4px 8px 6px}
+.bubble.media>.reactions{margin:6px 8px 4px}
+.photo{position:relative;width:min(260px,66vw);border-radius:15px;overflow:hidden;background-size:cover;cursor:pointer}
+.photo img,.photo video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.photo .time.overlay{position:absolute;float:none;right:8px;bottom:6px;margin:0;padding:2px 8px;border-radius:12px;background:rgba(0,0,0,.42);color:#fff}
+.photo .time.overlay .ticks{color:#fff}
+.cap{padding:6px 9px 4px}
+.vid-badge{position:absolute;inset:0;display:grid;place-items:center}
+.vid-badge .svg-icon{width:48px;height:48px;padding:12px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;fill:#fff}
+.file-bubble{min-width:220px}
+.file-row{display:flex;align-items:center;gap:11px;padding:2px 0}
+.file-ic{width:46px;height:46px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;flex-shrink:0}
+.msg.outgoing .file-ic{background:#4fae4e}
+html[data-theme="dark"] .msg.outgoing .file-ic{background:rgba(255,255,255,.2)}
+.file-name{font-weight:700;font-size:14.5px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{font-size:12.5px;color:var(--text-muted)}
+.loc-map{width:min(240px,60vw);height:130px;border-radius:12px;margin-bottom:6px;display:grid;place-items:center;color:#e53935;background:repeating-linear-gradient(0deg,transparent 0 23px,rgba(0,0,0,.06) 23px 24px),repeating-linear-gradient(90deg,transparent 0 23px,rgba(0,0,0,.06) 23px 24px),linear-gradient(135deg,#dfeee0,#cfe3ef)}
+.loc-map .svg-icon{width:38px;height:38px;fill:#e53935;stroke:#fff;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25))}
+.loc-t{font-weight:700;font-size:14.5px}.loc-s{font-size:12.5px;color:var(--text-muted)}
+.contact-row{display:flex;align-items:center;gap:11px;min-width:190px}
+.contact-row .avatar{width:44px;height:44px;font-size:17px}.contact-row b{display:block;font-size:14.5px}.contact-row span{font-size:12.5px;color:var(--text-muted);direction:ltr;display:block;text-align:right}
+.vmeta{margin-inline-start:auto;display:inline-flex;align-items:center;gap:4px}
+/* new / remove / flash / select */
+.msg.enter .bubble{animation:msgIn .5s var(--spring) both}
+.msg.outgoing.enter .bubble{transform-origin:100% 100%}.msg.incoming.enter .bubble{transform-origin:0 100%}
+@keyframes msgIn{from{opacity:0;transform:translateY(24px) scale(.78)}to{opacity:1;transform:none}}
+.msg.ctx-hidden .bubble{visibility:hidden}
+.msg.removing{transition:height .3s var(--ease),opacity .25s,margin .3s var(--ease),transform .3s var(--ease);transform:scale(.92);opacity:0}
+.msg.flash::after{content:"";position:absolute;inset:-2px 0;background:rgba(47,156,240,.3);animation:flashA 1.5s ease forwards;pointer-events:none;z-index:0}
+@keyframes flashA{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+.sel-check{position:absolute;left:8px;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;border:2px solid rgba(255,255,255,.9);background:rgba(0,0,0,.12);display:grid;place-items:center;opacity:0;transform:scale(.4);transition:all .3s var(--spring);z-index:2}
+.messages.selecting .sel-check{opacity:1;transform:scale(1)}
+.messages.selecting .msg{padding-left:36px}
+.sel-check svg{width:13px;height:13px;stroke:#fff;stroke-width:3;fill:none;opacity:0;transition:opacity .15s}
+.msg.selected .sel-check{background:var(--primary);border-color:var(--primary)}.msg.selected .sel-check svg{opacity:1}
+.msg.selected::before{content:"";position:absolute;inset:-1px 0;background:rgba(47,156,240,.22);z-index:0}
+/* context menu */
+.ctx-overlay{position:absolute;inset:0;z-index:90;pointer-events:none;background:rgba(0,0,0,0);-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0);transition:background .3s,backdrop-filter .3s,-webkit-backdrop-filter .3s}
+.ctx-overlay.active{pointer-events:auto;background:rgba(0,0,0,.34);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.ctx-wrap{position:absolute!important;margin:0!important;padding:0!important;transition:transform .38s var(--ease)}
+.ctx-wrap.in{transform:translateY(var(--shift,0px))}
+.ctx-wrap .bubble{max-width:none;width:100%}
+.ctx-menu{position:absolute;min-width:218px;padding:6px;border-radius:16px;background:var(--surface);box-shadow:0 12px 40px rgba(0,0,0,.3);transform:scale(.55);opacity:0;transition:transform .38s var(--spring),opacity .2s;direction:rtl}
+.ctx-menu.in{transform:none;opacity:1}
+.ctx-item{display:flex;align-items:center;gap:12px;width:100%;border:none;background:transparent;color:var(--text-main);font-size:14.5px;font-weight:600;padding:11px 12px;border-radius:11px;cursor:pointer;text-align:right;transition:background .15s}
+.ctx-item:active{background:var(--active-bg)}.ctx-item .svg-icon{width:20px;height:20px;color:var(--icon-muted)}
+.ctx-item.danger,.ctx-item.danger .svg-icon{color:var(--danger)}
+.ctx-react{position:absolute;display:flex;gap:2px;padding:5px 6px;border-radius:28px;background:var(--surface);box-shadow:0 8px 30px rgba(0,0,0,.28);transform:scale(.5) translateY(16px);opacity:0;transition:transform .4s var(--spring),opacity .2s}
+.ctx-react.in{transform:none;opacity:1}
+.ctx-react button{border:none;background:transparent;font-size:26px;width:38px;height:38px;border-radius:50%;cursor:pointer;transform:scale(0);transition:transform .45s var(--spring);transition-delay:calc(var(--k)*35ms + 90ms)}
+.ctx-react.in button{transform:scale(1)}.ctx-react button.mine{background:var(--primary-soft)}
+/* header extras */
+.chat-status{transition:opacity .2s}
+.dots{display:inline-flex;gap:2px;margin-inline-start:5px;vertical-align:middle}
+.dots i{width:4px;height:4px;border-radius:50%;background:currentColor;animation:dot 1.2s infinite ease-in-out}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-3px);opacity:1}}
+.pin-bar{display:flex;align-items:center;gap:10px;background:var(--surface);flex-shrink:0;max-height:0;padding:0 12px;opacity:0;overflow:hidden;border-bottom:1px solid var(--line);z-index:5;cursor:pointer;transition:max-height .35s var(--ease),opacity .25s,padding .35s var(--ease)}
+.pin-bar.active{max-height:54px;opacity:1;padding:6px 12px}
+.sel-bar{position:absolute;left:0;right:0;top:0;height:calc(62px + var(--sat));padding:var(--sat) 8px 0;z-index:8;background:var(--primary);color:#fff;display:flex;align-items:center;gap:4px;transform:translateY(-105%);transition:transform .38s var(--ease)}
+.sel-bar.active{transform:none}.sel-count{flex:1;font-size:17px;font-weight:800;padding:0 8px}
+.popup{position:absolute;top:calc(var(--sat) + 54px);left:10px;min-width:214px;background:var(--surface);border-radius:16px;padding:6px;z-index:60;box-shadow:0 12px 40px rgba(0,0,0,.28);transform-origin:top left;transform:scale(.55);opacity:0;pointer-events:none;transition:transform .36s var(--spring),opacity .18s}
+.popup.open{transform:none;opacity:1;pointer-events:auto}
+.popup-bg{position:absolute;inset:0;z-index:59;display:none}.popup-bg.open{display:block}
+.scroll-down{position:absolute;right:12px;bottom:calc(var(--ib-h) + 14px);width:44px;height:44px;border-radius:50%;background:var(--surface);color:var(--icon-muted);border:none;display:grid;place-items:center;box-shadow:0 3px 14px rgba(0,0,0,.24);z-index:7;transform:scale(0);opacity:0;transition:transform .35s var(--spring),opacity .2s}
+.scroll-down.show{transform:none;opacity:1}
+.sd-badge{position:absolute;top:-8px;min-width:20px;height:20px;border-radius:10px;background:var(--primary);color:#fff;font-size:11px;font-weight:700;display:none;place-items:center;padding:0 5px}.sd-badge.show{display:grid}
+/* input */
+.inputbar{position:relative;padding:8px 8px calc(8px + var(--sab));gap:0;transition:padding .2s}
+body.kb .inputbar,.emoji-open .inputbar{padding-bottom:8px}
+.reply-preview{display:flex;max-height:0;opacity:0;padding:0 10px;margin-bottom:-0px;overflow:hidden;border-radius:14px;transition:max-height .3s var(--ease),opacity .25s,padding .3s var(--ease),margin .3s var(--ease)}
+.reply-preview.active{max-height:56px;opacity:1;padding:6px 10px;margin-bottom:6px}
+.input-row{align-items:flex-end}
+.input-field{align-items:flex-end;padding:3px 4px;min-height:50px}
+.input-field textarea{flex:1;min-width:0;border:none;outline:none;background:transparent;padding:11px 6px;font:inherit;font-size:15.5px;line-height:1.5;color:var(--text-main);resize:none;height:44px;max-height:128px;overflow-y:auto}
+.input-field textarea::placeholder{color:var(--placeholder)}
+.input-field .icon-btn{flex-shrink:0;margin-bottom:1px}
+.send-btn{position:relative;transition:background .2s,color .2s,transform .2s var(--ease)}
+.send-btn.swap svg{animation:swap .4s var(--spring)}
+@keyframes swap{from{transform:scale(.3) rotate(-35deg);opacity:0}to{transform:none;opacity:1}}
+.recording-bar{order:-1;flex:1;width:auto;min-width:0;overflow:hidden}
+.inputbar.recording .send-btn{display:grid;background:var(--primary);color:#fff;border-color:transparent;z-index:2}
+.inputbar.recording .send-btn::after{content:"";position:absolute;inset:-10px;border-radius:50%;background:var(--primary);opacity:.18;animation:halo 1.4s ease-in-out infinite;pointer-events:none}
+@keyframes halo{0%,100%{transform:scale(.85);opacity:.22}50%{transform:scale(1.12);opacity:.08}}
+.inputbar.recording.locked .send-btn{display:none}
+.recording-hint{background:linear-gradient(90deg,var(--text-muted) 35%,var(--text-main) 50%,var(--text-muted) 65%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 2.2s linear infinite;will-change:transform,opacity}
+@keyframes shimmer{from{background-position:100% 0}to{background-position:-100% 0}}
+.lock-hint{position:absolute;left:10px;bottom:calc(100% + 4px);width:44px;height:92px;border-radius:24px;background:var(--surface);box-shadow:0 4px 18px rgba(0,0,0,.22);display:none;flex-direction:column;align-items:center;padding-top:13px;gap:7px;color:var(--primary);z-index:3}
+.lock-hint .svg-icon{width:20px;height:20px}
+.inputbar.recording .lock-hint{display:flex;animation:lockIn .4s var(--spring)}
+.inputbar.recording.locked .lock-hint{display:none}
+@keyframes lockIn{from{opacity:0;transform:translateY(24px) scale(.7)}to{opacity:1;transform:none}}
+.vr-circle{margin-top:calc(8vh + var(--sat))}
+/* emoji panel */
+.emoji-panel{flex-shrink:0;height:0;overflow:hidden;background:var(--surface);border-top:1px solid transparent;transition:height .36s var(--ease)}
+.emoji-open .emoji-panel{height:calc(284px + var(--sab));border-top-color:var(--line)}
+.emoji-inner{height:284px;display:flex;flex-direction:column}
+.emoji-tabs{display:flex;align-items:center;height:44px;padding:0 8px;gap:4px;flex-shrink:0}
+.emoji-tabs button{border:none;background:transparent;font-size:21px;width:42px;height:36px;border-radius:12px;cursor:pointer;opacity:.55;transition:all .2s}
+.emoji-tabs button.active{opacity:1;background:var(--active-bg)}.emoji-tabs .sp{flex:1}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);overflow-y:auto;padding:2px 8px 8px;direction:ltr;align-content:start;flex:1;overscroll-behavior:contain}
+.emo{font-size:26px;height:42px;border:none;background:none;border-radius:10px;cursor:pointer;transition:transform .15s var(--spring)}
+.emo:active{transform:scale(1.35)}
+/* sheets & dialog */
+.attach-sheet{left:0;right:0;bottom:0;border-radius:24px 24px 0 0;padding:10px 12px calc(18px + var(--sab));transition:transform .45s var(--ease)}
+.sheet-grab{width:38px;height:4px;border-radius:2px;background:var(--badge-gray);margin:2px auto 14px}
+.attach-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 4px}
+.att{border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text-main);cursor:pointer}
+.att-ic{width:56px;height:56px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;transition:transform .25s var(--spring)}
+.att:active .att-ic{transform:scale(.86)}
+.attach-sheet.active .att{animation:attIn .5s var(--spring) both;animation-delay:calc(var(--k)*28ms + 80ms)}
+@keyframes attIn{from{opacity:0;transform:translateY(16px) scale(.8)}to{opacity:1;transform:none}}
+.attach-sheet.fwd{max-height:72%;display:flex;flex-direction:column}
+.fwd-title{font-size:16px;font-weight:800;padding:0 8px 8px}.fwd-list{overflow-y:auto}
+.fwd-item{width:100%;display:flex;align-items:center;gap:12px;border:none;background:none;padding:8px;border-radius:14px;color:var(--text-main);font-size:15px;font-weight:600;cursor:pointer;text-align:right}
+.fwd-item:active{background:var(--active-bg)}.fwd-item .avatar{width:44px;height:44px;font-size:17px}
+.dlg-overlay{position:absolute;inset:0;z-index:100;display:grid;place-items:center;background:rgba(0,0,0,.42);opacity:0;pointer-events:none;transition:opacity .25s}
+.dlg-overlay.active{opacity:1;pointer-events:auto}
+.dlg{width:min(310px,84%);background:var(--surface);border-radius:20px;padding:20px 18px 8px;transform:scale(.82);transition:transform .4s var(--spring)}
+.dlg-overlay.active .dlg{transform:none}
+.dlg h3{margin:0 0 8px;font-size:17px;font-weight:800}.dlg p{margin:0 0 12px;font-size:14px;color:var(--text-muted);line-height:1.9}
+.dlg-check{display:flex;align-items:center;gap:10px;font-size:14px;margin-bottom:8px}.dlg-check input{width:20px;height:20px;accent-color:var(--primary)}
+.dlg-btns{display:flex;gap:2px}.dlg-btns button{border:none;background:none;color:var(--primary);font-size:14.5px;font-weight:800;padding:10px 14px;border-radius:12px;cursor:pointer}
+.dlg-btns .danger{color:var(--danger)}.dlg-btns button:active{background:var(--active-bg)}
+.toast{position:absolute;left:50%;bottom:calc(92px + var(--sab));transform:translate(-50%,20px) scale(.9);opacity:0;background:rgba(20,28,38,.9);color:#fff;font-size:13.5px;font-weight:600;padding:10px 18px;border-radius:20px;z-index:110;pointer-events:none;transition:all .35s var(--spring);white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
+.media-preview{position:absolute;inset:0;z-index:80;background:#000;display:flex;flex-direction:column;transform:translateY(100%);visibility:hidden;transition:transform .45s var(--ease),visibility 0s .45s}
+.media-preview.active{transform:none;visibility:visible;transition:transform .45s var(--ease),visibility 0s}
+.mp-top{display:flex;align-items:center;gap:8px;padding:calc(8px + var(--sat)) 8px 8px;color:#fff;font-weight:700}
+.mp-stage{flex:1;min-height:0;display:grid;place-items:center;overflow:hidden}
+.mp-stage img,.mp-stage video{max-width:100%;max-height:100%;object-fit:contain}
+.mp-bottom{display:flex;align-items:center;gap:8px;padding:8px 8px calc(8px + var(--sab));background:rgba(22,22,22,.95)}
+.mp-bottom input{flex:1;border:none;outline:none;background:rgba(255,255,255,.12);color:#fff;border-radius:22px;padding:12px 16px;font-size:15px}
+.mp-bottom input::placeholder{color:rgba(255,255,255,.55)}
+.mp-send{width:48px;height:48px;border-radius:50%;border:none;background:var(--primary);color:#fff;display:grid;place-items:center;cursor:pointer;transition:transform .2s var(--spring)}.mp-send:active{transform:scale(.88)}
+/* photo viewer */
+.photo-viewer{display:flex;opacity:0;pointer-events:none;transition:opacity .3s ease;background:rgba(0,0,0,.94)}
+.photo-viewer.active{opacity:1;pointer-events:auto}
+.pv-close{top:calc(14px + var(--sat))}
+.pv-avatar,.pv-media{transform:scale(.86);transition:transform .45s var(--ease);animation:none}
+.photo-viewer.active .pv-avatar,.photo-viewer.active .pv-media{transform:scale(1)}
+.pv-media{width:100%;max-height:78vh;display:grid;place-items:center;border-radius:0}
+.pv-media img,.pv-media video{max-width:100%;max-height:78vh;object-fit:contain;display:block;pointer-events:auto}
+.pv-media.demo{width:min(86vw,420px);border-radius:14px}
 </style>
 </head>
 <body>
+<div id="satProbe" style="position:fixed;top:0;left:0;width:1px;height:env(safe-area-inset-top,0px);visibility:hidden;pointer-events:none"></div>
 <div class="phone-frame">
 <div class="app" id="app">
 
@@ -267,9 +504,9 @@ input:checked+.slider:before{transform:translateX(-20px)}
 <button class="icon-btn" id="menuBtn" aria-label="منو"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <div class="appbar-title">LINK</div>
 <div class="appbar-spacer"></div>
-<button class="icon-btn" aria-label="جستجو"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg></button>
+<button class="icon-btn" id="searchBtn" aria-label="جستجو"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg></button>
 </header>
-<div class="searchbar"><input id="searchInput" type="search" placeholder="جستجو" aria-label="جستجو" /></div>
+<div class="searchbar" id="searchbar"><input id="searchInput" type="search" placeholder="جستجو" aria-label="جستجو" /></div>
 <main class="chats" id="chatList"></main>
 <button class="fab" aria-label="پیام جدید"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
 </section>
@@ -289,9 +526,15 @@ input:checked+.slider:before{transform:translateX(-20px)}
 <button class="icon-btn dark" id="pbClose" aria-label="بستن پخش"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
 </div>
 
+<div class="pin-bar" id="pinBar">
+<div class="rp-bar"></div>
+<div class="pb-info"><div class="rp-name">پیام سنجاق‌شده</div><div class="rp-text" id="pinText"></div></div>
+<button class="icon-btn dark" id="pinClose" aria-label="برداشتن سنجاق"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+</div>
 <main class="messages" id="messages"><div class="date-chip">امروز</div></main>
 
 <footer class="inputbar" id="inputbar">
+<div class="lock-hint" id="lockHint"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><svg class="svg-icon" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg></div>
 <div class="reply-preview" id="replyPreview">
 <div class="rp-bar"></div>
 <div class="rp-info"><div class="rp-name" id="rpName"></div><div class="rp-text" id="rpText"></div></div>
@@ -299,8 +542,8 @@ input:checked+.slider:before{transform:translateX(-20px)}
 </div>
 <div class="input-row">
 <div class="input-field">
-<button class="icon-btn dark" aria-label="شکلک"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8"/><path d="M9 9.5h.01M15 9.5h.01"/></svg></button>
-<input id="messageInput" type="text" placeholder="پیام" autocomplete="off" />
+<button class="icon-btn dark" id="emojiBtn" aria-label="شکلک"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8"/><path d="M9 9.5h.01M15 9.5h.01"/></svg></button>
+<textarea id="messageInput" rows="1" placeholder="پیام" autocomplete="off" enterkeyhint="enter"></textarea>
 <button class="icon-btn dark" id="attachBtn" aria-label="پیوست"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
 </div>
 <button id="sendBtn" class="send-btn capture voice" aria-label="ضبط پیام صوتی"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v4"/></svg></button>
@@ -312,6 +555,22 @@ input:checked+.slider:before{transform:translateX(-20px)}
 </div>
 </div>
 </footer>
+<div class="emoji-panel" id="emojiPanel"><div class="emoji-inner"><div class="emoji-tabs" id="emojiTabs"></div><div class="emoji-grid" id="emojiGrid"></div></div></div>
+<button class="scroll-down" id="scrollDown" aria-label="رفتن به آخرین پیام"><span class="sd-badge" id="sdBadge"></span><svg class="svg-icon" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+<div class="sel-bar" id="selBar">
+<button class="icon-btn" id="selClose" aria-label="لغو انتخاب"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+<div class="sel-count" id="selCount"></div>
+<button class="icon-btn" id="selCopy" aria-label="کپی"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button>
+<button class="icon-btn" id="selFwd" aria-label="ارسال"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg></button>
+<button class="icon-btn" id="selDel" aria-label="حذف"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+</div>
+<div class="popup-bg" id="popupBg"></div>
+<div class="popup" id="chatMenu">
+<button class="ctx-item" data-menu="search"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg><span>جستجو</span></button>
+<button class="ctx-item" data-menu="mute"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>بی‌صدا کردن</span></button>
+<button class="ctx-item" data-menu="profile"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span>مشاهده پروفایل</span></button>
+<button class="ctx-item danger" data-menu="clear"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>پاک کردن تاریخچه</span></button>
+</div>
 </section>
 
 <section class="screen profile-screen" id="profileScreen" aria-hidden="true" aria-label="پروفایل">
@@ -355,7 +614,7 @@ input:checked+.slider:before{transform:translateX(-20px)}
 <main class="settings-content">
 <div class="profile-card">
 <div class="avatar profile-avatar c6" id="settingsAvatar">ک</div>
-<div class="profile-info"><div class="profile-name" id="settingsName">کاربر LINK</div><div class="profile-sub" id="settingsPhone">۰۹۲ ۰۰ ۰۰۰۰</div><div class="profile-sub" id="settingsUsername">@link_user</div></div>
+<div class="profile-info"><div class="profile-name" id="settingsName">کاربر LINK</div><div class="profile-sub" id="settingsPhone">۰۹۱۲ ۰۰۰ ۰۰۰۰</div><div class="profile-sub" id="settingsUsername">@link_user</div></div>
 <button class="icon-btn dark" aria-label="ویرایش پروفایل"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
 </div>
 <div class="settings-group">
@@ -406,11 +665,30 @@ input:checked+.slider:before{transform:translateX(-20px)}
 
 <div class="sheet-overlay" id="attachOverlay"></div>
 <div class="attach-sheet" id="attachSheet" aria-label="منوی پیوست">
-<button class="sheet-item" data-attach="photo"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span>عکس</span></button>
-<button class="sheet-item" data-attach="videoNote"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m10 9 5 3-5 3z"/></svg><span>پیام ویدیویی</span></button>
-<button class="sheet-item" data-attach="voice"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v4"/></svg><span>پیام صوتی</span></button>
-<button class="sheet-item" data-attach="file"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg><span>فایل</span></button>
+<div class="sheet-grab"></div>
+<div class="attach-grid">
+<button class="att" data-attach="gallery" style="--k:0;--c:#8e6bf2"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span><span>گالری</span></button>
+<button class="att" data-attach="file" style="--k:1;--c:#2f9cf0"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg></span><span>فایل</span></button>
+<button class="att" data-attach="location" style="--k:2;--c:#3dbb6a"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>موقعیت</span></button>
+<button class="att" data-attach="contact" style="--k:3;--c:#f5a623"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></span><span>مخاطب</span></button>
+<button class="att" data-attach="poll" style="--k:4;--c:#ef5b5b"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span>نظرسنجی</span></button>
+<button class="att" data-attach="videoNote" style="--k:5;--c:#22b8cf"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m10 9 5 3-5 3z"/></svg></span><span>پیام ویدیویی</span></button>
+<button class="att" data-attach="voice" style="--k:6;--c:#ec5b8f"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v4"/></svg></span><span>پیام صوتی</span></button>
+<button class="att" data-attach="music" style="--k:7;--c:#ff8a3d"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span>موسیقی</span></button>
 </div>
+</div>
+<div class="sheet-overlay" id="fwdOverlay"></div>
+<div class="attach-sheet fwd" id="fwdSheet"><div class="sheet-grab"></div><div class="fwd-title">ارسال به…</div><div class="fwd-list" id="fwdList"></div></div>
+<div class="ctx-overlay" id="ctxOverlay"></div>
+<div class="media-preview" id="mediaPreview">
+<div class="mp-top"><button class="icon-btn inv" id="mpClose" aria-label="بستن"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span id="mpCount"></span></div>
+<div class="mp-stage" id="mpStage"></div>
+<div class="mp-bottom"><input id="mpCaption" type="text" placeholder="افزودن توضیح…" autocomplete="off" /><button class="mp-send" id="mpSend" aria-label="ارسال"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>
+</div>
+<div class="dlg-overlay" id="dlg"><div class="dlg"><h3 id="dlgT"></h3><p id="dlgP"></p><label class="dlg-check hidden" id="dlgChkW"><input type="checkbox" id="dlgChk" /><span id="dlgChkT"></span></label><div class="dlg-btns"><button id="dlgYes" class="danger">حذف</button><button id="dlgNo">لغو</button></div></div></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="fileGallery" accept="image/*,video/*" multiple hidden />
+<input type="file" id="fileAny" multiple hidden />
 
 <div class="drawer-overlay" id="drawerOverlay"></div>
 <aside class="drawer" id="drawer" aria-hidden="true" aria-label="منوی کشویی">
@@ -424,7 +702,9 @@ input:checked+.slider:before{transform:translateX(-20px)}
 <button class="drawer-item active" data-open-chat="saved"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>پیام‌های ذخیره‌شده</span></button>
 <button class="drawer-item" data-placeholder="مخاطبین"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>مخاطبین</span></button>
 <button class="drawer-item" data-placeholder="تماس‌ها"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>تماس‌ها</span></button>
+<button class="drawer-item" data-placeholder="چت‌های بایگانی‌شده"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/></svg><span>چت‌های بایگانی‌شده</span><span class="drawer-badge">۳</span></button>
 <button class="drawer-item" id="drawerSettings"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg><span>تنظیمات</span></button>
+<button class="drawer-item" data-placeholder="دعوت دوستان"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span>دعوت دوستان</span></button>
 <button class="drawer-item" data-placeholder="راهنمای LINK"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><span>راهنمای LINK</span></button>
 </nav>
 <div class="drawer-footer">نسخه ۱.۰.۰</div>
@@ -441,7 +721,7 @@ input:checked+.slider:before{transform:translateX(-20px)}
 <button class="icon-btn inv" id="vrLock" aria-label="قفل ضبط"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></button>
 </div>
 <div class="vr-row">
-<div class="vr-cancelbar" id="vrCancelBar"><span class="rec-dot"></span><span id="vrTime">۰:۰۰</span><span class="vr-hint" id="vrHint"><svg class="svg-icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="m14 18-6-6 6-6"/></svg>برای لغو بکشید</span></div>
+<div class="vr-cancelbar" id="vrCancelBar"><span class="rec-dot"></span><span id="vrTime">۰:۰۰</span><span class="vr-hint" id="vrHint">برای لغو بکشید</span></div>
 <button class="vr-send hidden" id="vrSend" aria-label="ارسال"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
 <button class="icon-btn inv hidden" id="vrTrash" aria-label="حذف"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
 <button class="vr-hold" id="vrHold" aria-label="ضبط"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="9"/></svg></button>
@@ -484,40 +764,47 @@ const MUTE_ICON='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M11 5 6 9H2v
 const SPEAKER_ICON='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
 
 const LINKServer={
-storageKey:'link-messenger-db-v8',db:null,
+storageKey:'link-messenger-db-v9',db:null,
 async wait(){return new Promise(r=>setTimeout(r,200+Math.random()*240));},
-seed(){return{profile:{name:'کاربر LINK',phone:'۰۹۲ ۰۰ ۰۰۰۰',username:'@link_user',email:'me@link.app',bio:'طراحی رابط کاربری',initial:'ک',avatar:'c6'},
+seedBase(){return{profile:{name:'کاربر LINK',phone:'۰۹۲ ۰۰ ۰۰۰۰',username:'@link_user',email:'me@link.app',bio:'طراحی رابط کاربری',initial:'ک',avatar:'c6'},
 chats:[
 {id:'team',title:'تیم طراحی محصول',status:'۵ عضو، ۲ آنلاین',initial:'ت',avatar:'c6',unread:2,time:'۱۲:۴۸',lastMessage:'پیام ویدیویی',phone:'۰۲۱ ۸۸۷۷۶۶۵۵',username:'@design_team',email:'team@link.app',bio:'گروه طراحی محصول LINK',messages:[
 {id:'team-1',type:'incoming',kind:'text',text:'سلام، فایل جدید رو آپلود کردم.',time:'۱۲:۴۶',status:'read'},
 {id:'team-2',type:'incoming',kind:'voice',duration:9,time:'۱۲:۴۷',status:'read'},
 {id:'team-3',type:'outgoing',kind:'videoNote',duration:7,time:'۱۲:۴۸',status:'read'}]},
-{id:'sara',title:'سارا احمدی',status:'آخرین بازدید اخیراً',initial:'س',avatar:'c1',unread:1,time:'۱۲:۳۵',lastMessage:'باشه، مرسی',phone:'۰۹۲ ۱۱۱ ۲۲۳۳',username:'@sara_ax',email:'sara@link.app',bio:'عاشق قهوه و طراحی',messages:[
+{id:'sara',title:'سارا احمدی',status:'آخرین بازدید اخیراً',initial:'س',avatar:'c1',unread:1,time:'۱۲:۳۵',lastMessage:'باشه، مرسی',phone:'۰۹۲ ۱۱۱ ۲۲۳',username:'@sara_ax',email:'sara@link.app',bio:'عاشق قهوه و طراحی',messages:[
 {id:'sara-1',type:'incoming',kind:'text',text:'باشه، مرسی',time:'۱۲:۳۵',status:'read'},
 {id:'sara-2',type:'outgoing',kind:'text',text:'قربانت، فردا هماهنگ می‌کنم.',time:'۱۲:۳۶',status:'read'}]},
 {id:'saved',title:'ذخیره‌شده‌ها',status:'پیام‌های ذخیره‌شده',initial:'ذ',avatar:'c3',unread:0,time:'۱۰:۱۵',lastMessage:'پیام صوتی',phone:'—',username:'—',email:'—',bio:'—',messages:[
 {id:'saved-1',type:'outgoing',kind:'voice',duration:4,time:'۱۰:۱۴',status:'read'},
 {id:'saved-2',type:'outgoing',kind:'text',text:'لینک جلسه طراحی',time:'۱۰:۱۵',status:'read'}]},
-{id:'ali',title:'علی رضایی',status:'آنلاین',initial:'ع',avatar:'c4',unread:3,time:'۰۹:۵۸',lastMessage:'فردا صبح میام دفتر.',phone:'۰۹۵ ۲۲۲ ۳۳۴۴',username:'@ali_r',email:'ali@link.app',bio:'توسعه‌دهنده بک‌اند',messages:[
+{id:'ali',title:'علی رضایی',status:'آنلاین',initial:'ع',avatar:'c4',unread:3,time:'۰۹:۵۸',lastMessage:'فردا صبح میام دفتر.',phone:'۰۹۳۵ ۲۲۲ ۳۳۴۴',username:'@ali_r',email:'ali@link.app',bio:'توسعه‌دهنده بک‌اند',messages:[
 {id:'ali-1',type:'incoming',kind:'text',text:'فردا صبح میام دفتر.',time:'۰۹:۵۸',status:'read'}]},
 {id:'channel',title:'کانال اخبار',status:'۱۲.۴ هزار عضو',initial:'ک',avatar:'c2',unread:5,time:'دیروز',lastMessage:'اطلاعیه مهم: بروزرسانی جدید منتشر شد',phone:'—',username:'@link_news',email:'news@link.app',bio:'اخبار رسمی LINK',messages:[
 {id:'channel-1',type:'incoming',kind:'text',text:'اطلاعیه مهم: بروزرسانی جدید منتشر شد.',time:'دیروز',status:'read'}]},
 {id:'family',title:'گروه خانواده',status:'۸ عضو، ۳ آنلاین',initial:'گ',avatar:'c5',unread:7,time:'دیروز',lastMessage:'مامان: شام چی درست کنم؟',phone:'—',username:'—',email:'—',bio:'—',messages:[
 {id:'family-1',type:'incoming',kind:'text',text:'مامان: شام چی درست کنم؟',time:'دیروز',status:'read'}]}
 ]};},
+seed(){const d=this.seedBase();enrichSeed(d);return d;},
 async load(){try{const r=localStorage.getItem(this.storageKey);if(r)return JSON.parse(r);}catch(e){}return this.seed();},
-async save(){try{localStorage.setItem(this.storageKey,JSON.stringify(this.db));}catch(e){}},
+async save(){try{localStorage.setItem(this.storageKey,JSON.stringify(this.db,(k,v)=>(k==='src'&&typeof v==='string'&&v.startsWith('blob:'))?undefined:v));}catch(e){}},
 async init(){if(!this.db){this.db=await this.load();await this.save();}},
 clone(o){return JSON.parse(JSON.stringify(o));},
 async getProfile(){await this.wait();return this.clone(this.db.profile);},
 async getChats(){await this.wait();return this.clone(this.db.chats);},
 async getChat(id){await this.wait();const c=this.db.chats.find(c=>c.id===id);return c?this.clone(c):null;},
 async markRead(id){await this.wait();const c=this.db.chats.find(c=>c.id===id);if(c){c.unread=0;await this.save();}return true;},
+refreshLast(c){const l=c.messages[c.messages.length-1];c.lastMessage=l?previewText(l):'';c.lastOut=!!l&&l.type==='outgoing';if(l)c.time=l.time;},
+async patchMessage(chatId,id,fn){const c=this.db.chats.find(c=>c.id===chatId);if(!c)return;const m=c.messages.find(x=>x.id===id);if(m){fn(m);this.refreshLast(c);await this.save();}},
+async patchChat(chatId,fn){const c=this.db.chats.find(c=>c.id===chatId);if(c){fn(c);await this.save();}},
+async deleteMessages(chatId,ids){const c=this.db.chats.find(c=>c.id===chatId);if(!c)return;c.messages=c.messages.filter(m=>!ids.includes(m.id));if(ids.includes(c.pinnedId))c.pinnedId=null;this.refreshLast(c);await this.save();},
+async clearHistory(chatId){const c=this.db.chats.find(c=>c.id===chatId);if(!c)return;c.messages=[];c.pinnedId=null;c.lastMessage='';c.lastOut=false;await this.save();},
+async addIncoming(chatId,payload,unread){const c=this.db.chats.find(c=>c.id===chatId);const m=Object.assign({id:'in-'+Date.now()+Math.random().toString(36).slice(2,5),type:'incoming',kind:'text',time:currentFaTime(),status:'read'},payload);c.messages.push(m);c.lastMessage=previewText(m);c.lastOut=false;c.time=m.time;if(unread)c.unread=(c.unread||0)+1;await this.save();return this.clone(m);},
 async sendMessage(chatId,payload,messageId){await this.wait();const c=this.db.chats.find(c=>c.id===chatId);if(!c)throw new Error('no chat');
 const kind=payload.kind||'text';
-const m={id:messageId||'m-'+Date.now(),type:'outgoing',kind,text:payload.text||'',duration:payload.duration||0,replyTo:payload.replyTo||null,time:currentFaTime(),status:'read'};
+const m=Object.assign({},payload,{id:messageId||'m-'+Date.now(),type:'outgoing',kind,time:currentFaTime(),status:'read'});
 c.messages.push(m);
-c.lastMessage=kind==='voice'?'پیام صوتی':kind==='videoNote'?'پیام ویدیویی':m.text;
+c.lastMessage=previewText(m);c.lastOut=true;
 c.time=m.time;await this.save();return this.clone(m);}
 };
 
@@ -562,15 +849,14 @@ hideBar();
 }
 function createPlayer(message,root,kind){
 const duration=message.duration||1;
-let currentTime=0,playing=false,timer=null,speed=1;
+let currentTime=0,playing=false,timer=null,speed=1,muted=true;
 const isVoice=kind==='voice';
 const playBtn=root.querySelector('.voice-play'),waveform=root.querySelector('.waveform'),timeText=root.querySelector('.voice-time-text');
 const bars=waveform?Array.from(waveform.children):[];
 const note=root.querySelector('.video-note'),overlay=root.querySelector('.video-overlay'),progress=root.querySelector('.ring-progress'),vTime=root.querySelector('.video-time-text'),muteBtn=root.querySelector('.video-mute');
 const circumference=2*Math.PI*86;
 if(progress){progress.style.strokeDasharray=circumference;progress.style.strokeDashoffset=circumference;}
-let muted=true;
-if(muteBtn){muteBtn.addEventListener('click',e=>{e.stopPropagation();muted=!muted;muteBtn.innerHTML=muted?MUTE_ICON:SPEAKER_ICON;});}
+if(muteBtn){muteBtn.innerHTML=MUTE_ICON;muteBtn.addEventListener('click',e=>{e.stopPropagation();muted=!muted;muteBtn.innerHTML=muted?MUTE_ICON:SPEAKER_ICON;});}
 function update(){
 if(isVoice){const r=currentTime/duration,c=Math.floor(r*bars.length);bars.forEach((b,i)=>b.classList.toggle('active',i<c));timeText.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
 else{progress.style.strokeDashoffset=circumference*(1-currentTime/duration);vTime.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
@@ -595,54 +881,229 @@ note.addEventListener('click',()=>toggle());
 update();players.set(message.id,player);return player;
 }
 
-function quoteHtml(message){if(!message.replyTo)return '';return '<div class="reply-quote"><div class="rq-name">'+escapeHtml(message.replyTo.name)+'</div><div class="rq-text">'+escapeHtml(message.replyTo.snippet)+'</div></div>';}
-function buildTextBubble(m){const b=document.createElement('div');b.className='bubble';b.innerHTML=quoteHtml(m);b.appendChild(document.createTextNode(m.text));
-const t=document.createElement('span');t.className='time';t.textContent=m.time;if(m.type==='outgoing'){const k=document.createElement('span');k.className='ticks';k.textContent=m.status==='read'?'✓✓':'✓';t.appendChild(k);}b.appendChild(t);return b;}
+/* ===================== v2 · پیام‌ها، لیست گفتگوها، منوی لمسی ===================== */
+const appEl=$('app'),satProbe=$('satProbe'),ctxOverlay=$('ctxOverlay'),selBar=$('selBar'),selCount=$('selCount'),pinBar=$('pinBar'),pinText=$('pinText'),sdBtn=$('scrollDown'),sdBadge=$('sdBadge');
+const TICK1='<svg class="tick" viewBox="0 0 16 11"><path d="M1.5 5.8 5 9.3 11.8 1.7"/></svg>';
+const TICK2='<svg class="tick" viewBox="0 0 19 11"><path d="M1.5 5.8 5 9.3 11.8 1.7"/><path d="M7.4 8.6l.9.8L15.6 1.7"/></svg>';
+const CLOCK='<svg class="tick clock" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4.6"/><path d="M6 3.4V6l1.8 1"/></svg>';
+const ICO={reply:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v3"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',pin:'<path d="M12 17v5"/><path d="M9 3h6l-1 7 3 3H7l3-3z"/>',fwd:'<path d="m15 14 5-5-5-5"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/>',sel:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',del:'<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'};
+const ico=n=>'<svg class="svg-icon" viewBox="0 0 24 24">'+ICO[n]+'</svg>';
+const FILE_SVG='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg>';
+const PIN_SVG='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 3h6l-1 7 3 3H7l3-3z"/></svg>';
+const MUTE_SM='<svg class="svg-icon mute-ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m23 9-6 6M17 9l6 6"/></svg>';
+const EMOJI_ONLY=/^(?:\p{Extended_Pictographic}\uFE0F?(?:\u200D\p{Extended_Pictographic}\uFE0F?)*\s*){1,3}$/u;
+const PH=[['#ff9a8b','#ff6a88','#ffd3a5'],['#89f7fe','#66a6ff','#c2e9fb'],['#f6d365','#fda085','#fbc2eb'],['#a1c4fd','#c2e9fb','#84fab0'],['#d4fc79','#96e6a1','#43e97b'],['#cfd9df','#667eea','#764ba2']];
+const safeTop=()=>satProbe.offsetHeight||0;
+const vibrate=ms=>{try{navigator.vibrate&&navigator.vibrate(ms);}catch(e){}};
+const graphemes=s=>window.Intl&&Intl.Segmenter?Array.from(new Intl.Segmenter().segment(s),x=>x.segment):Array.from(s);
+let toastTimer;
+function showToast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),1900);}
+function askConfirm(o){return new Promise(res=>{const d=$('dlg');$('dlgT').textContent=o.title;$('dlgP').textContent=o.text;$('dlgChkW').classList.toggle('hidden',!o.check);$('dlgChkT').textContent=o.check||'';$('dlgChk').checked=false;$('dlgYes').textContent=o.yes||'حذف';d.classList.add('active');
+const done=v=>{d.classList.remove('active');$('dlgYes').onclick=$('dlgNo').onclick=d.onclick=null;res(v);};
+$('dlgYes').onclick=()=>done(true);$('dlgNo').onclick=()=>done(false);d.onclick=e=>{if(e.target===d)done(false);};});}
+function photoBg(s){const p=PH[hashCode(String(s))%PH.length];return 'radial-gradient(circle at 25% 20%,rgba(255,255,255,.55),transparent 35%),radial-gradient(circle at 80% 85%,'+p[2]+',transparent 55%),linear-gradient(145deg,'+p[0]+','+p[1]+')';}
+function previewText(m){const k=m.kind||'text';return k==='voice'?'پیام صوتی':k==='videoNote'?'پیام ویدیویی':k==='photo'?(m.caption?'🖼 '+m.caption:m.video?'ویدیو':'عکس'):k==='file'?'📎 '+(m.name||'فایل'):k==='location'?'📍 موقعیت مکانی':k==='contact'?'👤 '+(m.name||'مخاطب'):(m.text||'');}
+function enrichSeed(d){const by=id=>d.chats.find(c=>c.id===id);
+by('team').pinned=true;by('ali').online=true;by('ali').status='آنلاین';by('channel').muted=true;
+const f=by('family'),ch=by('channel');f.messages[0].time='۲۱:۴۰';f.messages[0].day='دیروز';ch.messages[0].time='۱۸:۱۰';ch.messages[0].day='دیروز';
+const s=by('sara');s.time='۱۲:۳۶';s.lastMessage='قربانت، فردا هماهنگ می‌کنم.';s.lastOut=true;
+s.messages=[
+{id:'s1',type:'incoming',kind:'text',text:'سلام! امروز جلسه ساعت چنده؟',time:'۱۲:۲۰',status:'read'},
+{id:'s2',type:'outgoing',kind:'text',text:'سلام سارا جان 🌸 ساعت ۴ بعدازظهر',time:'۱۲:۲۲',status:'read',reactions:[{e:'👍',n:1,mine:false}]},
+{id:'s3',type:'incoming',kind:'photo',seed:3,w:4,h:5,caption:'این طرح جدیده، نظرت چیه؟',time:'۱۲:۲۸',status:'read'},
+{id:'s4',type:'outgoing',kind:'text',text:'خیلی قشنگه! رنگ‌هاش عالیه ✨',time:'۱۲:۳۰',status:'read',replyTo:{id:'s3',name:'سارا احمدی',snippet:'🖼 این طرح جدیده، نظرت چیه؟'}},
+{id:'s5',type:'incoming',kind:'file',name:'طراحی-نهایی.pdf',size:'۲٫۴ مگابایت',time:'۱۲:۳۲',status:'read'},
+{id:'s6',type:'incoming',kind:'text',text:'باشه، مرسی',time:'۱۲:۳۵',status:'read'},
+{id:'s7',type:'outgoing',kind:'text',text:'قربانت، فردا هماهنگ می‌کنم.',time:'۱۲:۳۶',status:'read'}];
+const a=by('ali');a.messages=[
+{id:'a1',type:'incoming',kind:'text',text:'سلام داداش',time:'۰۹:۵۰',status:'read'},
+{id:'a2',type:'incoming',kind:'location',addr:'میدان آزادی، تهران',time:'۰۹:۵۲',status:'read'},
+{id:'a3',type:'incoming',kind:'text',text:'فردا صبح میام دفتر.',time:'۰۹:۵۸',status:'read'}];}
+
+/* ---- ساخت حباب‌ها ---- */
+function tickHtml(m){if(m.type!=='outgoing')return'';return '<span class="ticks" data-status="'+m.status+'">'+(m.status==='read'?TICK2:m.status==='sent'?TICK1:CLOCK)+'</span>';}
+function metaHtml(m){return (m.edited?'<span class="edited">ویرایش‌شده</span>':'')+'<span class="time-text">'+m.time+'</span>'+tickHtml(m);}
+function quoteHtml(m){if(!m.replyTo)return '';return '<div class="reply-quote" data-reply="'+escapeHtml(m.replyTo.id||'')+'"><div class="rq-name">'+escapeHtml(m.replyTo.name)+'</div><div class="rq-text">'+escapeHtml(m.replyTo.snippet)+'</div></div>';}
+function fwdHtml(m){return m.forwarded?'<div class="fwd">ارسال‌شده از <b>'+escapeHtml(m.forwarded)+'</b></div>':'';}
+function richText(t){return escapeHtml(t).replace(/(https?:\/\/[^\s<]+|@[A-Za-z0-9_]{3,})/g,'<span class="lnk">$1</span>');}
+function buildTextBubble(m){const b=document.createElement('div');b.className='bubble'+(EMOJI_ONLY.test(m.text||'')&&!m.replyTo&&!m.forwarded?' bigemoji':'');
+b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<span class="txt">'+richText(m.text||'')+'</span><span class="time">'+metaHtml(m)+'</span>';return b;}
 function buildVoiceBubble(m){const b=document.createElement('div');b.className='bubble voice-bubble';
 const bars=generateWaveform(m.id,34).map(h=>'<span class="wave-bar" style="height:'+h+'px"></span>').join('');
-const ticks=m.type==='outgoing'?'<span class="ticks">'+(m.status==='read'?'✓✓':'✓')+'</span>':'';
-b.innerHTML=quoteHtml(m)+'<div class="voice-row"><button class="voice-play" aria-label="پخش">'+PLAY_ICON+'</button><div class="voice-body"><div class="waveform">'+bars+'</div><div class="voice-time"><span class="voice-time-text">'+formatTime(m.duration)+'</span>'+ticks+'</div></div></div>';return b;}
+b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<div class="voice-row"><button class="voice-play" aria-label="پخش">'+PLAY_ICON+'</button><div class="voice-body"><div class="waveform">'+bars+'</div><div class="voice-time"><span class="voice-time-text">'+formatTime(m.duration)+'</span><span class="vmeta">'+metaHtml(m)+'</span></div></div></div>';return b;}
 function buildVideoBubble(m){const b=document.createElement('div');b.className='bubble';
 b.innerHTML='<div class="video-note"><div class="video-surface"></div><svg class="progress-ring" viewBox="0 0 180 180"><circle class="ring-bg" cx="90" cy="90" r="86"></circle><circle class="ring-progress" cx="90" cy="90" r="86"></circle></svg><div class="video-overlay">'+PLAY_ICON+'</div><button class="video-mute" aria-label="صدا">'+MUTE_ICON+'</button><div class="video-time"><span class="video-time-text">'+formatTime(m.duration)+'</span></div></div>';return b;}
-function createMessageEl(m){const kind=m.kind||'text';const msg=document.createElement('div');msg.className='msg '+m.type+' '+kind;msg.dataset.messageId=m.id;
-const icon=document.createElement('div');icon.className='swipe-reply';icon.innerHTML='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v3"/></svg>';
-const shift=document.createElement('div');shift.className='msg-shift '+m.type;
-if(kind==='voice'){shift.appendChild(buildVoiceBubble(m));}
-else if(kind==='videoNote'){shift.appendChild(buildVideoBubble(m));}
-else{shift.appendChild(buildTextBubble(m));}
-msg.appendChild(icon);msg.appendChild(shift);
-if(kind==='voice')createPlayer(m,msg,'voice');
-if(kind==='videoNote')createPlayer(m,msg,'videoNote');
-return msg;}
-function renderMessages(chat){stopAllPlayers();currentMessages=chat.messages;messagesEl.innerHTML='<div class="date-chip">امروز</div>';chat.messages.forEach(m=>messagesEl.appendChild(createMessageEl(m)));scrollToBottom();}
-function scrollToBottom(){messagesEl.scrollTop=messagesEl.scrollHeight;}
+function buildPhotoBubble(m){const b=document.createElement('div');b.className='bubble media';
+const ar=(m.w&&m.h)?Math.min(1.6,Math.max(.7,m.w/m.h)):.8;
+const inner=m.src?(m.video?'<video src="'+m.src+'#t=0.1" muted playsinline preload="metadata"></video>':'<img src="'+m.src+'" alt="">'):'';
+b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<div class="photo" style="aspect-ratio:'+ar+';'+(m.src?'':'background:'+photoBg(m.seed||m.id))+'">'+inner+(m.video?'<div class="vid-badge">'+PLAY_ICON+'</div>':'')+(m.caption?'':'<span class="time overlay">'+metaHtml(m)+'</span>')+'</div>'+(m.caption?'<div class="cap"><span class="txt">'+richText(m.caption)+'</span><span class="time">'+metaHtml(m)+'</span></div>':'');return b;}
+function buildFileBubble(m){const b=document.createElement('div');b.className='bubble file-bubble';
+b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<div class="file-row"><div class="file-ic">'+FILE_SVG+'</div><div><div class="file-name" dir="auto">'+escapeHtml(m.name||'فایل')+'</div><div class="file-size">'+escapeHtml(m.size||'')+'</div></div></div><span class="time">'+metaHtml(m)+'</span>';return b;}
+function buildLocationBubble(m){const b=document.createElement('div');b.className='bubble media';
+b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<div class="loc-map"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5" fill="#fff" stroke="none"/></svg></div><div class="cap"><div class="loc-t">موقعیت مکانی</div><div class="loc-s">'+escapeHtml(m.addr||'')+'</div><span class="time">'+metaHtml(m)+'</span></div>';return b;}
+function buildContactBubble(m){const b=document.createElement('div');b.className='bubble';
+b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<div class="contact-row"><div class="avatar c3">'+escapeHtml((m.name||'؟')[0])+'</div><div><b>'+escapeHtml(m.name||'')+'</b><span>'+escapeHtml(m.phone||'')+'</span></div></div><span class="time">'+metaHtml(m)+'</span>';return b;}
+const BUILDERS={text:buildTextBubble,voice:buildVoiceBubble,videoNote:buildVideoBubble,photo:buildPhotoBubble,file:buildFileBubble,location:buildLocationBubble,contact:buildContactBubble};
+function createMessageEl(m,enter){const kind=m.kind||'text';const msg=document.createElement('div');msg.className='msg '+m.type+' '+kind+(enter?' enter':'');msg.dataset.messageId=m.id;msg.dataset.t=m.type;
+const icon=document.createElement('div');icon.className='swipe-reply';icon.innerHTML=ico('reply');
+const chk=document.createElement('div');chk.className='sel-check';chk.innerHTML='<svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>';
+const shift=document.createElement('div');shift.className='msg-shift '+m.type;shift.appendChild((BUILDERS[kind]||buildTextBubble)(m));
+msg.appendChild(chk);msg.appendChild(icon);msg.appendChild(shift);
+if(kind==='voice')createPlayer(m,msg,'voice');if(kind==='videoNote')createPlayer(m,msg,'videoNote');
+updateReactions(msg,m);return msg;}
+function updateReactions(el,m,popE){const bub=el.querySelector('.bubble');if(!bub)return;let r=bub.querySelector(':scope>.reactions');
+if(!m.reactions||!m.reactions.length){if(r)r.remove();return;}
+if(!r){r=document.createElement('div');r.className='reactions';bub.appendChild(r);}
+r.innerHTML=m.reactions.map(x=>'<span class="rx'+(x.mine?' mine':'')+(popE===x.e?' pop':'')+'" data-e="'+x.e+'"><i>'+x.e+'</i><b>'+toFaDigits(x.n)+'</b></span>').join('');}
+function regroup(){const els=Array.from(messagesEl.querySelectorAll('.msg:not(.removing)'));
+els.forEach(el=>{const p=el.previousElementSibling,n=el.nextElementSibling;const s=o=>o&&o.classList.contains('msg')&&!o.classList.contains('removing')&&o.dataset.t===el.dataset.t;
+el.classList.toggle('g-top',!!s(p));el.classList.toggle('g-bot',!!s(n));el.classList.toggle('tail',!s(n));});}
+const findMsg=id=>currentMessages.find(m=>m.id===id);
+const msgElById=id=>messagesEl.querySelector('[data-message-id="'+CSS.escape(id)+'"]');
+let stick=true,pinnedId=null,newCount=0,selecting=false;const selected=new Set();
+const nearBottom=(t=120)=>messagesEl.scrollHeight-messagesEl.scrollTop-messagesEl.clientHeight<t;
+function scrollToBottom(smooth){messagesEl.scrollTo({top:messagesEl.scrollHeight,behavior:smooth?'smooth':'auto'});}
+function toggleScrollDown(){const far=messagesEl.scrollHeight-messagesEl.scrollTop-messagesEl.clientHeight>260;sdBtn.classList.toggle('show',far);if(!far){newCount=0;sdBadge.classList.remove('show');}}
+function bumpScrollBadge(){newCount++;sdBadge.textContent=toFaDigits(newCount);sdBadge.classList.add('show');}
+messagesEl.addEventListener('scroll',()=>{stick=nearBottom(90);toggleScrollDown();},{passive:true});
+sdBtn.addEventListener('click',()=>scrollToBottom(true));
+function renderMessages(chat){stopAllPlayers();exitSelect(true);currentMessages=chat.messages;messagesEl.innerHTML='';let day=null;
+if(!chat.messages.length){messagesEl.innerHTML='<div class="empty-chat">هنوز پیامی نیست. سلام کنید 👋</div>';}
+chat.messages.forEach(m=>{const d=m.day||'امروز';if(d!==day){day=d;const c=document.createElement('div');c.className='date-chip';c.textContent=d;messagesEl.appendChild(c);}messagesEl.appendChild(createMessageEl(m));});
+regroup();pinnedId=chat.pinnedId||null;updatePinBar();stick=true;messagesEl.scrollTop=messagesEl.scrollHeight;newCount=0;toggleScrollDown();}
+function appendMessage(m,enter){const e=messagesEl.querySelector('.empty-chat');if(e)e.remove();const el=createMessageEl(m,enter);messagesEl.appendChild(el);regroup();return el;}
+function removeMsgEl(el){const h=el.offsetHeight;el.style.height=h+'px';el.style.overflow='hidden';el.classList.add('removing');void el.offsetHeight;el.style.height='0px';el.style.marginTop='0px';
+setTimeout(()=>{el.remove();regroup();},320);}
+function setMsgStatus(id,st){const m=findMsg(id);if(m)m.status=st;const el=msgElById(id);const t=el&&el.querySelector('.ticks');if(t){t.dataset.status=st;t.innerHTML=st==='read'?TICK2:st==='sent'?TICK1:CLOCK;if(t.firstElementChild)t.firstElementChild.classList.add('pop');}}
 
-messagesEl.addEventListener('pointerdown',e=>{const msg=e.target.closest('.msg');if(!msg)return;swipeState.msg=msg;swipeState.shift=msg.querySelector('.msg-shift');swipeState.startX=e.clientX;swipeState.startY=e.clientY;swipeState.dragging=false;swipeState.dx=0;});
-messagesEl.addEventListener('pointermove',e=>{if(!swipeState.msg)return;const dx=e.clientX-swipeState.startX,dy=e.clientY-swipeState.startY;
-if(!swipeState.dragging&&Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy))swipeState.dragging=true;
-if(swipeState.dragging){swipeState.dx=Math.max(-90,Math.min(0,dx));swipeState.shift.style.transform='translateX('+swipeState.dx+'px)';swipeState.msg.querySelector('.swipe-reply').style.opacity=(-swipeState.dx/90);}});
-function endSwipe(){if(!swipeState.msg)return;const m=swipeState.msg;
-if(swipeState.dragging&&swipeState.dx<-55){const data=currentMessages.find(x=>x.id===m.dataset.messageId);if(data)setReply(data);}
-m.querySelector('.msg-shift').style.transform='';m.querySelector('.swipe-reply').style.opacity=0;
-swipeState.msg=null;swipeState.dragging=false;}
-messagesEl.addEventListener('pointerup',endSwipe);
-messagesEl.addEventListener('pointercancel',endSwipe);
-function snippetOf(m){return m.kind==='text'?m.text:m.kind==='voice'?'پیام صوتی':'پیام ویدیویی';}
-function currentReplyPayload(){if(!replyTarget)return null;return{name:replyTarget.type==='outgoing'?'شما':currentChatTitle,snippet:snippetOf(replyTarget)};}
-function setReply(m){replyTarget=m;rpName.textContent=m.type==='outgoing'?'شما':currentChatTitle;rpText.textContent=snippetOf(m);replyPreview.classList.add('active');messageInput.focus();}
-function clearReply(){replyTarget=null;replyPreview.classList.remove('active');}
+/* ---- ریکشن ---- */
+function toggleReaction(m,e,quiet){m.reactions=m.reactions||[];const had=m.reactions.find(r=>r.mine);
+if(had){had.n--;had.mine=false;if(had.n<=0)m.reactions.splice(m.reactions.indexOf(had),1);}
+if(!had||had.e!==e){const r=m.reactions.find(x=>x.e===e);if(r){r.n++;r.mine=true;}else m.reactions.push({e,n:1,mine:true});vibrate(10);}
+const el=msgElById(m.id);if(el){updateReactions(el,m,e);if(!quiet&&(!had||had.e!==e))burst(el,e);}
+const snap=JSON.parse(JSON.stringify(m.reactions));LINKServer.patchMessage(currentChatId,m.id,x=>{x.reactions=snap;});}
+function burst(el,e){const b=document.createElement('div');b.className='burst';b.textContent=e;el.appendChild(b);setTimeout(()=>b.remove(),950);}
+
+/* ---- جواب دادن / ویرایش ---- */
+let editTarget=null;
+function setReply(m){if(editTarget){editTarget=null;messageInput.value='';autosize();updateSendButton();}replyTarget=m;rpName.textContent=m.type==='outgoing'?'شما':currentChatTitle;rpText.textContent=previewText(m);replyPreview.classList.add('active');messageInput.focus();}
+function clearReply(){replyTarget=null;if(editTarget){editTarget=null;messageInput.value='';autosize();updateSendButton();}replyPreview.classList.remove('active');}
 rpClose.addEventListener('click',clearReply);
+function replyPayload(){return replyTarget?{id:replyTarget.id,name:replyTarget.type==='outgoing'?'شما':currentChatTitle,snippet:previewText(replyTarget)}:null;}
+function startEdit(m){replyTarget=null;editTarget=m;rpName.textContent='ویرایش پیام';rpText.textContent=m.text;replyPreview.classList.add('active');messageInput.value=m.text;autosize();updateSendButton();messageInput.focus();}
+async function commitEdit(t){const m=editTarget;editTarget=null;messageInput.value='';autosize();updateSendButton();clearReply();if(t===m.text)return;
+m.text=t;m.edited=true;await LINKServer.patchMessage(currentChatId,m.id,x=>{x.text=t;x.edited=true;});
+const old=msgElById(m.id);if(old){const n=createMessageEl(m);old.replaceWith(n);regroup();}
+allChats=await LINKServer.getChats();renderCurrentChatList();}
+function jumpTo(id){const el=msgElById(id);if(!el){showToast('پیام پیدا نشد');return;}el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1500);}
 
-function currentFilteredChats(){const q=searchInput.value.trim();if(!q)return allChats;return allChats.filter(c=>c.title.includes(q)||(c.lastMessage||'').includes(q));}
-function createChatListItem(chat){const item=document.createElement('div');item.className='chat-item'+(chat.id===currentChatId?' active':'');item.dataset.id=chat.id;
-item.innerHTML='<div class="avatar '+escapeHtml(chat.avatar)+'">'+escapeHtml(chat.initial)+'</div><div class="chat-info"><div class="chat-top"><div class="chat-name">'+escapeHtml(chat.title)+'</div><div class="chat-time">'+escapeHtml(chat.time)+'</div></div><div class="chat-bottom"><div class="chat-last">'+escapeHtml(chat.lastMessage||'')+'</div>'+(chat.unread?'<div class="badge">'+toFaDigits(chat.unread)+'</div>':'')+'</div></div>';
+/* ---- سنجاق ---- */
+function updatePinBar(){const m=pinnedId&&findMsg(pinnedId);pinBar.classList.toggle('active',!!m);if(m)pinText.textContent=previewText(m);}
+async function togglePin(m){pinnedId=pinnedId===m.id?null:m.id;updatePinBar();await LINKServer.patchChat(currentChatId,c=>{c.pinnedId=pinnedId;});showToast(pinnedId?'پیام سنجاق شد':'سنجاق برداشته شد');}
+pinBar.addEventListener('click',e=>{if(e.target.closest('#pinClose')){pinnedId=null;updatePinBar();LINKServer.patchChat(currentChatId,c=>{c.pinnedId=null;});return;}if(pinnedId)jumpTo(pinnedId);});
+
+/* ---- حذف / کپی / ارسال ---- */
+async function deleteMessages(ids){const ok=await askConfirm({title:ids.length>1?'حذف '+toFaDigits(ids.length)+' پیام':'حذف پیام',text:'این کار قابل بازگشت نیست. مطمئنید؟',yes:'حذف'});if(!ok)return;
+await LINKServer.deleteMessages(currentChatId,ids);
+ids.forEach(id=>{const el=msgElById(id);if(el)removeMsgEl(el);const p=players.get(id);if(p){p.stopReset();players.delete(id);}const i=currentMessages.findIndex(m=>m.id===id);if(i>-1)currentMessages.splice(i,1);});
+if(pinnedId&&ids.includes(pinnedId)){pinnedId=null;updatePinBar();}
+exitSelect();allChats=await LINKServer.getChats();renderCurrentChatList();}
+function copyText(t){const done=()=>showToast('متن کپی شد');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,()=>showToast('کپی نشد'));return;}
+const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}catch(e){showToast('کپی نشد');}ta.remove();}
+let fwdIds=[];
+function openForward(ids){fwdIds=ids;const l=$('fwdList');l.innerHTML='';allChats.forEach(c=>{const b=document.createElement('button');b.className='fwd-item';b.innerHTML='<div class="avatar '+c.avatar+'">'+escapeHtml(c.initial)+'</div><span>'+escapeHtml(c.id==='saved'?'پیام‌های ذخیره‌شده':c.title)+'</span>';b.onclick=()=>doForward(c.id);l.appendChild(b);});$('fwdSheet').classList.add('active');$('fwdOverlay').classList.add('active');}
+function closeForward(){$('fwdSheet').classList.remove('active');$('fwdOverlay').classList.remove('active');}
+$('fwdOverlay').addEventListener('click',closeForward);
+async function doForward(cid){closeForward();const from=currentChatTitle;const list=fwdIds.map(findMsg).filter(Boolean);
+for(const m of list){const p={};['kind','text','duration','caption','src','seed','w','h','name','size','video','addr','phone'].forEach(k=>{if(m[k]!==undefined)p[k]=m[k];});p.forwarded=m.forwarded||(m.type==='outgoing'?'شما':from);
+if(cid===currentChatId)await sendOutgoingMessage(p);else await LINKServer.sendMessage(cid,p);}
+exitSelect();allChats=await LINKServer.getChats();renderCurrentChatList();if(cid!==currentChatId)showToast('پیام ارسال شد');}
+
+/* ---- انتخاب چندتایی ---- */
+function enterSelect(id){selecting=true;messagesEl.classList.add('selecting');selBar.classList.add('active');toggleSel(id);}
+function toggleSel(id){const el=msgElById(id);if(!el)return;if(selected.has(id)){selected.delete(id);el.classList.remove('selected');}else{selected.add(id);el.classList.add('selected');vibrate(6);}
+if(!selected.size){exitSelect();return;}selCount.textContent=toFaDigits(selected.size)+' انتخاب‌شده';}
+function exitSelect(silent){selecting=false;selected.clear();messagesEl.classList.remove('selecting');selBar.classList.remove('active');messagesEl.querySelectorAll('.msg.selected').forEach(e=>e.classList.remove('selected'));}
+$('selClose').addEventListener('click',()=>exitSelect());
+$('selDel').addEventListener('click',()=>deleteMessages(Array.from(selected)));
+$('selFwd').addEventListener('click',()=>openForward(Array.from(selected)));
+$('selCopy').addEventListener('click',()=>{const t=currentMessages.filter(m=>selected.has(m.id)).map(m=>m.text||m.caption||'').filter(Boolean).join('\n');if(t){copyText(t);exitSelect();}else showToast('متنی برای کپی نیست');});
+
+/* ---- منوی لمسی ---- */
+let ctxState=null;
+function openCtx(msgEl){const m=findMsg(msgEl.dataset.messageId);if(!m||ctxState)return;vibrate(14);
+const appR=appEl.getBoundingClientRect(),bub=msgEl.querySelector('.bubble'),br=bub.getBoundingClientRect(),sat=safeTop(),mine=m.type==='outgoing';
+const wrap=document.createElement('div');wrap.className='msg ctx-wrap '+m.type+' '+(m.kind||'text')+(msgEl.classList.contains('tail')?' tail':'')+(msgEl.classList.contains('g-top')?' g-top':'');wrap.appendChild(bub.cloneNode(true));
+const items=[['reply','پاسخ']];if(m.kind==='text'||m.caption)items.push(['copy','کپی متن']);if(mine&&m.kind==='text')items.push(['edit','ویرایش']);
+items.push(['pin',pinnedId===m.id?'برداشتن سنجاق':'سنجاق کردن'],['fwd','ارسال به…'],['sel','انتخاب'],['del','حذف']);
+const menuH=items.length*45+12,reactH=50,gap=8,H=appR.height,W=appR.width;
+const ct=br.top-appR.top;let shift=0;const needBottom=ct+br.height+gap+menuH;if(needBottom>H-10)shift=needBottom-(H-10);
+const minTop=sat+reactH+gap+6;if(ct-shift<minTop)shift=Math.max(0,ct-minTop);
+let menuTop=ct-shift+br.height+gap;if(menuTop+menuH>H-10)menuTop=H-10-menuH;const reactTop=Math.max(sat+6,ct-shift-reactH-gap);
+const bl=br.left-appR.left,bright=W-(br.right-appR.left);
+wrap.style.cssText='left:'+bl+'px;top:'+ct+'px;width:'+br.width+'px;--shift:'+(-shift)+'px';
+const side=mine?'right:'+Math.max(10,bright)+'px;transform-origin:top right':'left:'+Math.max(10,bl)+'px;transform-origin:top left';
+const menu=document.createElement('div');menu.className='ctx-menu';menu.style.cssText='top:'+menuTop+'px;'+side;
+menu.innerHTML=items.map(i=>'<button class="ctx-item'+(i[0]==='del'?' danger':'')+'" data-act="'+i[0]+'">'+ico(i[0])+'<span>'+i[1]+'</span></button>').join('');
+const mineR=(m.reactions||[]).find(r=>r.mine);
+const rb=document.createElement('div');rb.className='ctx-react';rb.style.cssText='top:'+reactTop+'px;'+(mine?'right:'+Math.max(10,bright)+'px':'left:'+Math.max(10,bl)+'px');
+rb.innerHTML=['❤️','👍','🔥','😂','😮','😢','🙏'].map((e,k)=>'<button style="--k:'+k+'" data-e="'+e+'"'+(mineR&&mineR.e===e?' class="mine"':'')+'>'+e+'</button>').join('');
+ctxOverlay.innerHTML='';ctxOverlay.append(wrap,rb,menu);msgEl.classList.add('ctx-hidden');ctxOverlay.classList.add('active');
+ctxState={msgEl,els:[wrap,rb,menu],t:Date.now()};
+requestAnimationFrame(()=>requestAnimationFrame(()=>ctxState&&ctxState.els.forEach(e=>e.classList.add('in'))));
+menu.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;closeCtx(()=>ctxAction(a,m));});
+rb.addEventListener('click',e=>{const b=e.target.closest('[data-e]');if(!b)return;closeCtx(()=>toggleReaction(m,b.dataset.e));});}
+function closeCtx(cb){if(!ctxState)return;const s=ctxState;ctxState=null;ctxOverlay.classList.remove('active');s.els.forEach(e=>e.classList.remove('in'));
+setTimeout(()=>{s.msgEl.classList.remove('ctx-hidden');if(!ctxState)ctxOverlay.innerHTML='';},260);if(cb)setTimeout(cb,120);}
+ctxOverlay.addEventListener('click',e=>{if(e.target===ctxOverlay&&ctxState&&Date.now()-ctxState.t>350)closeCtx();});
+function ctxAction(a,m){if(a==='reply')setReply(m);else if(a==='copy')copyText(m.text||m.caption||'');else if(a==='edit')startEdit(m);else if(a==='pin')togglePin(m);else if(a==='fwd')openForward([m.id]);else if(a==='sel')enterSelect(m.id);else if(a==='del')deleteMessages([m.id]);}
+
+/* ---- ژست‌ها: کشیدن برای پاسخ، نگه‌داشتن، دابل‌تپ ---- */
+const G={msg:null,shift:null,sx:0,sy:0,x:0,mode:null,timer:null,suppress:false,armed:false,tapT:0,tapId:null};
+function gReset(){clearTimeout(G.timer);if(G.shift){G.shift.classList.remove('dragging');G.shift.style.transform='';const ic=G.msg&&G.msg.querySelector('.swipe-reply');if(ic){ic.style.opacity=0;ic.style.transform='translateY(-50%) scale(.4)';}}G.msg=null;G.shift=null;G.mode=null;G.armed=false;}
+messagesEl.addEventListener('pointerdown',e=>{if(ctxState)return;const msg=e.target.closest('.msg');if(!msg)return;
+G.suppress=false;G.msg=msg;G.shift=msg.querySelector('.msg-shift');G.sx=e.clientX;G.sy=e.clientY;G.x=0;G.mode=null;G.armed=false;clearTimeout(G.timer);
+if(!selecting)G.timer=setTimeout(()=>{if(G.msg&&!G.mode){const el=G.msg;G.suppress=true;gReset();openCtx(el);}},380);});
+messagesEl.addEventListener('pointermove',e=>{if(!G.msg||G.mode==='scroll')return;const dx=e.clientX-G.sx,dy=e.clientY-G.sy;
+if(!G.mode){if(Math.abs(dx)>9&&Math.abs(dx)>Math.abs(dy)*1.2&&dx<0&&!selecting){G.mode='swipe';clearTimeout(G.timer);G.shift.classList.add('dragging');}
+else if(Math.abs(dy)>8||Math.abs(dx)>9){G.mode='scroll';clearTimeout(G.timer);return;}else return;}
+if(G.mode==='swipe'){const lim=64;const x=dx<-lim?-lim+(dx+lim)*.3:Math.min(0,dx);G.x=dx;G.shift.style.transform='translateX('+x+'px)';
+const p=Math.min(1,-x/lim),ic=G.msg.querySelector('.swipe-reply');ic.style.opacity=p;ic.style.transform='translateY(-50%) scale('+(.4+.6*p)+')';
+if(!G.armed&&-dx>=lim){G.armed=true;vibrate(8);}else if(G.armed&&-dx<lim-10)G.armed=false;}});
+function gEnd(commit,e){if(!G.msg)return;const msg=G.msg,mode=G.mode,dx=G.x;
+if(mode==='swipe'){G.suppress=true;if(commit&&-dx>=64){const m=findMsg(msg.dataset.messageId);if(m)setReply(m);}}
+else if(commit&&!mode&&!selecting&&e&&!e.target.closest('.rx,.voice-play,.video-note')){const id=msg.dataset.messageId,now=Date.now();
+if(G.tapId===id&&now-G.tapT<320){G.tapT=0;const m=findMsg(id);if(m&&!(m.reactions||[]).some(r=>r.mine&&r.e==='❤️'))toggleReaction(m,'❤️');else if(m)burst(msg,'❤️');}else{G.tapId=id;G.tapT=now;}}
+gReset();}
+messagesEl.addEventListener('pointerup',e=>gEnd(true,e));
+messagesEl.addEventListener('pointercancel',()=>gEnd(false));
+messagesEl.addEventListener('click',e=>{const msg=e.target.closest('.msg');if(!msg)return;if(G.suppress){G.suppress=false;return;}
+if(selecting){toggleSel(msg.dataset.messageId);return;}
+const m=findMsg(msg.dataset.messageId);if(!m)return;
+const rx=e.target.closest('.rx');if(rx){toggleReaction(m,rx.dataset.e,true);return;}
+const q=e.target.closest('.reply-quote');if(q&&q.dataset.reply){jumpTo(q.dataset.reply);return;}
+if(e.target.closest('.photo')){openMediaViewer(m);return;}
+if(e.target.closest('.loc-map,.contact-row'))showToast('این بخش بعداً فعال می‌شود');});
+
+/* ---- لیست گفتگوها ---- */
+let firstList=true;
+function currentFilteredChats(){const q=searchInput.value.trim();let l=q?allChats.filter(c=>c.title.includes(q)||(c.lastMessage||'').includes(q)):allChats.slice();return l.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));}
+function createChatListItem(chat,idx,anim){const item=document.createElement('div');item.className='chat-item'+(anim?' enter':'');item.style.setProperty('--i',idx);item.dataset.id=chat.id;
+const badge=chat.unread?'<div class="badge'+(chat.muted?' gray':'')+'">'+toFaDigits(chat.unread)+'</div>':(chat.pinned?'<div class="pin-ic">'+PIN_SVG+'</div>':'');
+item.innerHTML='<div class="av-wrap"><div class="avatar '+escapeHtml(chat.avatar)+'">'+escapeHtml(chat.initial)+'</div>'+(chat.online?'<span class="online-dot"></span>':'')+'</div><div class="chat-info"><div class="chat-top"><div class="chat-name">'+escapeHtml(chat.title)+(chat.muted?MUTE_SM:'')+'</div><div class="chat-time">'+(chat.lastOut?'<span class="ci-tick">'+TICK2+'</span>':'')+escapeHtml(chat.time)+'</div></div><div class="chat-bottom"><div class="chat-last">'+escapeHtml(chat.lastMessage||'')+'</div>'+badge+'</div></div>';
 item.addEventListener('click',()=>openChatById(chat.id));return item;}
-function renderCurrentChatList(){chatListEl.innerHTML='';currentFilteredChats().forEach(c=>chatListEl.appendChild(createChatListItem(c)));}
+function renderCurrentChatList(){const a=firstList;firstList=false;chatListEl.innerHTML='';currentFilteredChats().forEach((c,i)=>chatListEl.appendChild(createChatListItem(c,i,a)));}
+const searchBar=$('searchbar'),searchBtn=$('searchBtn');
+searchBtn.addEventListener('click',()=>{const open=searchBar.classList.toggle('open');if(open)setTimeout(()=>searchInput.focus(),250);else{searchInput.value='';searchInput.blur();renderCurrentChatList();}});
+const SCREEN_ORDER=[$('listScreen'),chatScreen,settingsScreen,appearanceScreen,profileScreen,placeholderScreen];
+function syncUnder(){const act=el=>el.classList.contains('active')||el.id==='listScreen';SCREEN_ORDER.forEach((el,i)=>{el.classList.toggle('under',act(el)&&SCREEN_ORDER.slice(i+1).some(o=>o.classList.contains('active')));});}
+const underObs=new MutationObserver(syncUnder);SCREEN_ORDER.slice(1).forEach(el=>underObs.observe(el,{attributes:true,attributeFilter:['class']}));
+function resetChatUI(){closeCtx();exitSelect(true);closeEmoji();closeChatMenu();closeForward();closeAttachSheet();setTyping(false);if(typeof editTarget!=='undefined'&&editTarget){editTarget=null;messageInput.value='';autosize();updateSendButton();}}
 
 function closeDrawer(){drawer.classList.remove('active');drawerOverlay.classList.remove('active');drawer.setAttribute('aria-hidden','true');}
 function openDrawer(){drawer.classList.add('active');drawerOverlay.classList.add('active');drawer.setAttribute('aria-hidden','false');}
 function closeAttachSheet(){attachSheet.classList.remove('active');attachOverlay.classList.remove('active');}
-function closeChat(){chatScreen.classList.remove('active');chatScreen.setAttribute('aria-hidden','true');stopAllPlayers();clearReply();}
+function closeChat(){chatScreen.classList.remove('active');chatScreen.setAttribute('aria-hidden','true');stopAllPlayers();clearReply();resetChatUI();}
 function closeSettings(){settingsScreen.classList.remove('active');settingsScreen.setAttribute('aria-hidden','true');}
 function openSettings(){settingsScreen.classList.add('active');settingsScreen.setAttribute('aria-hidden','false');}
 function closeAppearance(){appearanceScreen.classList.remove('active');appearanceScreen.setAttribute('aria-hidden','true');}
@@ -652,13 +1113,13 @@ function openPlaceholder(t,x){placeholderTitle.textContent=t||'بخش';placehold
 function closeProfile(){profileScreen.classList.remove('active');profileScreen.setAttribute('aria-hidden','true');}
 function openProfile(chat){pfAvatar.textContent=chat.initial;pfAvatar.className='avatar pf-avatar '+chat.avatar;pfName.textContent=chat.title;pfStatus.textContent=chat.status;
 pfPhone.textContent=chat.phone||'—';pfUsername.textContent=chat.username||'—';pfEmail.textContent=chat.email||'—';pfBio.textContent=chat.bio||'—';
-pfGrid.innerHTML='';for(let i=0;i<9;i++){const t=document.createElement('div');t.className='pf-tile avatar c'+((i%7)+1);t.style.borderRadius='6px';pfGrid.appendChild(t);}
+pfGrid.innerHTML='';for(let i=0;i<9;i++){const t=document.createElement('div');t.className='pf-tile avatar c'+((i%7)+1);t.style.borderRadius='6px';t.textContent='';pfGrid.appendChild(t);}
 profileScreen.classList.add('active');profileScreen.setAttribute('aria-hidden','false');}
 function openPhotoViewer(chat){pvAvatar.textContent=chat.initial;pvAvatar.className='avatar pv-avatar '+chat.avatar;pvName.textContent=chat.title;photoViewer.classList.add('active');}
-function closePhotoViewer(){photoViewer.classList.remove('active');}
+function closePhotoViewer(){photoViewer.classList.remove('active');setTimeout(()=>{if(photoViewer.classList.contains('active'))return;photoViewer.querySelectorAll('.pv-media').forEach(x=>x.remove());pvAvatar.classList.remove('hidden');},320);}
 function closeSecondaryScreens(){closeAttachSheet();closePlaceholder();closeAppearance();closeSettings();closeDrawer();}
 
-async function openChatById(chatId){closeSecondaryScreens();closePhotoViewer();clearReply();
+async function openChatById(chatId){closeSecondaryScreens();closePhotoViewer();
 const chat=await LINKServer.getChat(chatId);if(!chat)return;
 currentChatId=chatId;currentChatTitle=chat.title;
 chatTitle.textContent=chat.title;chatStatus.textContent=chat.status;chatAvatar.textContent=chat.initial;chatAvatar.className='avatar chat-avatar '+chat.avatar;
@@ -679,60 +1140,140 @@ appearanceBack.addEventListener('click',closeAppearance);
 placeholderBack.addEventListener('click',closePlaceholder);
 searchInput.addEventListener('input',renderCurrentChatList);
 
-function updateSendButton(){if(messageInput.value.trim()){sendBtn.className='send-btn send';sendBtn.innerHTML=SEND_ICON;sendBtn.setAttribute('aria-label','ارسال پیام');return;}
-if(captureMode==='voice'){sendBtn.className='send-btn capture voice';sendBtn.innerHTML=MIC_ICON;sendBtn.setAttribute('aria-label','ضبط پیام صوتی؛ کلیک: تبدیل به پیام ویدیویی');}
-else{sendBtn.className='send-btn capture video';sendBtn.innerHTML=VIDEO_CAPTURE_ICON;sendBtn.setAttribute('aria-label','ضبط پیام ویدیویی؛ کلیک: تبدیل به پیام صوتی');}}
-function toggleCaptureMode(){captureMode=captureMode==='voice'?'videoNote':'voice';updateSendButton();}
-async function sendOutgoingMessage(payload){if(!currentChatId)return;const tempId='m-'+Date.now();
-const temp={id:tempId,type:'outgoing',kind:payload.kind||'text',text:payload.text||'',duration:payload.duration||0,replyTo:payload.replyTo||null,time:currentFaTime(),status:'sent'};
-messagesEl.appendChild(createMessageEl(temp));currentMessages.push(temp);scrollToBottom();
-try{await LINKServer.sendMessage(currentChatId,payload,tempId);
-const el=messagesEl.querySelector('[data-message-id="'+tempId+'"] .ticks');if(el)el.textContent='✓✓';
-allChats=await LINKServer.getChats();renderCurrentChatList();}catch(e){}}
-function sendTextMessage(){const t=messageInput.value.trim();if(!t)return;messageInput.value='';updateSendButton();
-sendOutgoingMessage({kind:'text',text:t,replyTo:currentReplyPayload()});clearReply();}
-messageInput.addEventListener('input',updateSendButton);
-messageInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendTextMessage();}});
-sendBtn.addEventListener('click',()=>{if(messageInput.value.trim())sendTextMessage();});
+/* ===================== v2 · ورودی، ایموجی، ضبط، پیوست ===================== */
+const SMILE_ICON='<svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>';
+const KB_ICON='<svg class="svg-icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M7 13h10M6 16h.01M18 16h.01"/></svg>';
+const BKSP_ICON='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12z"/><path d="m15 9-4 6M11 9l4 6"/></svg>';
+const emojiBtn=$('emojiBtn'),emojiPanel=$('emojiPanel'),lockHint=$('lockHint'),chatMenu=$('chatMenu'),popupBg=$('popupBg');
+let emojiOpen=false,typingTimer=null;
+function autosize(){messageInput.style.height='auto';messageInput.style.height=Math.min(messageInput.scrollHeight,128)+'px';}
+function updateSendButton(){const has=messageInput.value.trim().length>0;const mode=has?'send':captureMode;if(sendBtn.dataset.mode===mode)return;sendBtn.dataset.mode=mode;
+if(mode==='send'){sendBtn.className='send-btn send';sendBtn.innerHTML=SEND_ICON;sendBtn.setAttribute('aria-label','ارسال پیام');}
+else if(mode==='voice'){sendBtn.className='send-btn capture voice';sendBtn.innerHTML=MIC_ICON;sendBtn.setAttribute('aria-label','ضبط پیام صوتی؛ ضربه: تبدیل به ویدیو');}
+else{sendBtn.className='send-btn capture video';sendBtn.innerHTML=VIDEO_CAPTURE_ICON;sendBtn.setAttribute('aria-label','ضبط پیام ویدیویی؛ ضربه: تبدیل به صدا');}
+sendBtn.classList.remove('swap');void sendBtn.offsetWidth;sendBtn.classList.add('swap');}
+function toggleCaptureMode(){captureMode=captureMode==='voice'?'videoNote':'voice';sendBtn.dataset.mode='';updateSendButton();vibrate(8);showToast(captureMode==='voice'?'حالت پیام صوتی':'حالت پیام ویدیویی');}
+messageInput.addEventListener('input',()=>{autosize();updateSendButton();});
+messageInput.addEventListener('focus',()=>{closeEmoji();closeAttachSheet();});
+function sendTextMessage(){const t=messageInput.value.trim();if(!t)return;if(editTarget){commitEdit(t);return;}
+messageInput.value='';autosize();updateSendButton();sendOutgoingMessage({kind:'text',text:t,replyTo:replyPayload()});clearReply();}
 
-function updateRecordTimers(){const el=Math.floor((Date.now()-recordState.startTime)/1000);const f=formatTime(el);recordTimeEl.textContent=f;vrTime.textContent=f;}
-function startRecording(){if(recordState.active)return;recordState.active=true;recordState.locked=false;recordState.canceled=false;recordState.startTime=Date.now();recordState.mode=captureMode;
-if(captureMode==='videoNote'){vrOverlay.classList.add('active');vrLock.innerHTML=LOCK_OPEN;vrSend.classList.add('hidden');vrTrash.classList.add('hidden');vrHold.classList.remove('hidden');vrHint.innerHTML='<svg class="svg-icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="m14 18-6-6 6-6"/></svg>برای لغو بکشید';}
-else{inputbar.classList.add('recording');voiceSendLocked.classList.add('hidden');recordHintEl.textContent='برای ارسال رها کنید، برای قفل بالا بکشید';}
+async function sendOutgoingMessage(payload){if(!currentChatId)return;const chatId=currentChatId;const id='m-'+Date.now()+Math.random().toString(36).slice(2,5);
+const m=Object.assign({id,type:'outgoing',kind:'text',time:currentFaTime(),status:'sending'},payload);currentMessages.push(m);
+const near=true;appendMessage(m,true);stick=true;scrollToBottom(true);
+try{await LINKServer.sendMessage(chatId,Object.assign({},payload,{status:'read'}),id);}catch(e){}
+setTimeout(()=>setMsgStatus(id,'sent'),350);setTimeout(()=>setMsgStatus(id,'read'),1500);
+allChats=await LINKServer.getChats();renderCurrentChatList();
+if(m.kind==='text'&&!m.forwarded)simulateReply(chatId);}
+const REPLIES=['باشه، حتماً 👍','ممنون از اطلاعت!','الان می‌بینم و خبر می‌دم','عالیه 😍','هماهنگ می‌کنم','خیلی خوبه، دمت گرم 🔥','🙏','چشم، تا یه ساعت دیگه می‌فرستم','ایول! 😂'];
+function setTyping(on){clearTimeout(typingTimer);const c=allChats.find(x=>x.id===currentChatId);
+if(on)chatStatus.innerHTML='<span>در حال نوشتن</span><span class="dots"><i></i><i></i><i></i></span>';else if(c)chatStatus.textContent=c.status;}
+async function receiveMessage(chatId,payload){const open=chatId===currentChatId&&chatScreen.classList.contains('active');
+const m=await LINKServer.addIncoming(chatId,payload,!open);
+if(open){const wasNear=nearBottom(160);currentMessages.push(m);appendMessage(m,true);if(wasNear)scrollToBottom(true);else bumpScrollBadge();vibrate(6);}
+allChats=await LINKServer.getChats();renderCurrentChatList();}
+function simulateReply(chatId){if(chatId==='saved'||chatId==='channel')return;
+setTimeout(()=>{if(chatId===currentChatId&&chatScreen.classList.contains('active'))setTyping(true);},900);
+setTimeout(async()=>{if(chatId===currentChatId)setTyping(false);await receiveMessage(chatId,{kind:'text',text:REPLIES[Math.floor(Math.random()*REPLIES.length)]});},2700);}
+sendBtn.addEventListener('click',()=>{if(sendBtn.classList.contains('send'))sendTextMessage();});
+
+/* ---- ایموجی ---- */
+const EMO=[['😀','😀😃😄😁😆😅😂🤣🥲😊😇🙂😉😍🥰😘😋😛😜🤪😎🤩🥳😏😒😞😔😢😭😤😡🤯😳🥺😱😴🤔🫡🙄😬🤗'],['👍','👍👎👌🤞🤟🤘👏🙌🙏💪👋🤝🤙👀🫶🤌👇👈👉✋🖖💅🧠🫂'],['💖','💖🧡💛💚💙💜🖤🤍💔💕💞💓💗💘💝🔥✨⭐🌟💫🎉🎊🎁🏆💯✅❌❓❗'],['🍕','🍕🍔🍟🌭🍿🍩🍪🎂🍫🍬☕🍵🥤🍺🍎🍌🍉🍓🥑🍇🍗🥗🍜🍣']];
+function buildEmoji(){const tabs=$('emojiTabs');tabs.innerHTML='';EMO.forEach((c,i)=>{const b=document.createElement('button');b.textContent=c[0];if(!i)b.classList.add('active');b.onclick=()=>{tabs.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');fillEmoji(i);};tabs.appendChild(b);});
+const sp=document.createElement('span');sp.className='sp';tabs.appendChild(sp);const bk=document.createElement('button');bk.innerHTML=BKSP_ICON;bk.style.opacity=.8;bk.onclick=()=>{const g=graphemes(messageInput.value);g.pop();messageInput.value=g.join('');autosize();updateSendButton();};tabs.appendChild(bk);fillEmoji(0);}
+function fillEmoji(i){const g=$('emojiGrid');g.scrollTop=0;g.innerHTML='';graphemes(EMO[i][1]).forEach(e=>{const b=document.createElement('button');b.className='emo';b.textContent=e;b.onclick=()=>{messageInput.value+=e;autosize();updateSendButton();};g.appendChild(b);});}
+function openEmoji(){if(!emojiPanel.dataset.built){buildEmoji();emojiPanel.dataset.built=1;}emojiOpen=true;messageInput.blur();closeAttachSheet();chatScreen.classList.add('emoji-open');emojiBtn.innerHTML=KB_ICON;}
+function closeEmoji(focus){if(!emojiOpen)return;emojiOpen=false;chatScreen.classList.remove('emoji-open');emojiBtn.innerHTML=SMILE_ICON;if(focus)messageInput.focus();}
+emojiBtn.addEventListener('pointerdown',e=>e.preventDefault());
+emojiBtn.addEventListener('click',()=>{emojiOpen?closeEmoji(true):openEmoji();});
+
+/* ---- منوی بالای گفتگو ---- */
+function closeChatMenu(){chatMenu.classList.remove('open');popupBg.classList.remove('open');}
+$('chatMoreBtn').addEventListener('click',()=>{const o=!chatMenu.classList.contains('open');chatMenu.classList.toggle('open',o);popupBg.classList.toggle('open',o);});
+popupBg.addEventListener('click',closeChatMenu);
+chatMenu.addEventListener('click',async e=>{const b=e.target.closest('[data-menu]');if(!b)return;closeChatMenu();const a=b.dataset.menu;
+if(a==='profile'){const c=allChats.find(x=>x.id===currentChatId);if(c)openProfile(c);}
+else if(a==='clear'){const ok=await askConfirm({title:'پاک کردن تاریخچه',text:'همه‌ی پیام‌های این گفتگو حذف می‌شود.',yes:'پاک کردن'});if(!ok)return;await LINKServer.clearHistory(currentChatId);const chat=await LINKServer.getChat(currentChatId);renderMessages(chat);allChats=await LINKServer.getChats();renderCurrentChatList();}
+else showToast('این بخش بعداً فعال می‌شود');});
+
+/* ---- ضبط صدا و ویدیو ---- */
+function updateRecordTimers(){const f=formatTime((Date.now()-recordState.startTime)/1000);recordTimeEl.textContent=f;vrTime.textContent=f;}
+function startRecording(){if(recordState.active)return;recordState.active=true;recordState.locked=false;recordState.canceled=false;recordState.startTime=Date.now();recordState.mode=captureMode;vibrate(15);
+if(captureMode==='videoNote'){vrOverlay.classList.add('active');vrLock.innerHTML=LOCK_OPEN;vrSend.classList.add('hidden');vrTrash.classList.add('hidden');vrHold.classList.remove('hidden');vrHint.textContent='برای لغو بکشید';}
+else{inputbar.classList.add('recording');voiceSendLocked.classList.add('hidden');recordHintEl.textContent='برای لغو بکشید';}
 updateRecordTimers();recordState.timer=setInterval(updateRecordTimers,200);}
-function lockRecording(){if(!recordState.active||recordState.locked)return;recordState.locked=true;
-if(recordState.mode==='videoNote'){vrLock.innerHTML=LOCK_CLOSED;vrSend.classList.remove('hidden');vrTrash.classList.remove('hidden');vrHold.classList.add('hidden');vrHint.textContent='ضبط قفل شد؛ برای ارسال بزنید';}
-else{voiceSendLocked.classList.remove('hidden');recordHintEl.textContent='ضبط قفل شد؛ برای ارسال بزنید';}}
-function finishRecording(send){if(!recordState.active)return;recordState.active=false;clearInterval(recordState.timer);
-vrOverlay.classList.remove('active');inputbar.classList.remove('recording');
-const d=Math.max(1,Math.round((Date.now()-recordState.startTime)/1000));
-if(send&&!recordState.canceled&&currentChatId){
-const rp=currentReplyPayload();
-if(recordState.mode==='voice')sendOutgoingMessage({kind:'voice',duration:d,replyTo:rp});
-else sendOutgoingMessage({kind:'videoNote',duration:d,replyTo:rp});
-clearReply();}}
-function cancelRecording(){recordState.canceled=true;finishRecording(false);}
-sendBtn.addEventListener('pointerdown',e=>{if(!sendBtn.classList.contains('capture'))return;e.preventDefault();pressState.pressing=true;pressState.longPress=false;pressState.startY=e.clientY;
-clearTimeout(pressState.timer);pressState.timer=setTimeout(()=>{pressState.longPress=true;if(pressState.pressing)startRecording();},260);});
-document.addEventListener('pointermove',e=>{if(recordState.active&&!recordState.locked&&pressState.pressing){if(e.clientY-pressState.startY<-70)lockRecording();}});
-document.addEventListener('pointerup',()=>{clearTimeout(pressState.timer);
-if(recordState.active){if(recordState.locked){/* ضبط قفل‌شده ادامه دارد */}else finishRecording(true);}
-else if(pressState.pressing&&!pressState.longPress){toggleCaptureMode();}
-pressState.pressing=false;pressState.longPress=false;endSwipe();});
-document.addEventListener('pointercancel',()=>{clearTimeout(pressState.timer);if(recordState.active){recordState.canceled=true;finishRecording(false);}pressState.pressing=false;endSwipe();});
-cancelRecordBtn.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();cancelRecording();});
+function lockRecording(){if(!recordState.active||recordState.locked)return;recordState.locked=true;vibrate(12);resetRecVisuals();
+if(recordState.mode==='videoNote'){vrLock.innerHTML=LOCK_CLOSED;vrSend.classList.remove('hidden');vrTrash.classList.remove('hidden');vrHold.classList.add('hidden');vrHint.textContent='ضبط قفل شد';}
+else{inputbar.classList.add('locked');voiceSendLocked.classList.remove('hidden');recordHintEl.textContent='ضبط قفل شد';}}
+function resetRecVisuals(){sendBtn.style.transition='transform .35s var(--spring)';sendBtn.style.transform='';recordHintEl.style.transform='';recordHintEl.style.opacity='';lockHint.style.transform='';vrCancelBar.style.transform='';vrCancelBar.style.opacity='';setTimeout(()=>sendBtn.style.transition='',380);}
+function finishRecording(send){if(!recordState.active)return;recordState.active=false;clearInterval(recordState.timer);const secs=(Date.now()-recordState.startTime)/1000;
+vrOverlay.classList.remove('active');inputbar.classList.remove('recording','locked');resetRecVisuals();
+if(send&&!recordState.canceled&&currentChatId){if(secs<1){showToast('برای ضبط، دکمه را نگه دارید');return;}const d=Math.max(1,Math.round(secs));
+sendOutgoingMessage({kind:recordState.mode==='voice'?'voice':'videoNote',duration:d,replyTo:replyPayload()});clearReply();}}
+function cancelRecording(){recordState.canceled=true;vibrate([10,30,10]);finishRecording(false);}
+function onRecMove(dx,dy){if(!recordState.active||recordState.locked)return;const cx=Math.max(0,dx),cy=Math.max(0,dy);
+if(recordState.mode==='voice'){recordHintEl.style.transform='translateX('+cx*.55+'px)';recordHintEl.style.opacity=Math.max(0,1-cx/120);sendBtn.style.transform='translate('+Math.min(cx,120)*.5+'px,'+(-Math.min(cy,100)*.55)+'px) scale(1.25)';lockHint.style.transform='translateY('+(-Math.min(cy,90)*.25)+'px)';}
+else{vrCancelBar.style.transform='translateX('+cx*.55+'px)';vrCancelBar.style.opacity=Math.max(.2,1-cx/140);}
+if(cx>110)cancelRecording();else if(cy>80)lockRecording();}
+sendBtn.addEventListener('pointerdown',e=>{e.preventDefault();if(!sendBtn.classList.contains('capture'))return;pressState.pressing=true;pressState.longPress=false;pressState.startX=e.clientX;pressState.startY=e.clientY;
+try{sendBtn.setPointerCapture(e.pointerId);}catch(_){}clearTimeout(pressState.timer);pressState.timer=setTimeout(()=>{pressState.longPress=true;if(pressState.pressing)startRecording();},230);});
+sendBtn.addEventListener('pointermove',e=>{if(pressState.pressing)onRecMove(e.clientX-pressState.startX,pressState.startY-e.clientY);});
+sendBtn.addEventListener('pointerup',()=>{clearTimeout(pressState.timer);
+if(recordState.active){if(!recordState.locked)finishRecording(true);}else if(pressState.pressing&&!pressState.longPress)toggleCaptureMode();
+pressState.pressing=false;pressState.longPress=false;});
+sendBtn.addEventListener('pointercancel',()=>{clearTimeout(pressState.timer);if(recordState.active&&!recordState.locked){recordState.canceled=true;finishRecording(false);}pressState.pressing=false;});
+cancelRecordBtn.addEventListener('click',cancelRecording);
 voiceSendLocked.addEventListener('click',()=>finishRecording(true));
 vrSend.addEventListener('click',()=>finishRecording(true));
 vrTrash.addEventListener('click',cancelRecording);
 vrLock.addEventListener('click',lockRecording);
-vrFlash.addEventListener('click',()=>vrFlash.classList.toggle('active'));
-function attachSlideCancel(el){let sx=null;el.addEventListener('pointerdown',e=>{sx=e.clientX;});el.addEventListener('pointermove',e=>{if(sx===null)return;if(Math.abs(e.clientX-sx)>70){sx=null;cancelRecording();}});el.addEventListener('pointerup',()=>sx=null);}
-attachSlideCancel(vrCancelBar);attachSlideCancel(recordingBar);
+vrFlash.addEventListener('click',()=>vrFlash.classList.toggle('dark'));
 
-attachBtn.addEventListener('click',()=>{attachSheet.classList.add('active');attachOverlay.classList.add('active');});
+/* ---- پیوست‌ها ---- */
+const fileGallery=$('fileGallery'),fileAny=$('fileAny'),mediaPreview=$('mediaPreview'),mpStage=$('mpStage'),mpCaption=$('mpCaption');let mpItems=[];
+attachBtn.addEventListener('pointerdown',e=>e.preventDefault());
+attachBtn.addEventListener('click',()=>{closeEmoji();messageInput.blur();attachSheet.classList.add('active');attachOverlay.classList.add('active');});
 attachOverlay.addEventListener('click',closeAttachSheet);
-document.querySelectorAll('.sheet-item').forEach(it=>it.addEventListener('click',()=>{const t=it.dataset.attach;closeAttachSheet();if(!currentChatId)return;
-if(t==='voice')sendOutgoingMessage({kind:'voice',duration:4});else if(t==='videoNote')sendOutgoingMessage({kind:'videoNote',duration:8});else openPlaceholder('ارسال فایل');}));
+function fmtSize(b){const mb=b/1048576;return mb>=1?toFaDigits(mb.toFixed(1).replace('.','٫'))+' مگابایت':toFaDigits(Math.max(1,Math.round(b/1024)))+' کیلوبایت';}
+function mediaDims(url,video){return new Promise(res=>{const el=video?document.createElement('video'):new Image();el.onload=()=>res({w:el.naturalWidth,h:el.naturalHeight});el.onloadedmetadata=()=>res({w:el.videoWidth,h:el.videoHeight});el.onerror=()=>res({w:4,h:5});if(video)el.preload='metadata';el.src=url;setTimeout(()=>res({w:4,h:5}),3000);});}
+async function openMediaPreview(files){const items=[];for(const f of files){const url=URL.createObjectURL(f),video=f.type.startsWith('video');items.push(Object.assign({url,video},await mediaDims(url,video)));}
+if(!items.length)return;mpItems=items;const f=items[0];mpStage.innerHTML=f.video?'<video src="'+f.url+'" controls playsinline></video>':'<img src="'+f.url+'" alt="">';
+$('mpCount').textContent=items.length>1?toFaDigits(items.length)+' مورد':(f.video?'ویدیو':'عکس');mpCaption.value='';mediaPreview.classList.add('active');}
+function closeMediaPreview(){mediaPreview.classList.remove('active');mpStage.innerHTML='';}
+$('mpClose').addEventListener('click',()=>{mpItems.forEach(i=>URL.revokeObjectURL(i.url));mpItems=[];closeMediaPreview();});
+$('mpSend').addEventListener('click',()=>{const cap=mpCaption.value.trim();mpItems.forEach((it,i)=>sendOutgoingMessage({kind:'photo',src:it.url,video:it.video,w:it.w,h:it.h,caption:i===0?cap:'',replyTo:i===0?replyPayload():null}));mpItems=[];clearReply();closeMediaPreview();});
+fileGallery.addEventListener('change',()=>{const fs=Array.from(fileGallery.files);fileGallery.value='';if(fs.length)openMediaPreview(fs);});
+fileAny.addEventListener('change',()=>{Array.from(fileAny.files).forEach(f=>sendOutgoingMessage({kind:'file',name:f.name,size:fmtSize(f.size)}));fileAny.value='';});
+document.querySelectorAll('.att').forEach(it=>it.addEventListener('click',()=>{const t=it.dataset.attach;closeAttachSheet();if(!currentChatId)return;
+if(t==='gallery')setTimeout(()=>fileGallery.click(),150);else if(t==='file')setTimeout(()=>fileAny.click(),150);
+else if(t==='location')sendOutgoingMessage({kind:'location',addr:'میدان آزادی، تهران'});
+else if(t==='contact')sendOutgoingMessage({kind:'contact',name:'مریم کاظمی',phone:'۰۹۱۲ ۱۲۳ ۴۵۶۷'});
+else if(t==='voice'){captureMode='voice';sendBtn.dataset.mode='';updateSendButton();showToast('دکمه‌ی میکروفون را نگه دارید');}
+else if(t==='videoNote'){captureMode='videoNote';sendBtn.dataset.mode='';updateSendButton();showToast('دکمه‌ی دوربین را نگه دارید');}
+else showToast('این بخش بعداً فعال می‌شود');}));
+
+/* ---- نمایش عکس/ویدیو تمام‌صفحه ---- */
+function openMediaViewer(m){photoViewer.querySelectorAll('.pv-media').forEach(x=>x.remove());const box=document.createElement('div');box.className='pv-media';
+if(m.src){box.innerHTML=m.video?'<video src="'+m.src+'" controls autoplay playsinline></video>':'<img src="'+m.src+'" alt="">';if(m.video)box.addEventListener('click',e=>e.stopPropagation());}
+else{box.classList.add('demo');box.style.background=photoBg(m.seed||m.id);box.style.aspectRatio=((m.w&&m.h)?m.w/m.h:.8)+'';}
+pvAvatar.classList.add('hidden');pvName.textContent=m.caption||currentChatTitle;photoViewer.insertBefore(box,pvName);requestAnimationFrame(()=>photoViewer.classList.add('active'));}
+(function(){let y0=null,dy=0;photoViewer.addEventListener('pointerdown',e=>{y0=e.clientY;dy=0;});
+photoViewer.addEventListener('pointermove',e=>{if(y0===null)return;dy=e.clientY-y0;const t=photoViewer.querySelector('.pv-media')||pvAvatar;if(Math.abs(dy)>8){t.style.transition='none';t.style.transform='translateY('+dy+'px) scale('+(1-Math.min(.2,Math.abs(dy)/900))+')';photoViewer.style.background='rgba(0,0,0,'+Math.max(.15,.94-Math.abs(dy)/380)+')';}});
+const end=()=>{if(y0===null)return;const t=photoViewer.querySelector('.pv-media')||pvAvatar;t.style.transition='';t.style.transform='';photoViewer.style.background='';if(Math.abs(dy)>120)closePhotoViewer();y0=null;};
+photoViewer.addEventListener('pointerup',end);photoViewer.addEventListener('pointercancel',end);})();
+
+/* ---- اندازه‌ی صفحه و کیبورد (رفع بیرون‌زدن از بالا/پایین) ---- */
+const frameEl=document.querySelector('.phone-frame');let baseH=window.innerHeight;
+function fitViewport(){const v=window.visualViewport,h=v?v.height:window.innerHeight,top=v?v.offsetTop:0;baseH=Math.max(baseH,window.innerHeight);
+document.documentElement.style.setProperty('--app-h',h+'px');frameEl.style.top=top+'px';document.body.classList.toggle('kb',h<baseH-120);window.scrollTo(0,0);}
+if(window.visualViewport){visualViewport.addEventListener('resize',fitViewport);visualViewport.addEventListener('scroll',fitViewport);}
+window.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>{baseH=0;setTimeout(()=>{baseH=window.innerHeight;fitViewport();},300);});window.addEventListener('scroll',()=>window.scrollTo(0,0));
+document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||document.activeElement===document.body)fitViewport();},120));
+fitViewport();
+new ResizeObserver(()=>{if(stick&&chatScreen.classList.contains('active'))messagesEl.scrollTop=messagesEl.scrollHeight;}).observe(messagesEl);
+new ResizeObserver(()=>chatScreen.style.setProperty('--ib-h',(inputbar.offsetHeight+emojiPanel.offsetHeight)+'px')).observe(inputbar);
+new ResizeObserver(()=>chatScreen.style.setProperty('--ib-h',(inputbar.offsetHeight+emojiPanel.offsetHeight)+'px')).observe(emojiPanel);
+
 menuBtn.addEventListener('click',openDrawer);drawerOverlay.addEventListener('click',closeDrawer);drawerClose.addEventListener('click',closeDrawer);
 document.querySelectorAll('.drawer-item').forEach(it=>it.addEventListener('click',()=>{closeDrawer();
 if(it.id==='drawerSettings'){openSettings();return;}
