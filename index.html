@@ -654,6 +654,37 @@ html[dir="ltr"] input:checked+.slider:before{transform:translateX(20px)}
 html[dir="ltr"] #backBtn .svg-icon,html[dir="ltr"] #profileBack .svg-icon,html[dir="ltr"] #settingsBack .svg-icon,html[dir="ltr"] #appearanceBack .svg-icon,html[dir="ltr"] #placeholderBack .svg-icon,html[dir="ltr"] #languageBack .svg-icon,html[dir="ltr"] .chevron{transform:scaleX(-1)}
 html[dir="ltr"] .chat-item.enter{animation-name:itemInLtr}
 @keyframes itemInLtr{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+
+/* ===== v37 · منوی پیوست مثل تلگرام ===== */
+.attach-sheet.tg{height:min(76%,640px);display:flex;flex-direction:column;padding:6px 0 0;overflow:hidden}
+.tg .sheet-grab{margin:2px auto 8px;flex-shrink:0}
+.at-head{display:flex;align-items:center;gap:8px;padding:0 12px 8px;flex-shrink:0}
+.at-hbtn{width:38px;height:38px;border-radius:50%;border:none;background:var(--line-soft);color:var(--text-main);display:grid;place-items:center;cursor:pointer;flex-shrink:0}
+.at-title{flex:1;text-align:center;font-size:16px;font-weight:800;color:var(--text-main)}
+.at-search{flex:1;display:none;height:38px;border:none;border-radius:19px;background:var(--line-soft);color:var(--text-main);padding:0 14px;font:inherit;font-size:14px;outline:none}
+.at-head.s .at-title{display:none}.at-head.s .at-search{display:block}
+.at-body{flex:1;min-height:0;overflow-y:auto;padding:4px 12px 12px;overscroll-behavior:contain}
+.at-panel{display:none}.at-panel.on{display:block;animation:atIn .25s var(--ease) both}
+@keyframes atIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.at-sec{font-size:12px;font-weight:700;color:var(--text-muted);padding:12px 8px 6px;letter-spacing:.2px}
+.at-card{background:var(--line-soft);border-radius:16px;overflow:hidden}
+.at-row{width:100%;display:flex;align-items:center;gap:12px;padding:11px 14px;border:none;background:none;color:var(--text-main);font:inherit;font-size:14.5px;font-weight:600;text-align:right;cursor:pointer;border-bottom:1px solid var(--line)}
+.at-row:last-child{border-bottom:none}.at-row:active{background:var(--icon-hover)}
+.at-row.act{color:var(--primary)}
+.at-row .at-sub{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin-top:2px}
+.at-row .at-tx{flex:1;min-width:0}.at-row .at-tx b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.at-ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--primary);color:#fff;flex-shrink:0}
+.at-ic.sm{width:26px;height:26px;background:none;color:var(--primary)}
+.at-ic.g{background:#3dbb6a}.at-av{width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800;flex-shrink:0}
+.at-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.at-th{aspect-ratio:1;border-radius:10px;border:none;padding:0;background:var(--line-soft) center/cover no-repeat;cursor:pointer}
+.at-map{height:130px;border-radius:16px;background:linear-gradient(135deg,var(--line-soft),var(--line));display:grid;place-items:center;color:var(--primary);margin-bottom:8px}
+.at-empty{padding:18px;text-align:center;color:var(--text-muted);font-size:13px}
+.at-in{width:100%;border:none;border-radius:12px;background:var(--line-soft);color:var(--text-main);padding:12px 14px;font:inherit;font-size:14.5px;outline:none;margin-bottom:8px}
+.at-send{width:100%;border:none;border-radius:14px;background:var(--primary);color:#fff;padding:12px;font:inherit;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px}
+.at-tabs{display:flex;justify-content:space-around;gap:2px;padding:6px 8px calc(8px + var(--sab));background:var(--surface);border-top:1px solid var(--line);flex-shrink:0}
+.at-tab{flex:1;border:none;background:none;border-radius:16px;padding:6px 0 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font:inherit;font-size:10.5px;font-weight:700;color:var(--text-muted);cursor:pointer;transition:background .2s,color .2s}
+.at-tab .svg-icon{width:22px;height:22px}.at-tab.on{color:var(--primary);background:var(--line-soft)}
 </style>
 <style id="palettes">
 /* ===== v24: color themes (data-palette). Default = berry, matches the LINK logo. Ocean = original blue. ===== */
@@ -1006,18 +1037,18 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 </section>
 
 <div class="sheet-overlay" id="attachOverlay"></div>
-<div class="attach-sheet" id="attachSheet" aria-label="منوی پیوست">
+<div class="attach-sheet tg" id="attachSheet" aria-label="منوی پیوست">
 <div class="sheet-grab"></div>
-<div class="attach-grid">
-<button class="att" data-attach="gallery" style="--k:0;--c:#8e6bf2"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span><span>گالری</span></button>
-<button class="att" data-attach="file" style="--k:1;--c:#2f9cf0"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg></span><span>فایل</span></button>
-<button class="att" data-attach="location" style="--k:2;--c:#3dbb6a"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>موقعیت</span></button>
-<button class="att" data-attach="contact" style="--k:3;--c:#f5a623"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></span><span>مخاطب</span></button>
-<button class="att" data-attach="poll" style="--k:4;--c:#ef5b5b"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span>نظرسنجی</span></button>
-<button class="att" data-attach="videoNote" style="--k:5;--c:#22b8cf"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m10 9 5 3-5 3z"/></svg></span><span>پیام ویدیویی</span></button>
-<button class="att" data-attach="voice" style="--k:6;--c:#ec5b8f"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v4"/></svg></span><span>پیام صوتی</span></button>
-<button class="att" data-attach="music" style="--k:7;--c:#ff8a3d"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span>موسیقی</span></button>
+<div class="at-head" id="atHead"><button class="at-hbtn" id="atClose" aria-label="بستن"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="at-title" id="atTitle"></div><input class="at-search" id="atSearch" placeholder="جستجو…"><button class="at-hbtn" id="atSearchBtn" aria-label="جستجو"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button></div>
+<div class="at-body" id="atBody">
+<div class="at-panel" data-p="gallery"><div class="at-card"><button class="at-row act" data-act="gallery"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>انتخاب عکس و ویدیو از گالری</button></div><div class="at-sec">اخیراً در این گفتگو</div><div class="at-grid" id="atGal"></div></div>
+<div class="at-panel" data-p="file"><div class="at-card"><button class="at-row act" data-act="gallery"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>انتخاب از گالری</button><button class="at-row act" data-act="file"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.96A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/></svg></span>انتخاب از فایل‌ها</button></div><div class="at-sec">فایل‌های ارسال‌شده‌ی اخیر</div><div class="at-card" id="atFiles"></div></div>
+<div class="at-panel" data-p="location"><div class="at-map"><svg class="svg-icon" style="width:44px;height:44px" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div class="at-card"><button class="at-row" data-act="loc-now"><span class="at-ic g"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span class="at-tx"><b>ارسال موقعیت فعلی من</b><span class="at-sub">دقیق‌ترین موقعیت دستگاه</span></span></button></div><div class="at-sec">یا یک مکان را انتخاب کنید</div><div class="at-card" id="atPlaces"></div></div>
+<div class="at-panel" data-p="checklist"><input class="at-in" id="clTitle" placeholder="عنوان چک‌لیست"><div id="clItems"></div><div class="at-card"><button class="at-row act" id="clAdd"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/></svg></span>افزودن مورد</button></div><button class="at-send" id="clSend">ارسال چک‌لیست</button></div>
+<div class="at-panel" data-p="audio"><div class="at-card"><button class="at-row act" data-act="music"><span class="at-ic sm"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.96A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/></svg></span>انتخاب از فایل‌ها</button></div><div class="at-sec">موسیقی‌های ارسال‌شده‌ی اخیر</div><div class="at-card" id="atAudio"></div></div>
+<div class="at-panel" data-p="contact"><div class="at-card" id="atContacts"></div></div>
 </div>
+<div class="at-tabs" id="atTabs"><button class="at-tab" data-tab="gallery"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span>گالری</span></button><button class="at-tab" data-tab="file"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg><span>فایل</span></button><button class="at-tab" data-tab="location"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>موقعیت</span></button><button class="at-tab" data-tab="checklist"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/></svg><span>چک‌لیست</span></button><button class="at-tab" data-tab="audio"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/></svg><span>موسیقی</span></button><button class="at-tab" data-tab="contact"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span>مخاطب</span></button></div>
 </div>
 <div class="sheet-overlay" id="fwdOverlay"></div>
 <div class="attach-sheet fwd" id="fwdSheet"><div class="sheet-grab"></div><div class="fwd-title">ارسال به…</div><div class="fwd-list" id="fwdList"></div></div>
@@ -2044,7 +2075,7 @@ $('vrFlip').addEventListener('click',vrFlipCamera);
 const fileGallery=$('fileGallery'),fileAny=$('fileAny'),fileMusic=$('fileMusic'),mediaPreview=$('mediaPreview'),mpStage=$('mpStage'),mpCaption=$('mpCaption'),mpStrip=$('mpStrip'),mpMode=$('mpMode'),mpAdd=$('mpAdd'),dropHint=$('dropHint');
 let mpItems=[],mpIdx=0,mpAsFile=false,mpBusy=false,warnedStore=false;
 attachBtn.addEventListener('pointerdown',e=>e.preventDefault());
-attachBtn.addEventListener('click',()=>{closeEmoji();messageInput.blur();attachSheet.classList.add('active');attachOverlay.classList.add('active');});
+attachBtn.addEventListener('click',()=>{closeEmoji();messageInput.blur();openAttach();});
 attachOverlay.addEventListener('click',closeAttachSheet);
 function fmtSize(b){const mb=b/1048576;if(mb>=1024)return toFaDigits((mb/1024).toFixed(1).replace('.','٫'))+' گیگابایت';return mb>=1?toFaDigits(mb.toFixed(1).replace('.','٫'))+' مگابایت':toFaDigits(Math.max(1,Math.round(b/1024)))+' کیلوبایت';}
 function probeMedia(url,video){return new Promise(res=>{const el=video?document.createElement('video'):new Image();let done=false;const f=r=>{if(done)return;done=true;res(r);};
@@ -2119,13 +2150,49 @@ document.addEventListener('dragleave',e=>{if(!hasFiles(e))return;dragN=Math.max(
 document.addEventListener('drop',e=>{if(!hasFiles(e))return;e.preventDefault();dragN=0;dropHint.classList.remove('show');if(!currentChatId||!chatScreen.classList.contains('active'))return;const fs=Array.from(e.dataTransfer.files||[]);if(fs.length)openMediaPreview(fs,{asFile:!fs.every(f=>/^(image|video)\//.test(f.type))});});
 messageInput.addEventListener('paste',e=>{const fs=Array.from((e.clipboardData&&e.clipboardData.files)||[]);if(!fs.length)return;e.preventDefault();openMediaPreview(fs,{asFile:!fs.every(f=>/^(image|video)\//.test(f.type))});});
 
-document.querySelectorAll('.att').forEach(it=>it.addEventListener('click',()=>{const t=it.dataset.attach;closeAttachSheet();if(!currentChatId)return;
-if(t==='gallery')setTimeout(()=>fileGallery.click(),150);else if(t==='file')setTimeout(()=>fileAny.click(),150);else if(t==='music')setTimeout(()=>fileMusic.click(),150);
-else if(t==='location')sendOutgoingMessage({kind:'location',addr:'میدان آزادی، تهران'});
-else if(t==='contact')sendOutgoingMessage({kind:'contact',name:'مریم کاظمی',phone:'۰۹۱۲ ۱۲۳ ۴۵۶۷'});
-else if(t==='voice'){captureMode='voice';sendBtn.dataset.mode='';updateSendButton();showToast('دکمه‌ی میکروفون را نگه دارید');}
-else if(t==='videoNote'){captureMode='videoNote';sendBtn.dataset.mode='';updateSendButton();showToast('دکمه‌ی دوربین را نگه دارید');}
-else showToast('این بخش بعداً فعال می‌شود');}));
+
+/* ===== v37 · منوی پیوست مثل تلگرام ===== */
+const AT_TITLES={gallery:'گالری',file:'فایل',location:'موقعیت',checklist:'چک‌لیست',audio:'موسیقی',contact:'مخاطبین'};
+let atTab='gallery';
+const atQ=(sel)=>attachSheet.querySelector(sel);
+function atEl(h){const d=document.createElement('div');d.innerHTML=h;return d.firstElementChild;}
+function atRow(icon,t,sub,fn){const b=document.createElement('button');b.className='at-row';b.type='button';const ic=document.createElement('span');if(icon&&icon.length===1){ic.className='at-av';ic.textContent=icon;}else{ic.className='at-ic';ic.innerHTML=icon;}
+const tx=document.createElement('span');tx.className='at-tx';const bb=document.createElement('b');bb.textContent=t;tx.appendChild(bb);if(sub){const s=document.createElement('span');s.className='at-sub';s.textContent=sub;tx.appendChild(s);}
+b.append(ic,tx);b.addEventListener('click',fn);return b;}
+function atSend(p){closeAttachSheet();if(currentChatId)sendOutgoingMessage(p);}
+function atFill(box,rows,empty){box.innerHTML='';if(!rows.length){box.appendChild(atEl('<div class="at-empty">'+empty+'</div>'));return;}rows.forEach(r=>box.appendChild(r));}
+function atBuild(tab){
+const ms=(currentMessages||[]);
+if(tab==='gallery'){const g=atQ('#atGal');g.innerHTML='';const seen=[];ms.forEach(m=>{const its=m.kind==='album'&&m.items?m.items:(m.kind==='photo'?[m]:[]);its.forEach(it=>{if(it.mediaId&&!it.video)seen.push(it);});});
+seen.slice(-12).reverse().forEach(it=>{const u=mUrlSync(it);if(!u)return;const b=document.createElement('button');b.className='at-th';b.type='button';b.style.backgroundImage='url("'+u+'")';b.addEventListener('click',()=>atSend({kind:'photo',mediaId:it.mediaId,video:it.video,w:it.w,h:it.h,name:it.name}));g.appendChild(b);});
+if(!g.children.length)g.appendChild(atEl('<div class="at-empty" style="grid-column:1/-1">هنوز عکسی در این گفتگو نیست؛ از گزینه‌ی بالا انتخاب کنید.</div>'));}
+if(tab==='file'){atFill(atQ('#atFiles'),ms.filter(m=>m.kind==='file'&&m.mediaId).slice(-8).reverse().map(m=>atRow(I_FILE,m.name||'فایل',m.size||'',()=>atSend({kind:'file',name:m.name,size:m.size,bytes:m.bytes,mime:m.mime,mediaId:m.mediaId,_up:true}))),'فایلی ارسال نشده است');}
+if(tab==='audio'){atFill(atQ('#atAudio'),ms.filter(m=>m.kind==='music'&&m.mediaId).slice(-8).reverse().map(m=>atRow(I_MUS,m.mtitle||m.name||'موسیقی',m.artist||m.size||'',()=>atSend({kind:'music',name:m.name,mtitle:m.mtitle,artist:m.artist,duration:m.duration,size:m.size,bytes:m.bytes,mime:m.mime,mediaId:m.mediaId,_up:true}))),'موسیقی‌ای ارسال نشده است');}
+if(tab==='location'){const pl=[['میدان آزادی، تهران','میدان آزادی'],['برج میلاد، تهران','برج میلاد'],['میدان نقش جهان، اصفهان','میدان نقش جهان']];atFill(atQ('#atPlaces'),pl.map(p=>atRow(I_PIN,p[1],p[0],()=>atSend({kind:'location',addr:p[0]}))),'');}
+if(tab==='contact'){const cs=((LINKServer.db&&LINKServer.db.chats)||[]).filter(c=>c.phone);const rows=cs.map(c=>atRow((c.title||'؟').trim().charAt(0),c.title,c.phone,()=>atSend({kind:'contact',name:c.title,phone:c.phone})));if(!rows.length)rows.push(atRow('م','مریم کاظمی','۰۹۱۲ ۱۲۳ ۴۵۶۷',()=>atSend({kind:'contact',name:'مریم کاظمی',phone:'۰۹۱۲ ۱۲۳ ۴۵۶۷'})));atFill(atQ('#atContacts'),rows,'');}
+}
+const I_FILE='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg>',I_MUS='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',I_PIN='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+function atFilter(q){q=(q||'').trim();const p=atQ('.at-panel.on');if(!p)return;p.querySelectorAll('.at-card .at-row:not(.act)').forEach(r=>{r.style.display=!q||r.textContent.includes(q)?'':'none';});}
+function atShow(tab){atTab=tab;atQ('#atTitle').textContent=AT_TITLES[tab];atQ('#atHead').classList.remove('s');atQ('#atSearch').value='';
+attachSheet.querySelectorAll('.at-tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===tab));attachSheet.querySelectorAll('.at-panel').forEach(p=>p.classList.toggle('on',p.dataset.p===tab));
+atQ('#atSearchBtn').style.visibility=(tab==='contact'||tab==='file'||tab==='audio'||tab==='location')?'visible':'hidden';atQ('#atBody').scrollTop=0;atBuild(tab);}
+function openAttach(tab){if(!currentChatId)return;atShow(tab||'gallery');attachSheet.classList.add('active');attachOverlay.classList.add('active');}
+attachSheet.querySelectorAll('.at-tab').forEach(t=>t.addEventListener('click',()=>atShow(t.dataset.tab)));
+atQ('#atClose').addEventListener('click',closeAttachSheet);
+atQ('#atSearchBtn').addEventListener('click',()=>{const h=atQ('#atHead');h.classList.toggle('s');if(h.classList.contains('s'))atQ('#atSearch').focus();else{atQ('#atSearch').value='';atFilter('');}});
+atQ('#atSearch').addEventListener('input',e=>atFilter(e.target.value));
+attachSheet.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(!a)return;const t=a.dataset.act;
+if(t==='gallery'){closeAttachSheet();setTimeout(()=>fileGallery.click(),150);}
+else if(t==='file'){closeAttachSheet();setTimeout(()=>fileAny.click(),150);}
+else if(t==='music'){closeAttachSheet();setTimeout(()=>fileMusic.click(),150);}
+else if(t==='loc-now'){const fb=()=>atSend({kind:'location',addr:'میدان آزادی، تهران'});if(!navigator.geolocation){fb();return;}showToast('در حال یافتن موقعیت…');navigator.geolocation.getCurrentPosition(p=>atSend({kind:'location',addr:toFaDigits(p.coords.latitude.toFixed(5))+'، '+toFaDigits(p.coords.longitude.toFixed(5))}),fb,{timeout:5000,maximumAge:60000});}});
+/* چک‌لیست */
+function clAddRow(v){const i=document.createElement('input');i.className='at-in cl-it';i.placeholder='مورد جدید';i.value=v||'';atQ('#clItems').appendChild(i);return i;}
+atQ('#clAdd').addEventListener('click',()=>clAddRow().focus());
+atQ('#clSend').addEventListener('click',()=>{const t=atQ('#clTitle').value.trim(),its=[...attachSheet.querySelectorAll('.cl-it')].map(i=>i.value.trim()).filter(Boolean);if(!its.length){showToast('حداقل یک مورد بنویسید');return;}
+atSend({kind:'text',text:(t?'📋 '+t+'\n':'')+its.map(x=>'☐ '+x).join('\n')});atQ('#clTitle').value='';atQ('#clItems').innerHTML='';clAddRow();clAddRow();});
+clAddRow();clAddRow();
+
 
 /* ---- نمایش عکس/ویدیو تمام‌صفحه ---- */
 let pvS={items:[],i:0,tok:0,swiped:false,ui:null,m:null};
