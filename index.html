@@ -1539,7 +1539,7 @@ else if(m.type==='attributes')attrs(m.target);
    جدول‌ها: users{name,email,username} · chats{memberA,memberB,pairKey,nameA,nameB,last,lastAt,unreadA,unreadB · kind,title,about,owner,members,msgCount} · messages{chatId,fromId,text,replyTo,pinned,readByOther}
    برای اینکه ستون جدیدی لازم نباشد: پیام متنی ساده مستقیم در text می‌رود؛ پیام‌های رسانه‌ای/پاسخ/واکنش/ویرایش‌شده به‌صورت JSON با نشانهٔ LNV در همان ستون text ذخیره می‌شوند.
    فایل‌ها در Bucket با fileId برابر mediaId ذخیره می‌شوند. رابط LINKServer دقیقاً همان رابط قبلی (نمونهٔ محلی) است و بقیهٔ برنامه تغییری نمی‌کند. */
-const LINK_VERSION='v57';
+const LINK_VERSION='v58';
 const LNC={ep:'https://fra.cloud.appwrite.io/v1',pj:'6ad968ee002c73c4ca9a',db:'6ad969a5001ae9582c3e',tU:'6ad96bc700117baf5a06',tC:'6ad9c6e9001f15568d17',tM:'6ad9ca3a001a0e48e86c',bk:'6adf99470015c4d986f2',sdk:['https://cdn.jsdelivr.net/npm/appwrite@22.3.0/dist/iife/sdk.js','appwrite-sdk.js']};
 const LNL={image:1048576,video:10485760,voice:512000,file:15728640};
 const LNX=['jpg','jpeg','png','webp','gif','mp4','webm','mov','m4a','mp3','ogg','oga','pdf','zip','txt','docx','xlsx','pptx'];
@@ -4319,7 +4319,8 @@ var cssA=document.createElement('style');cssA.textContent=`
 .call-bot.many .call-b{width:54px;height:54px}.call-bot.many .call-bw{min-width:54px}`;
 document.head.appendChild(cssA);
 /* --- audio volumes (0-200%): send = mic gain, receive = speaker gain; Web Audio chain built only when a value != 100% is needed --- */
-var AP={mic:1,rcv:1,route:'auto'};
+var AP={mic:1,rcv:1,route:'auto',pan:false};
+var IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 try{var sv=JSON.parse(localStorage.getItem('link_call_audio')||'{}');
  if(typeof sv.mic==='number')AP.mic=Math.max(0,Math.min(2,sv.mic));
  if(typeof sv.rcv==='number')AP.rcv=Math.max(0,Math.min(2,sv.rcv));
@@ -4331,12 +4332,12 @@ function ensureRcvChain(s){
  try{if(!s.keep){s.keep=new Audio();s.keep.muted=true}
   s.keep.srcObject=s.rstream;var kp=s.keep.play();if(kp&&kp.catch)kp.catch(function(){});
   var src=a.createMediaStreamSource(s.rstream),g=a.createGain(),d=a.createMediaStreamDestination();
-  src.connect(g);g.connect(d);s.rcvG=g;s.rcvD=d;au.srcObject=d.stream;
+  var gl=a.createGain(),gr=a.createGain(),mg=a.createChannelMerger(2);src.connect(g);g.connect(gl);g.connect(gr);gl.connect(mg,0,0);gr.connect(mg,0,1);mg.connect(d);s.rcvL=gl;s.rcvR=gr;s.rcvG=g;s.rcvD=d;au.srcObject=d.stream;
   var p=au.play();if(p&&p.catch)p.catch(function(){});return true}catch(e){return false}}
 function attachRemote(s,stream){
  s.rstream=stream;try{au.muted=!!s.spkMuted}catch(e){}
- if(AP.rcv!==1&&ensureRcvChain(s)){s.rcvG.gain.value=AP.rcv}else{au.srcObject=stream}
- var p=au.play();if(p&&p.catch)p.catch(function(){})}
+ if((AP.rcv!==1||AP.pan)&&ensureRcvChain(s)){s.rcvG.gain.value=AP.rcv}else{au.srcObject=stream}
+ applyPan();var p=au.play();if(p&&p.catch)p.catch(function(){})}
 function ensureMicChain(s){
  if(s.micG)return true;if(!s.stream||!s.pc)return false;var a=ctxOK();if(!a)return false;
  try{var src=a.createMediaStreamSource(s.stream),g=a.createGain(),d=a.createMediaStreamDestination();
@@ -4374,6 +4375,12 @@ function classify(l){var ear=null,spk=null;
  if(!spk)spk=l.filter(function(d){return d.deviceId==='default'})[0]||l[0]||null;
  return{ear:ear,spk:spk}}
 function setAS(r){try{if(!navigator.audioSession)return false;navigator.audioSession.type=(r==='spk')?'playback':'play-and-record';return true}catch(e){return false}}
+function earSide(){return window.orientation===-90?'r':'l'}
+function applyPan(){var s=S;if(!s||s.ended)return false;
+ if(AP.pan){if(!s.rstream||!ensureRcvChain(s)||!s.rcvL)return false;var l=earSide()==='l';s.rcvL.gain.value=l?1:0;s.rcvR.gain.value=l?0:1;return true}
+ if(s.rcvL){s.rcvL.gain.value=1;s.rcvR.gain.value=1}return true}
+function setPan(v){AP.pan=!!v;if(!v){applyPan();return true}var s=S;if(!s||!s.rstream)return true;return applyPan()}
+window.addEventListener('orientationchange',function(){if(AP.pan)setTimeout(applyPan,350)});
 async function routeViaMic(r){
  var s=S;if(!s||s.ended||!s.stream||!s.pc)return false;
  try{
@@ -4394,12 +4401,15 @@ async function routeViaMic(r){
  catch(e){return false}}
 async function applyRoute(quiet){
  var r=AP.route,sink=typeof au.setSinkId==='function',res={ok:true,why:''};
- if(r==='auto')return res;
+ if(r!=='ear')setPan(false);
+  if(r==='auto')return res;
  var l=await outDevs(),cl=classify(l),n=l.length;
  try{
   if(r==='ear'){
    if(cl.ear&&sink){await au.setSinkId(cl.ear.deviceId);if(au.sinkId!==cl.ear.deviceId)throw new Error('sink')}
-   else if(!(await routeViaMic('ear'))&&!setAS('ear'))res={ok:false,why:X('این مرورگر/دستگاه خروجی گوشی (اسپیکر بالا) را به برنامه نمی‌دهد (خروجی‌های قابل‌دسترس: '+n+')','This browser/device does not expose the earpiece (outputs available: '+n+')')}}
+   else if(await routeViaMic('ear')){}
+    else if(IOS&&ctxOK()&&setPan(true)){}
+    else if(!setAS('ear'))res={ok:false,why:X('این مرورگر/دستگاه خروجی گوشی (اسپیکر بالا) را به برنامه نمی‌دهد (خروجی‌های قابل‌دسترس: '+n+')','This browser/device does not expose the earpiece (outputs available: '+n+')')}}
   else{
    var spkExp=cl.spk&&/speaker/i.test(cl.spk.label||'')&&!/head/i.test(cl.spk.label||'');
    if(spkExp&&sink){await au.setSinkId(cl.spk.deviceId);if(au.sinkId!==cl.spk.deviceId)throw new Error('sink')}
@@ -4407,7 +4417,7 @@ async function applyRoute(quiet){
    else if(cl.spk&&sink){await au.setSinkId(cl.spk.deviceId);if(au.sinkId!==cl.spk.deviceId)throw new Error('sink')}
    else if(!setAS('spk'))res={ok:false,why:X('انتخاب اسپیکر اصلی در این مرورگر ممکن نیست (خروجی‌های قابل‌دسترس: '+n+')','Speaker selection is not available in this browser (outputs available: '+n+')')}}
  }catch(e){res={ok:false,why:X('تغییر خروجی ناموفق بود','Could not switch the output')}}
- if(!res.ok){AP.route='auto';apSave();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
+ if(!res.ok){AP.route='auto';setPan(false);apSave();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
  return res}
 async function setRoute(r){AP.route=r;apSave();await applyRoute(false);if(!sm.hidden)paintSm();paint()}
 sm.addEventListener('click',function(e){var r=e.target.closest('[data-r]');if(!r)return;setRoute(r.dataset.r)});
