@@ -4466,6 +4466,7 @@ function setVol(k,v){
  else{AP.mic=v;if(s&&!s.ended){if(ensureMicChain(s))s.micG.gain.value=v}}
  apSave();var el=document.getElementById(k==='rcv'?'apR':'apM');if(el)el.textContent=Math.round(v*100)+'%'}
 function applyAudioPrefs(s){
+ if(IOS)refreshOut();
  if(AP.mic!==1&&ensureMicChain(s))s.micG.gain.value=AP.mic;
  if(AP.rcv!==1&&s.rstream&&ensureRcvChain(s))s.rcvG.gain.value=AP.rcv;
  if(AP.route!=='auto')applyRoute(true)}
@@ -4480,7 +4481,7 @@ function toggleSpk(){var s=S;if(!s)return;s.spkMuted=!s.spkMuted;try{au.muted=!!
 var EARI=PX(PXD.PHONE);
 function paintSm(){sm.innerHTML='<button type="button" class="qc'+(AP.route==='ear'?' on':'')+'" data-r="ear" aria-label="Call speaker (earpiece)">'+EARI+'</button>'
  +'<button type="button" class="qc'+(AP.route==='spk'?' on':'')+'" data-r="spk" aria-label="Phone speakers">'+SPKI+'</button>'}
-function smOpen(){var b=bot.querySelector('[data-a="spk"]');if(!b||!S||S.st==='ended')return;
+function smOpen(){var b=bot.querySelector('[data-a="spk"]');if(!b||!S||S.st==='ended')return;refreshOut();
  paintSm();sm.hidden=false;var o=ov.getBoundingClientRect(),r=b.getBoundingClientRect(),w=sm.offsetWidth;
  sm.style.bottom=(o.bottom-r.top+10)+'px';sm.style.left=Math.max(8,Math.min(o.width-w-8,r.left-o.left+r.width/2-w/2))+'px'}
 function smClose(){sm.hidden=true}
@@ -4518,6 +4519,18 @@ async function routeViaMic(r){
 function iosSync(){var s=S;if(!IOS||!s||s.ended||!s.iosOn)return;var spk=AP.route==='spk';
  try{au.muted=!!s.spkMuted||spk}catch(e){}
  if(s.spkG)s.spkG.gain.value=(spk&&!s.spkMuted)?AP.rcv:0}
+var GS={p:null,id:null,t:0,err:'',pend:false,names:''},OUTC={recv:null,list:[]};
+function pickRecv(l){var m=null;l.forEach(function(d){if(!m&&isRecv(d))m=d});if(m)return m;
+ var o=l.filter(function(d){return d.deviceId&&d.deviceId!=='default'&&!/speaker|bluetooth|airpod|head|airplay|car|hdmi/i.test(d.label||'')});
+ return o.length===1?o[0]:null}
+function refreshOut(){return outDevs().then(function(l){OUTC.list=l;OUTC.recv=pickRecv(l);GS.names=l.map(function(d){return d.label||'?'}).join(' | ');return l})}
+/* WebKit only accepts setSinkId inside a user gesture: this runs synchronously from the tap, before any await */
+function gestureSink(r){if(!IOS||typeof au.setSinkId!=='function')return;
+ try{if(r==='ear'){if(!OUTC.recv)return;GS.id=OUTC.recv.deviceId}else if(r==='spk'){GS.id=''}else return;
+  GS.t=Date.now();GS.err='';GS.p=au.setSinkId(GS.id);GS.p.catch(function(e){GS.err=(e&&e.name)||'err'})}catch(e){GS.err=(e&&e.name)||'err'}}
+function gestureApply(){if(!GS.pend||!IOS||!S||S.ended||AP.route!=='ear')return;GS.pend=false;gestureSink('ear');applyRoute(true)}
+['touchend','click'].forEach(function(t){document.addEventListener(t,gestureApply,true)});
+try{navigator.mediaDevices.addEventListener('devicechange',function(){if(S&&!S.ended)refreshOut()})}catch(e){}
 function isRecv(d){var n=(d&&d.label)||'';return /earpiece|receiver|handset/i.test(n)&&!/speaker/i.test(n)}
 async function iosRoute(r){var s=S;if(!IOS||!s||s.ended||!s.rstream)return false;
  if(!setAS(r==='ear'?'ear':'spk'))return false;
@@ -4525,24 +4538,23 @@ async function iosRoute(r){var s=S;if(!IOS||!s||s.ended||!s.rstream)return false
   var a=ctxOK(),sink=typeof au.setSinkId==='function';
   if(r==='spk'){
    /* leave the receiver first: WebKit keeps "receiver preferred" for the whole audio session until the element sink is reset */
-   if(sink){try{await au.setSinkId('')}catch(e){}}
+   if(sink){try{if(GS.p&&GS.id===''&&Date.now()-GS.t<10000)await GS.p;else await au.setSinkId('')}catch(e){}}
    if(!a)return false;try{a.resume()}catch(e){}
    if(!s.spkG){var src=a.createMediaStreamSource(s.rstream),g=a.createGain();g.gain.value=0;src.connect(g);g.connect(a.destination);s.spkS=src;s.spkG=g}}
   else{
    /* earpiece: Web Audio output always goes to the loudspeaker, so keep that path silent and play only through the media element, pinned to the receiver */
    if(s.spkG)s.spkG.gain.value=0;
    if(!sink)return false;
-   var l=await outDevs(),rc=null;
-   l.forEach(function(d){if(!rc&&isRecv(d))rc=d});
-   if(!rc)return false;
+   await refreshOut();var rc=OUTC.recv;
+   if(!rc){GS.err='no-receiver';return false}
    if(S!==s||s.ended)return false;
-   await au.setSinkId(rc.deviceId);
-   if(au.sinkId!==rc.deviceId)return false}
+   if(GS.p&&GS.id===rc.deviceId&&Date.now()-GS.t<10000){GS.err='';await GS.p}else{GS.err='';await au.setSinkId(rc.deviceId)}
+   if(au.sinkId!==rc.deviceId){GS.err='sink-mismatch';return false}}
   setPan(false);
   if(au.srcObject!==s.rstream)au.srcObject=s.rstream;
   s.iosOn=true;iosSync();
   var p=au.play();if(p&&p.catch)p.catch(function(){});
-  return true}catch(e){return false}}
+  return true}catch(e){GS.err=(e&&e.name)||'err';return false}}
 function iosRestore(){var s=S;if(!IOS||!s||!s.iosOn)return;s.iosOn=false;
  try{if(typeof au.setSinkId==='function')au.setSinkId('').catch(function(){})}catch(e){}
  try{au.muted=!!s.spkMuted;if(s.spkG)s.spkG.gain.value=0;
@@ -4556,8 +4568,9 @@ async function applyRoute(quiet){
   if(r==='ear'){
    if(IOS){
     if(await iosRoute('ear')){}
+    else if(quiet&&GS.err==='NotAllowedError'){GS.pend=true;toast('برای فعال شدن اسپیکر بالا یک بار صفحه را لمس کنید','Tap the screen once to enable the earpiece')}
     else if(ctxOK()&&Math.abs(window.orientation||0)===90&&setPan(true)){}
-    else res={ok:false,why:X('آیفون خروجی اسپیکر بالا را در اختیار برنامه نگذاشت (خروجی‌های قابل‌دسترس: '+n+'). iOS را به‌روز کنید و دوباره امتحان کنید','iOS did not expose the earpiece (outputs available: '+n+'). Update iOS and try again')}}
+    else res={ok:false,why:X('اسپیکر بالا فعال نشد ['+(GS.err||'?')+'] خروجی‌ها: '+(GS.names||n),'Earpiece failed ['+(GS.err||'?')+'] outputs: '+(GS.names||n))}}
    else if(cl.ear&&sink){await au.setSinkId(cl.ear.deviceId);if(au.sinkId!==cl.ear.deviceId)throw new Error('sink')}
    else if(await routeViaMic('ear')){}
    else if(setAS('ear')){setPan(false)}
@@ -4572,8 +4585,8 @@ async function applyRoute(quiet){
  }catch(e){res={ok:false,why:X('تغییر خروجی ناموفق بود','Could not switch the output')}}
  if(!res.ok){AP.route='auto';setPan(false);apSave();iosRestore();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
  return res}
-async function setRoute(r){AP.route=r;apSave();await applyRoute(false);if(!sm.hidden)paintSm();paint()}
-sm.addEventListener('click',function(e){var r=e.target.closest('[data-r]');if(!r)return;setRoute(r.dataset.r)});
+async function setRoute(r){AP.route=r;apSave();var res=await applyRoute(false);if(IOS&&res&&res.ok&&!GS.pend)toast(r==='ear'?'اسپیکر بالا فعال شد: '+((OUTC.recv&&OUTC.recv.label)||''):'اسپیکر اصلی فعال شد',r==='ear'?'Earpiece on: '+((OUTC.recv&&OUTC.recv.label)||''):'Main speaker on');if(!sm.hidden)paintSm();paint()}
+sm.addEventListener('click',function(e){var r=e.target.closest('[data-r]');if(!r)return;gestureSink(r.dataset.r);setRoute(r.dataset.r)});
 bot.addEventListener('pointerdown',function(e){var b=e.target.closest&&e.target.closest('[data-a="spk"]');if(!b)return;
  spkHeld=false;clearTimeout(spkT);spkT=setTimeout(function(){spkT=null;spkHeld=true;smOpen()},300)});
 ['pointerup','pointercancel','pointerleave'].forEach(function(t){bot.addEventListener(t,function(){clearTimeout(spkT);spkT=null})});
