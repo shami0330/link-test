@@ -991,6 +991,43 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 <div class="pg-hint" id="pgHint"></div>
 </div>
 </div>
+<style id="callCss">
+.call-ov{position:fixed;inset:0;z-index:880;display:none;flex-direction:column;align-items:center;justify-content:space-between;color:#fff;background:linear-gradient(180deg,#2b0b16 0%,#1a0810 60%,#12060b 100%);padding:max(22px,env(safe-area-inset-top)) 24px calc(34px + env(safe-area-inset-bottom,0px));text-align:center;-webkit-user-select:none;user-select:none}
+.call-ov:not([hidden]){display:flex}
+.call-ov.on{animation:callIn .3s steps(6,end) both}
+.call-tag{font-size:12.5px;letter-spacing:.4px;opacity:.7;display:flex;align-items:center;gap:8px;justify-content:center}
+.call-tag::before{content:"";width:8px;height:8px;background:#fb7185;box-shadow:10px 0 0 #e11d48,20px 0 0 #9f1239;margin-inline-end:20px}
+.call-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:100%;min-height:0}
+.call-av-wrap{position:relative;width:132px;height:132px;margin-bottom:18px;display:grid;place-items:center}
+.avatar.call-av{width:132px;height:132px;font-size:54px;position:relative;z-index:2;flex-shrink:0}
+.call-ring{position:absolute;inset:0;border-radius:50%;border:4px solid rgba(251,113,133,.55);opacity:0}
+.call-ov[data-st="calling"] .call-ring,.call-ov[data-st="incoming"] .call-ring{animation:callRing 1.8s steps(6,end) infinite}
+.call-ring.r2{animation-delay:.6s!important}.call-ring.r3{animation-delay:1.2s!important}
+.call-name{font-size:26px;font-weight:800;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.call-st{font-size:15px;opacity:.85;min-height:22px;font-variant-numeric:tabular-nums}
+.call-hint{font-size:12.5px;opacity:.6;min-height:18px}
+.call-bot{display:flex;gap:46px;align-items:flex-start;justify-content:center;min-height:98px}
+.call-bw{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12.5px}
+.call-b{width:68px;height:68px;border:none;border-radius:50%;display:grid;place-items:center;color:#fff;cursor:pointer;background:rgba(255,255,255,.14);transition:transform .12s ease}
+.call-b:active{transform:scale(.92)}
+.call-b .svg-icon{width:28px;height:28px}
+.call-b.acc{background:#2fbf71}
+.call-b.rej,.call-b.end{background:#e5484d}
+.call-b.rej .svg-icon,.call-b.end .svg-icon{transform:rotate(135deg)}
+.call-b.tg.on{background:#fff;color:#2b0b16}
+.call-ov[data-st="incoming"] .call-b.acc{animation:callShake 1s steps(2,end) infinite}
+@keyframes callIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes callRing{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.75);opacity:0}}
+@keyframes callShake{0%{transform:translateY(0)}50%{transform:translateY(-4px)}100%{transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.call-ov,.call-ov *{animation:none!important}}
+</style>
+<div class="call-ov" id="callOv" hidden aria-live="polite" role="dialog" aria-modal="true">
+<div class="call-tag" id="callTag"></div>
+<div class="call-mid"><div class="call-av-wrap"><i class="call-ring"></i><i class="call-ring r2"></i><i class="call-ring r3"></i><div class="avatar call-av c1" id="callAv"></div></div>
+<div class="call-name" id="callName" dir="auto"></div><div class="call-st" id="callSt"></div><div class="call-hint" id="callHint" dir="auto"></div></div>
+<div class="call-bot" id="callBot"></div>
+<audio id="callAudio" autoplay playsinline></audio>
+</div>
 <script>
 /* 8-bit LINK logo engine: draws on canvas with whole-device-pixel cells (no seams on fractional DPR screens) */
 window.PXL=(function(){
@@ -1074,6 +1111,7 @@ return{play:play};
 <button class="icon-btn" id="backBtn" aria-label="بازگشت"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
 <div class="avatar chat-avatar c1" id="chatAvatar">س</div>
 <div class="chat-title-wrap"><div class="chat-title" id="chatTitle">چت</div><div class="chat-status" id="chatStatus">آخرین بازدید اخیراً</div></div>
+<button class="icon-btn" id="callBtn" aria-label="تماس صوتی" style="display:none"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></button>
 <button class="icon-btn" id="chatMoreBtn" aria-label="گزینه‌های بیشتر"><svg class="svg-icon dots" viewBox="0 0 24 24"><path d="M12 5h.01M12 12h.01M12 19h.01"/></svg></button>
 </header>
 
@@ -1147,7 +1185,7 @@ return{play:play};
 <div class="pf-status" id="pfStatus">آنلاین</div>
 </div>
 <div class="pf-actions">
-<button class="pf-action" data-placeholder="تماس صوتی"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>تماس</span></button>
+<button class="pf-action" id="pfCallBtn"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>تماس</span></button>
 <button class="pf-action" data-placeholder="تماس ویدیویی"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>ویدیو</span></button>
 <button class="pf-action" data-placeholder="بی‌صدا کردن"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>بی‌صدا</span></button>
 <button class="pf-action" data-placeholder="جستجو در گفتگو"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg><span>جستجو</span></button>
@@ -1793,6 +1831,7 @@ const LINKServer={
   },
   /* ----- پیام‌ها ----- */
   _sig(m){return JSON.stringify([m.text,m.caption,m.edited,m.reactions,m._pin,m.status])},
+  _isSig(r){const t=r&&r.text;return typeof t==='string'&&t.indexOf(LNV)===0&&t.indexOf('"kind":"callsig"')>0},
   _parse(r){const t=r.text||'';if(t.indexOf(LNV)===0){try{const o=JSON.parse(t.slice(LNV.length));if(o&&typeof o==='object')return o}catch(e){}}return{kind:'text',text:t}},
   _env(m){
     const o={};for(const k in m){if(k[0]==='_'||k==='id'||k==='type'||k==='time'||k==='day'||k==='status'||k==='src'||k==='pinned'||k==='reactions'||k==='dataUrl')continue;const v=m[k];if(v===undefined||v===null)continue;o[k]=v}
@@ -1828,7 +1867,7 @@ const LINKServer={
       const list=[];
       rows.forEach(r=>{
         if($u(r,mx)){mx=r.$updatedAt}
-        if(r.kind==='call'||this._hid[r.$id]||(cl&&r.$createdAt<=cl))return;
+        if(r.kind==='call'||this._isSig(r)||this._hid[r.$id]||(cl&&r.$createdAt<=cl))return;
         const m=this._msgFromRow(r,c),o=prev[m.id];
         if(!o)diff.added.push(m);else{if(this._sig(o)!==this._sig(m))diff.changed.push(m);if(o.src)m.src=o.src}
         list.push(m);
@@ -1843,7 +1882,7 @@ const LINKServer={
         const rows=await lnkRows(LNC.tM,[Q.equal('chatId',[c.sid]),Q.greaterThan('$updatedAt',after),Q.orderAsc('$updatedAt'),Q.limit(100)]);
         rows.forEach(r=>{
           if($u(r,mx))mx=r.$updatedAt;
-          if(r.kind==='call'||this._hid[r.$id]||this._sending.has(r.$id)||(cl&&r.$createdAt<=cl))return;
+          if(r.kind==='call'||this._isSig(r)||this._hid[r.$id]||this._sending.has(r.$id)||(cl&&r.$createdAt<=cl))return;
           const m=this._msgFromRow(r,c),o=prev[m.id];
           if(!o){diff.added.push(m);c.messages.push(m);prev[m.id]=m}
           else{if(this._sig(o)!==this._sig(m))diff.changed.push(m);if(o.src)m.src=o.src;const i=c.messages.indexOf(o);if(i>-1)c.messages[i]=m;prev[m.id]=m}
@@ -2131,6 +2170,7 @@ const LINKServer={
   },
   async _onMsg(ev,p){
     if(p.kind==='call')return;
+    if(this._isSig(p)){if(/\.create\b/.test(ev)&&window.CallMgr)CallMgr.onSig(p);return}
     const c=this.db.chats.find(k=>k.sid===p.chatId);
     const del=/\.delete\b/.test(ev);
     if(!c)return; // پیام گفتگوهای ناشناس نادیده گرفته می‌شود؛ گفتگوی جدید از رویداد جدول chats اضافه می‌شود
@@ -2842,16 +2882,16 @@ async function openChatById(chatId){closeSecondaryScreens();closePhotoViewer();
 const chat=await LINKServer.getChat(chatId);if(!chat)return;
 currentChatId=chatId;currentChatTitle=chat.title;
 chatTitle.textContent=chat.title;chatStatus.textContent=chat.status;chatAvatar.textContent=chat.initial;chatAvatar.className='avatar chat-avatar '+chat.avatar;chatAvatar.style.background=chat.photo?'url('+chat.photo+') center/cover':'';if(chat.photo)chatAvatar.textContent='';
-renderMessages(chat);chatScreen.classList.add('active');chatScreen.setAttribute('aria-hidden','false');
+renderMessages(chat);chatScreen.classList.add('active');chatScreen.setAttribute('aria-hidden','false');if(window.CallMgr)CallMgr.sync(chat);
 await LINKServer.markRead(chatId);allChats=await LINKServer.getChats();renderCurrentChatList();}
-chatHeader.addEventListener('click',e=>{if(e.target.closest('#backBtn')||e.target.closest('#chatMoreBtn'))return;const chat=allChats.find(c=>c.id===currentChatId);if(chat)openProfile(chat);});
+chatHeader.addEventListener('click',e=>{if(e.target.closest('#backBtn')||e.target.closest('#chatMoreBtn')||e.target.closest('#callBtn'))return;const chat=allChats.find(c=>c.id===currentChatId);if(chat)openProfile(chat);});
 profileBack.addEventListener('click',closeProfile);
 profileEdit.addEventListener('click',()=>openPlaceholder('ویرایش پروفایل'));
 pfAvatar.addEventListener('click',()=>{const chat=allChats.find(c=>c.id===currentChatId);if(chat)openPhotoViewer(chat);});
 photoViewer.addEventListener('click',closePhotoViewer);
 pvClose.addEventListener('click',closePhotoViewer);
 pfTabs.addEventListener('click',e=>{const t=e.target.closest('.pf-tab');if(!t)return;pfTabs.querySelectorAll('.pf-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');});
-document.querySelectorAll('.pf-action').forEach(b=>b.addEventListener('click',()=>openPlaceholder(b.dataset.placeholder)));
+document.querySelectorAll('.pf-action[data-placeholder]').forEach(b=>b.addEventListener('click',()=>openPlaceholder(b.dataset.placeholder)));
 backBtn.addEventListener('click',closeChat);
 settingsBack.addEventListener('click',closeSettings);
 settingsAppearance.addEventListener('click',openAppearance);
@@ -3900,6 +3940,144 @@ cs.addEventListener('scroll',fix,{passive:true});
 hd.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
 if(window.visualViewport){visualViewport.addEventListener('resize',fix);visualViewport.addEventListener('scroll',fix);}
 window.addEventListener('scroll',fix,{passive:true});})();
+</script>
+<script>
+/* ===== Voice calls: request -> ring -> accept / reject -> WebRTC audio. Signals travel as hidden rows in the messages table over the existing realtime subscription. ===== */
+window.CallMgr=(function(){
+var $=function(i){return document.getElementById(i)};
+var ov=$('callOv'),av=$('callAv'),nm=$('callName'),stEl=$('callSt'),hint=$('callHint'),bot=$('callBot'),tag=$('callTag'),au=$('callAudio');
+var ICE=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}].concat(window.LINK_TURN||[]);
+var X=function(a,b){return typeof LT==='function'?LT(a,b):a};
+var fd=function(n){return(typeof LANG!=='undefined'&&LANG==='fa'&&typeof toFaDigits==='function')?toFaDigits(n):String(n)};
+var PHONE='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+var MIC='<svg class="svg-icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>';
+var MICOFF='<svg class="svg-icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M3 3l18 18"/></svg>';
+var S=null,ac=null,toneT=null;
+/* transport: can be swapped (tests / a dedicated calls table later) */
+var T={
+ send:function(chat,id,text){return lnkMk(LNC.tM,id,{chatId:chat.sid,fromId:LNK.uid,text:text,replyTo:null,pinned:false,readByOther:false},lnkOwn(LNK.uid))},
+ del:function(id){return lnkDel(LNC.tM,id)}
+};
+function toast(a,b){try{showToast(X(a,b))}catch(e){}}
+function newSession(role,chat,cid){return{role:role,chat:chat,cid:cid,st:'idle',pc:null,stream:null,sigIds:[],offer:null,wantAnswer:false,answered:false,muted:false,timers:{},t0:0,ended:false,endText:''}}
+function sendTo(s,o){var id='cs-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);s.sigIds.push(id);
+ return T.send(s.chat,id,LNV+JSON.stringify(Object.assign({kind:'callsig',cid:s.cid},o)))}
+
+/* ----- sounds (8-bit square-wave ringtone, drawn with WebAudio: no files) ----- */
+function actx(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ac&&ac.state==='suspended')ac.resume().catch(function(){});return ac}
+document.addEventListener('pointerdown',function(){actx()},{once:true,passive:true});
+function beep(a,f,t0,d,type,vol){var o=a.createOscillator(),g=a.createGain(),n=a.currentTime+t0;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(vol,n+.01);g.gain.setValueAtTime(vol,n+Math.max(.02,d-.02));g.gain.linearRampToValueAtTime(0,n+d);o.connect(g);g.connect(a.destination);o.start(n);o.stop(n+d+.02)}
+function stopTone(){clearInterval(toneT);toneT=null;try{navigator.vibrate&&navigator.vibrate(0)}catch(e){}}
+function ring(kind){stopTone();var play=function(){var a=actx();if(a){if(kind==='in'){[784,988,1175,988].forEach(function(f,i){beep(a,f,i*.14,.12,'square',.05)})}else{beep(a,440,0,.9,'sine',.07)}}if(kind==='in'){try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}};play();toneT=setInterval(play,kind==='in'?1800:3000)}
+function chirp(up){var a=actx();if(!a)return;(up?[659,988]:[784,523,330]).forEach(function(f,i){beep(a,f,i*.1,.09,'square',.05)})}
+
+/* ----- UI ----- */
+function paint(){
+ if(!S)return;var c=S.chat;
+ tag.textContent=X('تماس صوتی لینک','LINK voice call');
+ nm.textContent=c.title||'';
+ av.className='avatar call-av '+(c.avatar||'c1');av.style.background=c.photo?'url("'+c.photo+'") center/cover':'';av.textContent=c.photo?'':(c.initial||'?');
+ ov.dataset.st=S.st;
+ var t={calling:X('در حال تماس…','Calling…'),incoming:X('تماس صوتی ورودی','Incoming voice call'),connecting:X('در حال اتصال…','Connecting…'),ended:S.endText}[S.st];
+ if(S.st==='active')paintTime();else stEl.textContent=t||'';
+ var b='';
+ if(S.st==='incoming'){b='<div class="call-bw"><button class="call-b rej" data-a="rej" type="button" aria-label="Decline">'+PHONE+'</button><span>'+X('رد','Decline')+'</span></div><div class="call-bw"><button class="call-b acc" data-a="acc" type="button" aria-label="Accept">'+PHONE+'</button><span>'+X('پاسخ','Accept')+'</span></div>'}
+ else if(S.st==='calling'||S.st==='connecting'||S.st==='active'){b='<div class="call-bw"><button class="call-b tg'+(S.muted?' on':'')+'" data-a="mute" type="button" aria-label="Mute">'+(S.muted?MICOFF:MIC)+'</button><span>'+(S.muted?X('بی‌صدا','Muted'):X('میکروفون','Mic'))+'</span></div><div class="call-bw"><button class="call-b end" data-a="end" type="button" aria-label="End">'+PHONE+'</button><span>'+(S.st==='active'?X('پایان','End'):X('لغو','Cancel'))+'</span></div>'}
+ bot.innerHTML=b;
+}
+function paintTime(){if(!S||S.st!=='active')return;var s=Math.floor((Date.now()-S.t0)/1000),m=Math.floor(s/60);stEl.textContent=fd(('0'+m).slice(-2)+':'+('0'+(s%60)).slice(-2))}
+function showOv(){ov.hidden=false;ov.classList.remove('on');void ov.offsetWidth;ov.classList.add('on');hint.textContent=''}
+function hideOv(){ov.hidden=true;ov.classList.remove('on');bot.innerHTML=''}
+bot.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a;if(a==='acc')accept();else if(a==='rej')reject();else if(a==='end')hangup();else if(a==='mute')mute()});
+
+/* ----- WebRTC helpers ----- */
+function getMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false})}
+function stopStream(s){try{s.stream&&s.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}s.stream=null}
+function iceDone(pc,ms){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();var t=setTimeout(done,ms);function done(){clearTimeout(t);pc.removeEventListener('icegatheringstatechange',chk);res()}function chk(){if(pc.iceGatheringState==='complete')done()}pc.addEventListener('icegatheringstatechange',chk)})}
+function mkpc(s){
+ var pc=new RTCPeerConnection({iceServers:ICE});s.pc=pc;
+ pc.ontrack=function(e){au.srcObject=(e.streams&&e.streams[0])?e.streams[0]:new MediaStream([e.track]);var p=au.play();if(p&&p.catch)p.catch(function(){})};
+ pc.onconnectionstatechange=function(){if(S!==s)return;var x=pc.connectionState;
+  if(x==='connected'){clearTimeout(s.timers.dis);if(s.st!=='active')goActive(s)}
+  else if(x==='failed'){finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))}
+  else if(x==='disconnected'){clearTimeout(s.timers.dis);s.timers.dis=setTimeout(function(){if(S===s&&pc.connectionState!=='connected')finish(s,X('اتصال قطع شد','Connection lost'))},7000)}};
+ return pc}
+function connTimeout(s){clearTimeout(s.timers.conn);s.timers.conn=setTimeout(function(){if(S===s&&s.st==='connecting')finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))},25000)}
+function goActive(s){clearTimeout(s.timers.conn);s.st='active';s.t0=Date.now();stopTone();chirp(true);s.timers.tick=setInterval(paintTime,1000);paint();
+ try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){s.wl=l}).catch(function(){})}catch(e){}}
+function finish(s,text){
+ if(!s||s.ended)return;s.ended=true;stopTone();
+ Object.keys(s.timers).forEach(function(k){clearTimeout(s.timers[k]);clearInterval(s.timers[k])});
+ try{s.pc&&s.pc.close()}catch(e){}stopStream(s);try{au.srcObject=null}catch(e){}try{s.wl&&s.wl.release()}catch(e){}
+ if(S===s){s.st='ended';s.endText=text||X('تماس پایان یافت','Call ended');paint();chirp(false)}
+ var ids=s.sigIds.slice();setTimeout(function(){ids.forEach(function(id){Promise.resolve(T.del(id)).catch(function(){})})},30000);
+ setTimeout(function(){if(S===s){S=null;hideOv()}},1500)}
+
+/* ----- actions ----- */
+async function start(chat){
+ if(!chat||chat.type!=='private'||chat.id==='saved'||!chat.peerId){toast('تماس فقط در گفتگوی خصوصی ممکن است','Calls work in private chats only');return}
+ if(S){toast('یک تماس در جریان است','A call is already in progress');return}
+ if(!window.RTCPeerConnection||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('این مرورگر از تماس صوتی پشتیبانی نمی‌کند','This browser does not support voice calls');return}
+ if(typeof LINKServer==='undefined'||!LINKServer._sub){toast('برای تماس به اتصال زنده نیاز است؛ چند لحظه بعد دوباره امتحان کنید','Calls need a live connection; try again in a moment');return}
+ var s=S=newSession('caller',chat,'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5));
+ s.st='calling';paint();showOv();ring('out');
+ s.timers.ring=setTimeout(function(){if(S===s&&s.st==='calling'){sendTo(s,{t:'end',why:'missed'}).catch(function(){});finish(s,X('پاسخی داده نشد','No answer'))}},45000);
+ try{await sendTo(s,{t:'invite',name:(LNK.me&&LNK.me.name)||''})}catch(e){finish(s,X('ارسال درخواست ناموفق بود','Could not send the request'));return}
+ if(S!==s)return;
+ try{s.stream=await getMic()}catch(e){sendTo(s,{t:'end',why:'nomic'}).catch(function(){});finish(s,X('دسترسی به میکروفون ممکن نشد','Microphone access failed'));return}
+ if(S!==s){stopStream(s);return}
+ try{
+  var pc=mkpc(s);s.stream.getTracks().forEach(function(t){pc.addTrack(t,s.stream)});
+  await pc.setLocalDescription(await pc.createOffer({offerToReceiveAudio:true}));await iceDone(pc,3000);
+  if(S!==s)return;await sendTo(s,{t:'offer',sdp:pc.localDescription.sdp});
+ }catch(e){if(S===s)finish(s,X('شروع تماس ناموفق بود','Could not start the call'))}}
+function onInvite(chat,o){
+ if(S){if(S.cid!==o.cid){var t=newSession('callee',chat,o.cid);sendTo(t,{t:'busy'}).catch(function(){})}return}
+ var s=S=newSession('callee',chat,o.cid);s.st='incoming';paint();showOv();ring('in');notify(chat);
+ s.timers.ring=setTimeout(function(){if(S===s&&s.st==='incoming')finish(s,X('تماس بی‌پاسخ','Missed call'))},50000)}
+function notify(chat){try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted'){var n=new Notification(chat.title||'LINK',{body:X('تماس صوتی ورودی','Incoming voice call'),tag:'link-call',requireInteraction:true});n.onclick=function(){try{window.focus();n.close()}catch(e){}}}}catch(e){}}
+async function accept(){
+ var s=S;if(!s||s.st!=='incoming')return;clearTimeout(s.timers.ring);s.st='connecting';paint();stopTone();connTimeout(s);
+ try{s.stream=await getMic()}catch(e){sendTo(s,{t:'reject',why:'nomic'}).catch(function(){});finish(s,X('دسترسی به میکروفون ممکن نشد','Microphone access failed'));return}
+ if(S!==s){stopStream(s);return}
+ try{await sendTo(s,{t:'accept'})}catch(e){finish(s,X('پاسخ ارسال نشد','Could not answer'));return}
+ s.wantAnswer=true;if(s.offer)answerNow(s)}
+async function answerNow(s){
+ if(s.answered||S!==s)return;s.answered=true;
+ try{var pc=mkpc(s);s.stream.getTracks().forEach(function(t){pc.addTrack(t,s.stream)});
+  await pc.setRemoteDescription({type:'offer',sdp:s.offer});await pc.setLocalDescription(await pc.createAnswer());await iceDone(pc,3000);
+  if(S!==s)return;await sendTo(s,{t:'answer',sdp:pc.localDescription.sdp});
+ }catch(e){if(S===s)finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))}}
+function reject(){var s=S;if(!s||s.st!=='incoming')return;sendTo(s,{t:'reject'}).catch(function(){});finish(s,X('تماس رد شد','Call declined'))}
+function hangup(){var s=S;if(!s||s.st==='ended')return;var was=s.st;sendTo(s,{t:'end'}).catch(function(){});finish(s,was==='calling'?X('تماس لغو شد','Call cancelled'):X('تماس پایان یافت','Call ended'))}
+function mute(){var s=S;if(!s)return;s.muted=!s.muted;try{s.stream&&s.stream.getAudioTracks().forEach(function(t){t.enabled=!s.muted})}catch(e){}paint()}
+
+/* ----- incoming signals ----- */
+function onSig(p){
+ try{
+  if(!p||p.fromId===LNK.uid)return;
+  var age=Date.now()-Date.parse(p.$createdAt||new Date().toISOString());if(!(age<60000))return;
+  var o=JSON.parse(String(p.text).slice(LNV.length));
+  var chat=LINKServer.db&&LINKServer.db.chats.find(function(c){return c.sid===p.chatId});
+  if(!chat||chat.type!=='private'||chat.peerId!==p.fromId)return;
+  if(o.t==='invite')return onInvite(chat,o);
+  var s=S;if(!s||s.cid!==o.cid||s.chat.sid!==chat.sid)return;
+  if(o.t==='offer'&&s.role==='callee'){s.offer=o.sdp;if(s.wantAnswer)answerNow(s)}
+  else if(o.t==='accept'&&s.role==='caller'&&s.st==='calling'){clearTimeout(s.timers.ring);stopTone();s.st='connecting';paint();connTimeout(s)}
+  else if(o.t==='answer'&&s.role==='caller'&&s.pc&&s.pc.signalingState==='have-local-offer'){s.pc.setRemoteDescription({type:'answer',sdp:o.sdp}).catch(function(){finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))})}
+  else if(o.t==='reject'&&s.role==='caller'){finish(s,X('تماس رد شد','Call declined'))}
+  else if(o.t==='busy'&&s.role==='caller'){finish(s,X('مشغول است','Line busy'))}
+  else if(o.t==='end'){finish(s,s.st==='incoming'?X('تماس بی‌پاسخ','Missed call'):X('تماس پایان یافت','Call ended'))}
+ }catch(e){}}
+
+function cur(){try{return LINKServer._chat(currentChatId)}catch(e){return null}}
+function sync(c){var b=$('callBtn');if(!b)return;var ch=cur()||c;b.style.display=(ch&&ch.type==='private'&&ch.id!=='saved'&&ch.peerId)?'':'none'}
+document.addEventListener('DOMContentLoaded',function(){
+ var b=$('callBtn');if(b)b.addEventListener('click',function(e){e.stopPropagation();start(cur())});
+ var p=$('pfCallBtn');if(p)p.addEventListener('click',function(){start(cur())});
+});
+return{start:start,onSig:onSig,sync:sync,transport:T,state:function(){return S&&S.st}};
+})();
 </script>
 </body>
 </html>
