@@ -277,7 +277,7 @@ input:checked+.slider:before{transform:translateX(-20px)}
 @keyframes rotatePhone{from{transform:rotate(90deg)}to{transform:rotate(0deg)}}
 @media screen and (orientation:landscape) and (pointer:coarse) and (max-height:560px){.orientation-overlay{display:flex}}
 /* ================= v2 — Telegram-like chat ================= */
-:root{--ease:cubic-bezier(.22,.82,.25,1);--spring:cubic-bezier(.3,1.35,.5,1);--app-h:100dvh;--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--ib-h:64px;--chat-grad:linear-gradient(165deg,#a9cbe8 0%,#c9dfd3 55%,#e3dcc3 100%);--primary-soft:rgba(47,156,240,.14)}
+:root{--ease:cubic-bezier(.22,.82,.25,1);--spring:cubic-bezier(.3,1.35,.5,1);--app-h:100dvh;--sat:env(safe-area-inset-top,0px);--sab:calc(env(safe-area-inset-bottom,0px) + 5px);--ib-h:64px;--chat-grad:linear-gradient(165deg,#a9cbe8 0%,#c9dfd3 55%,#e3dcc3 100%);--primary-soft:rgba(47,156,240,.14)}
 html[data-theme="dark"]{--chat-grad:linear-gradient(165deg,#0d1a28 0%,#102233 60%,#0f1d2a 100%)}
 html,body{position:fixed;inset:0;width:100%;overflow:hidden;overscroll-behavior:none}
 input,textarea{-webkit-user-select:text;user-select:text}
