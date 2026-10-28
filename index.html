@@ -686,8 +686,11 @@ html[dir="ltr"] .chat-item.enter{animation-name:itemInLtr}
 .at-tab{flex:1;border:none;background:none;border-radius:16px;padding:6px 0 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font:inherit;font-size:10.5px;font-weight:700;color:var(--text-muted);cursor:pointer;transition:background .2s,color .2s}
 .at-tab .svg-icon{width:22px;height:22px}.at-tab.on{color:var(--primary);background:var(--line-soft)}
 
-.mp-grp{margin-inline-start:8px!important;display:none;align-items:center;gap:7px}
-.mp-grp input{width:18px;height:18px;accent-color:var(--primary,#2f9cf0)}
+.mp-grp{margin-inline-start:8px;display:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mp-grp input{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.mp-grp span{display:block;border-radius:16px;padding:7px 14px;font-size:13px;font-weight:700;color:#fff;background:rgba(255,255,255,.16);transition:background .2s,transform .15s}
+.mp-grp:active span{transform:scale(.94)}
+.mp-grp input:checked+span{background:var(--primary,#2f9cf0);box-shadow:0 0 0 1.5px rgba(255,255,255,.55) inset}
 .attach-sheet.choice{padding-top:10px}
 .attach-sheet.choice .attach-grid{grid-template-columns:repeat(3,1fr)}
 
@@ -1113,7 +1116,7 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 <div class="attach-sheet fwd" id="fwdSheet"><div class="sheet-grab"></div><div class="fwd-title">ارسال به…</div><div class="fwd-list" id="fwdList"></div></div>
 <div class="ctx-overlay" id="ctxOverlay"></div>
 <div class="media-preview" id="mediaPreview">
-<div class="mp-top"><button class="icon-btn inv" id="mpClose" aria-label="بستن"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span id="mpCount"></span><button class="mp-opt" id="mpMode" type="button"></button><label class="mp-opt mp-grp" id="mpGroupL"><input type="checkbox" id="mpGroup" checked>ارسال گروهی</label></div>
+<div class="mp-top"><button class="icon-btn inv" id="mpClose" aria-label="بستن"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span id="mpCount"></span><button class="mp-opt" id="mpMode" type="button"></button><label class="mp-grp" id="mpGroupL"><input type="checkbox" id="mpGroup" checked><span>ارسال گروهی</span></label></div>
 <div class="mp-stage" id="mpStage"></div>
 <div class="mp-strip" id="mpStrip"></div>
 <div class="mp-bottom"><button class="mp-add" id="mpAdd" type="button" aria-label="افزودن"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><input id="mpCaption" type="text" placeholder="افزودن توضیح…" autocomplete="off" /><button class="mp-send" id="mpSend" aria-label="ارسال"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>
