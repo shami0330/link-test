@@ -585,9 +585,52 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 .vr-overlay.flash-on .vr-cancelbar{background:rgba(0,0,0,.06);color:#111}
 .vr-overlay.flash-on .vr-hint{color:rgba(0,0,0,.6)}
 #vrFlash.flash-active,.vr-overlay.flash-on #vrFlash.flash-active{background:#ffd60a;color:#111}
+
+/* ===== v16: startup permission gate ===== */
+.perm-gate{position:fixed;inset:0;z-index:900;display:flex;flex-direction:column;align-items:center;background:var(--surface);color:var(--text-main);overflow-y:auto;padding:max(28px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom));transition:opacity .28s ease,transform .28s ease}
+.perm-gate.out{opacity:0;transform:scale(1.02);pointer-events:none}
+.perm-gate[hidden]{display:none}
+.pg-inner{width:100%;max-width:440px;margin:auto 0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.pg-inner.pg-wait{visibility:hidden}
+.pg-logo{width:76px;height:76px;border-radius:24px;background:var(--primary);color:#fff;display:grid;place-items:center;font-size:22px;font-weight:800;letter-spacing:1px;box-shadow:0 10px 26px rgba(47,156,240,.35);margin-bottom:12px}
+.pg-title{font-size:20px;font-weight:800}
+.pg-sub{font-size:13.5px;line-height:1.9;color:var(--text-muted);margin-bottom:12px}
+.pg-list{width:100%;display:flex;flex-direction:column;gap:10px;margin:6px 0 14px}
+.pg-row{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--line);border-radius:16px;background:var(--card,var(--surface));text-align:right}
+.pg-ic{width:42px;height:42px;flex-shrink:0;border-radius:14px;display:grid;place-items:center;background:rgba(47,156,240,.12);color:var(--primary)}
+.pg-ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pg-txt{flex:1;min-width:0}
+.pg-txt b{display:block;font-size:14.5px}
+.pg-txt span{display:block;font-size:12.5px;color:var(--text-muted);margin-top:2px;line-height:1.7}
+.pg-st{flex-shrink:0;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:800;color:#fff;background:#b0b8c1}
+.pg-row[data-s="granted"] .pg-st{background:#2fbf71}
+.pg-row[data-s="denied"] .pg-st{background:#e5484d}
+.pg-row[data-s="denied"]{border-color:rgba(229,72,77,.45)}
+.pg-row[data-s="unavailable"] .pg-st{background:#f5a623}
+.pg-btn{width:100%;border:none;border-radius:16px;padding:15px;background:var(--primary);color:#fff;font:inherit;font-size:15.5px;font-weight:800;cursor:pointer;transition:transform .12s ease,background .15s ease}
+.pg-btn:active{transform:scale(.98);background:var(--primary-dark)}
+.pg-btn[disabled]{opacity:.6;pointer-events:none}
+.pg-hint{margin-top:12px;font-size:12.5px;line-height:1.9;color:var(--text-muted);min-height:20px}
+.pg-hint.err{color:#e5484d}
+.vr-overlay{touch-action:none;-webkit-user-select:none;user-select:none}.vr-circle>video{will-change:transform}
 </style>
 </head>
 <body>
+
+<div class="perm-gate" id="permGate" role="dialog" aria-modal="true" aria-labelledby="pgTitle">
+<div class="pg-inner pg-wait" id="pgInner">
+<div class="pg-logo">LINK</div>
+<div class="pg-title" id="pgTitle">دسترسی‌های لازم</div>
+<div class="pg-sub" id="pgSub">برای ورود به «لینک» باید دسترسی‌های زیر را بدهید.</div>
+<div class="pg-list">
+<div class="pg-row" id="pgCam" data-s="prompt"><div class="pg-ic"><svg viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div class="pg-txt"><b>دوربین</b><span>برای ضبط پیام ویدیویی و عکس</span></div><div class="pg-st" id="pgCamSt">!</div></div>
+<div class="pg-row" id="pgMic" data-s="prompt"><div class="pg-ic"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></div><div class="pg-txt"><b>میکروفون</b><span>برای ضبط پیام صوتی و ویدیویی</span></div><div class="pg-st" id="pgMicSt">!</div></div>
+<div class="pg-row" id="pgSto" data-s="prompt"><div class="pg-ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div><div class="pg-txt"><b>حافظه دستگاه</b><span>برای ذخیره‌ی پیام‌ها و رسانه‌ها روی دستگاه</span></div><div class="pg-st" id="pgStoSt">!</div></div>
+</div>
+<button class="pg-btn" id="pgBtn" type="button">اعطای دسترسی‌ها</button>
+<div class="pg-hint" id="pgHint"></div>
+</div>
+</div>
 <div id="satProbe" style="position:fixed;top:0;left:0;width:1px;height:env(safe-area-inset-top,0px);visibility:hidden;pointer-events:none"></div>
 <div class="phone-frame">
 <div class="app" id="app">
@@ -979,18 +1022,101 @@ catch(e){setCamOK(false);const denied=e&&(e.name==='NotAllowedError'||e.name==='
 await askAppDialog({title:denied?'اجازه داده نشد':'دوربین در دسترس نیست',text:denied?'بدون اجازه‌ی دوربین و میکروفون نمی‌شود پیام ویدیویی ضبط کرد. اجازه را از تنظیمات مرورگر یا دستگاه فعال کنید و دوباره امتحان کنید.':'دوربین یا میکروفون پیدا نشد. مطمئن شوید به دستگاه وصل است و توسط برنامه‌ی دیگری استفاده نمی‌شود.',yes:'باشه'});}}
 finally{camAsking=false;}}
 
-/* ===== v3: permissions asked once when the app opens ===== */
-const PERM_ASKED_KEY='link-perm-asked';
-async function startupPermissions(){
-try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
-let asked=false;try{asked=localStorage.getItem(PERM_ASKED_KEY)==='1';}catch(e){}
-if(camOK()||asked)return;
-const ok=await askAppDialog({title:'دسترسی‌های لازم',text:'برای ارسال پیام ویدیویی، صوتی و عکس، «لینک» به این موارد نیاز دارد:\n• دوربین (جلو و پشت)\n• میکروفون\n• گالری (با انتخابگر خود دستگاه، بدون اجازه‌ی جداگانه)\nاین اجازه فقط یک بار پرسیده می‌شود و ذخیره می‌ماند.',yes:'ادامه'});
-try{localStorage.setItem(PERM_ASKED_KEY,'1');}catch(e){}
-if(!ok)return;
-if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){showToast('این دستگاه از دوربین و میکروفون پشتیبانی نمی‌کند');return;}
-try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});setCamOK(true);showToast('اجازه‌ی دوربین و میکروفون ثبت شد');}
-catch(e){setCamOK(false);const denied=e&&(e.name==='NotAllowedError'||e.name==='SecurityError');showToast(denied?'اجازه داده نشد؛ بعداً می‌توانید از تنظیمات مرورگر فعال کنید':'دوربین یا میکروفون پیدا نشد');}}
+/* ===== v16: permission gate — checked on EVERY launch, blocks entry until camera, microphone & storage are granted ===== */
+const PermGate=(function(){
+const $g=id=>document.getElementById(id);
+const gate=$g('permGate'),inner=$g('pgInner'),btn=$g('pgBtn'),hint=$g('pgHint'),sub=$g('pgSub');
+const rows={cam:[$g('pgCam'),$g('pgCamSt')],mic:[$g('pgMic'),$g('pgMicSt')],sto:[$g('pgSto'),$g('pgStoSt')]};
+const MARK={granted:'✓',denied:'✕',unavailable:'!',prompt:'!'};
+let state={cam:'prompt',mic:'prompt',sto:'prompt'},busy=false,done=null,wasDenied=false;
+const hasMedia=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
+const flag=k=>{try{return localStorage.getItem(k)==='1';}catch(e){return false;}};
+
+async function q(name){try{if(!navigator.permissions||!navigator.permissions.query)return null;return (await navigator.permissions.query({name})).state;}catch(e){return null;}}
+
+/* Camera / microphone: real browser state when the Permissions API supports it, otherwise a stored flag + device labels */
+async function checkMedia(kind){
+if(!hasMedia())return 'unavailable';
+const s=await q(kind==='cam'?'camera':'microphone');
+if(s)return s; /* granted | prompt | denied */
+try{const d=await navigator.mediaDevices.enumerateDevices();const t=kind==='cam'?'videoinput':'audioinput';if(d.some(x=>x.kind===t&&x.label))return 'granted';}catch(e){}
+return flag(kind==='cam'?'link-cam-perm':'link-mic-perm')||flag('link-cam-perm')?'granted':'prompt';
+}
+/* Device storage: IndexedDB/localStorage must work and storage should be persistent (not evictable) */
+async function checkStorage(){
+try{localStorage.setItem('link-st-test','1');localStorage.removeItem('link-st-test');}catch(e){return 'unavailable';}
+if(!window.indexedDB)return 'unavailable';
+try{if(navigator.storage&&navigator.storage.persisted){return (await navigator.storage.persisted())?'granted':'prompt';}}catch(e){}
+return 'granted'; /* browser has no persistence API: nothing more to ask */
+}
+async function check(){
+const [cam,mic,sto]=await Promise.all([checkMedia('cam'),checkMedia('mic'),checkStorage()]);
+state={cam,mic,sto};
+try{if(cam==='granted'&&mic==='granted'){setCamOK(true);setMicOK(true);}else{if(cam!=='granted')setCamOK(false);if(mic!=='granted')setMicOK(false);}}catch(e){}
+return state;
+}
+const allOK=()=>state.cam==='granted'&&state.mic==='granted'&&state.sto==='granted';
+
+function render(){
+for(const k in rows){const [r,s]=rows[k];r.dataset.s=state[k];s.textContent=MARK[state[k]]||'!';}
+const denied=['cam','mic'].some(k=>state[k]==='denied');
+const noMedia=!hasMedia();
+btn.textContent=denied?'بررسی دوباره':'اعطای دسترسی‌ها';
+if(noMedia){hint.className='pg-hint err';hint.textContent=window.isSecureContext===false?'دوربین و میکروفون فقط در اتصال امن (HTTPS) کار می‌کنند. برنامه را از آدرس https باز کنید.':'این دستگاه یا مرورگر از دوربین و میکروفون پشتیبانی نمی‌کند.';}
+else if(denied){hint.className='pg-hint err';hint.textContent='دسترسی مسدود شده است. از تنظیمات مرورگر یا دستگاه (قفل کنار آدرس ← مجوزها، یا تنظیمات برنامه) دوربین و میکروفون را روی «اجازه» بگذارید و برگردید؛ خودکار بررسی می‌شود.';}
+else if(state.sto==='unavailable'){hint.className='pg-hint err';hint.textContent='ذخیره‌سازی روی دستگاه در دسترس نیست (حالت ناشناس یا مسدود). مرورگر را از حالت خصوصی خارج کنید.';}
+else{hint.className='pg-hint';hint.textContent='';}
+}
+function enter(){
+if(!done)return;
+gate.classList.add('out');
+setTimeout(()=>{gate.hidden=true;},300);
+document.removeEventListener('visibilitychange',onBack);window.removeEventListener('focus',onBack);
+const d=done;done=null;d();
+}
+async function recheck(){await check();render();if(allOK())enter();}
+function onBack(){if(!document.hidden&&done&&!busy)recheck();}
+
+async function ask(){
+if(busy)return;busy=true;btn.disabled=true;hint.className='pg-hint';hint.textContent='لطفاً در پنجره‌ی باز شده «اجازه» را بزنید…';
+try{
+/* 1) camera + microphone */
+if(hasMedia()&&(state.cam!=='granted'||state.mic!=='granted')&&state.cam!=='denied'&&state.mic!=='denied'){
+let ok=false;
+try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});ok=true;}catch(e){}
+if(!ok){ /* find out which one failed */
+if(state.mic!=='granted'){try{const st=await navigator.mediaDevices.getUserMedia({audio:true});st.getTracks().forEach(t=>t.stop());}catch(e){}}
+if(state.cam!=='granted'){try{const st=await navigator.mediaDevices.getUserMedia({video:true});st.getTracks().forEach(t=>t.stop());}catch(e){}}
+}
+}
+/* 2) device storage */
+try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist();}catch(e){}
+}finally{
+await check();
+/* without Permissions API, getUserMedia success is the only proof */
+render();busy=false;btn.disabled=false;
+}
+if(allOK()){enter();return;}
+/* Permissions API missing + success could still read "prompt": verify directly once */
+if(!navigator.permissions&&hasMedia()){
+try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});st.getTracks().forEach(t=>t.stop());state.cam=state.mic='granted';setCamOK(true);setMicOK(true);render();if(allOK()){enter();return;}}catch(e){state.cam=state.mic='denied';render();}
+}
+}
+btn.addEventListener('click',()=>{const denied=['cam','mic'].some(k=>state[k]==='denied');if(denied)recheck();else ask();});
+
+/* live updates when the user flips a permission in browser settings */
+async function watch(){for(const n of ['camera','microphone']){try{const p=await navigator.permissions.query({name:n});p.onchange=()=>{if(done&&!busy)recheck();};}catch(e){}}}
+
+/* Runs at every launch. Resolves immediately if everything is already granted, otherwise shows the gate. */
+async function run(){
+await check();
+if(allOK()){gate.hidden=true;return;}
+render();
+inner.classList.remove('pg-wait');
+await new Promise(res=>{done=res;document.addEventListener('visibilitychange',onBack);window.addEventListener('focus',onBack);watch();});
+}
+return {run,check};
+})();
 
 /* ===== v3: real voice-message recording (microphone) ===== */
 const MIC_KEY='link-mic-perm';
@@ -1031,7 +1157,25 @@ const payload={kind:'voice',duration:d,src:url,mediaId,replyTo:reply};if(wave)pa
 try{if(rec.state!=='inactive')rec.stop();}catch(e){if(st)warmASet(st);}}
 const VR={stream:null,rec:null,chunks:[],mime:'',token:0};
 function vrPickMime(){const list=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return '';return list.find(t=>MediaRecorder.isTypeSupported(t))||'';}
-function vrClearPreview(){const c=vrOverlay.querySelector('.vr-circle');if(!c)return;const pv=c.querySelector('video');if(pv){try{pv.pause();}catch(e){}pv.srcObject=null;pv.remove();}c.classList.remove('live');}
+/* ===== v17: pinch-to-zoom (1x–3x) while recording a video message; resets when all fingers are released ===== */
+const VRZ={z:1,max:3,ptrs:new Map(),d0:0,z0:1,raf:0};
+function vrApplyZoom(){const res=VR.res;if(!res||!res.pv)return;res.pv.style.transform=(res.facing==='user'?'scaleX(-1) ':'')+(VRZ.z>1.001?'scale('+VRZ.z.toFixed(3)+')':'');}
+function vrSetZoom(z){VRZ.z=Math.min(VRZ.max,Math.max(1,z));vrApplyZoom();}
+function vrZoomReset(animate){cancelAnimationFrame(VRZ.raf);VRZ.ptrs.clear();VRZ.d0=0;if(!animate||VRZ.z<=1.001){vrSetZoom(1);return;}
+const from=VRZ.z,t0=performance.now(),D=180;const step=now=>{const k=Math.min(1,(now-t0)/D),e=1-Math.pow(1-k,3);vrSetZoom(from+(1-from)*e);if(k<1)VRZ.raf=requestAnimationFrame(step);};VRZ.raf=requestAnimationFrame(step);}
+(function(){
+const dist=()=>{const a=[...VRZ.ptrs.values()];return a.length<2?0:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);};
+const live=()=>!!(VR.res&&VR.rec&&recordState.active&&recordState.mode==='videoNote'&&!vrOverlay.classList.contains('paused'));
+vrOverlay.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||!live()||e.target.closest('button'))return;cancelAnimationFrame(VRZ.raf);VRZ.ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});if(VRZ.ptrs.size>=2){VRZ.d0=dist();VRZ.z0=VRZ.z;}});
+vrOverlay.addEventListener('pointermove',e=>{const p=VRZ.ptrs.get(e.pointerId);if(!p)return;p.x=e.clientX;p.y=e.clientY;if(VRZ.ptrs.size>=2&&VRZ.d0>0){e.preventDefault();vrSetZoom(VRZ.z0*dist()/VRZ.d0);}});
+const up=e=>{if(!VRZ.ptrs.has(e.pointerId))return;VRZ.ptrs.delete(e.pointerId);
+if(VRZ.ptrs.size===0)vrZoomReset(true); /* both fingers released → back to normal */
+else{VRZ.d0=0;} /* one finger left: freeze; a new second finger restarts from the current zoom */
+};
+['pointerup','pointercancel','lostpointercapture'].forEach(n=>vrOverlay.addEventListener(n,up));
+vrOverlay.addEventListener('pointerdown',e=>{if(VRZ.ptrs.size===2&&VRZ.d0===0){VRZ.d0=dist();VRZ.z0=VRZ.z;}});
+})();
+function vrClearPreview(){const c=vrOverlay.querySelector('.vr-circle');if(!c)return;const pv=c.querySelector('video');if(pv){try{pv.pause();}catch(e){}pv.srcObject=null;pv.remove();}c.classList.remove('live');VRZ.z=1;VRZ.ptrs.clear();VRZ.d0=0;cancelAnimationFrame(VRZ.raf);}
 /* granted camera stream is parked for 60s so back-to-back recordings never re-prompt */
 const warm={stream:null,timer:null};
 function warmClear(){clearTimeout(warm.timer);warm.timer=null;if(warm.stream){warm.stream.getTracks().forEach(t=>{try{t.stop();}catch(e){}});warm.stream=null;}}
@@ -1046,23 +1190,23 @@ if(res.facing==='user'){vrOverlay.classList.toggle('flash-on',!!res.flash);}
 else{vrOverlay.classList.remove('flash-on');if(res.flash){const ok=await vrSetTorch(true);if(!ok){res.flash=false;showToast('فلش دوربین پشت در این دستگاه پشتیبانی نمی‌شود');}}}
 vrFlash.classList.toggle('flash-active',!!res.flash);}
 async function vrFlipCamera(){const res=VR.res;if(!res||!VR.rec||res.flipping)return;res.flipping=true;const next=res.facing==='user'?'environment':'user';
-const getCam=f=>navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:f},width:{ideal:480},height:{ideal:480}}});
+const getCam=f=>navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:f},width:{ideal:960},height:{ideal:960}}});
 const old=VR.stream;try{(res.vs||old).getVideoTracks().forEach(t=>{try{t.stop();}catch(e){}});}catch(e){}
 let ns=null,used=next;
 try{ns=await getCam(next);}catch(e){try{ns=await getCam(res.facing);used=res.facing;}catch(e2){}if(!ns)showToast('تغییر دوربین ممکن نیست');else showToast('دوربین دیگری در دسترس نیست');}
-if(ns){if(VR.res!==res){ns.getTracks().forEach(t=>{try{t.stop();}catch(e){}});}else{res.vs=ns;res.facing=used;res.pv.srcObject=ns;res.pv.style.transform=used==='user'?'':'none';try{await res.pv.play();}catch(e){}vibrate(8);vrApplyFlash();}}
+if(ns){if(VR.res!==res){ns.getTracks().forEach(t=>{try{t.stop();}catch(e){}});}else{res.vs=ns;res.facing=used;res.pv.srcObject=ns;vrApplyZoom();try{await res.pv.play();}catch(e){}vibrate(8);vrApplyFlash();}}
 res.flipping=false;}
 function vrDiscard(){VR.token++;const rec=VR.rec,st=VR.stream;VR.rec=null;VR.stream=null;VR.chunks=[];const res=VR.res;VR.res=null;if(rec){rec.onstop=null;rec.ondataavailable=null;try{if(rec.state!=='inactive')rec.stop();}catch(e){}}vrStopStream(st);vrFreeRes(res);vrClearPreview();}
 async function vrStartCamera(){const my=++VR.token;
 try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder)throw new Error('unsupported');
-let stream=warmTake()||await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:480},height:{ideal:480}},audio:{echoCancellation:true,noiseSuppression:true}});
+let stream=warmTake()||await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:960},height:{ideal:960}},audio:{echoCancellation:true,noiseSuppression:true}});
 if(my!==VR.token||!recordState.active||recordState.mode!=='videoNote'){vrStopStream(stream);return;}
 const c=vrOverlay.querySelector('.vr-circle');vrClearPreview();const pv=document.createElement('video');pv.muted=true;pv.autoplay=true;pv.playsInline=true;pv.setAttribute('playsinline','');pv.srcObject=stream;c.insertBefore(pv,c.firstChild);c.classList.add('live');try{await pv.play();}catch(e){}
 const cv=document.createElement('canvas');cv.width=480;cv.height=480;const cx=cv.getContext('2d');
 const out=new MediaStream();try{cv.captureStream(30).getVideoTracks().forEach(t=>out.addTrack(t));}catch(e){}
 const baked=out.getVideoTracks().length>0;stream.getAudioTracks().forEach(t=>out.addTrack(t));
 const res={pv,vs:null,out,draw:null,facing:'user',baked,flipping:false,flash:false};
-if(baked)res.draw=setInterval(()=>{const v=res.pv;if(!v||v.readyState<2||!v.videoWidth)return;const w=v.videoWidth,h=v.videoHeight,sz=Math.min(w,h);cx.save();if(res.facing==='user'){cx.translate(480,0);cx.scale(-1,1);}cx.drawImage(v,(w-sz)/2,(h-sz)/2,sz,sz,0,0,480,480);cx.restore();},33);
+if(baked)res.draw=setInterval(()=>{const v=res.pv;if(!v||v.readyState<2||!v.videoWidth)return;const w=v.videoWidth,h=v.videoHeight,sz=Math.min(w,h);cx.save();if(res.facing==='user'){cx.translate(480,0);cx.scale(-1,1);}const zs=sz/VRZ.z;cx.drawImage(v,(w-zs)/2,(h-zs)/2,zs,zs,0,0,480,480);cx.restore();},33);
 VR.res=res;vrOverlay.classList.remove('flash-on');vrFlash.classList.remove('flash-active');const recSrc=baked?out:stream;
 const mime=vrPickMime();let rec;try{rec=mime?new MediaRecorder(recSrc,{mimeType:mime,videoBitsPerSecond:700000,audioBitsPerSecond:64000}):new MediaRecorder(recSrc);}catch(e){rec=new MediaRecorder(recSrc);}
 VR.stream=stream;VR.rec=rec;VR.chunks=[];VR.mime=rec.mimeType||mime||'video/webm';
@@ -1597,7 +1741,7 @@ document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefaul
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 window.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault();},{passive:false});
 
-(async function initApp(){setTimeout(()=>{startupPermissions();},900);await LINKServer.init();allChats=await LINKServer.getChats();renderCurrentChatList();
+(async function initApp(){await PermGate.run();await LINKServer.init();allChats=await LINKServer.getChats();renderCurrentChatList();
 const p=await LINKServer.getProfile();
 $('drawerName').textContent=p.name;$('drawerPhone').textContent=p.phone;$('drawerAvatar').textContent=p.initial;$('drawerAvatar').className='avatar drawer-avatar '+p.avatar;
 $('settingsName').textContent=p.name;$('settingsPhone').textContent=p.phone;$('settingsUsername').textContent=p.username;$('settingsAvatar').textContent=p.initial;$('settingsAvatar').className='avatar profile-avatar '+p.avatar;
