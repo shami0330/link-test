@@ -3989,34 +3989,35 @@ function paint(){
   if(canVid(S)){b+=bw('tg','cam',S.cam?VCAM:VCAMOFF,X('دوربین','Camera'),S.cam);
    if(S.cam&&TOUCH)b+=bw('tg','flip',FLIPI,X('چرخش','Flip'),false);
    if(S.st==='active'&&(S.cam||S.peerCam))b+=bw('tg','q',GEARI,X('کیفیت','Quality'),!qp.hidden)}
+  if(S.st==='active')b+=bw('tg','aud',SPKI,X('صدا','Audio'),!ap.hidden);
   b+=bw('end','end',PHONE,S.st==='active'?X('پایان','End'):X('لغو','Cancel'),false)}
- bot.innerHTML=b;bot.classList.toggle('many',S.st==='calling'||S.st==='connecting'||S.st==='active');paintVid(S);if(S.st!=='active')qClose();
+ bot.innerHTML=b;bot.classList.toggle('many',S.st==='calling'||S.st==='connecting'||S.st==='active');paintVid(S);if(S.st!=='active'){qClose();aClose()}
 }
 function paintTime(){if(!S||S.st!=='active')return;var s=Math.floor((Date.now()-S.t0)/1000),m=Math.floor(s/60);stEl.textContent=fd(('0'+m).slice(-2)+':'+('0'+(s%60)).slice(-2))}
 function showOv(){ov.hidden=false;ov.classList.remove('on');void ov.offsetWidth;ov.classList.add('on');hint.textContent=''}
-function hideOv(){ov.hidden=true;ov.classList.remove('on','rvid','lvid');bot.innerHTML='';try{rv.srcObject=null;lv.srcObject=null}catch(e){}qClose()}
-bot.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a;if(a==='acc')accept();else if(a==='rej')reject();else if(a==='end')hangup();else if(a==='mute')mute();else if(a==='cam')setCam(S,!(S&&S.cam));else if(a==='flip')flipCam(S);else if(a==='q'){if(qp.hidden)qOpen();else qClose();paint()}});
+function hideOv(){ov.hidden=true;ov.classList.remove('on','rvid','lvid');bot.innerHTML='';try{rv.srcObject=null;lv.srcObject=null}catch(e){}qClose();aClose()}
+bot.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a;if(a==='acc')accept();else if(a==='rej')reject();else if(a==='end')hangup();else if(a==='mute')mute();else if(a==='cam')setCam(S,!(S&&S.cam));else if(a==='flip')flipCam(S);else if(a==='q'){if(qp.hidden)qOpen();else qClose();paint()}else if(a==='aud'){if(ap.hidden)aOpen();else aClose();paint()}});
 
 /* ----- WebRTC helpers ----- */
 function getMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false})}
-function stopStream(s){try{s.stream&&s.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}s.stream=null;try{s.vtrack&&s.vtrack.stop()}catch(e){}s.vtrack=null;s.cam=false}
+function stopStream(s){try{s.stream&&s.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}s.stream=null;try{s.micProc&&s.micProc.stop()}catch(e){}s.micProc=null;s.micG=null;try{s.vtrack&&s.vtrack.stop()}catch(e){}s.vtrack=null;s.cam=false}
 function iceDone(pc,ms){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();var t=setTimeout(done,ms);function done(){clearTimeout(t);pc.removeEventListener('icegatheringstatechange',chk);res()}function chk(){if(pc.iceGatheringState==='complete')done()}pc.addEventListener('icegatheringstatechange',chk)})}
 function mkpc(s){
  var pc=new RTCPeerConnection({iceServers:(s.ice&&s.ice.length)?s.ice:ICE});s.pc=pc;
  pc.ontrack=function(e){if(e.track.kind==='video'){rv.srcObject=new MediaStream([e.track]);var q=rv.play();if(q&&q.catch)q.catch(function(){});if(S===s)paintVid(s);return}
-  au.srcObject=(e.streams&&e.streams[0])?e.streams[0]:new MediaStream([e.track]);var p=au.play();if(p&&p.catch)p.catch(function(){})};
+  attachRemote(s,(e.streams&&e.streams[0])?e.streams[0]:new MediaStream([e.track]))};
  pc.onconnectionstatechange=function(){if(S!==s)return;var x=pc.connectionState;
   if(x==='connected'){clearTimeout(s.timers.dis);rsClear(s);if(s.st!=='active')goActive(s)}
   else if(x==='failed'){rsStart(s,false)}
   else if(x==='disconnected'){clearTimeout(s.timers.dis);s.timers.dis=setTimeout(function(){if(S===s&&pc.connectionState!=='connected')rsStart(s,false)},1500)}};
  return pc}
 function connTimeout(s){clearTimeout(s.timers.conn);s.timers.conn=setTimeout(function(){if(S===s&&s.st==='connecting')finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))},25000)}
-function goActive(s){clearTimeout(s.timers.conn);s.st='active';s.t0=Date.now();stopTone();chirp(true);s.timers.tick=setInterval(paintTime,1000);paint();startStats(s);if(s.cam)applySend(s);sendT(s,{t:'cam',on:s.cam?1:0}).catch(function(){});if(s.recvMode!=='auto')sendQ(s,s.recvMode);
+function goActive(s){clearTimeout(s.timers.conn);s.st='active';s.t0=Date.now();stopTone();chirp(true);s.timers.tick=setInterval(paintTime,1000);paint();startStats(s);applyAudioPrefs(s);if(s.cam)applySend(s);sendT(s,{t:'cam',on:s.cam?1:0}).catch(function(){});if(s.recvMode!=='auto')sendQ(s,s.recvMode);
  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){s.wl=l}).catch(function(){})}catch(e){}}
 function finish(s,text){
  if(!s||s.ended)return;s.ended=true;stopTone();
  Object.keys(s.timers).forEach(function(k){clearTimeout(s.timers[k]);clearInterval(s.timers[k])});
- try{s.pc&&s.pc.close()}catch(e){}stopStream(s);try{au.srcObject=null}catch(e){}try{s.wl&&s.wl.release()}catch(e){}
+ try{s.pc&&s.pc.close()}catch(e){}stopStream(s);try{au.srcObject=null}catch(e){}cleanAudio(s);try{s.wl&&s.wl.release()}catch(e){}
  if(S===s){s.st='ended';s.endText=text||X('تماس پایان یافت','Call ended');paint();chirp(false)}
  var ids=s.sigIds.slice();setTimeout(function(){ids.forEach(function(id){Promise.resolve(T.del(id)).catch(function(){})})},30000);
  setTimeout(function(){if(S===s){S=null;hideOv()}},1500)}
@@ -4229,7 +4230,7 @@ function paintQ(){if(!S||qp.hidden)return;
   +'<div class="qt">'+X('ارسال (تصویر شما)','Send (your video)')+'</div>'+chips('s',S.sendMode)
   +'<div class="qt">'+X('دریافت (تصویر طرف مقابل)','Receive (their video)')+'</div>'+chips('r',S.recvMode)
   +'<div class="qs" id="callQS"></div>';paintStat()}
-function qOpen(){qp.hidden=false;paintQ()}
+function qOpen(){aClose();qp.hidden=false;paintQ()}
 function qClose(){qp.hidden=true}
 qp.addEventListener('click',function(e){
  if(!S)return;if(e.target.closest('[data-x]')){qClose();paint();return}
@@ -4238,6 +4239,138 @@ qp.addEventListener('click',function(e){
  if(k==='s'){S.sendMode=v;if(v==='auto')S.autoLv=Math.min(S.autoLv,2);S.curLv=-9;applySend(S)}
  else{S.recvMode=v;S.stat&&(S.stat.rok=0);sendQ(S,v==='auto'?3:v)}
  paintQ()});
+
+/* ===== v4: audio output route (earpiece / speaker / both) + send & receive volume — 8-bit panel ===== */
+var AP={mic:1,rcv:1,route:'auto',dev:'',caps:{sink:false,ear:false,spk:false,both:false,devs:[],cls:{}}};
+try{var sv=JSON.parse(localStorage.getItem('link_call_audio')||'{}');
+ if(typeof sv.mic==='number')AP.mic=Math.max(0,Math.min(2,sv.mic));
+ if(typeof sv.rcv==='number')AP.rcv=Math.max(0,Math.min(2,sv.rcv));
+ if(['auto','ear','spk','both','dev'].indexOf(sv.route)>=0)AP.route=sv.route;
+ if(typeof sv.dev==='string')AP.dev=sv.dev.slice(0,300)}catch(e){}
+function apSave(){try{localStorage.setItem('link_call_audio',JSON.stringify({mic:AP.mic,rcv:AP.rcv,route:AP.route,dev:AP.dev}))}catch(e){}}
+var au2=null;
+var SPKI='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+var cssA=document.createElement('style');cssA.textContent=`
+.call-ov>.call-ap{position:absolute;z-index:5;left:12px;right:12px;max-width:420px;margin:0 auto;top:calc(env(safe-area-inset-top,0px) + 54px);padding:12px 14px 14px;color:#fff;font-size:13px}
+.call-ap[hidden]{display:none}
+.call-ov>.call-q,.call-ov>.call-ap{border-radius:0;border:3px solid #fff;background:#1b1030;box-shadow:4px 4px 0 #000;font-family:ui-monospace,"Courier New",monospace}
+.call-q .qc,.call-ap .qc{border-radius:0;border:2px solid #fff;background:#2a1a4a;color:#fff;padding:6px 10px;font:inherit;font-size:12.5px;cursor:pointer}
+.call-q .qc.on,.call-ap .qc.on{background:#fff;color:#1b1030}
+.call-q .qc.on::before,.call-ap .qc.on::before{content:"\\25B6 "}
+.call-ap .qc.na{opacity:.4}
+.call-ap .ah{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:15px;letter-spacing:1px}
+.call-ap .ax{border:none;background:transparent;color:#fff;font-size:18px;cursor:pointer;padding:2px 6px}
+.call-ap .at{margin:12px 0 6px;opacity:.85;display:flex;justify-content:space-between;align-items:center}
+.call-ap .at em{font-style:normal;color:#5af78e;font-variant-numeric:tabular-nums;direction:ltr}
+.call-ap .arow{display:flex;flex-wrap:wrap;gap:6px}
+.call-ap .vrow{display:flex;align-items:center;gap:8px;direction:ltr}
+.call-ap .vb{width:34px;height:34px;border:2px solid #fff;background:#2a1a4a;color:#fff;font:inherit;font-size:18px;line-height:1;cursor:pointer;border-radius:0;box-shadow:2px 2px 0 #000}
+.call-ap .vb:active{transform:translate(2px,2px);box-shadow:none}
+.call-ap .vbar{flex:1;display:flex;gap:2px;height:30px;padding:3px;border:2px solid #fff;background:#0f081c;touch-action:none;cursor:pointer;user-select:none}
+.call-ap .vbar i{flex:1;background:#3b2a5a;display:block}
+.call-ap .vbar i.g{background:#5af78e}.call-ap .vbar i.y{background:#f3f99d}.call-ap .vbar i.r{background:#ff5c57}
+.call-ap .an{margin-top:12px;font-size:11.5px;opacity:.7;line-height:1.5}
+.call-bot.many .call-b{width:54px;height:54px}.call-bot.many .call-bw{min-width:54px}`;
+document.head.appendChild(cssA);
+var ap=document.createElement('div');ap.id='callAP';ap.className='call-ap';ap.hidden=true;ap.setAttribute('dir','auto');ov.appendChild(ap);
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+/* --- volume: Web Audio gain nodes, built only when the person touches a slider (default path stays untouched) --- */
+function ctxOK(){var a=actx();return(a&&a.createMediaStreamDestination)?a:null}
+function ensureRcvChain(s){
+ if(s.rcvG)return true;if(!s.rstream)return false;var a=ctxOK();if(!a)return false;
+ try{if(!s.keep){s.keep=new Audio();s.keep.muted=true}
+  s.keep.srcObject=s.rstream;var kp=s.keep.play();if(kp&&kp.catch)kp.catch(function(){});
+  var src=a.createMediaStreamSource(s.rstream),g=a.createGain(),d=a.createMediaStreamDestination();
+  src.connect(g);g.connect(d);s.rcvG=g;s.rcvD=d;au.srcObject=d.stream;if(au2)au2.srcObject=d.stream;
+  var p=au.play();if(p&&p.catch)p.catch(function(){});return true}catch(e){return false}}
+function attachRemote(s,stream){
+ s.rstream=stream;
+ if(AP.rcv!==1&&ensureRcvChain(s)){s.rcvG.gain.value=AP.rcv}else{au.srcObject=stream}
+ var p=au.play();if(p&&p.catch)p.catch(function(){})}
+function ensureMicChain(s){
+ if(s.micG)return true;if(!s.stream||!s.pc)return false;var a=ctxOK();if(!a)return false;
+ try{var src=a.createMediaStreamSource(s.stream),g=a.createGain(),d=a.createMediaStreamDestination();
+  src.connect(g);g.connect(d);var tr=d.stream.getAudioTracks()[0];if(!tr)return false;
+  var snd=s.pc.getSenders().filter(function(x){return x.track&&x.track.kind==='audio'})[0];
+  if(!snd)return false;snd.replaceTrack(tr).catch(function(){});
+  tr.enabled=!s.muted;s.micG=g;s.micProc=tr;return true}catch(e){return false}}
+function setVol(k,v){
+ v=Math.round(Math.max(0,Math.min(2,v))*10)/10;var s=S;
+ if(k==='rcv'){AP.rcv=v;if(s&&!s.ended){if(ensureRcvChain(s))s.rcvG.gain.value=v;else if(v<=1){try{au.volume=v}catch(e){}}}}
+ else{AP.mic=v;if(s&&!s.ended){if(ensureMicChain(s))s.micG.gain.value=v}}
+ apSave();paintVol()}
+function applyAudioPrefs(s){
+ if(AP.mic!==1&&ensureMicChain(s))s.micG.gain.value=AP.mic;
+ if(AP.rcv!==1&&s.rstream&&ensureRcvChain(s))s.rcvG.gain.value=AP.rcv;
+ if(AP.route!=='auto')applyRoute(s,true)}
+function cleanAudio(s){try{s.keep&&(s.keep.srcObject=null)}catch(e){}try{if(au2){au2.srcObject=null;au2=null}}catch(e){}}
+
+/* --- output route --- */
+async function outDevs(){try{return(await navigator.mediaDevices.enumerateDevices()).filter(function(d){return d.kind==='audiooutput'})}catch(e){return[]}}
+function classify(l){var ear=null,spk=null;
+ l.forEach(function(d){var n=d.label||'';if(!ear&&/earpiece|receiver|handset/i.test(n))ear=d;else if(!spk&&/speaker/i.test(n)&&!/head/i.test(n))spk=d});
+ if(!spk)spk=l.filter(function(d){return d.deviceId==='default'})[0]||l[0]||null;
+ return{ear:ear,spk:spk}}
+async function capsRefresh(){var l=await outDevs(),c=classify(l);
+ AP.caps={sink:typeof au.setSinkId==='function',ear:!!c.ear,spk:!!c.spk,both:!!(c.ear&&c.spk&&c.ear.deviceId!==c.spk.deviceId),devs:l,cls:c};return AP.caps}
+function setAS(r){try{if(!navigator.audioSession)return false;navigator.audioSession.type=(r==='spk')?'playback':(r==='ear'?'play-and-record':'auto');return true}catch(e){return false}}
+async function applyRoute(s,quiet){
+ var r=AP.route,res={ok:true,why:''},c=await capsRefresh(),cl=c.cls;
+ try{
+  if(r!=='both'&&au2){try{au2.srcObject=null}catch(e){}au2=null}
+  if(r==='auto'){if(c.sink)await au.setSinkId('');setAS('auto')}
+  else if(r==='ear'){if(cl.ear&&c.sink)await au.setSinkId(cl.ear.deviceId);else if(!setAS('ear'))res={ok:false,why:X('این دستگاه یا مرورگر، خروجی گوشی (اسپیکر بالا) را به برنامه نمی‌دهد','This device/browser does not expose the earpiece')}}
+  else if(r==='spk'){if(cl.spk&&c.sink)await au.setSinkId(cl.spk.deviceId);else if(!setAS('spk'))res={ok:false,why:X('انتخاب بلندگو در این مرورگر ممکن نیست','Speaker selection is not available in this browser')}}
+  else if(r==='both'){
+   if(c.both&&c.sink){await au.setSinkId(cl.ear.deviceId);if(!au2){au2=new Audio();au2.autoplay=true}
+    au2.srcObject=s.rcvD?s.rcvD.stream:s.rstream;await au2.setSinkId(cl.spk.deviceId);var p2=au2.play();if(p2&&p2.catch)p2.catch(function(){})}
+   else res={ok:false,why:X('برای «هر دو» دستگاه باید گوشی و بلندگو را جدا نشان بدهد؛ اینجا ممکن نیست','"Both" needs separate earpiece and speaker outputs; not available here')}}
+  else if(r==='dev'){if(c.sink&&AP.dev)await au.setSinkId(AP.dev);else res={ok:false,why:X('این خروجی در دسترس نیست','That output is not available')}}
+ }catch(e){res={ok:false,why:X('تغییر خروجی ناموفق بود','Could not switch the output')}}
+ if(!res.ok){try{if(c.sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
+ return res}
+async function setRoute(r,dev){
+ var old=AP.route,oldDev=AP.dev;AP.route=r;AP.dev=dev||'';
+ var res=await applyRoute(S,false);
+ if(!res.ok){AP.route='auto';AP.dev='';await applyRoute(S,true)}
+ apSave();paintAud()}
+
+/* --- 8-bit panel --- */
+function volBar(k,v){var n=Math.round(v*10),h='';for(var i=1;i<=20;i++)h+='<i class="'+(i<=n?(i>15?'r':i>10?'y':'g'):'')+'"></i>';
+ return '<div class="vrow"><button type="button" class="vb" data-st="'+k+'" data-d="-1" aria-label="-">−</button><div class="vbar" data-v="'+k+'">'+h+'</div><button type="button" class="vb" data-st="'+k+'" data-d="1" aria-label="+">+</button></div>'}
+function paintVol(){if(ap.hidden||!ap.querySelectorAll)return;
+ ap.querySelectorAll('.vbar').forEach(function(b){var k=b.dataset.v,v=k==='rcv'?AP.rcv:AP.mic,n=Math.round(v*10);
+  [].forEach.call(b.children,function(it,i){it.className=(i+1<=n)?((i+1)>15?'r':(i+1)>10?'y':'g'):''})});
+ var a=document.getElementById('apR'),m=document.getElementById('apM');if(a)a.textContent=Math.round(AP.rcv*100)+'%';if(m)m.textContent=Math.round(AP.mic*100)+'%'}
+function paintAud(){
+ if(ap.hidden)return;var c=AP.caps,cl=c.cls||{},rt=AP.route;
+ function chip(r,label,ok,id){var on=(rt===r&&(r!=='dev'||AP.dev===id));return '<button type="button" class="qc'+(on?' on':'')+(ok?'':' na')+'" data-r="'+r+'"'+(id?' data-id="'+esc(id)+'"':'')+'>'+label+'</button>'}
+ var h='<div class="ah"><b>♪ '+X('صدا','AUDIO')+'</b><button type="button" class="ax" data-x="1" aria-label="Close">✕</button></div>'
+  +'<div class="at"><span>'+X('خروجی صدا','Sound output')+'</span></div><div class="arow">'
+  +chip('ear',X('گوشی (اسپیکر بالا)','Earpiece (top)'),c.ear||!!navigator.audioSession)
+  +chip('spk',X('بلندگو (اسپیکر پایین)','Speaker (bottom)'),c.spk||!!navigator.audioSession)
+  +chip('both',X('هر دو','Both'),c.both)
+  +chip('auto',X('خودکار','Auto'),true);
+ (c.devs||[]).forEach(function(d){if(d===cl.ear||d===cl.spk||d.deviceId==='default'||d.deviceId==='communications')return;h+=chip('dev',esc((d.label||'?').slice(0,16)),true,d.deviceId)});
+ h+='</div>'
+  +'<div class="at"><span>'+X('صدای دریافتی (طرف مقابل)','Receive volume (them)')+'</span><em id="apR">'+Math.round(AP.rcv*100)+'%</em></div>'+volBar('rcv',AP.rcv)
+  +'<div class="at"><span>'+X('صدای ارسالی (شما)','Send volume (you)')+'</span><em id="apM">'+Math.round(AP.mic*100)+'%</em></div>'+volBar('mic',AP.mic)
+  +'<div class="an">'+(c.sink?'':X('این مرورگر انتخاب خروجی را پشتیبانی نمی‌کند؛ سیستم‌عامل مسیر را تعیین می‌کند. ','This browser cannot pick outputs; the OS decides the route. '))+X('بالای ۱۰۰٪ صدا تقویت می‌شود (زرد و قرمز).','Above 100% the sound is boosted (yellow/red).')+'</div>';
+ ap.innerHTML=h}
+async function aOpen(){qClose();ap.hidden=false;await capsRefresh();paintAud()}
+function aClose(){ap.hidden=true}
+function barVal(bar,ev){var r=bar.getBoundingClientRect(),f=r.width?(ev.clientX-r.left)/r.width:0;f=Math.max(0,Math.min(1,f));return Math.round(f*20)/10}
+var drag=null;
+ap.addEventListener('click',function(e){
+ if(!S)return;
+ if(e.target.closest('[data-x]')){aClose();paint();return}
+ var r=e.target.closest('[data-r]');if(r){setRoute(r.dataset.r,r.dataset.id||'');return}
+ var st=e.target.closest('[data-st]');if(st){var k=st.dataset.st;setVol(k,(k==='rcv'?AP.rcv:AP.mic)+(+st.dataset.d)*0.1)}});
+ap.addEventListener('pointerdown',function(e){var b=e.target.closest&&e.target.closest('.vbar');if(!b)return;drag=b;try{b.setPointerCapture(e.pointerId)}catch(x){}setVol(b.dataset.v,barVal(b,e));e.preventDefault()});
+ap.addEventListener('pointermove',function(e){if(drag)setVol(drag.dataset.v,barVal(drag,e))});
+['pointerup','pointercancel'].forEach(function(t){ap.addEventListener(t,function(){drag=null})});
+try{navigator.mediaDevices.addEventListener('devicechange',function(){if(S&&!ap.hidden)capsRefresh().then(paintAud);if(S&&AP.route!=='auto')applyRoute(S,true)})}catch(e){}
 
 /* ----- actions ----- */
 async function start(chat,video){
@@ -4281,7 +4414,7 @@ async function answerNow(s){
  }catch(e){if(S===s)finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))}}
 function reject(){var s=S;if(!s||s.st!=='incoming')return;sendTo(s,{t:'reject'}).catch(function(){});finish(s,X('تماس رد شد','Call declined'))}
 function hangup(){var s=S;if(!s||s.st==='ended')return;var was=s.st;sendTo(s,{t:'end'}).catch(function(){});finish(s,was==='calling'?X('تماس لغو شد','Call cancelled'):X('تماس پایان یافت','Call ended'))}
-function mute(){var s=S;if(!s)return;s.muted=!s.muted;try{s.stream&&s.stream.getAudioTracks().forEach(function(t){t.enabled=!s.muted})}catch(e){}paint()}
+function mute(){var s=S;if(!s)return;s.muted=!s.muted;try{s.stream&&s.stream.getAudioTracks().forEach(function(t){t.enabled=!s.muted})}catch(e){}try{s.micProc&&(s.micProc.enabled=!s.muted)}catch(e){}paint()}
 
 /* ----- incoming signals ----- */
 function onSig(p){
