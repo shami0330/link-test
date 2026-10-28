@@ -972,7 +972,7 @@ const micOK=()=>{if(camOK())return true;try{return localStorage.getItem(MIC_KEY)
 const setMicOK=v=>{try{if(v)localStorage.setItem(MIC_KEY,'1');else localStorage.removeItem(MIC_KEY);}catch(e){}};
 const warmA={stream:null,timer:null};
 function warmAClear(){clearTimeout(warmA.timer);warmA.timer=null;if(warmA.stream){warmA.stream.getTracks().forEach(t=>{try{t.stop();}catch(e){}});warmA.stream=null;}}
-function warmASet(st){if(!st)return;if(warmA.stream&&warmA.stream!==st)warmAClear();clearTimeout(warmA.timer);warmA.stream=st;try{st.getTracks().forEach(t=>{t.enabled=false;});}catch(e){}warmA.timer=setTimeout(warmAClear,1800000);}
+function warmASet(st){if(!st)return;if(warmA.stream&&warmA.stream!==st)warmAClear();clearTimeout(warmA.timer);try{st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});}catch(e){}}
 function warmATake(){const st=warmA.stream;if(!st)return null;clearTimeout(warmA.timer);warmA.timer=null;warmA.stream=null;const live=st.getTracks().length>0&&st.getTracks().every(t=>t.readyState==='live');if(!live){st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});return null;}try{st.getTracks().forEach(t=>{t.enabled=true;});}catch(e){}return st;}
 document.addEventListener('visibilitychange',()=>{clearTimeout(warmA.hideT);if(document.hidden)warmA.hideT=setTimeout(warmAClear,300000);});window.addEventListener('pagehide',warmAClear);
 async function requestMicPermissionFlow(){if(camAsking)return;camAsking=true;
@@ -1009,7 +1009,7 @@ function vrClearPreview(){const c=vrOverlay.querySelector('.vr-circle');if(!c)re
 /* granted camera stream is parked for 60s so back-to-back recordings never re-prompt */
 const warm={stream:null,timer:null};
 function warmClear(){clearTimeout(warm.timer);warm.timer=null;if(warm.stream){warm.stream.getTracks().forEach(t=>{try{t.stop();}catch(e){}});warm.stream=null;}}
-function warmSet(st){if(!st)return;if(warm.stream&&warm.stream!==st)warmClear();clearTimeout(warm.timer);warm.stream=st;try{st.getTracks().forEach(t=>{t.enabled=false;});}catch(e){}warm.timer=setTimeout(warmClear,1800000);}
+function warmSet(st){if(!st)return;if(warm.stream&&warm.stream!==st)warmClear();clearTimeout(warm.timer);try{st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});}catch(e){}}
 function warmTake(){const st=warm.stream;if(!st)return null;clearTimeout(warm.timer);warm.timer=null;warm.stream=null;const live=st.getTracks().length>0&&st.getTracks().every(t=>t.readyState==='live');if(!live){st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});return null;}try{st.getTracks().forEach(t=>{t.enabled=true;});}catch(e){}return st;}
 document.addEventListener('visibilitychange',()=>{clearTimeout(warm.hideT);if(document.hidden)warm.hideT=setTimeout(warmClear,300000);});window.addEventListener('pagehide',warmClear);
 function vrStopStream(st){if(st)warmSet(st);}
