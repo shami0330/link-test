@@ -1112,6 +1112,7 @@ return{play:play};
 <div class="avatar chat-avatar c1" id="chatAvatar">س</div>
 <div class="chat-title-wrap"><div class="chat-title" id="chatTitle">چت</div><div class="chat-status" id="chatStatus">آخرین بازدید اخیراً</div></div>
 <button class="icon-btn" id="callBtn" aria-label="تماس صوتی" style="display:none"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></button>
+<button class="icon-btn" id="vcallBtn" aria-label="تماس تصویری" style="display:none"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button>
 <button class="icon-btn" id="chatMoreBtn" aria-label="گزینه‌های بیشتر"><svg class="svg-icon dots" viewBox="0 0 24 24"><path d="M12 5h.01M12 12h.01M12 19h.01"/></svg></button>
 </header>
 
@@ -1186,7 +1187,7 @@ return{play:play};
 </div>
 <div class="pf-actions">
 <button class="pf-action" id="pfCallBtn"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>تماس</span></button>
-<button class="pf-action" data-placeholder="تماس ویدیویی"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>ویدیو</span></button>
+<button class="pf-action" id="pfVCallBtn"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>ویدیو</span></button>
 <button class="pf-action" data-placeholder="بی‌صدا کردن"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>بی‌صدا</span></button>
 <button class="pf-action" data-placeholder="جستجو در گفتگو"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg><span>جستجو</span></button>
 <button class="pf-action" data-placeholder="گزینه‌های بیشتر"><svg class="svg-icon dots" viewBox="0 0 24 24"><path d="M12 5h.01M12 12h.01M12 19h.01"/></svg><span>بیشتر</span></button>
@@ -3959,7 +3960,7 @@ var T={
  del:function(id){return lnkDel(LNC.tM,id)}
 };
 function toast(a,b){try{showToast(X(a,b))}catch(e){}}
-function newSession(role,chat,cid){return{role:role,chat:chat,cid:cid,st:'idle',pc:null,stream:null,sigIds:[],offer:null,wantAnswer:false,answered:false,muted:false,timers:{},t0:0,ended:false,endText:''}}
+function newSession(role,chat,cid){return{role:role,chat:chat,cid:cid,video:false,cam:false,peerCam:false,facing:'user',sendMode:'auto',recvMode:'auto',autoLv:1,peerCap:3,rc:3,vt:null,vtrack:null,curLv:-9,st:'idle',pc:null,stream:null,sigIds:[],offer:null,wantAnswer:false,answered:false,muted:false,timers:{},t0:0,ended:false,endText:''}}
 function sendTo(s,o){var id='cs-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);s.sigIds.push(id);
  return T.send(s.chat,id,LNV+JSON.stringify(Object.assign({kind:'callsig',cid:s.cid},o)))}
 
@@ -3974,36 +3975,43 @@ function chirp(up){var a=actx();if(!a)return;(up?[659,988]:[784,523,330]).forEac
 /* ----- UI ----- */
 function paint(){
  if(!S)return;var c=S.chat;
- tag.textContent=X('تماس صوتی لینک','LINK voice call');
+ tag.textContent=S.video?X('تماس تصویری لینک','LINK video call'):X('تماس صوتی لینک','LINK voice call');
  nm.textContent=c.title||'';
  av.className='avatar call-av '+(c.avatar||'c1');av.style.background=c.photo?'url("'+c.photo+'") center/cover':'';av.textContent=c.photo?'':(c.initial||'?');
  ov.dataset.st=S.st;
- var t={calling:X('در حال تماس…','Calling…'),incoming:X('تماس صوتی ورودی','Incoming voice call'),connecting:X('در حال اتصال…','Connecting…'),ended:S.endText}[S.st];
+ var t={calling:X('در حال تماس…','Calling…'),incoming:S.video?X('تماس تصویری ورودی','Incoming video call'):X('تماس صوتی ورودی','Incoming voice call'),connecting:X('در حال اتصال…','Connecting…'),ended:S.endText}[S.st];
  if(S.st==='active')paintTime();else stEl.textContent=t||'';
  var b='';
  if(S.st==='incoming'){b='<div class="call-bw"><button class="call-b rej" data-a="rej" type="button" aria-label="Decline">'+PHONE+'</button><span>'+X('رد','Decline')+'</span></div><div class="call-bw"><button class="call-b acc" data-a="acc" type="button" aria-label="Accept">'+PHONE+'</button><span>'+X('پاسخ','Accept')+'</span></div>'}
- else if(S.st==='calling'||S.st==='connecting'||S.st==='active'){b='<div class="call-bw"><button class="call-b tg'+(S.muted?' on':'')+'" data-a="mute" type="button" aria-label="Mute">'+(S.muted?MICOFF:MIC)+'</button><span>'+(S.muted?X('بی‌صدا','Muted'):X('میکروفون','Mic'))+'</span></div><div class="call-bw"><button class="call-b end" data-a="end" type="button" aria-label="End">'+PHONE+'</button><span>'+(S.st==='active'?X('پایان','End'):X('لغو','Cancel'))+'</span></div>'}
- bot.innerHTML=b;
+ else if(S.st==='calling'||S.st==='connecting'||S.st==='active'){
+  var bw=function(cls,a,ic,lab,on){return '<div class="call-bw"><button class="call-b '+cls+(on?' on':'')+'" data-a="'+a+'" type="button" aria-label="'+a+'">'+ic+'</button><span>'+lab+'</span></div>'};
+  b=bw('tg','mute',S.muted?MICOFF:MIC,S.muted?X('بی‌صدا','Muted'):X('میکروفون','Mic'),S.muted);
+  if(canVid(S)){b+=bw('tg','cam',S.cam?VCAM:VCAMOFF,X('دوربین','Camera'),S.cam);
+   if(S.cam&&TOUCH)b+=bw('tg','flip',FLIPI,X('چرخش','Flip'),false);
+   if(S.st==='active'&&(S.cam||S.peerCam))b+=bw('tg','q',GEARI,X('کیفیت','Quality'),!qp.hidden)}
+  b+=bw('end','end',PHONE,S.st==='active'?X('پایان','End'):X('لغو','Cancel'),false)}
+ bot.innerHTML=b;bot.classList.toggle('many',S.st==='calling'||S.st==='connecting'||S.st==='active');paintVid(S);if(S.st!=='active')qClose();
 }
 function paintTime(){if(!S||S.st!=='active')return;var s=Math.floor((Date.now()-S.t0)/1000),m=Math.floor(s/60);stEl.textContent=fd(('0'+m).slice(-2)+':'+('0'+(s%60)).slice(-2))}
 function showOv(){ov.hidden=false;ov.classList.remove('on');void ov.offsetWidth;ov.classList.add('on');hint.textContent=''}
-function hideOv(){ov.hidden=true;ov.classList.remove('on');bot.innerHTML=''}
-bot.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a;if(a==='acc')accept();else if(a==='rej')reject();else if(a==='end')hangup();else if(a==='mute')mute()});
+function hideOv(){ov.hidden=true;ov.classList.remove('on','rvid','lvid');bot.innerHTML='';try{rv.srcObject=null;lv.srcObject=null}catch(e){}qClose()}
+bot.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a;if(a==='acc')accept();else if(a==='rej')reject();else if(a==='end')hangup();else if(a==='mute')mute();else if(a==='cam')setCam(S,!(S&&S.cam));else if(a==='flip')flipCam(S);else if(a==='q'){if(qp.hidden)qOpen();else qClose();paint()}});
 
 /* ----- WebRTC helpers ----- */
 function getMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false})}
-function stopStream(s){try{s.stream&&s.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}s.stream=null}
+function stopStream(s){try{s.stream&&s.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}s.stream=null;try{s.vtrack&&s.vtrack.stop()}catch(e){}s.vtrack=null;s.cam=false}
 function iceDone(pc,ms){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();var t=setTimeout(done,ms);function done(){clearTimeout(t);pc.removeEventListener('icegatheringstatechange',chk);res()}function chk(){if(pc.iceGatheringState==='complete')done()}pc.addEventListener('icegatheringstatechange',chk)})}
 function mkpc(s){
  var pc=new RTCPeerConnection({iceServers:(s.ice&&s.ice.length)?s.ice:ICE});s.pc=pc;
- pc.ontrack=function(e){au.srcObject=(e.streams&&e.streams[0])?e.streams[0]:new MediaStream([e.track]);var p=au.play();if(p&&p.catch)p.catch(function(){})};
+ pc.ontrack=function(e){if(e.track.kind==='video'){rv.srcObject=new MediaStream([e.track]);var q=rv.play();if(q&&q.catch)q.catch(function(){});if(S===s)paintVid(s);return}
+  au.srcObject=(e.streams&&e.streams[0])?e.streams[0]:new MediaStream([e.track]);var p=au.play();if(p&&p.catch)p.catch(function(){})};
  pc.onconnectionstatechange=function(){if(S!==s)return;var x=pc.connectionState;
   if(x==='connected'){clearTimeout(s.timers.dis);rsClear(s);if(s.st!=='active')goActive(s)}
   else if(x==='failed'){rsStart(s,false)}
   else if(x==='disconnected'){clearTimeout(s.timers.dis);s.timers.dis=setTimeout(function(){if(S===s&&pc.connectionState!=='connected')rsStart(s,false)},1500)}};
  return pc}
 function connTimeout(s){clearTimeout(s.timers.conn);s.timers.conn=setTimeout(function(){if(S===s&&s.st==='connecting')finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))},25000)}
-function goActive(s){clearTimeout(s.timers.conn);s.st='active';s.t0=Date.now();stopTone();chirp(true);s.timers.tick=setInterval(paintTime,1000);paint();
+function goActive(s){clearTimeout(s.timers.conn);s.st='active';s.t0=Date.now();stopTone();chirp(true);s.timers.tick=setInterval(paintTime,1000);paint();startStats(s);if(s.cam)applySend(s);sendT(s,{t:'cam',on:s.cam?1:0}).catch(function(){});if(s.recvMode!=='auto')sendQ(s,s.recvMode);
  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){s.wl=l}).catch(function(){})}catch(e){}}
 function finish(s,text){
  if(!s||s.ended)return;s.ended=true;stopTone();
@@ -4053,7 +4061,7 @@ function rsStart(s,force){
  if(S!==s||s.ended||(s.st!=='active'&&s.st!=='connecting'))return;
  if(!s.pc||!s.pc.remoteDescription||!s.pc.localDescription)return;
  if(s.rs)return;
- s.rs={n:0,force:!!force};
+ s.rs={n:0,force:!!force};s.autoLv=Math.min(s.autoLv,1);s.curLv=-9;
  hintSet(X('در حال اتصال مجدد…','Reconnecting…'));
  s.timers.rsgive=setTimeout(function(){if(S===s&&s.rs)finish(s,X('اتصال قطع شد','Connection lost'))},35000);
  rsTick(s)}
@@ -4088,41 +4096,187 @@ async function handleROffer(s,o){
   await sendT(s,{t:'ranswer',sdp:s.rAns});
  }catch(e){}finally{s.rbusy=false}}
 
+/* ===== v3: video call + camera on/off/flip + manual & automatic quality ===== */
+var LV=[{n:'240p',sc:3,fps:15,br:120000},{n:'360p',sc:2,fps:20,br:350000},{n:'480p',sc:1.5,fps:24,br:800000},{n:'720p',sc:1,fps:30,br:1800000}];
+var TOUCH=false;try{TOUCH=!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches)}catch(e){}
+var VCAM='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>';
+var VCAMOFF='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/><path d="M3 3l18 18"/></svg>';
+var FLIPI='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>';
+var GEARI='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>';
+var cssEl=document.createElement('style');cssEl.textContent=`
+.call-ov>*{position:relative;z-index:1}
+.call-ov>.call-rv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:0;display:none}
+.call-ov.rvid>.call-rv{display:block}
+.call-ov.rvid::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent 26%,transparent 60%,rgba(0,0,0,.7))}
+.call-ov.rvid .call-av-wrap{display:none}
+.call-ov.rvid .call-mid{justify-content:flex-start;padding-top:6px}
+.call-ov.rvid .call-name{font-size:18px;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.call-ov.rvid .call-st{text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.call-ov>.call-lv{position:absolute;z-index:3;top:calc(env(safe-area-inset-top,0px) + 54px);right:12px;width:104px;height:148px;object-fit:cover;border-radius:14px;border:2px solid rgba(255,255,255,.85);background:#000;display:none;box-shadow:0 4px 18px rgba(0,0,0,.4)}
+.call-ov.lvid>.call-lv{display:block}
+.call-lv.mir{transform:scaleX(-1)}
+.call-bot.many{gap:12px;flex-wrap:wrap;padding:0 8px}
+.call-bot.many .call-b{width:58px;height:58px}
+.call-bot.many .call-bw{min-width:58px}
+.call-ov>.call-q{position:absolute;z-index:5;left:12px;right:12px;max-width:420px;margin:0 auto;top:calc(env(safe-area-inset-top,0px) + 54px);padding:12px 14px 14px;border-radius:16px;background:rgba(20,10,16,.92);color:#fff;font-size:13px}
+.call-q[hidden]{display:none}
+.call-q .qh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:15px}
+.call-q .qx{border:none;background:transparent;color:#fff;font-size:18px;cursor:pointer;padding:2px 6px}
+.call-q .qt{margin:10px 0 6px;opacity:.75}
+.call-q .qrow{display:flex;flex-wrap:wrap;gap:6px}
+.call-q .qc{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.call-q .qc.on{background:#fff;color:#2b0b16;border-color:#fff}
+.call-q .qs{margin-top:12px;font-size:12px;opacity:.8;direction:ltr;text-align:center;font-variant-numeric:tabular-nums}`;
+document.head.appendChild(cssEl);
+var rv=document.createElement('video');rv.id='callRV';rv.className='call-rv';rv.setAttribute('playsinline','');rv.autoplay=true;rv.muted=true;
+var lv=document.createElement('video');lv.id='callLV';lv.className='call-lv';lv.setAttribute('playsinline','');lv.autoplay=true;lv.muted=true;
+var qp=document.createElement('div');qp.id='callQ';qp.className='call-q';qp.hidden=true;qp.setAttribute('dir','auto');
+ov.insertBefore(rv,ov.firstChild);ov.appendChild(lv);ov.appendChild(qp);
+
+function getCam(face){return navigator.mediaDevices.getUserMedia({audio:false,video:{width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30},facingMode:{ideal:face||'user'}}})}
+async function getMedia(s){
+ var a=await getMic();
+ if(s.video){try{var v=await getCam(s.facing);var tr=v.getVideoTracks()[0];if(tr){s.vtrack=tr;s.cam=true;tr.onended=function(){if(S===s&&s.vtrack===tr)setCam(s,false)}}}
+  catch(e){s.cam=false;toast('دسترسی به دوربین ممکن نشد؛ تماس فقط صوتی ادامه دارد','Camera unavailable; continuing with audio only')}}
+ return a}
+function findVT(pc){var l=pc.getTransceivers().filter(function(t){return t.receiver&&t.receiver.track&&t.receiver.track.kind==='video'});return l[0]||null}
+function canVid(s){if(!s||!s.vt)return false;var d=s.vt.currentDirection;return d===null||d===undefined||d==='sendrecv'||d==='sendonly'}
+function paintVid(s){
+ if(!s||S!==s)return;
+ var on=!!(s.cam&&s.vtrack);
+ if(on){var cs=lv.srcObject;if(!cs||cs.getVideoTracks()[0]!==s.vtrack){lv.srcObject=new MediaStream([s.vtrack]);var p=lv.play();if(p&&p.catch)p.catch(function(){})}}else{lv.srcObject=null}
+ lv.classList.toggle('mir',s.facing!=='environment');
+ ov.classList.toggle('lvid',on);
+ ov.classList.toggle('rvid',!!(s.peerCam&&rv.srcObject))}
+async function setCam(s,on){
+ if(!s||s.ended||s.camBusy)return;
+ if(!canVid(s)){toast('طرف مقابل از تصویر پشتیبانی نمی‌کند','The other side does not support video');return}
+ s.camBusy=true;
+ try{
+  if(on){var ms=await getCam(s.facing);var tr=ms.getVideoTracks()[0];tr.onended=function(){if(S===s&&s.vtrack===tr)setCam(s,false)};
+   if(S!==s||s.ended){tr.stop();return}
+   s.vtrack=tr;await s.vt.sender.replaceTrack(tr);s.cam=true;s.curLv=-9;await applySend(s)}
+  else{var old=s.vtrack;s.vtrack=null;s.cam=false;try{old&&old.stop()}catch(e){}try{await s.vt.sender.replaceTrack(null)}catch(e){}}
+  paintVid(s);paint();sendT(s,{t:'cam',on:s.cam?1:0}).catch(function(){});
+ }catch(e){toast('دسترسی به دوربین ممکن نشد','Camera access failed')}
+ finally{s.camBusy=false}}
+async function flipCam(s){
+ if(!s||s.ended||!s.cam||s.camBusy)return;s.camBusy=true;
+ try{var nf=s.facing==='environment'?'user':'environment';var ms=await getCam(nf);var tr=ms.getVideoTracks()[0];var old=s.vtrack;
+  tr.onended=function(){if(S===s&&s.vtrack===tr)setCam(s,false)};
+  await s.vt.sender.replaceTrack(tr);s.vtrack=tr;s.facing=nf;try{old&&old.stop()}catch(e){}paintVid(s);
+ }catch(e){toast('تعویض دوربین ممکن نشد','Could not switch the camera')}
+ finally{s.camBusy=false}}
+
+/* --- quality: effective send level = min(my choice or auto level, what the other side asked for) --- */
+function effLv(s){var b=s.sendMode==='auto'?s.autoLv:s.sendMode;return Math.max(0,Math.min(3,Math.min(b,s.peerCap)))}
+async function applySend(s){
+ if(!s||s.ended||!s.vt||!s.cam)return;var lvl=effLv(s);if(lvl===s.curLv)return;
+ try{var snd=s.vt.sender,p=snd.getParameters();if(!p.encodings||!p.encodings.length)p.encodings=[{}];
+  var e=p.encodings[0],L=LV[lvl];e.active=true;e.maxBitrate=L.br;e.maxFramerate=L.fps;e.scaleResolutionDownBy=L.sc;
+  await snd.setParameters(p);s.curLv=lvl}catch(err){}}
+function sendQ(s,c){s.rc=c;sendT(s,{t:'q',c:c}).catch(function(){})}
+
+function startStats(s){if(s.timers.stat)return;s.stat={prev:null,up:0,rok:0,nf:0,info:{}};s.rc=(s.recvMode==='auto')?3:s.recvMode;s.timers.stat=setInterval(function(){statTick(s)},2000)}
+async function statTick(s){
+ if(S!==s||s.ended||!s.pc||s.pc.connectionState!=='connected')return;
+ var rep;try{rep=await s.pc.getStats()}catch(e){return}
+ var o=null,i=null,ri=null,cp=null;
+ rep.forEach(function(r){
+  if(r.type==='outbound-rtp'&&r.kind==='video')o=r;
+  else if(r.type==='inbound-rtp'&&r.kind==='video')i=r;
+  else if(r.type==='remote-inbound-rtp'&&r.kind==='video')ri=r;
+  else if(r.type==='candidate-pair'&&(r.selected||(r.nominated&&r.state==='succeeded'&&!cp)))cp=r});
+ var st=s.stat,pv=st.prev||{};
+ var rtt=(cp&&cp.currentRoundTripTime)||(ri&&ri.roundTripTime)||0;
+ var avail=(cp&&cp.availableOutgoingBitrate)||0;
+ var loss=(ri&&typeof ri.fractionLost==='number')?ri.fractionLost:0;
+ st.info={up:(o&&s.cam)?{h:o.frameHeight,fps:Math.round(o.framesPerSecond||0)}:null,down:(i&&s.peerCam)?{h:i.frameHeight,fps:Math.round(i.framesPerSecond||0)}:null,rtt:Math.round(rtt*1000),lv:s.cam?effLv(s):-1};
+ /* safety net if a 'cam' signal got lost: frames flowing = camera on, 10s without frames = off */
+ if(i){var df=(i.framesDecoded||0)-(pv.fd||0);
+  if(df>0){st.nf=0;if(!s.peerCam){s.peerCam=true;paintVid(s);paint()}}
+  else{st.nf++;if(st.nf>=5&&s.peerCam){s.peerCam=false;paintVid(s);paint()}}}
+ /* AUTO send: follow the uplink estimate, drop fast on loss/latency, climb one step per ~4s */
+ if(s.cam&&s.sendMode==='auto'&&o){
+  var cur=s.autoLv,tgt=cur;
+  if(avail>0){var bud=avail*0.85-40000;tgt=0;for(var k=3;k>=0;k--){if(LV[k].br<=bud){tgt=k;break}}}
+  if(loss>0.12||rtt>0.9)tgt=Math.min(tgt,cur-1);
+  else if(loss>0.06)tgt=Math.min(tgt,cur);
+  else if(!(avail>0)&&rtt<0.4&&loss<0.02)tgt=cur+1;
+  tgt=Math.max(0,Math.min(3,tgt));
+  if(tgt<cur){s.autoLv=tgt;st.up=0}
+  else if(tgt>cur){if(++st.up>=2){s.autoLv=cur+1;st.up=0}}
+  else st.up=0;
+  applySend(s)}
+ /* AUTO receive: if what I receive is lossy, ask the other side to send a lower level; recover slowly */
+ if(s.peerCam&&i&&s.recvMode==='auto'&&pv.i){
+  var dl=Math.max(0,(i.packetsLost||0)-(pv.pl||0)),dr=Math.max(0,(i.packetsReceived||0)-(pv.pr||0)),tot=dl+dr;
+  if(tot>20){var rl=dl/tot;
+   if(rl>0.08){if(s.rc>0)sendQ(s,s.rc-1);st.rok=0}
+   else if(rl<0.015){if(++st.rok>=3){if(s.rc<3)sendQ(s,s.rc+1);st.rok=0}}
+   else st.rok=0}}
+ st.prev={fd:i?(i.framesDecoded||0):0,pl:i?(i.packetsLost||0):0,pr:i?(i.packetsReceived||0):0,i:!!i};
+ paintStat()}
+
+/* --- quality panel --- */
+function chips(k,cur){var h='<div class="qrow">',opts=[['a',X('خودکار','Auto')]];LV.forEach(function(l,n){opts.push([String(n),l.n])});
+ opts.forEach(function(o){var on=(o[0]==='a')?cur==='auto':(cur===+o[0]);h+='<button type="button" class="qc'+(on?' on':'')+'" data-k="'+k+'" data-v="'+o[0]+'">'+o[1]+'</button>'});return h+'</div>'}
+function paintStat(){var el=document.getElementById('callQS');if(!el||!S||!S.stat)return;var f=S.stat.info||{};
+ var u=f.up&&f.up.h?(f.up.h+'p · '+f.up.fps+'fps'):'—',d=f.down&&f.down.h?(f.down.h+'p · '+f.down.fps+'fps'):'—';
+ el.textContent='↑ '+u+'   ↓ '+d+'   ⏱ '+(f.rtt||0)+'ms'+(S.sendMode==='auto'&&S.cam&&f.lv>=0?'   (auto: '+LV[f.lv].n+')':'')}
+function paintQ(){if(!S||qp.hidden)return;
+ qp.innerHTML='<div class="qh"><b>'+X('کیفیت تصویر','Video quality')+'</b><button type="button" class="qx" data-x="1" aria-label="Close">✕</button></div>'
+  +'<div class="qt">'+X('ارسال (تصویر شما)','Send (your video)')+'</div>'+chips('s',S.sendMode)
+  +'<div class="qt">'+X('دریافت (تصویر طرف مقابل)','Receive (their video)')+'</div>'+chips('r',S.recvMode)
+  +'<div class="qs" id="callQS"></div>';paintStat()}
+function qOpen(){qp.hidden=false;paintQ()}
+function qClose(){qp.hidden=true}
+qp.addEventListener('click',function(e){
+ if(!S)return;if(e.target.closest('[data-x]')){qClose();paint();return}
+ var b=e.target.closest('[data-k]');if(!b)return;
+ var k=b.dataset.k,v=b.dataset.v==='a'?'auto':+b.dataset.v;
+ if(k==='s'){S.sendMode=v;if(v==='auto')S.autoLv=Math.min(S.autoLv,2);S.curLv=-9;applySend(S)}
+ else{S.recvMode=v;S.stat&&(S.stat.rok=0);sendQ(S,v==='auto'?3:v)}
+ paintQ()});
+
 /* ----- actions ----- */
-async function start(chat){
+async function start(chat,video){
  if(!chat||chat.type!=='private'||chat.id==='saved'||!chat.peerId){toast('تماس فقط در گفتگوی خصوصی ممکن است','Calls work in private chats only');return}
  if(S){toast('یک تماس در جریان است','A call is already in progress');return}
  if(!window.RTCPeerConnection||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('این مرورگر از تماس صوتی پشتیبانی نمی‌کند','This browser does not support voice calls');return}
  if(typeof LINKServer==='undefined'||!LINKServer._sub){toast('برای تماس به اتصال زنده نیاز است؛ چند لحظه بعد دوباره امتحان کنید','Calls need a live connection; try again in a moment');return}
  var s=S=newSession('caller',chat,'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5));
- s.st='calling';paint();showOv();ring('out');
+ s.video=!!video;s.st='calling';paint();showOv();ring('out');
  s.timers.ring=setTimeout(function(){if(S===s&&s.st==='calling'){sendTo(s,{t:'end',why:'missed'}).catch(function(){});finish(s,X('پاسخی داده نشد','No answer'))}},45000);
  try{s.ice=await getIce(false)}catch(e){s.ice=ICE}
  if(S!==s)return;
- try{await sendTo(s,{t:'invite',name:(LNK.me&&LNK.me.name)||'',ice:s.ice})}catch(e){finish(s,X('ارسال درخواست ناموفق بود','Could not send the request'));return}
+ try{await sendTo(s,{t:'invite',name:(LNK.me&&LNK.me.name)||'',ice:s.ice,v:s.video?1:0})}catch(e){finish(s,X('ارسال درخواست ناموفق بود','Could not send the request'));return}
  if(S!==s)return;
- try{s.stream=await getMic()}catch(e){sendTo(s,{t:'end',why:'nomic'}).catch(function(){});finish(s,X('دسترسی به میکروفون ممکن نشد','Microphone access failed'));return}
+ try{s.stream=await getMedia(s)}catch(e){sendTo(s,{t:'end',why:'nomic'}).catch(function(){});finish(s,X('دسترسی به میکروفون ممکن نشد','Microphone access failed'));return}
  if(S!==s){stopStream(s);return}
  try{
   var pc=mkpc(s);s.stream.getTracks().forEach(function(t){pc.addTrack(t,s.stream)});
+  s.vt=pc.addTransceiver('video',{direction:'sendrecv'});if(s.vtrack)s.vt.sender.replaceTrack(s.vtrack).catch(function(){});paint();
   await pc.setLocalDescription(await pc.createOffer({offerToReceiveAudio:true}));await iceDone(pc,3000);
   if(S!==s)return;await sendTo(s,{t:'offer',sdp:pc.localDescription.sdp});
  }catch(e){if(S===s)finish(s,X('شروع تماس ناموفق بود','Could not start the call'))}}
 function onInvite(chat,o){
  if(S){if(S.cid!==o.cid){var t=newSession('callee',chat,o.cid);sendTo(t,{t:'busy'}).catch(function(){})}return}
- var s=S=newSession('callee',chat,o.cid);s.ice=cleanIce(o.ice).concat(window.LINK_TURN||[]);s.st='incoming';paint();showOv();ring('in');notify(chat);
+ var s=S=newSession('callee',chat,o.cid);s.ice=cleanIce(o.ice).concat(window.LINK_TURN||[]);s.video=!!o.v;s.st='incoming';paint();showOv();ring('in');notify(chat);
  s.timers.ring=setTimeout(function(){if(S===s&&s.st==='incoming')finish(s,X('تماس بی‌پاسخ','Missed call'))},50000)}
-function notify(chat){try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted'){var n=new Notification(chat.title||'LINK',{body:X('تماس صوتی ورودی','Incoming voice call'),tag:'link-call',requireInteraction:true});n.onclick=function(){try{window.focus();n.close()}catch(e){}}}}catch(e){}}
+function notify(chat){try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted'){var n=new Notification(chat.title||'LINK',{body:(S&&S.video)?X('تماس تصویری ورودی','Incoming video call'):X('تماس صوتی ورودی','Incoming voice call'),tag:'link-call',requireInteraction:true});n.onclick=function(){try{window.focus();n.close()}catch(e){}}}}catch(e){}}
 async function accept(){
  var s=S;if(!s||s.st!=='incoming')return;clearTimeout(s.timers.ring);s.st='connecting';paint();stopTone();connTimeout(s);
- try{s.stream=await getMic()}catch(e){sendTo(s,{t:'reject',why:'nomic'}).catch(function(){});finish(s,X('دسترسی به میکروفون ممکن نشد','Microphone access failed'));return}
+ try{s.stream=await getMedia(s)}catch(e){sendTo(s,{t:'reject',why:'nomic'}).catch(function(){});finish(s,X('دسترسی به میکروفون ممکن نشد','Microphone access failed'));return}
  if(S!==s){stopStream(s);return}
  try{await sendTo(s,{t:'accept'})}catch(e){finish(s,X('پاسخ ارسال نشد','Could not answer'));return}
  s.wantAnswer=true;if(s.offer)answerNow(s)}
 async function answerNow(s){
  if(s.answered||S!==s)return;s.answered=true;
  try{var pc=mkpc(s);s.stream.getTracks().forEach(function(t){pc.addTrack(t,s.stream)});
-  await pc.setRemoteDescription({type:'offer',sdp:s.offer});await pc.setLocalDescription(await pc.createAnswer());await iceDone(pc,3000);
+  await pc.setRemoteDescription({type:'offer',sdp:s.offer});
+  s.vt=findVT(pc);if(s.vt){try{s.vt.direction='sendrecv'}catch(e){}if(s.vtrack){try{await s.vt.sender.replaceTrack(s.vtrack)}catch(e){}}}paint();
+  await pc.setLocalDescription(await pc.createAnswer());await iceDone(pc,3000);
   if(S!==s)return;await sendTo(s,{t:'answer',sdp:pc.localDescription.sdp});
  }catch(e){if(S===s)finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))}}
 function reject(){var s=S;if(!s||s.st!=='incoming')return;sendTo(s,{t:'reject'}).catch(function(){});finish(s,X('تماس رد شد','Call declined'))}
@@ -4142,6 +4296,8 @@ function onSig(p){
   if(o.t==='offer'&&s.role==='callee'){s.offer=o.sdp;if(s.wantAnswer)answerNow(s)}
   else if(o.t==='accept'&&s.role==='caller'&&s.st==='calling'){clearTimeout(s.timers.ring);stopTone();s.st='connecting';paint();connTimeout(s)}
   else if(o.t==='answer'&&s.role==='caller'&&s.pc&&s.pc.signalingState==='have-local-offer'){s.pc.setRemoteDescription({type:'answer',sdp:o.sdp}).catch(function(){finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))})}
+  else if(o.t==='cam'){s.peerCam=!!o.on;paintVid(s);paint()}
+  else if(o.t==='q'){s.peerCap=Math.max(0,Math.min(3,(+o.c)|0));applySend(s)}
   else if(o.t==='roffer'&&s.role==='callee'&&s.pc){handleROffer(s,o)}
   else if(o.t==='ranswer'&&s.role==='caller'&&s.pc&&s.rOffer&&s.pc.signalingState==='have-local-offer'){s.pc.setRemoteDescription({type:'answer',sdp:o.sdp}).then(function(){s.rOffer=null}).catch(function(){})}
   else if(o.t==='rr'&&s.role==='caller'&&s.pc&&(s.st==='active'||s.st==='connecting')){doRestart(s)}
@@ -4156,12 +4312,14 @@ function onNet(){iceCache=null;var s=S;if(!s||s.ended||(s.st!=='active'&&s.st!==
 window.addEventListener('online',onNet);
 try{var cn=navigator.connection;if(cn&&cn.addEventListener)cn.addEventListener('change',onNet)}catch(e){}
 function cur(){try{return LINKServer._chat(currentChatId)}catch(e){return null}}
-function sync(c){var b=$('callBtn');if(!b)return;var ch=cur()||c;b.style.display=(ch&&ch.type==='private'&&ch.id!=='saved'&&ch.peerId)?'':'none'}
+function sync(c){var b=$('callBtn');if(!b)return;var ch=cur()||c;var d=(ch&&ch.type==='private'&&ch.id!=='saved'&&ch.peerId)?'':'none';b.style.display=d;var v=$('vcallBtn');if(v)v.style.display=d}
 document.addEventListener('DOMContentLoaded',function(){
  var b=$('callBtn');if(b)b.addEventListener('click',function(e){e.stopPropagation();start(cur())});
  var p=$('pfCallBtn');if(p)p.addEventListener('click',function(){start(cur())});
+ var vb=$('vcallBtn');if(vb)vb.addEventListener('click',function(e){e.stopPropagation();start(cur(),true)});
+ var vp=$('pfVCallBtn');if(vp)vp.addEventListener('click',function(){start(cur(),true)});
 });
-return{start:start,onSig:onSig,sync:sync,transport:T,getIce:getIce,state:function(){return S&&S.st}};
+return{start:start,startVideo:function(c){return start(c,true)},onSig:onSig,sync:sync,transport:T,getIce:getIce,state:function(){return S&&S.st}};
 })();
 </script>
 </body>
