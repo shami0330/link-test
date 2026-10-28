@@ -1539,7 +1539,7 @@ else if(m.type==='attributes')attrs(m.target);
    جدول‌ها: users{name,email,username} · chats{memberA,memberB,pairKey,nameA,nameB,last,lastAt,unreadA,unreadB · kind,title,about,owner,members,msgCount} · messages{chatId,fromId,text,replyTo,pinned,readByOther}
    برای اینکه ستون جدیدی لازم نباشد: پیام متنی ساده مستقیم در text می‌رود؛ پیام‌های رسانه‌ای/پاسخ/واکنش/ویرایش‌شده به‌صورت JSON با نشانهٔ LNV در همان ستون text ذخیره می‌شوند.
    فایل‌ها در Bucket با fileId برابر mediaId ذخیره می‌شوند. رابط LINKServer دقیقاً همان رابط قبلی (نمونهٔ محلی) است و بقیهٔ برنامه تغییری نمی‌کند. */
-const LINK_VERSION='v55';
+const LINK_VERSION='v56';
 const LNC={ep:'https://fra.cloud.appwrite.io/v1',pj:'6ad968ee002c73c4ca9a',db:'6ad969a5001ae9582c3e',tU:'6ad96bc700117baf5a06',tC:'6ad9c6e9001f15568d17',tM:'6ad9ca3a001a0e48e86c',bk:'6adf99470015c4d986f2',sdk:['https://cdn.jsdelivr.net/npm/appwrite@22.3.0/dist/iife/sdk.js','appwrite-sdk.js']};
 const LNL={image:1048576,video:10485760,voice:512000,file:15728640};
 const LNX=['jpg','jpeg','png','webp','gif','mp4','webm','mov','m4a','mp3','ogg','oga','pdf','zip','txt','docx','xlsx','pptx'];
@@ -4012,7 +4012,7 @@ function paint(){
  else if(S.st==='calling'||S.st==='connecting'||S.st==='active'){
   var bw=function(cls,a,ic,lab,on){return '<div class="call-bw"><button class="call-b '+cls+(on?' on':'')+'" data-a="'+a+'" type="button" aria-label="'+a+'">'+ic+'</button><span>'+lab+'</span></div>'};
   b=bw('tg','mute',S.muted?MICOFF:MIC,S.muted?X('بی‌صدا','Muted'):X('میکروفون','Mic'),S.muted);
-  b+=bw('tg','spk',S.spkMuted?SPKOFF:SPKI,S.spkMuted?X('اسپیکر قطع','Speaker off'):X('اسپیکر','Speaker'),!!S.spkMuted);
+  b+=bw('tg','spk',S.spkMuted?SPKOFF:(AP.route==='ear'?EARI:SPKI),S.spkMuted?X('اسپیکر قطع','Speaker off'):X('اسپیکر','Speaker'),!!S.spkMuted);
   if(canVid(S))b+=bw('tg','cam',S.cam?VCAM:VCAMOFF,X('دوربین','Camera'),S.cam);
   if(S.st==='active')b+=bw('tg','q',GEARI,X('کیفیت','Quality'),!qp.hidden);
   b+=bw('end','end',HANG,S.st==='active'?X('پایان','End'):X('لغو','Cancel'),false)}
@@ -4389,6 +4389,7 @@ async function routeViaMic(r){
   if(s.micG&&s.micS){var a=ctxOK();try{s.micS.disconnect()}catch(e){}s.micS=a.createMediaStreamSource(ns);s.micS.connect(s.micG)}
   else{var snd=s.pc.getSenders().filter(function(x){return x.track&&x.track.kind==='audio'})[0];if(snd)await snd.replaceTrack(nt)}
   var os=s.stream;s.stream=ns;try{os.getTracks().forEach(function(t){t.stop()})}catch(e){}
+  try{var cs=au.srcObject;if(cs){au.srcObject=null;au.srcObject=cs;var pp=au.play();if(pp&&pp.catch)pp.catch(function(){})}}catch(e){}
   return true}
  catch(e){return false}}
 async function applyRoute(quiet){
@@ -4408,13 +4409,13 @@ async function applyRoute(quiet){
  }catch(e){res={ok:false,why:X('تغییر خروجی ناموفق بود','Could not switch the output')}}
  if(!res.ok){AP.route='auto';apSave();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
  return res}
-async function setRoute(r){AP.route=r;apSave();await applyRoute(false);if(!sm.hidden)paintSm()}
-sm.addEventListener('click',function(e){var r=e.target.closest('[data-r]');if(!r)return;setRoute(r.dataset.r);smClose()});
+async function setRoute(r){AP.route=r;apSave();await applyRoute(false);if(!sm.hidden)paintSm();paint()}
+sm.addEventListener('click',function(e){var r=e.target.closest('[data-r]');if(!r)return;setRoute(r.dataset.r)});
 bot.addEventListener('pointerdown',function(e){var b=e.target.closest&&e.target.closest('[data-a="spk"]');if(!b)return;
  spkHeld=false;clearTimeout(spkT);spkT=setTimeout(function(){spkT=null;spkHeld=true;smOpen()},300)});
 ['pointerup','pointercancel','pointerleave'].forEach(function(t){bot.addEventListener(t,function(){clearTimeout(spkT);spkT=null})});
 bot.addEventListener('contextmenu',function(e){if(e.target.closest&&e.target.closest('[data-a="spk"]'))e.preventDefault()});
-document.addEventListener('pointerdown',function(e){if(sm.hidden)return;if(e.target.closest&&(e.target.closest('#callSM')||e.target.closest('[data-a="spk"]')))return;smClose()});
+document.addEventListener('pointerdown',function(e){if(sm.hidden)return;if(e.target.closest&&e.target.closest('#callSM'))return;smClose()});
 
 /* ----- actions ----- */
 async function start(chat,video){
