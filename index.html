@@ -142,7 +142,7 @@ html[data-theme="dark"] .msg.outgoing .voice-play{background:rgba(255,255,255,.1
 .voice-time{display:flex;align-items:center;gap:4px;font-size:11px}
 .msg.incoming .voice-time{color:var(--incoming-time)}
 .msg.outgoing .voice-time{color:var(--outgoing-time)}
-.video-note{position:relative;width:216px;aspect-ratio:1;border-radius:50%;overflow:hidden;background:#000;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.18);transition:width .28s ease}
+.video-note{position:relative;width:259px;max-width:calc(100vw - 32px);aspect-ratio:1;border-radius:50%;overflow:hidden;background:#000;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.18);transition:width .28s ease}
 .video-note.expanded{width:calc(100vw - 60px);max-width:460px}
 .video-surface{position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.18),transparent 22%),radial-gradient(circle at 70% 65%,rgba(255,255,255,.12),transparent 18%),linear-gradient(135deg,#17324d,#2b5278,#17324d,#2b5278);background-size:220% 220%,200% 200%,350% 350%;animation:videoMove 7s ease infinite;animation-play-state:paused;opacity:.96}
 .video-note.playing .video-surface,.vr-circle .video-surface{animation-play-state:running}
@@ -514,7 +514,7 @@ body.kb .inputbar,.emoji-open .inputbar{padding-bottom:8px}
 .video-mute{display:none!important}
 
 /* v3: video note grows 45% (180px -> 261px) from the side away from the chat edge */
-.video-note.expanded{width:313px!important;max-width:calc(100vw - 32px)!important}
+.video-note.expanded{width:376px!important;max-width:calc(100vw - 32px)!important}
 .msg.centered .msg-shift.incoming{justify-content:flex-start!important}
 .msg.centered .msg-shift.outgoing{justify-content:flex-end!important}
 .video-overlay .svg-icon{display:none!important}
@@ -1290,7 +1290,7 @@ const VR={stream:null,rec:null,chunks:[],mime:'',token:0};
 function vrPickMime(){const list=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return '';return list.find(t=>MediaRecorder.isTypeSupported(t))||'';}
 /* ===== v17: pinch-to-zoom (1x–3x) while recording a video message; resets when all fingers are released ===== */
 const VRZ={z:1,max:3,ptrs:new Map(),d0:0,z0:1,raf:0};
-function vrApplyZoom(){const res=VR.res;if(!res||!res.pv)return;res.pv.style.transform=(res.facing==='user'?'scaleX(-1) ':'')+(VRZ.z>1.001?'scale('+VRZ.z.toFixed(3)+')':'');}
+function vrApplyZoom(){const res=VR.res;if(!res||!res.pv)return;res.pv.style.transform=(res.facing==='user'?'scaleX(-1) ':'')+(VRZ.z>1.001?'scale('+VRZ.z.toFixed(3)+')':'')||'none';}
 function vrSetZoom(z){VRZ.z=Math.min(VRZ.max,Math.max(1,z));vrApplyZoom();}
 function vrZoomReset(animate){cancelAnimationFrame(VRZ.raf);VRZ.ptrs.clear();VRZ.d0=0;if(!animate||VRZ.z<=1.001){vrSetZoom(1);return;}
 const from=VRZ.z,t0=performance.now(),D=180;const step=now=>{const k=Math.min(1,(now-t0)/D),e=1-Math.pow(1-k,3);vrSetZoom(from+(1-from)*e);if(k<1)VRZ.raf=requestAnimationFrame(step);};VRZ.raf=requestAnimationFrame(step);}
@@ -1348,7 +1348,7 @@ function vrFinish(d,reply,trim){const rec=VR.rec,st=VR.stream,chunks=VR.chunks,m
 if(!rec){vrStopStream(st);vrFreeRes(res);vrClearPreview();showToast('دوربین هنوز آماده نبود');return;}
 rec.onstop=async()=>{vrStopStream(st);vrFreeRes(res);vrClearPreview();const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||mime||'video/webm').split(';')[0]});if(!blob.size){showToast('ضبط ناموفق بود');return;}
 const mediaId='vm-'+Date.now()+Math.random().toString(36).slice(2,6);const url=URL.createObjectURL(blob);mediaUrls.set(mediaId,url);try{await MediaStore.put(mediaId,blob);}catch(e){}
-await sendOutgoingMessage(Object.assign({kind:'videoNote',duration:d,src:url,mediaId,replyTo:reply,noMirror:!!(res&&res.baked)},trim?{trimStart:trim.s,trimEnd:trim.e}:{}));};
+await sendOutgoingMessage(Object.assign({kind:'videoNote',duration:d,src:url,mediaId,replyTo:reply,noMirror:!!(res&&(res.baked||res.facing!=='user'))},trim?{trimStart:trim.s,trimEnd:trim.e}:{}));};
 try{if(rec.state!=='inactive')rec.stop();}catch(e){vrStopStream(st);vrFreeRes(res);vrClearPreview();}}
 function stopAllPlayers(){players.forEach(p=>p.stopReset());players.clear();hideBar();}
 function handleEnd(player){
