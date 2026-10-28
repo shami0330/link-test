@@ -4544,20 +4544,22 @@ async function iosRoute(r){var s=S;if(!IOS||!s||s.ended||!s.rstream)return false
    /* leave the receiver first: WebKit keeps "receiver preferred" for the whole audio session until the element sink is reset */
    if(sink){try{if(GS.p&&GS.id===''&&Date.now()-GS.t<10000)await GS.p;else await au.setSinkId('')}catch(e){}}
    if(!a)return false;try{a.resume()}catch(e){}
-   if(!s.spkG){var src=a.createMediaStreamSource(s.rstream),g=a.createGain();g.gain.value=0;src.connect(g);g.connect(a.destination);s.spkS=src;s.spkG=g}}
+   if(!s.spkG){var src=a.createMediaStreamSource(s.rstream),g=a.createGain();g.gain.value=0;src.connect(g);s.spkS=src;s.spkG=g}
+   if(!s.spkC){try{s.spkG.connect(a.destination);s.spkC=true}catch(e){}}}
   else{
    /* earpiece: Web Audio output always goes to the loudspeaker, so keep that path silent and play only through the media element, pinned to the receiver */
-   if(s.spkG)s.spkG.gain.value=0;
-   if(!sink)return false;
+   if(s.spkG){s.spkG.gain.value=0;if(s.spkC){try{s.spkG.disconnect()}catch(e){}s.spkC=false}}
    await refreshOut();var rc=OUTC.recv;
-   if(!rc){GS.err='no-receiver';return false}
    if(S!==s||s.ended)return false;
-   if(GS.p&&GS.id===rc.deviceId&&Date.now()-GS.t<10000){GS.err='';await GS.p}else{GS.err='';await au.setSinkId(rc.deviceId)}
-   if(au.sinkId!==rc.deviceId){GS.err='sink-mismatch';return false}}
+   /* on iOS the receiver is the default output of play-and-record: pin it if Safari lists it, otherwise just reset the sink and rely on the audio session */
+   if(sink){try{
+    if(rc){if(GS.p&&GS.id===rc.deviceId&&Date.now()-GS.t<10000){GS.err='';await GS.p}else{GS.err='';await au.setSinkId(rc.deviceId)}}
+    else{await au.setSinkId('')}
+   }catch(e){GS.err=(e&&e.name)||'err'}}}
   setPan(false);
   if(au.srcObject!==s.rstream)au.srcObject=s.rstream;
   s.iosOn=true;iosSync();
-  if(r==='ear'){try{var mt=s.stream&&s.stream.getAudioTracks()[0];if(mt&&!s.muted){mt.enabled=false;setTimeout(function(){try{if(S===s&&!s.muted)mt.enabled=true}catch(e){}},150)}}catch(e){}}
+  if(r==='ear'){setTimeout(function(){if(S===s&&!s.ended&&AP.route==='ear')setAS('ear')},500);try{var mt=s.stream&&s.stream.getAudioTracks()[0];if(mt&&!s.muted){mt.enabled=false;setTimeout(function(){try{if(S===s&&!s.muted)mt.enabled=true}catch(e){}},150)}}catch(e){}}
   var p=au.play();if(p&&p.catch)p.catch(function(){});
   return true}catch(e){GS.err=(e&&e.name)||'err';return false}}
 function iosRestore(){var s=S;if(!IOS||!s||!s.iosOn)return;s.iosOn=false;
@@ -4591,7 +4593,7 @@ async function applyRoute(quiet){
  }catch(e){res={ok:false,why:X('تغییر خروجی ناموفق بود','Could not switch the output')}}
  if(!res.ok){AP.route='auto';setPan(false);apSave();iosRestore();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
  return res}
-async function setRoute(r){AP.route=r;apSave();var res=await applyRoute(false);if(IOS&&!NAT&&res&&res.ok&&!GS.pend)toast(r==='ear'?'اسپیکر تماس فعال شد':'اسپیکر اصلی فعال شد',r==='ear'?'Call speaker on':'Main speaker on');if(!sm.hidden)paintSm();paint()}
+async function setRoute(r){AP.route=r;apSave();var res=await applyRoute(false);if(IOS&&!NAT&&res&&res.ok&&!GS.pend)toast(r==='ear'?'اسپیکر تماس فعال شد':'اسپیکر اصلی فعال شد',r==='ear'?'Call speaker on':'Main speaker on');if(r==='ear'){try{toast('DBG sink='+(au.sinkId||'default')+' | as='+(navigator.audioSession?navigator.audioSession.type:'n/a')+' | out='+(GS.names||'?'),'DBG sink='+(au.sinkId||'default')+' | as='+(navigator.audioSession?navigator.audioSession.type:'n/a')+' | out='+(GS.names||'?'))}catch(e){}};if(!sm.hidden)paintSm();paint()}
 sm.addEventListener('click',function(e){var r=e.target.closest('[data-r]');if(!r)return;gestureSink(r.dataset.r);setRoute(r.dataset.r)});
 bot.addEventListener('pointerdown',function(e){var b=e.target.closest&&e.target.closest('[data-a="spk"]');if(!b)return;
  spkHeld=false;clearTimeout(spkT);spkT=setTimeout(function(){spkT=null;spkHeld=true;smOpen()},300)});
