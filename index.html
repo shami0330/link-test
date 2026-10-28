@@ -1112,7 +1112,6 @@ return{play:play};
 <div class="avatar chat-avatar c1" id="chatAvatar">س</div>
 <div class="chat-title-wrap"><div class="chat-title" id="chatTitle">چت</div><div class="chat-status" id="chatStatus">آخرین بازدید اخیراً</div></div>
 <button class="icon-btn" id="callBtn" aria-label="تماس صوتی" style="display:none"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></button>
-<button class="icon-btn" id="vcallBtn" aria-label="تماس تصویری" style="display:none"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button>
 <button class="icon-btn" id="chatMoreBtn" aria-label="گزینه‌های بیشتر"><svg class="svg-icon dots" viewBox="0 0 24 24"><path d="M12 5h.01M12 12h.01M12 19h.01"/></svg></button>
 </header>
 
@@ -1187,7 +1186,6 @@ return{play:play};
 </div>
 <div class="pf-actions">
 <button class="pf-action" id="pfCallBtn"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>تماس</span></button>
-<button class="pf-action" id="pfVCallBtn"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>ویدیو</span></button>
 <button class="pf-action" data-placeholder="بی‌صدا کردن"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>بی‌صدا</span></button>
 <button class="pf-action" data-placeholder="جستجو در گفتگو"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg><span>جستجو</span></button>
 <button class="pf-action" data-placeholder="گزینه‌های بیشتر"><svg class="svg-icon dots" viewBox="0 0 24 24"><path d="M12 5h.01M12 12h.01M12 19h.01"/></svg><span>بیشتر</span></button>
@@ -4430,12 +4428,10 @@ function onNet(){iceCache=null;var s=S;if(!s||s.ended||(s.st!=='active'&&s.st!==
 window.addEventListener('online',onNet);
 try{var cn=navigator.connection;if(cn&&cn.addEventListener)cn.addEventListener('change',onNet)}catch(e){}
 function cur(){try{return LINKServer._chat(currentChatId)}catch(e){return null}}
-function sync(c){var b=$('callBtn');if(!b)return;var ch=cur()||c;var d=(ch&&ch.type==='private'&&ch.id!=='saved'&&ch.peerId)?'':'none';b.style.display=d;var v=$('vcallBtn');if(v)v.style.display=d}
+function sync(c){var b=$('callBtn');if(!b)return;var ch=cur()||c;var d=(ch&&ch.type==='private'&&ch.id!=='saved'&&ch.peerId)?'':'none';b.style.display=d}
 document.addEventListener('DOMContentLoaded',function(){
  var b=$('callBtn');if(b)b.addEventListener('click',function(e){e.stopPropagation();start(cur())});
  var p=$('pfCallBtn');if(p)p.addEventListener('click',function(){start(cur())});
- var vb=$('vcallBtn');if(vb)vb.addEventListener('click',function(e){e.stopPropagation();start(cur(),true)});
- var vp=$('pfVCallBtn');if(vp)vp.addEventListener('click',function(){start(cur(),true)});
 });
 return{start:start,startVideo:function(c){return start(c,true)},onSig:onSig,sync:sync,transport:T,getIce:getIce,state:function(){return S&&S.st}};
 })();
