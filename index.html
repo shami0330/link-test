@@ -2483,6 +2483,32 @@ el.addEventListener('pointerup',()=>end(true));
 el.addEventListener('pointercancel',()=>end(false));
 })();
 
+
+/* ---- v36: در همه‌ی صفحه‌ها کشیدن از چپ به راست = بازگشت به صفحه‌ی قبل ---- */
+(function(){
+const IDS=['settingsScreen','appearanceScreen','languageScreen','profileScreen','placeholderScreen','flMgr','flEdit','flPick'];
+const BACK={settingsScreen:'settingsBack',appearanceScreen:'appearanceBack',languageScreen:'languageBack',profileScreen:'profileBack',placeholderScreen:'placeholderBack',flMgr:'flMgrBack',flEdit:'flEditBack',flPick:'flPickBack'};
+const blocked=t=>!!(t.closest&&t.closest('input,textarea,select,[contenteditable],.fl-tabs,.fl-sheet,.dlg-overlay,.sheet-overlay,.popup-bg,.fl-drag,[draggable=true]'));
+function top(){let best=null,bz=-1;IDS.forEach(id=>{const el=document.getElementById(id);if(!el||!el.classList.contains('active'))return;const z=parseInt(getComputedStyle(el).zIndex)||0;if(z>=bz){bz=z;best=el;}});return best;}
+let st=null;
+document.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||!e.isPrimary)return;
+const t=top();if(!t||!t.contains(e.target)||blocked(e.target)||(window.dlgOpen&&window.dlgOpen()))return;
+st={el:t,id:e.pointerId,x:e.clientX,y:e.clientY,mode:null,dx:0,lx:e.clientX,lt:Date.now(),v:0,busy:false};},true);
+document.addEventListener('pointermove',e=>{if(!st||e.pointerId!==st.id)return;const dx=e.clientX-st.x,dy=e.clientY-st.y,el=st.el;
+if(!st.mode){if(dx>8&&dx>Math.abs(dy)*1.2){st.mode='drag';el.style.transition='none';}else if(Math.abs(dy)>12||dx<-12){st.mode='no';return;}else return;}
+if(st.mode!=='drag')return;if(e.cancelable)e.preventDefault();
+const now=Date.now(),dt=now-st.lt;if(dt>0)st.v=(e.clientX-st.lx)/dt;st.lx=e.clientX;st.lt=now;st.dx=Math.max(0,dx);el.style.transform='translateX('+st.dx+'px)';},{passive:false});
+function finish(commit){if(!st)return;const s0=st;st=null;if(s0.mode!=='drag')return;const el=s0.el,w=el.offsetWidth||360;
+const ok=commit&&(s0.dx>w*0.25||(s0.dx>30&&s0.v>0.35));
+if(!ok){el.style.transition='transform .22s ease';el.style.transform='';setTimeout(()=>{el.style.transition='';},240);return;}
+el.style.transition='transform .2s ease';el.style.transform='translateX('+w+'px)';
+setTimeout(()=>{el.style.transition='none';const b=document.getElementById(BACK[el.id]);if(b)b.click();
+setTimeout(()=>{if(el.classList.contains('active')){el.style.transition='transform .22s ease';el.style.transform='';setTimeout(()=>{el.style.transition='';},240);}
+else{el.style.transform='';void el.offsetWidth;el.style.transition='';}},90);},210);}
+document.addEventListener('pointerup',()=>finish(true),true);document.addEventListener('pointercancel',()=>finish(false),true);
+IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.style.touchAction='pan-y';});
+})();
+
 (async function initApp(){await PermGate.run();await LINKServer.init();allChats=await LINKServer.getChats();renderCurrentChatList();
 const p=await LINKServer.getProfile();
 $('drawerName').textContent=p.name;$('drawerPhone').textContent=p.phone;$('drawerAvatar').textContent=p.initial;$('drawerAvatar').className='avatar drawer-avatar '+p.avatar;
