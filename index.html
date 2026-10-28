@@ -492,6 +492,54 @@ body.kb .inputbar,.emoji-open .inputbar{padding-bottom:8px}
 .pv-media{width:100%;max-height:78vh;display:grid;place-items:center;border-radius:0}
 .pv-media img,.pv-media video{max-width:100%;max-height:78vh;object-fit:contain;display:block;pointer-events:auto}
 .pv-media.demo{width:min(86vw,420px);border-radius:14px}
+
+/* v3 fix: prevent page shift & stray bottom sheets */
+.attach-sheet{visibility:hidden;transition:transform .45s var(--ease),visibility 0s .45s}
+.attach-sheet.active{visibility:visible;transition:transform .45s var(--ease),visibility 0s}
+.phone-frame,.app,.screen{overflow:clip}
+.chat-screen,.screen{scroll-behavior:auto}
+.video-mute{display:none!important}
+
+/* v3: video note grows 45% (180px -> 261px) from the side away from the chat edge */
+.video-note.expanded{width:261px!important;max-width:none!important}
+.msg.centered .msg-shift.incoming{justify-content:flex-start!important}
+.msg.centered .msg-shift.outgoing{justify-content:flex-end!important}
+.video-overlay .svg-icon{display:none!important}
+
+/* v3: video note shows one frozen frame (a still of a person) until played */
+.video-surface{animation:none!important;background-position:0% 50%,100% 0%,0% 50%}
+.video-note.playing .video-surface{animation:videoMove 7s ease infinite!important}
+.video-surface::before{content:"";position:absolute;inset:0;pointer-events:none;
+background:
+radial-gradient(circle at 50% 41%,#f1c7a8 0 15%,transparent 15.6%),
+radial-gradient(ellipse 9% 9% at 50% 58%,#d9a98a 0 100%,transparent 101%),
+radial-gradient(ellipse 40% 30% at 50% 104%,#2f4560 0 98%,transparent 100%),
+radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
+.video-note.playing .video-surface::before{opacity:.9}
+
+/* v3: real camera video messages */
+.vn-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;pointer-events:none}
+.video-note.real .video-surface{display:none}
+.video-note.real .video-overlay{background:transparent}
+.vr-circle>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#000}
+.vr-circle.live .video-surface{display:none}
+
+/* v3: after locking a voice recording the send button stays in the same place */
+.inputbar.recording.locked .send-btn{display:grid}
+.dlg p{white-space:pre-line}
+
+/* v3: video-recording button = same size as the voice-recording button; trash sits next to it, record/send keep one place */
+.vr-hold,.vr-send{width:50px;height:50px;box-shadow:none}
+.vr-hold{box-shadow:0 0 0 10px rgba(79,174,78,.18);animation:halo2 1.4s ease-in-out infinite}
+.vr-hold .svg-icon,.vr-send .svg-icon{width:23px;height:23px}
+@keyframes halo2{0%,100%{box-shadow:0 0 0 6px rgba(79,174,78,.22)}50%{box-shadow:0 0 0 12px rgba(79,174,78,.1)}}
+.vr-row:last-child{padding-bottom:4px}
+
+/* v3: demo video messages (no real file): frozen frame first, then after "download" they loop silently in small size */
+@keyframes vnBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2.5%) rotate(1.6deg)}}
+.video-note.dl:not(.real) .video-surface{animation:videoMove 7s ease infinite!important}
+.video-note.dl:not(.real) .video-surface::before{animation:vnBob 3.2s ease-in-out infinite}
+.vr-hold{touch-action:none;will-change:transform;position:relative;z-index:2}.vr-hint{will-change:transform,opacity}
 </style>
 </head>
 <body>
@@ -722,8 +770,8 @@ body.kb .inputbar,.emoji-open .inputbar{padding-bottom:8px}
 </div>
 <div class="vr-row">
 <div class="vr-cancelbar" id="vrCancelBar"><span class="rec-dot"></span><span id="vrTime">۰:۰۰</span><span class="vr-hint" id="vrHint">برای لغو بکشید</span></div>
-<button class="vr-send hidden" id="vrSend" aria-label="ارسال"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
 <button class="icon-btn inv hidden" id="vrTrash" aria-label="حذف"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+<button class="vr-send hidden" id="vrSend" aria-label="ارسال"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
 <button class="vr-hold" id="vrHold" aria-label="ضبط"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="9"/></svg></button>
 </div>
 </div>
@@ -840,41 +888,150 @@ pbToggle.addEventListener('click',()=>{if(activeBarPlayer)activeBarPlayer.toggle
 pbSpeed.addEventListener('click',()=>{if(activeBarPlayer)activeBarPlayer.cycleSpeed();});
 pbClose.addEventListener('click',()=>{if(activeBarPlayer){activeBarPlayer.stopReset();hideBar();}});
 
+function centerInMessages(el,smooth){if(!el||!messagesEl)return;const mr=messagesEl.getBoundingClientRect(),er=el.getBoundingClientRect();const top=messagesEl.scrollTop+(er.top-mr.top)-(mr.height-er.height)/2;messagesEl.scrollTo({top:Math.max(0,top),behavior:smooth?'smooth':'auto'});}
+
+/* ===== v3: real video-message recording (camera) ===== */
+const mediaUrls=new Map();
+const MediaStore={db:null,
+open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);try{const r=indexedDB.open('link-media',1);r.onupgradeneeded=()=>r.result.createObjectStore('blobs');r.onsuccess=()=>{this.db=r.result;res(this.db);};r.onerror=()=>rej(r.error);}catch(e){rej(e);}});},
+async put(id,blob){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction('blobs','readwrite');t.objectStore('blobs').put(blob,id);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error);});},
+async get(id){const db=await this.open();return new Promise((res,rej)=>{const q=db.transaction('blobs').objectStore('blobs').get(id);q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error);});}};
+async function resolveMediaUrl(m){if(m.src&&String(m.src).startsWith('blob:'))return m.src;if(!m.mediaId)return null;let u=mediaUrls.get(m.mediaId);if(u)return u;try{const b=await MediaStore.get(m.mediaId);if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);return u;}}catch(e){}return null;}
+const vnObserver=('IntersectionObserver' in window)?new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(v.dataset.ctl==='1')return;if(e.isIntersecting){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else v.pause();}),{threshold:.25}):null;
+async function attachRealVideo(b,m){if(!m.src&&!m.mediaId){const dn=b.querySelector('.video-note');if(dn)setTimeout(()=>dn.classList.add('dl'),900+Math.random()*1400);return;}const url=await resolveMediaUrl(m);if(!url)return;const note=b.querySelector('.video-note');if(!note||note.querySelector('.vn-video'))return;
+const v=document.createElement('video');v.className='vn-video';v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.loop=true;v.autoplay=true;v.defaultMuted=true;v.setAttribute('muted','');v.setAttribute('loop','');v.addEventListener('loadeddata',()=>{if(v.dataset.ctl!=='1'){const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}});v.disablePictureInPicture=true;v.addEventListener('error',async()=>{if(v.dataset.fix==='1')return;v.dataset.fix='1';try{const b=m.mediaId?await MediaStore.get(m.mediaId):await (await fetch(url)).blob();if(!b)return;const h=new Uint8Array(await b.slice(0,12).arrayBuffer());const isW=h[0]===0x1A&&h[1]===0x45&&h[2]===0xDF&&h[3]===0xA3;const isM=h[4]===0x66&&h[5]===0x74&&h[6]===0x79&&h[7]===0x70;const nb=new Blob([b],{type:isW?'video/webm':isM?'video/mp4':(b.type||'video/mp4')});const nu=URL.createObjectURL(nb);if(m.mediaId)mediaUrls.set(m.mediaId,nu);v.src=nu;v.load();const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}catch(e){}});
+v.src=url;
+note.insertBefore(v,note.querySelector('.progress-ring'));note.classList.add('real');if(vnObserver)vnObserver.observe(v);else{const p=v.play();if(p&&p.catch)p.catch(()=>{});}}
+
+/* ===== v3: one-time camera & microphone permission, asked by the app ===== */
+const CAM_KEY='link-cam-perm';let camAsking=false;
+const camOK=()=>{try{return localStorage.getItem(CAM_KEY)==='1';}catch(e){return false;}};
+const setCamOK=v=>{try{if(v)localStorage.setItem(CAM_KEY,'1');else localStorage.removeItem(CAM_KEY);}catch(e){}};
+(async function syncCamPerm(){try{if(!navigator.permissions||!navigator.permissions.query)return;const a=await navigator.permissions.query({name:'camera'}),b=await navigator.permissions.query({name:'microphone'});
+if(a.state==='granted'&&b.state==='granted')setCamOK(true);else if(a.state==='denied'||b.state==='denied')setCamOK(false);}catch(e){}})();
+async function askAppDialog(o){const y=$('dlgYes');y.classList.remove('danger');try{return await askConfirm(o);}finally{y.classList.add('danger');}}
+async function requestCamPermissionFlow(){if(camAsking)return;camAsking=true;
+try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){showToast('ضبط ویدیو در این دستگاه ممکن نیست');return;}
+const ok=await askAppDialog({title:'دسترسی به دوربین و میکروفون',text:'برای ضبط پیام ویدیویی، «لینک» به دوربین و میکروفون شما نیاز دارد. این اجازه فقط یک بار پرسیده می‌شود.',yes:'اجازه می‌دهم'});if(!ok)return;
+try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});warmSet(st);setCamOK(true);showToast('اجازه ثبت شد. حالا دکمه را نگه دارید');}
+catch(e){setCamOK(false);const denied=e&&(e.name==='NotAllowedError'||e.name==='SecurityError');
+await askAppDialog({title:denied?'اجازه داده نشد':'دوربین در دسترس نیست',text:denied?'بدون اجازه‌ی دوربین و میکروفون نمی‌شود پیام ویدیویی ضبط کرد. اجازه را از تنظیمات مرورگر یا دستگاه فعال کنید و دوباره امتحان کنید.':'دوربین یا میکروفون پیدا نشد. مطمئن شوید به دستگاه وصل است و توسط برنامه‌ی دیگری استفاده نمی‌شود.',yes:'باشه'});}}
+finally{camAsking=false;}}
+
+/* ===== v3: permissions asked once when the app opens ===== */
+const PERM_ASKED_KEY='link-perm-asked';
+async function startupPermissions(){
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+let asked=false;try{asked=localStorage.getItem(PERM_ASKED_KEY)==='1';}catch(e){}
+if(camOK()||asked)return;
+const ok=await askAppDialog({title:'دسترسی‌های لازم',text:'برای ارسال پیام ویدیویی، صوتی و عکس، «لینک» به این موارد نیاز دارد:\n• دوربین (جلو و پشت)\n• میکروفون\n• گالری (با انتخابگر خود دستگاه، بدون اجازه‌ی جداگانه)\nاین اجازه فقط یک بار پرسیده می‌شود و ذخیره می‌ماند.',yes:'ادامه'});
+try{localStorage.setItem(PERM_ASKED_KEY,'1');}catch(e){}
+if(!ok)return;
+if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){showToast('این دستگاه از دوربین و میکروفون پشتیبانی نمی‌کند');return;}
+try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});setCamOK(true);showToast('اجازه‌ی دوربین و میکروفون ثبت شد');}
+catch(e){setCamOK(false);const denied=e&&(e.name==='NotAllowedError'||e.name==='SecurityError');showToast(denied?'اجازه داده نشد؛ بعداً می‌توانید از تنظیمات مرورگر فعال کنید':'دوربین یا میکروفون پیدا نشد');}}
+
+/* ===== v3: real voice-message recording (microphone) ===== */
+const MIC_KEY='link-mic-perm';
+const micOK=()=>{if(camOK())return true;try{return localStorage.getItem(MIC_KEY)==='1';}catch(e){return false;}};
+const setMicOK=v=>{try{if(v)localStorage.setItem(MIC_KEY,'1');else localStorage.removeItem(MIC_KEY);}catch(e){}};
+const warmA={stream:null,timer:null};
+function warmAClear(){clearTimeout(warmA.timer);warmA.timer=null;if(warmA.stream){warmA.stream.getTracks().forEach(t=>{try{t.stop();}catch(e){}});warmA.stream=null;}}
+function warmASet(st){if(!st)return;if(warmA.stream&&warmA.stream!==st)warmAClear();clearTimeout(warmA.timer);warmA.stream=st;warmA.timer=setTimeout(warmAClear,60000);}
+function warmATake(){const st=warmA.stream;if(!st)return null;clearTimeout(warmA.timer);warmA.timer=null;warmA.stream=null;const live=st.getTracks().length>0&&st.getTracks().every(t=>t.readyState==='live');if(!live){st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});return null;}return st;}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)warmAClear();});window.addEventListener('pagehide',warmAClear);
+async function requestMicPermissionFlow(){if(camAsking)return;camAsking=true;
+try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){showToast('ضبط صدا در این دستگاه ممکن نیست');return;}
+const ok=await askAppDialog({title:'دسترسی به میکروفون',text:'برای ضبط پیام صوتی، «لینک» به میکروفون شما نیاز دارد. این اجازه فقط یک بار پرسیده می‌شود.',yes:'اجازه می‌دهم'});if(!ok)return;
+try{const st=await navigator.mediaDevices.getUserMedia({audio:true});warmASet(st);setMicOK(true);showToast('اجازه ثبت شد. حالا دکمه را نگه دارید');}
+catch(e){setMicOK(false);const denied=e&&(e.name==='NotAllowedError'||e.name==='SecurityError');
+await askAppDialog({title:denied?'اجازه داده نشد':'میکروفون در دسترس نیست',text:denied?'بدون اجازه‌ی میکروفون نمی‌شود پیام صوتی ضبط کرد. اجازه را از تنظیمات مرورگر یا دستگاه فعال کنید و دوباره امتحان کنید.':'میکروفون پیدا نشد. مطمئن شوید به دستگاه وصل است و توسط برنامه‌ی دیگری استفاده نمی‌شود.',yes:'باشه'});}}
+finally{camAsking=false;}}
+const VA={stream:null,rec:null,chunks:[],mime:'',token:0,ctx:null,levels:[],meter:null};
+function vaPickMime(){const list=['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'];if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return '';return list.find(t=>MediaRecorder.isTypeSupported(t))||'';}
+function vaStopMeter(){clearInterval(VA.meter);VA.meter=null;if(VA.ctx){try{VA.ctx.close();}catch(e){}VA.ctx=null;}}
+function vaWave(count){const lv=VA.levels.slice();VA.levels=[];if(lv.length<4)return null;const out=[];for(let i=0;i<count;i++){const a=Math.floor(i*lv.length/count),b=Math.max(a+1,Math.floor((i+1)*lv.length/count));let mx=0;for(let k=a;k<b&&k<lv.length;k++)mx=Math.max(mx,lv[k]);out.push(Math.round(4+Math.min(1,mx*2.4)*20));}return out;}
+function vaDiscard(){VA.token++;const rec=VA.rec,st=VA.stream;VA.rec=null;VA.stream=null;VA.chunks=[];vaStopMeter();VA.levels=[];if(rec){rec.onstop=null;rec.ondataavailable=null;try{if(rec.state!=='inactive')rec.stop();}catch(e){}}if(st)warmASet(st);}
+async function vaStart(){const my=++VA.token;
+try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder)throw new Error('unsupported');
+let stream=warmATake()||await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+if(my!==VA.token||!recordState.active||recordState.mode!=='voice'){warmASet(stream);return;}
+const mime=vaPickMime();let rec;try{rec=mime?new MediaRecorder(stream,{mimeType:mime,audioBitsPerSecond:48000}):new MediaRecorder(stream);}catch(e){rec=new MediaRecorder(stream);}
+VA.stream=stream;VA.rec=rec;VA.chunks=[];VA.levels=[];VA.mime=rec.mimeType||mime||'audio/webm';
+rec.ondataavailable=e=>{if(e.data&&e.data.size)VA.chunks.push(e.data);};
+try{const AC=window.AudioContext||window.webkitAudioContext;if(AC){const ctx=new AC();try{ctx.resume();}catch(e){}const src=ctx.createMediaStreamSource(stream),an=ctx.createAnalyser();an.fftSize=256;src.connect(an);VA.ctx=ctx;const data=new Uint8Array(an.fftSize);VA.meter=setInterval(()=>{an.getByteTimeDomainData(data);let pk=0;for(let i=0;i<data.length;i++)pk=Math.max(pk,Math.abs(data[i]-128)/128);VA.levels.push(pk);},100);}}catch(e){}
+rec.start(250);recordState.startTime=Date.now();updateRecordTimers();
+}catch(err){if(my!==VA.token)return;vaDiscard();const denied=err&&(err.name==='NotAllowedError'||err.name==='SecurityError');if(denied)setMicOK(false);showToast(denied?'اجازه‌ی میکروفون فعال نیست؛ دوباره امتحان کنید':'ضبط صدا در این دستگاه ممکن نیست');if(recordState.active){recordState.canceled=true;finishRecording(false);}}}
+function vaFinish(d,reply){const rec=VA.rec,st=VA.stream,chunks=VA.chunks,mime=VA.mime;const wave=vaWave(34);vaStopMeter();VA.rec=null;VA.stream=null;VA.chunks=[];VA.token++;
+if(!rec){if(st)warmASet(st);showToast('میکروفون هنوز آماده نبود');return;}
+rec.onstop=async()=>{if(st)warmASet(st);const blob=new Blob(chunks,{type:(mime||'audio/webm').split(';')[0]});if(!blob.size){showToast('ضبط ناموفق بود');return;}
+const mediaId='va-'+Date.now()+Math.random().toString(36).slice(2,6);const url=URL.createObjectURL(blob);mediaUrls.set(mediaId,url);try{await MediaStore.put(mediaId,blob);}catch(e){}
+const payload={kind:'voice',duration:d,src:url,mediaId,replyTo:reply};if(wave)payload.wave=wave;await sendOutgoingMessage(payload);};
+try{if(rec.state!=='inactive')rec.stop();}catch(e){if(st)warmASet(st);}}
+const VR={stream:null,rec:null,chunks:[],mime:'',token:0};
+function vrPickMime(){const list=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return '';return list.find(t=>MediaRecorder.isTypeSupported(t))||'';}
+function vrClearPreview(){const c=vrOverlay.querySelector('.vr-circle');if(!c)return;const pv=c.querySelector('video');if(pv){try{pv.pause();}catch(e){}pv.srcObject=null;pv.remove();}c.classList.remove('live');}
+/* granted camera stream is parked for 60s so back-to-back recordings never re-prompt */
+const warm={stream:null,timer:null};
+function warmClear(){clearTimeout(warm.timer);warm.timer=null;if(warm.stream){warm.stream.getTracks().forEach(t=>{try{t.stop();}catch(e){}});warm.stream=null;}}
+function warmSet(st){if(!st)return;if(warm.stream&&warm.stream!==st)warmClear();clearTimeout(warm.timer);warm.stream=st;warm.timer=setTimeout(warmClear,60000);}
+function warmTake(){const st=warm.stream;if(!st)return null;clearTimeout(warm.timer);warm.timer=null;warm.stream=null;const live=st.getTracks().length>0&&st.getTracks().every(t=>t.readyState==='live');if(!live){st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});return null;}return st;}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)warmClear();});window.addEventListener('pagehide',warmClear);
+function vrStopStream(st){if(st)warmSet(st);}
+function vrDiscard(){VR.token++;const rec=VR.rec,st=VR.stream;VR.rec=null;VR.stream=null;VR.chunks=[];if(rec){rec.onstop=null;rec.ondataavailable=null;try{if(rec.state!=='inactive')rec.stop();}catch(e){}}vrStopStream(st);vrClearPreview();}
+async function vrStartCamera(){const my=++VR.token;
+try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder)throw new Error('unsupported');
+let stream=warmTake()||await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:480},height:{ideal:480}},audio:{echoCancellation:true,noiseSuppression:true}});
+if(my!==VR.token||!recordState.active||recordState.mode!=='videoNote'){vrStopStream(stream);return;}
+const c=vrOverlay.querySelector('.vr-circle');vrClearPreview();const pv=document.createElement('video');pv.muted=true;pv.autoplay=true;pv.playsInline=true;pv.setAttribute('playsinline','');pv.srcObject=stream;c.insertBefore(pv,c.firstChild);c.classList.add('live');try{await pv.play();}catch(e){}
+const mime=vrPickMime();let rec;try{rec=mime?new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:700000,audioBitsPerSecond:64000}):new MediaRecorder(stream);}catch(e){rec=new MediaRecorder(stream);}
+VR.stream=stream;VR.rec=rec;VR.chunks=[];VR.mime=rec.mimeType||mime||'video/webm';
+rec.ondataavailable=e=>{if(e.data&&e.data.size)VR.chunks.push(e.data);};
+rec.start(250);recordState.startTime=Date.now();updateRecordTimers();
+}catch(err){if(my!==VR.token)return;vrDiscard();const denied=err&&(err.name==='NotAllowedError'||err.name==='SecurityError');if(denied)setCamOK(false);showToast(denied?'اجازه‌ی دوربین و میکروفون فعال نیست؛ دوباره امتحان کنید':'ضبط ویدیو در این دستگاه ممکن نیست');if(recordState.active){recordState.canceled=true;finishRecording(false);}}}
+function vrFinish(d,reply){const rec=VR.rec,st=VR.stream,chunks=VR.chunks,mime=VR.mime;VR.rec=null;VR.stream=null;VR.chunks=[];VR.token++;
+if(!rec){vrStopStream(st);vrClearPreview();showToast('دوربین هنوز آماده نبود');return;}
+rec.onstop=async()=>{vrStopStream(st);vrClearPreview();const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||mime||'video/webm').split(';')[0]});if(!blob.size){showToast('ضبط ناموفق بود');return;}
+const mediaId='vm-'+Date.now()+Math.random().toString(36).slice(2,6);const url=URL.createObjectURL(blob);mediaUrls.set(mediaId,url);try{await MediaStore.put(mediaId,blob);}catch(e){}
+await sendOutgoingMessage({kind:'videoNote',duration:d,src:url,mediaId,replyTo:reply});};
+try{if(rec.state!=='inactive')rec.stop();}catch(e){vrStopStream(st);vrClearPreview();}}
 function stopAllPlayers(){players.forEach(p=>p.stopReset());players.clear();hideBar();}
 function handleEnd(player){
 const idx=currentMessages.findIndex(m=>m.id===player.id);
 const next=currentMessages.slice(idx+1).find(m=>m.kind==='voice'||m.kind==='videoNote');
-if(next){const np=players.get(next.id);if(np){np.play();const el=messagesEl.querySelector('[data-message-id="'+next.id+'"]');if(el)el.scrollIntoView({block:'center'});return;}}
+if(next){const np=players.get(next.id);if(np){np.play();const el=messagesEl.querySelector('[data-message-id="'+next.id+'"]');if(el)centerInMessages(el,true);return;}}
 hideBar();
 }
 function createPlayer(message,root,kind){
-const duration=message.duration||1;
+let duration=message.duration||1;
 let currentTime=0,playing=false,timer=null,speed=1,muted=true;
 const isVoice=kind==='voice';
 const playBtn=root.querySelector('.voice-play'),waveform=root.querySelector('.waveform'),timeText=root.querySelector('.voice-time-text');
 const bars=waveform?Array.from(waveform.children):[];
+let audioEl=null;if(isVoice&&(message.src||message.mediaId)){resolveMediaUrl(message).then(u=>{if(!u)return;const a=new Audio();a.preload='auto';a.src=u;audioEl=a;});}
 const note=root.querySelector('.video-note'),overlay=root.querySelector('.video-overlay'),progress=root.querySelector('.ring-progress'),vTime=root.querySelector('.video-time-text'),muteBtn=root.querySelector('.video-mute');
-const circumference=2*Math.PI*86;
+const circumference=2*Math.PI*86;const getV=()=>note?note.querySelector('.vn-video'):null;
 if(progress){progress.style.strokeDasharray=circumference;progress.style.strokeDashoffset=circumference;}
 if(muteBtn){muteBtn.innerHTML=MUTE_ICON;muteBtn.addEventListener('click',e=>{e.stopPropagation();muted=!muted;muteBtn.innerHTML=muted?MUTE_ICON:SPEAKER_ICON;});}
 function update(){
 if(isVoice){const r=currentTime/duration,c=Math.floor(r*bars.length);bars.forEach((b,i)=>b.classList.toggle('active',i<c));timeText.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
-else{progress.style.strokeDashoffset=circumference*(1-currentTime/duration);vTime.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
+else{progress.style.strokeDashoffset=circumference*(1-Math.min(1,currentTime/duration));vTime.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
 }
-function collapse(){if(!isVoice){note.classList.remove('expanded','playing');root.classList.remove('centered');}}
+function collapse(){if(!isVoice){note.classList.remove('expanded','playing');root.classList.remove('centered');const rv=getV();if(rv){rv.dataset.ctl='';rv.muted=true;rv.loop=true;rv.playbackRate=1;try{rv.currentTime=0.05;const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}}}
 function play(){if(playing)return;if(activeBarPlayer&&activeBarPlayer!==player&&activeBarPlayer.playing)activeBarPlayer.pause();
-playing=true;showBar(player);
-if(!isVoice){note.classList.add('expanded','playing');root.classList.add('centered');root.scrollIntoView({block:'center'});}
+playing=true;showBar(player);if(isVoice&&audioEl){audioEl.playbackRate=speed;try{const pr=audioEl.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}if(!isVoice){const rv=getV();if(rv){rv.dataset.ctl='1';rv.loop=false;if(currentTime===0){try{rv.currentTime=0;}catch(e){}}rv.playbackRate=speed;rv.muted=false;try{const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{try{rv.muted=true;const p2=rv.play();if(p2&&p2.catch)p2.catch(()=>{});}catch(e){}});}catch(e){}}}
+if(!isVoice){note.classList.add('expanded','playing');root.classList.add('centered');centerInMessages(root,true);}
 else playBtn.innerHTML=PAUSE_ICON;
-timer=setInterval(()=>{currentTime+=0.1*speed;if(currentTime>=duration){pause();currentTime=0;update();collapse();handleEnd(player);}else update();},100);}
-function pause(){if(!playing)return;playing=false;clearInterval(timer);if(isVoice)playBtn.innerHTML=PLAY_ICON;else{note.classList.remove('playing');overlay.innerHTML=PLAY_ICON;}refreshBar();}
-function stopReset(){pause();currentTime=0;update();collapse();}
+timer=setInterval(()=>{const v=isVoice?audioEl:getV();let done;if(v&&v.readyState>0){currentTime=v.currentTime;done=v.ended||currentTime>=duration+1.5||(isFinite(v.duration)&&v.duration>0&&currentTime>=v.duration-0.05);}else{currentTime+=0.1*speed;done=currentTime>=duration;}
+if(done){pause();currentTime=0;if(isVoice&&audioEl){try{audioEl.currentTime=0;}catch(e){}}update();collapse();handleEnd(player);}else update();},100);}
+function pause(){if(!playing)return;playing=false;clearInterval(timer);if(isVoice&&audioEl){try{audioEl.pause();}catch(e){}}if(!isVoice){const pv=getV();if(pv){try{pv.pause();}catch(e){}}}if(isVoice)playBtn.innerHTML=PLAY_ICON;else{note.classList.remove('playing');overlay.innerHTML=PLAY_ICON;}refreshBar();}
+function stopReset(){pause();currentTime=0;if(isVoice&&audioEl){try{audioEl.currentTime=0;}catch(e){}}update();collapse();}
 function toggle(){playing?pause():play();}
-function cycleSpeed(){speed=speed===1?1.5:speed===1.5?2:1;refreshBar();}
+function cycleSpeed(){speed=speed===1?1.5:speed===1.5?2:1;const rv=isVoice?audioEl:getV();if(rv)rv.playbackRate=speed;refreshBar();}
 const player={id:message.id,kind,title:currentChatTitle,duration,playing,get speed(){return speed;},play,pause,toggle,stopReset,cycleSpeed};
 if(isVoice){
 playBtn.addEventListener('click',e=>{e.stopPropagation();toggle();});
-waveform.addEventListener('click',e=>{const r=waveform.getBoundingClientRect();currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*duration;update();});
+waveform.addEventListener('click',e=>{const r=waveform.getBoundingClientRect();currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*duration;if(audioEl){try{audioEl.currentTime=currentTime;}catch(x){}}update();});
 }else{
 note.addEventListener('click',()=>toggle());
 }
@@ -929,10 +1086,10 @@ function richText(t){return escapeHtml(t).replace(/(https?:\/\/[^\s<]+|@[A-Za-z0
 function buildTextBubble(m){const b=document.createElement('div');b.className='bubble'+(EMOJI_ONLY.test(m.text||'')&&!m.replyTo&&!m.forwarded?' bigemoji':'');
 b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<span class="txt">'+richText(m.text||'')+'</span><span class="time">'+metaHtml(m)+'</span>';return b;}
 function buildVoiceBubble(m){const b=document.createElement('div');b.className='bubble voice-bubble';
-const bars=generateWaveform(m.id,34).map(h=>'<span class="wave-bar" style="height:'+h+'px"></span>').join('');
+const bars=((m.wave&&m.wave.length)?m.wave:generateWaveform(m.id,34)).map(h=>'<span class="wave-bar" style="height:'+h+'px"></span>').join('');
 b.innerHTML=fwdHtml(m)+quoteHtml(m)+'<div class="voice-row"><button class="voice-play" aria-label="پخش">'+PLAY_ICON+'</button><div class="voice-body"><div class="waveform">'+bars+'</div><div class="voice-time"><span class="voice-time-text">'+formatTime(m.duration)+'</span><span class="vmeta">'+metaHtml(m)+'</span></div></div></div>';return b;}
 function buildVideoBubble(m){const b=document.createElement('div');b.className='bubble';
-b.innerHTML='<div class="video-note"><div class="video-surface"></div><svg class="progress-ring" viewBox="0 0 180 180"><circle class="ring-bg" cx="90" cy="90" r="86"></circle><circle class="ring-progress" cx="90" cy="90" r="86"></circle></svg><div class="video-overlay">'+PLAY_ICON+'</div><button class="video-mute" aria-label="صدا">'+MUTE_ICON+'</button><div class="video-time"><span class="video-time-text">'+formatTime(m.duration)+'</span></div></div>';return b;}
+b.innerHTML='<div class="video-note"><div class="video-surface"></div><svg class="progress-ring" viewBox="0 0 180 180"><circle class="ring-bg" cx="90" cy="90" r="86"></circle><circle class="ring-progress" cx="90" cy="90" r="86"></circle></svg><div class="video-overlay">'+PLAY_ICON+'</div><div class="video-time"><span class="video-time-text">'+formatTime(m.duration)+'</span></div></div>';attachRealVideo(b,m);return b;}
 function buildPhotoBubble(m){const b=document.createElement('div');b.className='bubble media';
 const ar=(m.w&&m.h)?Math.min(1.6,Math.max(.7,m.w/m.h)):.8;
 const inner=m.src?(m.video?'<video src="'+m.src+'#t=0.1" muted playsinline preload="metadata"></video>':'<img src="'+m.src+'" alt="">'):'';
@@ -995,7 +1152,7 @@ async function commitEdit(t){const m=editTarget;editTarget=null;messageInput.val
 m.text=t;m.edited=true;await LINKServer.patchMessage(currentChatId,m.id,x=>{x.text=t;x.edited=true;});
 const old=msgElById(m.id);if(old){const n=createMessageEl(m);old.replaceWith(n);regroup();}
 allChats=await LINKServer.getChats();renderCurrentChatList();}
-function jumpTo(id){const el=msgElById(id);if(!el){showToast('پیام پیدا نشد');return;}el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1500);}
+function jumpTo(id){const el=msgElById(id);if(!el){showToast('پیام پیدا نشد');return;}centerInMessages(el,true);el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1500);}
 
 /* ---- سنجاق ---- */
 function updatePinBar(){const m=pinnedId&&findMsg(pinnedId);pinBar.classList.toggle('active',!!m);if(m)pinText.textContent=previewText(m);}
@@ -1015,7 +1172,7 @@ function openForward(ids){fwdIds=ids;const l=$('fwdList');l.innerHTML='';allChat
 function closeForward(){$('fwdSheet').classList.remove('active');$('fwdOverlay').classList.remove('active');}
 $('fwdOverlay').addEventListener('click',closeForward);
 async function doForward(cid){closeForward();const from=currentChatTitle;const list=fwdIds.map(findMsg).filter(Boolean);
-for(const m of list){const p={};['kind','text','duration','caption','src','seed','w','h','name','size','video','addr','phone'].forEach(k=>{if(m[k]!==undefined)p[k]=m[k];});p.forwarded=m.forwarded||(m.type==='outgoing'?'شما':from);
+for(const m of list){const p={};['kind','text','duration','caption','src','seed','w','h','name','size','video','addr','phone','mediaId','wave'].forEach(k=>{if(m[k]!==undefined)p[k]=m[k];});p.forwarded=m.forwarded||(m.type==='outgoing'?'شما':from);
 if(cid===currentChatId)await sendOutgoingMessage(p);else await LINKServer.sendMessage(cid,p);}
 exitSelect();allChats=await LINKServer.getChats();renderCurrentChatList();if(cid!==currentChatId)showToast('پیام ارسال شد');}
 
@@ -1198,28 +1355,30 @@ else showToast('این بخش بعداً فعال می‌شود');});
 
 /* ---- ضبط صدا و ویدیو ---- */
 function updateRecordTimers(){const f=formatTime((Date.now()-recordState.startTime)/1000);recordTimeEl.textContent=f;vrTime.textContent=f;}
-function startRecording(){if(recordState.active)return;recordState.active=true;recordState.locked=false;recordState.canceled=false;recordState.startTime=Date.now();recordState.mode=captureMode;vibrate(15);
+function startRecording(){if(recordState.active)return;if(captureMode==='videoNote'&&!camOK()){requestCamPermissionFlow();return;}if(captureMode==='voice'&&!micOK()){requestMicPermissionFlow();return;}recordState.active=true;recordState.locked=false;recordState.canceled=false;recordState.startTime=Date.now();recordState.mode=captureMode;vibrate(15);
 if(captureMode==='videoNote'){vrOverlay.classList.add('active');vrLock.innerHTML=LOCK_OPEN;vrSend.classList.add('hidden');vrTrash.classList.add('hidden');vrHold.classList.remove('hidden');vrHint.textContent='برای لغو بکشید';}
 else{inputbar.classList.add('recording');voiceSendLocked.classList.add('hidden');recordHintEl.textContent='برای لغو بکشید';}
-updateRecordTimers();recordState.timer=setInterval(updateRecordTimers,200);}
-function lockRecording(){if(!recordState.active||recordState.locked)return;recordState.locked=true;vibrate(12);resetRecVisuals();
+updateRecordTimers();recordState.timer=setInterval(updateRecordTimers,200);if(captureMode==='videoNote')vrStartCamera();else vaStart();}
+function lockRecording(){if(!recordState.active||recordState.locked)return;recordState.locked=true;pressState.justLocked=true;vibrate(12);resetRecVisuals();
 if(recordState.mode==='videoNote'){vrLock.innerHTML=LOCK_CLOSED;vrSend.classList.remove('hidden');vrTrash.classList.remove('hidden');vrHold.classList.add('hidden');vrHint.textContent='ضبط قفل شد';}
-else{inputbar.classList.add('locked');voiceSendLocked.classList.remove('hidden');recordHintEl.textContent='ضبط قفل شد';}}
-function resetRecVisuals(){sendBtn.style.transition='transform .35s var(--spring)';sendBtn.style.transform='';recordHintEl.style.transform='';recordHintEl.style.opacity='';lockHint.style.transform='';vrCancelBar.style.transform='';vrCancelBar.style.opacity='';setTimeout(()=>sendBtn.style.transition='',380);}
+else{inputbar.classList.add('locked');pressState.justLocked=true;sendBtn.innerHTML=SEND_ICON;sendBtn.setAttribute('aria-label','ارسال');recordHintEl.textContent='ضبط قفل شد';}}
+function resetRecVisuals(){vrHold.style.transition='transform .35s var(--spring)';vrHold.style.transform='';vrHint.style.transform='';vrHint.style.opacity='';vrLock.style.transform='';setTimeout(()=>{vrHold.style.transition='';},380);sendBtn.style.transition='transform .35s var(--spring)';sendBtn.style.transform='';recordHintEl.style.transform='';recordHintEl.style.opacity='';lockHint.style.transform='';vrCancelBar.style.transform='';vrCancelBar.style.opacity='';setTimeout(()=>sendBtn.style.transition='',380);}
 function finishRecording(send){if(!recordState.active)return;recordState.active=false;clearInterval(recordState.timer);const secs=(Date.now()-recordState.startTime)/1000;
-vrOverlay.classList.remove('active');inputbar.classList.remove('recording','locked');resetRecVisuals();
+vrOverlay.classList.remove('active');inputbar.classList.remove('recording','locked');resetRecVisuals();if(recordState.mode==='voice'){sendBtn.dataset.mode='';updateSendButton();}
+if(recordState.mode==='videoNote'){const ok=send&&!recordState.canceled&&currentChatId;if(!ok){vrDiscard();return;}if(secs<1){showToast('برای ضبط، دکمه را نگه دارید');vrDiscard();return;}const reply=replyPayload();clearReply();vrFinish(Math.max(1,Math.round(secs)),reply);return;}
+if(recordState.mode==='voice'){const ok=send&&!recordState.canceled&&currentChatId;if(!ok){vaDiscard();return;}if(secs<1){showToast('برای ضبط، دکمه را نگه دارید');vaDiscard();return;}const reply=replyPayload();clearReply();vaFinish(Math.max(1,Math.round(secs)),reply);return;}
 if(send&&!recordState.canceled&&currentChatId){if(secs<1){showToast('برای ضبط، دکمه را نگه دارید');return;}const d=Math.max(1,Math.round(secs));
 sendOutgoingMessage({kind:recordState.mode==='voice'?'voice':'videoNote',duration:d,replyTo:replyPayload()});clearReply();}}
 function cancelRecording(){recordState.canceled=true;vibrate([10,30,10]);finishRecording(false);}
 function onRecMove(dx,dy){if(!recordState.active||recordState.locked)return;const cx=Math.max(0,dx),cy=Math.max(0,dy);
 if(recordState.mode==='voice'){recordHintEl.style.transform='translateX('+cx*.55+'px)';recordHintEl.style.opacity=Math.max(0,1-cx/120);sendBtn.style.transform='translate('+Math.min(cx,120)*.5+'px,'+(-Math.min(cy,100)*.55)+'px) scale(1.25)';lockHint.style.transform='translateY('+(-Math.min(cy,90)*.25)+'px)';}
-else{vrCancelBar.style.transform='translateX('+cx*.55+'px)';vrCancelBar.style.opacity=Math.max(.2,1-cx/140);}
+else{vrHint.style.transform='translateX('+cx*.55+'px)';vrHint.style.opacity=Math.max(0,1-cx/120);vrHold.style.transform='translate('+Math.min(cx,120)*.5+'px,'+(-Math.min(cy,100)*.55)+'px) scale(1.25)';vrLock.style.transform='translateY('+(-Math.min(cy,90)*.25)+'px)';}
 if(cx>110)cancelRecording();else if(cy>80)lockRecording();}
-sendBtn.addEventListener('pointerdown',e=>{e.preventDefault();if(!sendBtn.classList.contains('capture'))return;pressState.pressing=true;pressState.longPress=false;pressState.startX=e.clientX;pressState.startY=e.clientY;
+sendBtn.addEventListener('pointerdown',e=>{e.preventDefault();if(!sendBtn.classList.contains('capture'))return;pressState.justLocked=false;pressState.pressing=true;pressState.longPress=false;pressState.startX=e.clientX;pressState.startY=e.clientY;
 try{sendBtn.setPointerCapture(e.pointerId);}catch(_){}clearTimeout(pressState.timer);pressState.timer=setTimeout(()=>{pressState.longPress=true;if(pressState.pressing)startRecording();},230);});
 sendBtn.addEventListener('pointermove',e=>{if(pressState.pressing)onRecMove(e.clientX-pressState.startX,pressState.startY-e.clientY);});
 sendBtn.addEventListener('pointerup',()=>{clearTimeout(pressState.timer);
-if(recordState.active){if(!recordState.locked)finishRecording(true);}else if(pressState.pressing&&!pressState.longPress)toggleCaptureMode();
+if(recordState.active){if(!recordState.locked)finishRecording(true);else if(pressState.justLocked)pressState.justLocked=false;else finishRecording(true);}else if(pressState.pressing&&!pressState.longPress)toggleCaptureMode();
 pressState.pressing=false;pressState.longPress=false;});
 sendBtn.addEventListener('pointercancel',()=>{clearTimeout(pressState.timer);if(recordState.active&&!recordState.locked){recordState.canceled=true;finishRecording(false);}pressState.pressing=false;});
 cancelRecordBtn.addEventListener('click',cancelRecording);
@@ -1302,7 +1461,7 @@ document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefaul
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 window.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault();},{passive:false});
 
-(async function initApp(){await LINKServer.init();allChats=await LINKServer.getChats();renderCurrentChatList();
+(async function initApp(){setTimeout(()=>{startupPermissions();},900);await LINKServer.init();allChats=await LINKServer.getChats();renderCurrentChatList();
 const p=await LINKServer.getProfile();
 $('drawerName').textContent=p.name;$('drawerPhone').textContent=p.phone;$('drawerAvatar').textContent=p.initial;$('drawerAvatar').className='avatar drawer-avatar '+p.avatar;
 $('settingsName').textContent=p.name;$('settingsPhone').textContent=p.phone;$('settingsUsername').textContent=p.username;$('settingsAvatar').textContent=p.initial;$('settingsAvatar').className='avatar profile-avatar '+p.avatar;
