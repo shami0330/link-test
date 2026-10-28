@@ -4549,8 +4549,8 @@ async function iosRoute(r){var s=S;if(!IOS||!s||s.ended||!s.rstream)return false
   else{
    /* earpiece: Web Audio output always goes to the loudspeaker, so keep that path silent and play only through the media element, pinned to the receiver */
    if(s.spkG){s.spkG.gain.value=0;try{s.spkG.disconnect()}catch(e){}s.spkC=false;try{s.spkS&&s.spkS.disconnect()}catch(e){}s.spkS=null;s.spkG=null}
-   /* a running (even silent) Web Audio context keeps iOS on the loudspeaker: suspend it unless a volume/pan chain needs it */
-   try{if(a&&!s.rcvG&&!s.micG&&!AP.pan&&a.state==='running')await a.suspend()}catch(e){}
+   /* a running (even silent) Web Audio context keeps iOS on the loudspeaker: close it unless a volume/pan chain needs it (actx() rebuilds it on demand) */
+   try{if(ac&&!s.rcvG&&!s.micG&&!AP.pan){var c0=ac;ac=null;await c0.close()}}catch(e){}
    await refreshOut();var rc=OUTC.recv;
    if(S!==s||s.ended)return false;
    /* on iOS the receiver is the default output of play-and-record: pin it if Safari lists it, otherwise just reset the sink and rely on the audio session */
