@@ -857,10 +857,40 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 #listScreen{overflow:hidden}
 .phone-frame{transition:none !important;will-change:transform}
 .chat-header,.appbar{transition:none !important}
+
+/* ===== v46 · ورود به حساب (Appwrite) و نام فرستنده در گروه ===== */
+.ln-auth{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--surface);color:var(--text-main);overflow-y:auto;padding:max(24px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom))}
+.ln-auth[hidden]{display:none}
+.ln-box{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:stretch;gap:12px;text-align:center;margin:auto}
+.ln-logo{font-size:34px;font-weight:900;letter-spacing:3px;color:var(--primary);margin-bottom:2px}
+.ln-title{font-size:20px;font-weight:800}
+.ln-sub{font-size:14px;color:var(--text-muted);margin-bottom:6px;line-height:1.6}
+#lnForm{display:flex;flex-direction:column;gap:10px}
+.ln-in{width:100%;border:none;border-radius:14px;background:var(--field-bg);color:var(--text-main);padding:14px 16px;font:inherit;font-size:16px;outline:none;-webkit-user-select:text;user-select:text}
+.ln-in::placeholder{color:var(--placeholder)}
+.ln-err{color:var(--danger);font-size:13.5px;line-height:1.6}
+.ln-tog{border:none;background:none;color:var(--primary);font:inherit;font-size:14.5px;font-weight:700;padding:8px;cursor:pointer}
+.ln-sn{font-size:12.5px;font-weight:700;color:var(--primary);margin-bottom:2px;line-height:1.3}
+.ln-ver{opacity:.85}
 </style>
 </head>
 <body>
 
+<div class="ln-auth" id="lnAuth" role="dialog" aria-modal="true" hidden>
+<div class="ln-box">
+<div class="ln-logo">LINK</div>
+<div class="ln-title" id="lnTitle" dir="auto"></div>
+<div class="ln-sub" id="lnSub" dir="auto"></div>
+<div id="lnForm">
+<input class="ln-in" id="lnName" type="text" maxlength="60" dir="auto" autocomplete="name" style="display:none">
+<input class="ln-in" id="lnEmail" type="email" dir="ltr" autocomplete="email" autocapitalize="none" spellcheck="false">
+<input class="ln-in" id="lnPass" type="password" dir="ltr" autocomplete="current-password">
+</div>
+<div class="ln-err" id="lnErr" dir="auto" style="display:none"></div>
+<button class="pg-btn" id="lnGo" type="button"></button>
+<button class="ln-tog" id="lnTog" type="button"></button>
+</div>
+</div>
 <div class="perm-gate" id="permGate" role="dialog" aria-modal="true" aria-labelledby="pgTitle">
 <div class="pg-inner pg-wait" id="pgInner">
 <div class="pg-logo">LINK</div>
@@ -1160,6 +1190,7 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 <button class="drawer-item" id="drawerSettings"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg><span>تنظیمات</span></button>
 <button class="drawer-item" data-placeholder="دعوت دوستان"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span>دعوت دوستان</span></button>
 <button class="drawer-item" data-placeholder="راهنمای LINK"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><span>راهنمای LINK</span></button>
+<button class="drawer-item" id="drawerLogout"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span id="drawerLogoutT">خروج از حساب</span></button>
 </nav>
 <div class="drawer-footer">نسخه ۱.۰.۰</div>
 </aside>
@@ -1288,6 +1319,518 @@ else if(m.type==='attributes')attrs(m.target);
 })();
 </script>
 <script>
+/* ===== v46 · اتصال به سرور Appwrite — ورود/ثبت‌نام، گفتگوها، پیام‌ها، فایل‌ها، به‌روزرسانی زنده =====
+   جدول‌ها: users{name,email,username} · chats{memberA,memberB,pairKey,nameA,nameB,last,lastAt,unreadA,unreadB · kind,title,about,owner,members,msgCount} · messages{chatId,fromId,text,replyTo,pinned,readByOther}
+   برای اینکه ستون جدیدی لازم نباشد: پیام متنی ساده مستقیم در text می‌رود؛ پیام‌های رسانه‌ای/پاسخ/واکنش/ویرایش‌شده به‌صورت JSON با نشانهٔ LNV در همان ستون text ذخیره می‌شوند.
+   فایل‌ها در Bucket با fileId برابر mediaId ذخیره می‌شوند. رابط LINKServer دقیقاً همان رابط قبلی (نمونهٔ محلی) است و بقیهٔ برنامه تغییری نمی‌کند. */
+const LINK_VERSION='v46';
+const LNC={ep:'https://fra.cloud.appwrite.io/v1',pj:'6ad968ee002c73c4ca9a',db:'6ad969a5001ae9582c3e',tU:'6ad96bc700117baf5a06',tC:'6ad9c6e9001f15568d17',tM:'6ad9ca3a001a0e48e86c',bk:'6adf99470015c4d986f2',sdk:['https://cdn.jsdelivr.net/npm/appwrite@22.3.0/dist/iife/sdk.js','appwrite-sdk.js']};
+const LNL={image:1048576,video:10485760,voice:512000,file:15728640};
+const LNX=['jpg','jpeg','png','webp','gif','mp4','webm','mov','m4a','mp3','ogg','oga','pdf','zip','txt','docx','xlsx','pptx'];
+const LNV='\u2063J\u2063';
+const LT=(fa,en)=>LANG==='fa'?fa:en;
+const LNK={cl:null,au:null,db:null,sv:null,uid:'',me:null};
+const lnkE=(fa,en)=>({fa:fa,en:en||fa});
+
+function lnkEr(e){
+  if(!e)return LT('خطای نامشخص','Unknown error');
+  if(e.fa)return LT(e.fa,e.en||e.fa);
+  const t=e.type||'',m=String(e.message||e),c=e.code;
+  const M={
+    user_invalid_credentials:['ایمیل یا رمز اشتباه است','Wrong email or password'],
+    user_not_found:['حسابی با این ایمیل نیست','No account with this email'],
+    user_already_exists:['این ایمیل قبلاً ثبت شده است','This email is already registered'],
+    user_email_already_exists:['این ایمیل قبلاً ثبت شده است','This email is already registered'],
+    general_rate_limit_exceeded:['تلاش‌ها زیاد بود؛ کمی بعد دوباره امتحان کن','Too many attempts; try again shortly'],
+    user_blocked:['این حساب مسدود شده است','This account is blocked'],
+    user_session_already_exists:['یک نشست فعال وجود دارد؛ صفحه را تازه کن','A session is already active; reload the page'],
+    user_unauthorized:['اجازهٔ دسترسی نیست؛ دسترسی‌های جدول (Security) را بررسی کن','Access denied; check the table permissions (Security)'],
+    general_unauthorized_scope:['اجازهٔ دسترسی نیست؛ دسترسی‌های جدول (Security) را بررسی کن','Access denied; check the table permissions (Security)']
+  };
+  if(M[t])return LT(M[t][0],M[t][1]);
+  if(m==='sdk')return LT('کتابخانهٔ Appwrite بارگذاری نشد؛ اینترنت (و در صورت نیاز فیلترشکن) را بررسی کن','The Appwrite library failed to load; check your internet connection (or VPN)');
+  if(t==='general_argument_invalid'&&/password/i.test(m))return LT('رمز باید دست‌کم ۸ نویسه باشد و ساده و رایج نباشد','Password must be at least 8 characters and not too common');
+  if(t==='general_argument_invalid'&&/email/i.test(m))return LT('ایمیل معتبر نیست','Invalid email');
+  if(/origin|platform|hostname/i.test(m)&&/regist|invalid|allow/i.test(m))return LT('نشانی این صفحه در Appwrite ثبت نشده (Apps ← Web ← Hostname)؛ برنامه را از روی http://localhost یا نشانی ثبت‌شده باز کن','This page address is not registered in Appwrite (Apps → Web → Hostname); open the app from http://localhost or a registered address');
+  if(/index/i.test(m)&&/not found/i.test(m))return LT('ایندکس لازم در جدول ساخته نشده: ','A required index is missing in the table: ')+m;
+  if(c===0||/failed to fetch|network|load failed/i.test(m))return LT('اتصال برقرار نیست','No connection');
+  if(/unknown attribute|invalid (document|row) structure|attribute not found/i.test(m))return LT('ستون‌های لازم در جدول‌ها ساخته نشده‌اند: ','Required table columns are missing: ')+m;
+  if(c===401)return LT('اجازهٔ دسترسی نیست؛ دسترسی‌های جدول/Bucket را بررسی کن','Access denied; check the table/bucket permissions');
+  return LT('خطا: ','Error: ')+m;
+}
+
+/* ---------- کتابخانهٔ Appwrite و ابزارهای داده ---------- */
+const lnkJs=(u,ms)=>new Promise((ok,no)=>{const s=document.createElement('script');let d=0,t;const f=r=>{if(d)return;d=1;clearTimeout(t);r?ok():no(new Error('sdk'))};s.src=u;s.onload=()=>f(1);s.onerror=()=>f(0);t=setTimeout(()=>f(0),ms||12000);document.head.appendChild(s)});
+async function lnkSdk(){if(window.Appwrite&&Appwrite.Client)return;for(const u of LNC.sdk){try{await lnkJs(u)}catch(e){}if(window.Appwrite&&Appwrite.Client)return}throw new Error('sdk')}
+function lnkInit(){const c=new Appwrite.Client().setEndpoint(LNC.ep).setProject(LNC.pj);LNK.cl=c;LNK.au=new Appwrite.Account(c);LNK.db=new Appwrite.TablesDB(c);LNK.sv=new Appwrite.Storage(c)}
+const lnkRows=async(t,q)=>(await LNK.db.listRows({databaseId:LNC.db,tableId:t,queries:q})).rows;
+const lnkGet=(t,id)=>LNK.db.getRow({databaseId:LNC.db,tableId:t,rowId:id});
+const lnkMk=(t,id,data,perm)=>LNK.db.createRow({databaseId:LNC.db,tableId:t,rowId:id,data:data,permissions:perm});
+const lnkUp=(t,id,data)=>LNK.db.updateRow({databaseId:LNC.db,tableId:t,rowId:id,data:data});
+const lnkDel=(t,id)=>LNK.db.deleteRow({databaseId:LNC.db,tableId:t,rowId:id});
+const lnkOwn=id=>[Appwrite.Permission.update(Appwrite.Role.user(id)),Appwrite.Permission.delete(Appwrite.Role.user(id))];
+const lnkAv=n=>'c'+(1+[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%6);
+const lnkExt=n=>((String(n||'').match(/\.([^.]+)$/)||[])[1]||'').toLowerCase();
+const lnkLoc=()=>LANG==='fa'?'fa-IR':'en-GB';
+const lnkClock=d=>new Intl.DateTimeFormat(lnkLoc(),{hour:'2-digit',minute:'2-digit'}).format(d);
+const lnkDays=d=>{const n=new Date();return Math.round((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5)};
+function lnkTm(t){const d=new Date(t);if(isNaN(d))return'';const k=lnkDays(d);if(k<=0)return lnkClock(d);if(k===1)return'دیروز';return new Intl.DateTimeFormat(lnkLoc(),{month:'short',day:'numeric'}).format(d)}
+function lnkDay(d){const k=lnkDays(d);if(k<=0)return'امروز';if(k===1)return'دیروز';return new Intl.DateTimeFormat(lnkLoc(),{month:'long',day:'numeric',year:d.getFullYear()===new Date().getFullYear()?undefined:'numeric'}).format(d)}
+const lnkLs=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+const lnkLsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+/* ---------- صفحهٔ ورود / ثبت‌نام ---------- */
+const LA={mode:'conn',reg:0,busy:0,err:'',res:null};
+const lnA=id=>document.getElementById(id);
+function lnRender(){
+  const el=lnA('lnAuth');if(!el)return;el.hidden=false;
+  const conn=LA.mode==='conn',retry=LA.mode==='retry';
+  lnA('lnTitle').textContent=conn?LT('در حال اتصال…','Connecting…'):retry?LT('اتصال برقرار نشد','Could not connect'):LA.reg?LT('ساخت حساب','Create account'):LT('ورود به لینک','Sign in to LINK');
+  lnA('lnForm').style.display=(conn||retry)?'none':'';
+  lnA('lnName').style.display=LA.reg?'':'none';
+  lnA('lnName').placeholder=LT('نام','Name');lnA('lnEmail').placeholder=LT('ایمیل','Email');lnA('lnPass').placeholder=LT('رمز عبور','Password');
+  lnA('lnPass').autocomplete=LA.reg?'new-password':'current-password';
+  lnA('lnGo').style.display=conn?'none':'';
+  lnA('lnGo').textContent=retry?LT('تلاش دوباره','Try again'):LA.busy?LT('لطفاً صبر کنید…','Please wait…'):LA.reg?LT('ثبت‌نام','Sign up'):LT('ورود','Sign in');
+  lnA('lnGo').disabled=!!LA.busy;
+  lnA('lnTog').style.display=(conn||retry)?'none':'';
+  lnA('lnTog').textContent=LA.reg?LT('حساب دارید؟ وارد شوید','Have an account? Sign in'):LT('حساب ندارید؟ ثبت‌نام','No account? Sign up');
+  lnA('lnErr').textContent=LA.err||'';lnA('lnErr').style.display=LA.err?'':'none';
+  lnA('lnSub').textContent=conn?LT('اتصال به سرور…','Reaching the server…'):retry?'':LA.reg?LT('با ایمیل و رمز حساب بسازید.','Sign up with an email and a password.'):LT('برای ادامه وارد شوید.','Sign in to continue.');
+}
+function lnHide(){const el=lnA('lnAuth');if(el)el.hidden=true}
+function lnAuthWait(){return new Promise(res=>{LA.res=res;LA.mode='login';LA.err='';lnRender()})}
+function lnRetryWait(){return new Promise(res=>{LA.res=res;LA.mode='retry';lnRender()})}
+async function lnSubmit(){
+  if(LA.busy)return;
+  if(LA.mode==='retry'){const r=LA.res;LA.res=null;LA.err='';r&&r('retry');return}
+  const em=lnA('lnEmail').value.trim(),pw=lnA('lnPass').value,nm=lnA('lnName').value.trim();
+  if(!em||!pw||(LA.reg&&!nm)){LA.err=LT('همهٔ کادرها را پر کنید','Fill in all the fields');return lnRender()}
+  LA.busy=1;LA.err='';lnRender();
+  try{
+    let u;
+    if(LA.reg){
+      await LNK.au.create({userId:Appwrite.ID.unique(),email:em,password:pw,name:nm});
+      await LNK.au.createEmailPasswordSession({email:em,password:pw});
+      u=await LNK.au.get();
+      try{await lnkMk(LNC.tU,u.$id,{name:nm,email:em.toLowerCase()},lnkOwn(u.$id))}catch(e){}
+    }else{
+      try{await LNK.au.createEmailPasswordSession({email:em,password:pw})}catch(e){if(!(e&&e.type==='user_session_already_exists'))throw e}
+      u=await LNK.au.get();
+    }
+    LA.busy=0;lnA('lnPass').value='';const r=LA.res;LA.res=null;r&&r(u);
+  }catch(e){LA.busy=0;LA.err=lnkEr(e);lnRender()}
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const g=lnA('lnGo'),t=lnA('lnTog');if(!g)return;
+  g.addEventListener('click',lnSubmit);
+  t.addEventListener('click',()=>{LA.reg=LA.reg?0:1;LA.err='';lnRender()});
+  ['lnName','lnEmail','lnPass'].forEach(i=>lnA(i).addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();lnSubmit()}}));
+});
+
+/* ---------- LINKServer (همان رابط قبلی، این بار روی Appwrite) ---------- */
+const LINKServer={
+  db:null,names:{},users:{},_av:{},_dl:{},_nq:new Set(),_sending:new Set(),_cancel:new Set(),_sub:null,_poll:null,
+  clone(o){return JSON.parse(JSON.stringify(o,(k,v)=>k==='_raw'?undefined:v))},
+  /* ----- ورود و آغاز ----- */
+  async init(){
+    if(this.db)return;
+    for(;;){
+      try{
+        LA.mode='conn';LA.err='';lnRender();
+        await lnkSdk();if(!LNK.au)lnkInit();
+        let u=null;try{u=await LNK.au.get()}catch(e){if(!(e&&e.code===401))throw e}
+        if(!u)u=await lnAuthWait();
+        await this._enter(u);lnHide();return;
+      }catch(e){LA.err=lnkEr(e);await lnRetryWait()}
+    }
+  },
+  async _enter(u){
+    const me=u.$id;LNK.uid=me;
+    let row=null;try{row=await lnkGet(LNC.tU,me)}catch(e){}
+    const nm=(row&&row.name)||u.name||u.email||'LINK';
+    if(!row)lnkMk(LNC.tU,me,{name:nm,email:(u.email||'').toLowerCase()},lnkOwn(me)).catch(()=>{});
+    LNK.me={id:me,name:nm,email:u.email||'',un:(row&&row.username)||''};
+    this.names={};this.users={};this.names[me]=nm;
+    this._vis=lnkLs('link-vis-'+me,{});this._hid=lnkLs('link-hid-'+me,{});this._clr=lnkLs('link-clr-'+me,{});this._gr=lnkLs('link-gr-'+me,{});
+    this._ck='link-cache-v46-'+me;
+    const un=LNK.me.un||(LNK.me.email.split('@')[0]||'');
+    this.db={profile:{name:nm,phone:LNK.me.email||'—',username:un?'@'+un:'—',email:LNK.me.email||'—',bio:'—',initial:(nm.trim().charAt(0)||'؟'),avatar:lnkAv(nm)},chats:[],contacts:[]};
+    this._restore();
+    try{await this.syncChats();await this._ensureSaved()}
+    catch(e){if(!this.db.chats.length){this.db=null;throw e}showToast(LT('آفلاین: آخرین اطلاعات ذخیره‌شده نمایش داده می‌شود','Offline: showing the last saved data'))}
+    this._persist();this.live();
+  },
+  /* ----- ذخیرهٔ محلی ----- */
+  _restore(){
+    const c=lnkLs(this._ck,null);if(!c||!Array.isArray(c.chats))return;
+    this.db.chats=c.chats.map(x=>Object.assign(x,{loaded:false,messages:x.messages||[]}));
+  },
+  _persist(){
+    clearTimeout(this._pt);
+    this._pt=setTimeout(()=>{
+      try{
+        const out={chats:this.db.chats.map(c=>{const o=Object.assign({},c);delete o._raw;o.messages=(c.messages||[]).slice(-40);if(typeof o.photo==='string'&&o.photo.indexOf('blob:')===0)delete o.photo;return o})};
+        localStorage.setItem(this._ck,JSON.stringify(out,(k,v)=>(k==='src'&&typeof v==='string'&&v.indexOf('blob:')===0)?undefined:v));
+      }catch(e){}
+    },400);
+  },
+  async save(){this._persist()},
+  _svVis(){lnkLsSet('link-vis-'+LNK.uid,this._vis)},_svHid(){lnkLsSet('link-hid-'+LNK.uid,this._hid)},_svClr(){lnkLsSet('link-clr-'+LNK.uid,this._clr)},_svGr(){lnkLsSet('link-gr-'+LNK.uid,this._gr)},
+  _chat(id){return this.db&&this.db.chats.find(c=>c.id===id)},
+  _isOpen(c){try{return currentChatId===c.id&&chatScreen.classList.contains('active')&&!document.hidden}catch(e){return false}},
+  _bump(){clearTimeout(this._bt);this._bt=setTimeout(async()=>{try{allChats=await this.getChats();renderCurrentChatList()}catch(e){}},120)},
+  /* ----- گفتگوها ----- */
+  async syncChats(){
+    const me=LNK.uid,Q=Appwrite.Query;
+    const r=await Promise.all([lnkRows(LNC.tC,[Q.equal('memberA',[me]),Q.limit(100)]),lnkRows(LNC.tC,[Q.equal('memberB',[me]),Q.limit(100)]),lnkRows(LNC.tC,[Q.contains('members',[me]),Q.limit(100)]).catch(()=>[])]);
+    const seen={},rows=[];[].concat(r[0],r[1],r[2]).forEach(x=>{if(!seen[x.$id]){seen[x.$id]=1;rows.push(x)}});
+    rows.forEach(x=>this._applyRow(x));
+    this.db.chats=this.db.chats.filter(c=>seen[c.sid]);
+    const peers=this.db.chats.map(c=>c.peerId).filter(Boolean);this._need(peers);this.db.chats.forEach(c=>this._avLoad(c));
+  },
+  async _ensureSaved(){
+    if(this.db.chats.some(c=>c.id==='saved'))return;
+    const me=LNK.uid,Q=Appwrite.Query,key=me+'_'+me;
+    try{const row=await lnkMk(LNC.tC,Appwrite.ID.unique(),{memberA:me,memberB:me,pairKey:key,nameA:'Saved',nameB:'Saved',last:'',unreadA:0,unreadB:0});this._applyRow(row)}
+    catch(e){if(e&&e.code===409){const r=(await lnkRows(LNC.tC,[Q.equal('pairKey',[key]),Q.limit(1)]))[0];if(r)this._applyRow(r)}}
+  },
+  _gUn(x,c){
+    const n=x.msgCount||0;if(this._gr[x.$id]===undefined){this._gr[x.$id]=n;this._svGr();return 0}
+    if(c&&this._isOpen(c)){this._gr[x.$id]=n;this._svGr();return 0}
+    return Math.max(0,n-this._gr[x.$id]);
+  },
+  _applyRow(x){
+    const me=LNK.uid,gp=x.kind==='g'||x.kind==='c',self=!gp&&x.memberA===me&&x.memberB===me,side=x.memberA===me?'A':'B';
+    let c=this.db.chats.find(k=>k.sid===x.$id);
+    if(!c){c={messages:[],loaded:false};this.db.chats.push(c)}
+    const title=gp?(x.title||LT('بدون نام','Untitled')):self?'ذخیره‌شده‌ها':((side==='A'?x.nameB:x.nameA)||LT('کاربر','User'));
+    const t=x.lastAt||x.$createdAt,peer=(gp||self)?'':(side==='A'?x.memberB:x.memberA),n=(x.members||[]).length;
+    Object.assign(c,{id:self?'saved':x.$id,sid:x.$id,side:side,type:gp?(x.kind==='c'?'channel':'group'):'private',title:title,
+      initial:self?'ذ':(title.trim().charAt(0)||'؟'),avatar:self?'c3':lnkAv(title),
+      status:self?'پیام‌های ذخیره‌شده':gp?(x.kind==='c'?toFaDigits(n)+' مشترک':toFaDigits(n)+' عضو'):'آخرین بازدید اخیراً',
+      peerId:peer,owner:x.owner||'',members:x.members||[],_t:Date.parse(t)||0,time:lnkTm(t),
+      unread:gp?this._gUn(x,c):(self?0:(x['unread'+side]||0)),_msgCount:x.msgCount||0,_raw:x,lastMessage:x.last||'',
+      bio:gp?(x.about||'—'):(c.bio||'—')});
+    if(!c.phone)c.phone='—';if(!c.username)c.username='—';if(!c.email)c.email='—';
+    if(c.lastOut===undefined)c.lastOut=false;
+    const u=peer&&this.users[peer];if(u)this._peerInfo(c,u);
+    return c;
+  },
+  _peerInfo(c,u){c.email=u.email||'—';c.username=u.username?'@'+u.username:'—'},
+  _visible(c){return c.id==='saved'||c.type!=='private'||!!(c._raw&&(c._raw.last||c._raw.lastAt))||!!this._vis[c.sid]||(c.messages&&c.messages.length>0)},
+  async getProfile(){return this.clone(this.db.profile)},
+  async getChats(){return this.clone(this.db.chats.filter(c=>this._visible(c)).sort((a,b)=>(b._t||0)-(a._t||0)))},
+  async getChat(id){
+    const c=this._chat(id);if(!c)return null;
+    try{await this._loadMsgs(c)}catch(e){if(!c.messages.length)showToast(LT('دریافت پیام‌ها ناموفق بود: ','Could not load messages: ')+lnkEr(e))}
+    this._vis[c.sid]=1;this._svVis();
+    return this.clone(c);
+  },
+  /* ----- پیام‌ها ----- */
+  _sig(m){return JSON.stringify([m.text,m.caption,m.edited,m.reactions,m._pin,m.status])},
+  _parse(r){const t=r.text||'';if(t.indexOf(LNV)===0){try{const o=JSON.parse(t.slice(LNV.length));if(o&&typeof o==='object')return o}catch(e){}}return{kind:'text',text:t}},
+  _env(m){
+    const o={};for(const k in m){if(k[0]==='_'||k==='id'||k==='type'||k==='time'||k==='day'||k==='status'||k==='src'||k==='pinned'||k==='reactions'||k==='dataUrl')continue;const v=m[k];if(v===undefined||v===null)continue;o[k]=v}
+    const plain=(o.kind==='text')&&Object.keys(o).every(k=>k==='kind'||k==='text')&&String(o.text||'').indexOf(LNV)!==0;
+    return plain?String(o.text||''):LNV+JSON.stringify(o);
+  },
+  _rxBuild(m){const rx=m.rx||{},me=LNK.uid,by={};Object.keys(rx).forEach(u=>{const e=rx[u];if(!by[e])by[e]={e:e,n:0,mine:false};by[e].n++;if(u===me)by[e].mine=true});const l=Object.keys(by).map(k=>by[k]);if(l.length)m.reactions=l;else delete m.reactions},
+  _msgFromRow(r,c){
+    const me=LNK.uid,out=r.fromId===me,m=this._parse(r);
+    m.kind=m.kind||'text';m.id=r.$id;m.type=out?'outgoing':'incoming';
+    const d=new Date(r.$createdAt);m.time=lnkClock(d);m.day=lnkDay(d);
+    m.status=out?((c&&c.id==='saved')?'read':(c&&c.type==='private'&&r.readByOther)?'read':'sent'):'read';
+    m._from=r.fromId;m._rb=!!r.readByOther;m._at=d.getTime();m._pin=!!r.pinned;
+    if(!out&&c&&c.type==='group'){m._grp=1;this._need([r.fromId])}
+    if(!out){
+      const sn=(c&&c.type==='private')?c.title:(this.names[r.fromId]||(c&&c.title)||LT('کاربر','User'));
+      if(m.replyTo&&typeof m.replyTo==='object'){const q=Object.assign({},m.replyTo);let nm;if(q.uid)nm=q.uid===me?'شما':(this.names[q.uid]||sn);else nm=q.name==='شما'?sn:'شما';q.name=nm;m.replyTo=q}
+      if(m.forwarded==='شما')m.forwarded=sn;
+    }
+    this._rxBuild(m);
+    return m;
+  },
+  async _loadMsgs(c){
+    const Q=Appwrite.Query;
+    const rows=await lnkRows(LNC.tM,[Q.equal('chatId',[c.sid]),Q.orderDesc('$createdAt'),Q.limit(100)]);
+    rows.reverse();
+    const cl=this._clr[c.sid]||'',prev={};c.messages.forEach(m=>prev[m.id]=m);
+    const list=[],diff={added:[],changed:[],removed:[]};
+    rows.forEach(r=>{
+      if(r.kind==='call'||this._hid[r.$id]||(cl&&r.$createdAt<=cl))return;
+      const m=this._msgFromRow(r,c),o=prev[m.id];
+      if(!o)diff.added.push(m);else{if(this._sig(o)!==this._sig(m))diff.changed.push(m);if(o.src)m.src=o.src}
+      list.push(m);
+    });
+    const ids=new Set(list.map(m=>m.id)),mn=rows.length>=100?Date.parse(rows[0].$createdAt):0;
+    c.messages.forEach(m=>{if(!ids.has(m.id)&&!this._sending.has(m.id)&&m._at&&m._at>=mn)diff.removed.push(m.id)});
+    c.messages=list;c.loaded=true;
+    const pn=list.filter(m=>m._pin).pop();c.pinnedId=pn?pn.id:null;
+    this._refreshLast(c);this._persist();
+    return diff;
+  },
+  _refreshLast(c){const l=c.messages[c.messages.length-1];if(l){c.lastMessage=previewText(l);c.lastOut=l.type==='outgoing'}},
+  async sendMessage(chatId,payload,messageId){
+    const c=this._chat(chatId);if(!c)throw lnkE('گفتگو آماده نیست؛ دوباره بازش کن','The chat is not ready; reopen it');
+    const me=LNK.uid;
+    if(c.type==='channel'&&c.owner!==me)throw lnkE('فقط مدیر کانال می‌تواند پیام بگذارد','Only the channel owner can post');
+    const m=Object.assign({},payload,{kind:payload.kind||'text'});delete m._up;
+    if(m.kind==='text'&&String(m.text||'').length>4000)throw lnkE('پیام بلندتر از ۴۰۰۰ نویسه است','The message is longer than 4000 characters');
+    if(m.replyTo&&typeof m.replyTo==='object'){const om=c.messages.find(x=>x.id===m.replyTo.id);m.replyTo=Object.assign({},m.replyTo);if(om)m.replyTo.uid=om.type==='outgoing'?me:(om._from||'')}
+    const id=messageId||('m-'+Date.now()+Math.random().toString(36).slice(2,5));
+    this._sending.add(id);
+    try{
+      await this._upMedia(m);
+      if(this._cancel.has(id)){this._cancel.delete(id);return null}
+      const text=this._env(m);
+      if(text.length>9500)throw lnkE('پیام بیش از حد بزرگ است','The message is too large');
+      const rp=(m.replyTo&&typeof m.replyTo.id==='string')?m.replyTo.id:null;
+      try{await lnkMk(LNC.tM,id,{chatId:c.sid,fromId:me,text:text,replyTo:rp,pinned:false,readByOther:false},lnkOwn(me))}catch(e){throw {fa:lnkEr(e)}}
+      const pv=previewText(m).slice(0,80),now=new Date().toISOString(),raw=c._raw||{},dd={last:pv,lastAt:now};
+      if(c.type==='private'&&c.id!=='saved'){const ob=c.side==='A'?'B':'A';dd['unread'+ob]=(raw['unread'+ob]||0)+1}
+      else if(c.type!=='private'){dd.msgCount=(raw.msgCount||0)+1}
+      try{const r2=await lnkUp(LNC.tC,c.sid,dd);c._raw=r2;if(dd.msgCount!==undefined){this._gr[c.sid]=r2.msgCount||dd.msgCount;this._svGr()}}
+      catch(e){showToast(LT('پیام رفت ولی فهرست گفتگو به‌روز نشد: ','Message sent but the chat list was not updated: ')+lnkEr(e))}
+      const out=Object.assign({},m,{id:id,type:'outgoing',time:lnkClock(new Date()),day:'امروز',status:c.id==='saved'?'read':'sent',_from:me,_at:Date.now(),_rb:false});
+      c.messages.push(out);c.lastMessage=pv;c.lastOut=true;c.time=lnkTm(now);c._t=Date.now();this._vis[c.sid]=1;this._svVis();this._persist();
+      return this.clone(out);
+    }finally{this._sending.delete(id)}
+  },
+  async addIncoming(chatId,payload){return Object.assign({id:'in-'+Date.now(),type:'incoming',kind:'text',time:lnkClock(new Date()),status:'read'},payload)},
+  /* ویرایش/واکنش: آخرین نسخهٔ ردیف را می‌گیرد، فقط بخش تغییرکرده را روی آن می‌نویسد و ذخیره می‌کند (تا تغییر هم‌زمان دیگران پاک نشود) */
+  async _mutate(id,fn){
+    const r=await lnkGet(LNC.tM,id),o=this._parse(r);o.kind=o.kind||'text';fn(o);
+    await lnkUp(LNC.tM,id,{text:this._env(o)});
+  },
+  async patchMessage(chatId,id,fn){
+    const c=this._chat(chatId);if(!c)return;const m=c.messages.find(x=>x.id===id);if(!m)return;
+    const before=JSON.parse(JSON.stringify(m));fn(m);
+    const rxOld=JSON.stringify(before.reactions||null),rxNew=JSON.stringify(m.reactions||null);
+    const mine=(m.reactions||[]).find(r=>r.mine);
+    const changed={};Object.keys(m).forEach(k=>{if(k[0]==='_'||k==='reactions'||k==='rx'||k==='status'||k==='src'||k==='time'||k==='day'||k==='type'||k==='id'||k==='pinned')return;if(JSON.stringify(m[k])!==JSON.stringify(before[k]))changed[k]=m[k]});
+    this._refreshLast(c);this._persist();
+    try{
+      await this._mutate(id,o=>{
+        Object.keys(changed).forEach(k=>{o[k]=changed[k]});
+        if(rxOld!==rxNew){o.rx=o.rx||{};if(mine)o.rx[LNK.uid]=mine.e;else delete o.rx[LNK.uid];if(!Object.keys(o.rx).length)delete o.rx}
+      });
+    }catch(e){showToast(LT('ذخیرهٔ تغییر روی سرور ناموفق بود: ','Could not save the change on the server: ')+lnkEr(e))}
+  },
+  async patchChat(chatId,fn){
+    const c=this._chat(chatId);if(!c)return;const a=c.pinnedId||null;fn(c);const b=c.pinnedId||null;
+    if(a!==b){
+      if(a)lnkUp(LNC.tM,a,{pinned:false}).catch(()=>{});
+      if(b)lnkUp(LNC.tM,b,{pinned:true}).catch(e=>showToast(LT('سنجاق روی سرور ثبت نشد: ','Pin was not saved on the server: ')+lnkEr(e)));
+      c.messages.forEach(m=>{m._pin=m.id===b});
+    }
+    this._persist();
+  },
+  async markRead(id){
+    const c=this._chat(id);if(!c)return true;
+    this._vis[c.sid]=1;this._svVis();
+    if(c.type!=='private'){this._gr[c.sid]=c._msgCount||0;this._svGr();c.unread=0;this._persist();return true}
+    c.unread=0;
+    if(c.id!=='saved'&&!document.hidden){
+      c.messages.filter(m=>m.type==='incoming'&&!m._rb).slice(-60).forEach(m=>{m._rb=true;lnkUp(LNC.tM,m.id,{readByOther:true}).catch(()=>{m._rb=false})});
+      const raw=c._raw||{};if((raw['unread'+c.side]||0)>0){lnkUp(LNC.tC,c.sid,{['unread'+c.side]:0}).then(r=>{c._raw=r}).catch(()=>{})}
+    }
+    this._persist();return true;
+  },
+  async deleteMessages(chatId,ids,scope){
+    const c=this._chat(chatId);if(!c)return;
+    ids.forEach(i=>this._cancel.add(i));setTimeout(()=>ids.forEach(i=>this._cancel.delete(i)),120000);
+    const server=scope!=='me'||c.id==='saved';
+    const mine=ids.filter(i=>{const m=c.messages.find(x=>x.id===i);return !m||m.type==='outgoing'});
+    const theirs=ids.filter(i=>mine.indexOf(i)<0);
+    theirs.forEach(i=>{this._hid[i]=1});
+    if(server){await Promise.all(mine.map(i=>lnkDel(LNC.tM,i).catch(e=>{if(!(e&&e.code===404))this._hid[i]=1})))}
+    else mine.forEach(i=>{this._hid[i]=1});
+    this._svHid();
+    c.messages=c.messages.filter(m=>ids.indexOf(m.id)<0);
+    if(ids.indexOf(c.pinnedId)>-1)c.pinnedId=null;
+    const l=c.messages[c.messages.length-1];c.lastMessage=l?previewText(l):'';c.lastOut=!!l&&l.type==='outgoing';
+    if(server&&mine.length&&c.messages.length&&c.loaded){lnkUp(LNC.tC,c.sid,{last:c.lastMessage.slice(0,80)}).catch(()=>{})}
+    this._persist();
+  },
+  async clearHistory(chatId){
+    const c=this._chat(chatId);if(!c)return;
+    this._clr[c.sid]=new Date().toISOString();this._svClr();
+    c.messages=[];c.pinnedId=null;c.lastMessage='';c.lastOut=false;
+    this._persist();
+  },
+  /* ----- مخاطب، گفتگوی خصوصی، گروه و کانال ----- */
+  async findUser(q){
+    q=String(q||'').trim().replace(/^@/,'');if(!q)return null;const Q=Appwrite.Query;
+    if(q.indexOf('@')>-1){return (await lnkRows(LNC.tU,[Q.equal('email',[q.toLowerCase()]),Q.limit(1)]))[0]||null}
+    try{const r=await lnkRows(LNC.tU,[Q.equal('username',[q.toLowerCase()]),Q.limit(1)]);if(r[0])return r[0]}catch(e){}
+    return null;
+  },
+  async startChat(q){
+    const me=LNK.uid,Q=Appwrite.Query,u=await this.findUser(q);
+    if(!u)throw lnkE('کاربری با این ایمیل/نام کاربری پیدا نشد؛ اول باید در «لینک» حساب بسازد','No user found with this email/username; they need to create an account in LINK first');
+    if(u.$id===me)throw lnkE('این خودِ شماست؛ از «پیام‌های ذخیره‌شده» استفاده کنید','That is you; use “Saved Messages” instead');
+    const ids=[me,u.$id].sort(),key=ids.join('_'),nm=u.name||u.email||LT('کاربر','User');
+    this.names[u.$id]=nm;this.users[u.$id]=u;
+    let row=(await lnkRows(LNC.tC,[Q.equal('pairKey',[key]),Q.limit(1)]))[0];
+    if(!row){
+      const nA=ids[0]===me?LNK.me.name:nm,nB=ids[1]===me?LNK.me.name:nm;
+      try{row=await lnkMk(LNC.tC,Appwrite.ID.unique(),{memberA:ids[0],memberB:ids[1],pairKey:key,nameA:nA,nameB:nB,last:'',unreadA:0,unreadB:0})}
+      catch(e){if(e&&e.code===409)row=(await lnkRows(LNC.tC,[Q.equal('pairKey',[key]),Q.limit(1)]))[0];else throw e}
+    }
+    if(!row)throw lnkE('گفتگو ساخته نشد','The chat could not be created');
+    const c=this._applyRow(row);this._vis[c.sid]=1;this._svVis();this._avLoad(c);this._persist();
+    return this.clone(c);
+  },
+  async createGroup(kind,name,about,ids,photo){
+    const me=LNK.uid,mem=[me].concat((ids||[]).filter(x=>x&&x!==me)),id=Appwrite.ID.unique();
+    let row;try{row=await lnkMk(LNC.tC,id,{memberA:me,memberB:me,pairKey:'g_'+id,nameA:name,nameB:name,last:(kind==='c'?'کانال':'گروه')+' ساخته شد',lastAt:new Date().toISOString(),unreadA:0,unreadB:0,kind:kind,title:name,about:about||'',owner:me,members:mem,msgCount:0})}
+    catch(e){throw {fa:lnkEr(e)}}
+    const c=this._applyRow(row);if(photo)c.photo=photo;this._vis[c.sid]=1;this._svVis();this._persist();
+    return this.clone(c);
+  },
+  /* ----- نام‌ها و عکس پروفایل ----- */
+  _need(ids){const q=ids.filter(u=>u&&!(u in this.names)&&!this._nq.has(u));q.forEach(u=>this._nq.add(u));if(!q.length)return;clearTimeout(this._nt);this._nt=setTimeout(()=>this._nameFetch(),60)},
+  async _nameFetch(){
+    const q=[...this._nq];this._nq.clear();
+    // برای شناسه‌هایی که قبلاً کاربرشان دریافت شده نیازی به درخواست نیست
+    const need=q.filter(u=>!this.users[u]);
+    try{for(let i=0;i<need.length;i+=50){const rs=await lnkRows(LNC.tU,[Appwrite.Query.equal('$id',need.slice(i,i+50)),Appwrite.Query.limit(50)]);rs.forEach(u=>{this.names[u.$id]=u.name||u.email||LT('کاربر','User');this.users[u.$id]=u})}}catch(e){}
+    q.forEach(u=>{if(!(u in this.names))this.names[u]=''});
+    this.db.chats.forEach(c=>{const u=c.peerId&&this.users[c.peerId];if(u)this._peerInfo(c,u)});
+    document.querySelectorAll('.ln-sn[data-uid]').forEach(el=>{const n=this.names[el.dataset.uid];if(n)el.textContent=n});
+  },
+  async _avLoad(c){
+    const uid=c.peerId;if(!uid||this._av[uid]!==undefined)return;this._av[uid]='';
+    try{
+      const fid='av'+uid;await LNK.sv.getFile({bucketId:LNC.bk,fileId:fid});
+      const ab=await LNK.cl.call('get',new URL(String(new URL(LNK.sv.getFileView({bucketId:LNC.bk,fileId:fid})))),{},{},'arrayBuffer');
+      const u=URL.createObjectURL(new Blob([ab],{type:'image/jpeg'}));this._av[uid]=u;
+      this.db.chats.forEach(k=>{if(k.peerId===uid)k.photo=u});this._bump();
+    }catch(e){}
+  },
+  /* ----- فایل‌ها: بارگذاری در Bucket و دریافت از آن ----- */
+  async _localBlob(mid){
+    let b=null;try{b=await MediaStore.get(mid)}catch(e){}if(b)return b;
+    const u=mediaUrls.get(mid);if(u){try{b=await (await fetch(u)).blob()}catch(e){}}
+    return b;
+  },
+  async _fitImg(blob,lim){
+    const bm=await createImageBitmap(blob);let w=bm.width,h=bm.height;const mx=2560;
+    if(Math.max(w,h)>mx){const s=mx/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s)}
+    const cv=document.createElement('canvas');let q=.86,out=null;
+    for(let i=0;i<14&&!out;i++){
+      cv.width=w;cv.height=h;const cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,w,h);cx.drawImage(bm,0,0,w,h);
+      const b=await new Promise(r=>cv.toBlob(r,'image/jpeg',q));
+      if(b&&b.size<=lim)out=b;else if(q>.5)q-=.12;else{w=Math.round(w*.8);h=Math.round(h*.8)}
+      if(w<64||h<64)break;
+    }
+    try{bm.close()}catch(e){}
+    return out;
+  },
+  async _upMedia(m){
+    const list=[];
+    if(m.mediaId)list.push({id:m.mediaId,k:m.kind==='photo'?(m.video?'video':'image'):m.kind==='videoNote'?'video':m.kind==='voice'?'voice':'file',name:m.name,mime:m.mime});
+    (m.items||[]).forEach(it=>{if(it&&it.mediaId)list.push({id:it.mediaId,k:it.video?'video':'image',name:it.name})});
+    for(const f of list)await this._putFile(f);
+  },
+  async _putFile(f){
+    const MX={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif','video/mp4':'mp4','video/webm':'webm','video/quicktime':'mov','audio/webm':'webm','audio/ogg':'ogg','audio/mp4':'m4a','audio/x-m4a':'m4a','audio/aac':'m4a','audio/mpeg':'mp3','application/pdf':'pdf','application/zip':'zip','text/plain':'txt'};
+    let blob=await this._localBlob(f.id);
+    if(!blob)throw lnkE('فایل در دسترس نیست؛ دوباره انتخابش کن','The file is not available; select it again');
+    let mime=String(blob.type||f.mime||'').split(';')[0],ex=MX[mime]||'';
+    if(f.k==='file'||!ex){const e2=lnkExt(f.name);if(LNX.indexOf(e2)>-1)ex=e2}
+    const lim=LNL[f.k]||LNL.file;
+    if(f.k==='image'&&blob.size>lim&&mime!=='image/gif'){
+      let b=null;try{b=await this._fitImg(blob,lim)}catch(e){}
+      if(b){blob=b;mime='image/jpeg';ex='jpg'}
+    }
+    if(LNX.indexOf(ex)<0)throw lnkE('قالب «'+(ex||'بدون پسوند')+'» در لینک مجاز نیست','The format “'+(ex||'no extension')+'” is not allowed in LINK');
+    if(blob.size>lim){const mb=Math.round(lim/1048576*10)/10;throw lnkE('حجم فایل از سقف '+toFaDigits(mb)+' مگابایت بیشتر است','The file is larger than the '+mb+' MB limit')}
+    const me=LNK.uid;
+    try{
+      await LNK.sv.createFile({bucketId:LNC.bk,fileId:f.id,file:new File([blob],f.id+'.'+ex,{type:mime||blob.type}),permissions:[Appwrite.Permission.read(Appwrite.Role.users()),Appwrite.Permission.update(Appwrite.Role.user(me)),Appwrite.Permission.delete(Appwrite.Role.user(me))]});
+    }catch(e){if(!(e&&e.code===409))throw {fa:lnkEr(e)}}
+  },
+  async fetchMedia(mid,mimeHint){
+    if(this._dl[mid])return this._dl[mid];
+    const p=(async()=>{
+      const url=String(new URL(LNK.sv.getFileView({bucketId:LNC.bk,fileId:mid})));
+      let meta=null;try{meta=await LNK.sv.getFile({bucketId:LNC.bk,fileId:mid})}catch(e){if(e&&e.code===404)return null}
+      let ab;
+      try{ab=await LNK.cl.call('get',new URL(url),{},{},'arrayBuffer')}
+      catch(e){
+        const h=Object.assign({},LNK.cl.headers||{});try{const fb=localStorage.getItem('cookieFallback');if(fb)h['X-Fallback-Cookies']=fb}catch(x){}
+        const r=await fetch(url,{headers:h,credentials:'include'});if(!r.ok)throw new Error('http '+r.status);ab=await r.arrayBuffer();
+      }
+      const ty=(meta&&meta.mimeType)||mimeHint||'';
+      return new Blob([ab],ty?{type:ty}:{});
+    })().finally(()=>{delete this._dl[mid]});
+    this._dl[mid]=p;return p;
+  },
+  /* ----- به‌روزرسانی زنده ----- */
+  async live(){
+    this.stop();
+    const ch=[];for(const t of[LNC.tC,LNC.tM])ch.push('tablesdb.'+LNC.db+'.tables.'+t+'.rows','databases.'+LNC.db+'.tables.'+t+'.rows');
+    const cb=r=>{try{this._onRt(r)}catch(e){}};
+    try{
+      if(Appwrite.Realtime){const rt=new Appwrite.Realtime(LNK.cl);const sub=await rt.subscribe(ch,cb);this._sub=()=>{try{sub.close()}catch(e){}}}
+      else if(LNK.cl.subscribe){const un=LNK.cl.subscribe(ch,cb);this._sub=()=>{try{un()}catch(e){}}}
+    }catch(e){this._sub=null}
+    this._poll=setInterval(()=>{if(document.hidden)return;this._resync()},this._sub?300000:15000);
+    if(!this._vh){this._vh=1;document.addEventListener('visibilitychange',()=>{if(!document.hidden&&this.db){this._resync();const c=this._chat(typeof currentChatId!=='undefined'?currentChatId:'');if(c&&this._isOpen(c))this.markRead(c.id)}})}
+  },
+  stop(){if(this._sub){this._sub();this._sub=null}clearInterval(this._poll);this._poll=null},
+  async _resync(){
+    if(!this.db||this._rs)return;this._rs=1;
+    try{
+      await this.syncChats();this._bump();
+      const c=this._chat(typeof currentChatId!=='undefined'?currentChatId:'');
+      if(c&&this._isOpen(c)){const d=await this._loadMsgs(c);lnkUiApply(c,d);this.markRead(c.id)}
+    }catch(e){}
+    this._rs=0;
+  },
+  _onRt(r){
+    const p=(r&&r.payload)||{},ev=((r&&r.events)||[]).join(' ');
+    if('chatId' in p)this._onMsg(ev,p);
+    else if('memberA' in p||Array.isArray(p.members))this._onChat(ev,p);
+  },
+  async _onChat(ev,p){
+    const me=LNK.uid,del=/\.delete\b/.test(ev);
+    if(del){const c=this.db.chats.find(k=>k.sid===p.$id);if(c){this.db.chats=this.db.chats.filter(k=>k!==c);if(this._isOpen(c))closeChat();this._bump();this._persist()}return}
+    if(!(p.memberA===me||p.memberB===me||(p.members||[]).indexOf(me)>-1))return;
+    const c=this._applyRow(p);
+    if(c.peerId){this._need([c.peerId]);this._avLoad(c)}
+    if(this._isOpen(c)&&c.id!=='saved'){this.markRead(c.id)}
+    this._bump();this._persist();
+  },
+  async _onMsg(ev,p){
+    if(p.kind==='call')return;
+    const c=this.db.chats.find(k=>k.sid===p.chatId);
+    const del=/\.delete\b/.test(ev);
+    if(!c)return; // پیام گفتگوهای ناشناس نادیده گرفته می‌شود؛ گفتگوی جدید از رویداد جدول chats اضافه می‌شود
+    if(del){const m=c.messages.find(x=>x.id===p.$id);if(m){c.messages=c.messages.filter(x=>x!==m);lnkUiGone(c,p.$id)}return}
+    if(this._hid[p.$id]||this._sending.has(p.$id))return;
+    const cl=this._clr[c.sid];if(cl&&p.$createdAt<=cl)return;
+    if(!c.loaded)return;
+    const m=this._msgFromRow(p,c),i=c.messages.findIndex(x=>x.id===m.id);
+    if(i<0){
+      c.messages.push(m);c.messages.sort((a,b)=>a._at-b._at);
+      c.lastMessage=previewText(m);c.lastOut=m.type==='outgoing';
+      lnkUiApply(c,{added:[m],changed:[],removed:[]});
+    }else{
+      const o=c.messages[i];if(o.src)m.src=o.src;
+      const ch=this._sig(o)!==this._sig(m);c.messages[i]=m;
+      if(m._pin){c.pinnedId=m.id}else if(c.pinnedId===m.id)c.pinnedId=null;
+      if(ch)lnkUiApply(c,{added:[],changed:[m],removed:[]});
+    }
+    this._persist();
+  },
+  async logout(){try{await LNK.au.deleteSession({sessionId:'current'})}catch(e){}this.stop();location.reload()}
+};
+
+</script>
+<script>
 const faDigits=['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
 const toFaDigits=v=>LANG==='fa'?String(v).replace(/\d/g,d=>faDigits[d]):String(v);
 function formatTime(t){const s=Math.max(0,Math.floor(t));return toFaDigits(Math.floor(s/60)+':'+String(s%60).padStart(2,'0'));}
@@ -1304,51 +1847,6 @@ const LOCK_OPEN='<svg class="svg-icon" viewBox="0 0 24 24"><rect x="5" y="11" wi
 const LOCK_CLOSED='<svg class="svg-icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 const MUTE_ICON='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m23 9-6 6M17 9l6 6"/></svg>';
 const SPEAKER_ICON='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
-
-const LINKServer={
-storageKey:'link-messenger-db-v9',db:null,
-async wait(){return new Promise(r=>setTimeout(r,200+Math.random()*240));},
-seedBase(){return{profile:{name:'کاربر LINK',phone:'۰۹۲ ۰۰ ۰۰۰۰',username:'@link_user',email:'me@link.app',bio:'طراحی رابط کاربری',initial:'ک',avatar:'c6'},
-chats:[
-{id:'team',title:'تیم طراحی محصول',status:'۵ عضو، ۲ آنلاین',initial:'ت',avatar:'c6',unread:2,time:'۱۲:۴۸',lastMessage:'پیام ویدیویی',phone:'۰۲۱ ۸۸۷۷۶۶۵۵',username:'@design_team',email:'team@link.app',bio:'گروه طراحی محصول LINK',messages:[
-{id:'team-1',type:'incoming',kind:'text',text:'سلام، فایل جدید رو آپلود کردم.',time:'۱۲:۴۶',status:'read'},
-{id:'team-2',type:'incoming',kind:'voice',duration:9,time:'۱۲:۴۷',status:'read'},
-{id:'team-3',type:'outgoing',kind:'videoNote',duration:7,time:'۱۲:۴۸',status:'read'}]},
-{id:'sara',title:'سارا احمدی',status:'آخرین بازدید اخیراً',initial:'س',avatar:'c1',unread:1,time:'۱۲:۳۵',lastMessage:'باشه، مرسی',phone:'۰۹۲ ۱۱۱ ۲۲۳',username:'@sara_ax',email:'sara@link.app',bio:'عاشق قهوه و طراحی',messages:[
-{id:'sara-1',type:'incoming',kind:'text',text:'باشه، مرسی',time:'۱۲:۳۵',status:'read'},
-{id:'sara-2',type:'outgoing',kind:'text',text:'قربانت، فردا هماهنگ می‌کنم.',time:'۱۲:۳۶',status:'read'}]},
-{id:'saved',title:'ذخیره‌شده‌ها',status:'پیام‌های ذخیره‌شده',initial:'ذ',avatar:'c3',unread:0,time:'۱۰:۱۵',lastMessage:'پیام صوتی',phone:'—',username:'—',email:'—',bio:'—',messages:[
-{id:'saved-1',type:'outgoing',kind:'voice',duration:4,time:'۱۰:۱۴',status:'read'},
-{id:'saved-2',type:'outgoing',kind:'text',text:'لینک جلسه طراحی',time:'۱۰:۱۵',status:'read'}]},
-{id:'ali',title:'علی رضایی',status:'آنلاین',initial:'ع',avatar:'c4',unread:3,time:'۰۹:۵۸',lastMessage:'فردا صبح میام دفتر.',phone:'۰۹۳۵ ۲۲۲ ۳۳۴۴',username:'@ali_r',email:'ali@link.app',bio:'توسعه‌دهنده بک‌اند',messages:[
-{id:'ali-1',type:'incoming',kind:'text',text:'فردا صبح میام دفتر.',time:'۰۹:۵۸',status:'read'}]},
-{id:'channel',title:'کانال اخبار',status:'۱۲.۴ هزار عضو',initial:'ک',avatar:'c2',unread:5,time:'دیروز',lastMessage:'اطلاعیه مهم: بروزرسانی جدید منتشر شد',phone:'—',username:'@link_news',email:'news@link.app',bio:'اخبار رسمی LINK',messages:[
-{id:'channel-1',type:'incoming',kind:'text',text:'اطلاعیه مهم: بروزرسانی جدید منتشر شد.',time:'دیروز',status:'read'}]},
-{id:'family',title:'گروه خانواده',status:'۸ عضو، ۳ آنلاین',initial:'گ',avatar:'c5',unread:7,time:'دیروز',lastMessage:'مامان: شام چی درست کنم؟',phone:'—',username:'—',email:'—',bio:'—',messages:[
-{id:'family-1',type:'incoming',kind:'text',text:'مامان: شام چی درست کنم؟',time:'دیروز',status:'read'}]}
-]};},
-seed(){const d=this.seedBase();enrichSeed(d);return d;},
-async load(){try{const r=localStorage.getItem(this.storageKey);if(r)return JSON.parse(r);}catch(e){}return this.seed();},
-async save(){try{localStorage.setItem(this.storageKey,JSON.stringify(this.db,(k,v)=>(k==='src'&&typeof v==='string'&&v.startsWith('blob:'))?undefined:v));}catch(e){}},
-async init(){if(!this.db){this.db=await this.load();}if(!this.db.botSeeded){if(!this.db.chats.some(c=>c.id==='linkbot'))this.db.chats.push({id:'linkbot',type:'bot',title:'ربات LINK',status:'ربات',initial:'ر',avatar:'c2',unread:1,time:'۰۸:۳۰',lastMessage:'سلام! من ربات LINK هستم.',phone:'—',username:'@link_bot',email:'—',bio:'ربات رسمی LINK',messages:[{id:'linkbot-1',type:'incoming',kind:'text',text:'سلام! من ربات LINK هستم.',time:'۰۸:۳۰',status:'read'}]});this.db.botSeeded=true;}await this.save();},
-clone(o){return JSON.parse(JSON.stringify(o));},
-async getProfile(){await this.wait();return this.clone(this.db.profile);},
-async getChats(){await this.wait();return this.clone(this.db.chats);},
-async getChat(id){await this.wait();const c=this.db.chats.find(c=>c.id===id);return c?this.clone(c):null;},
-async markRead(id){await this.wait();const c=this.db.chats.find(c=>c.id===id);if(c){c.unread=0;await this.save();}return true;},
-refreshLast(c){const l=c.messages[c.messages.length-1];c.lastMessage=l?previewText(l):'';c.lastOut=!!l&&l.type==='outgoing';if(l)c.time=l.time;},
-async patchMessage(chatId,id,fn){const c=this.db.chats.find(c=>c.id===chatId);if(!c)return;const m=c.messages.find(x=>x.id===id);if(m){fn(m);this.refreshLast(c);await this.save();}},
-async patchChat(chatId,fn){const c=this.db.chats.find(c=>c.id===chatId);if(c){fn(c);await this.save();}},
-async deleteMessages(chatId,ids){const c=this.db.chats.find(c=>c.id===chatId);if(!c)return;c.messages=c.messages.filter(m=>!ids.includes(m.id));if(ids.includes(c.pinnedId))c.pinnedId=null;this.refreshLast(c);await this.save();},
-async clearHistory(chatId){const c=this.db.chats.find(c=>c.id===chatId);if(!c)return;c.messages=[];c.pinnedId=null;c.lastMessage='';c.lastOut=false;await this.save();},
-async addIncoming(chatId,payload,unread){const c=this.db.chats.find(c=>c.id===chatId);const m=Object.assign({id:'in-'+Date.now()+Math.random().toString(36).slice(2,5),type:'incoming',kind:'text',time:currentFaTime(),status:'read'},payload);c.messages.push(m);c.lastMessage=previewText(m);c.lastOut=false;c.time=m.time;if(unread)c.unread=(c.unread||0)+1;await this.save();return this.clone(m);},
-async sendMessage(chatId,payload,messageId){await this.wait();const c=this.db.chats.find(c=>c.id===chatId);if(!c)throw new Error('no chat');
-const kind=payload.kind||'text';
-const m=Object.assign({},payload,{id:messageId||'m-'+Date.now(),type:'outgoing',kind,time:currentFaTime(),status:'read'});
-c.messages.push(m);
-c.lastMessage=previewText(m);c.lastOut=true;
-c.time=m.time;await this.save();return this.clone(m);}
-};
 
 const $=id=>document.getElementById(id);
 const chatListEl=$('chatList'),searchInput=$('searchInput'),chatScreen=$('chatScreen'),backBtn=$('backBtn'),chatHeader=$('chatHeader'),
@@ -1395,7 +1893,9 @@ open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);try{const r
 put(id,blob){return Promise.race([this._put(id,blob),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),4000))]);},
 async _put(id,blob){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction('blobs','readwrite');t.objectStore('blobs').put(blob,id);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error||new Error('abort'));});},
 async get(id){const db=await this.open();return new Promise((res,rej)=>{const q=db.transaction('blobs').objectStore('blobs').get(id);q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error);});}};
-async function resolveMediaUrl(m){if(m.src&&String(m.src).startsWith('blob:'))return m.src;if(m.dataUrl)return m.dataUrl;if(!m.mediaId)return null;let u=mediaUrls.get(m.mediaId);if(u)return u;try{const b=await MediaStore.get(m.mediaId);if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);return u;}}catch(e){}return null;}
+async function resolveMediaUrl(m){if(m.src&&String(m.src).startsWith('blob:'))return m.src;if(m.dataUrl)return m.dataUrl;if(!m.mediaId)return null;let u=mediaUrls.get(m.mediaId);if(u)return u;try{const b=await MediaStore.get(m.mediaId);if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);return u;}}catch(e){}
+try{if(window.LINKServer&&LINKServer.fetchMedia&&LINKServer.db){const b=await LINKServer.fetchMedia(m.mediaId,m.mime);u=mediaUrls.get(m.mediaId);if(u)return u;if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);try{MediaStore.put(m.mediaId,b).catch(()=>{});}catch(e){}return u;}}}catch(e){}
+return null;}
 const vnObserver=('IntersectionObserver' in window)?new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(v.dataset.ctl==='1')return;if(e.isIntersecting){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else v.pause();}),{threshold:.25}):null;
 async function attachRealVideo(b,m){if(!m.src&&!m.mediaId){const dn=b.querySelector('.video-note');if(dn)setTimeout(()=>dn.classList.add('dl'),900+Math.random()*1400);return;}const url=await resolveMediaUrl(m);if(!url)return;const note=b.querySelector('.video-note');if(!note||note.querySelector('.vn-video'))return;
 const v=document.createElement('video');v.className='vn-video';if(m.noMirror)v.style.transform='none';v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.loop=true;v.autoplay=true;v.defaultMuted=true;v.setAttribute('muted','');v.setAttribute('loop','');v.addEventListener('loadeddata',()=>{if(v.dataset.ctl!=='1'){const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}});v.disablePictureInPicture=true;const TS=m.trimStart||0,TE=m.trimEnd||0;if(TS||TE){v.addEventListener('loadedmetadata',()=>{try{v.currentTime=TS+0.05;}catch(e){}});v.addEventListener('timeupdate',()=>{if(v.dataset.ctl!=='1'&&TE&&v.currentTime>=TE-0.03){try{v.currentTime=TS+0.05;}catch(e){}}});}
@@ -1845,7 +2345,7 @@ opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.clas
 const cb=document.createElement('button');cb.type='button';cb.textContent='لغو';cb.onclick=()=>done(null);B.appendChild(cb);
 d.onclick=e=>{if(e.target===d)done(null);};d.classList.add('active');});}
 async function deleteMessages(ids){const scope=await askDeleteScope(ids);if(!scope)return;
-await LINKServer.deleteMessages(currentChatId,ids);
+await LINKServer.deleteMessages(currentChatId,ids,scope);
 ids.forEach(id=>{const el=msgElById(id);if(el)removeMsgEl(el);const p=players.get(id);if(p){p.stopReset();players.delete(id);}const i=currentMessages.findIndex(m=>m.id===id);if(i>-1)currentMessages.splice(i,1);});
 if(pinnedId&&ids.includes(pinnedId)){pinnedId=null;updatePinBar();}
 exitSelect();allChats=await LINKServer.getChats();renderCurrentChatList();}
@@ -1857,7 +2357,7 @@ function closeForward(){$('fwdSheet').classList.remove('active');$('fwdOverlay')
 $('fwdOverlay').addEventListener('click',closeForward);
 async function doForward(cid){closeForward();const from=currentChatTitle;const list=fwdIds.map(findMsg).filter(Boolean);
 for(const m of list){const p={};['kind','text','duration','caption','src','seed','w','h','name','size','video','addr','phone','mediaId','wave','trimStart','trimEnd','noMirror','items','mime','bytes','artist','mtitle'].forEach(k=>{if(m[k]!==undefined)p[k]=m[k];});p.forwarded=m.forwarded||(m.type==='outgoing'?'شما':from);
-if(cid===currentChatId)await sendOutgoingMessage(p);else await LINKServer.sendMessage(cid,p);}
+if(cid===currentChatId)await sendOutgoingMessage(p);else{try{await LINKServer.sendMessage(cid,p);}catch(e){showToast(lnkEr(e));}}}
 exitSelect();allChats=await LINKServer.getChats();renderCurrentChatList();if(cid!==currentChatId)showToast('پیام ارسال شد');}
 
 /* ---- انتخاب چندتایی ---- */
@@ -2020,10 +2520,10 @@ messageInput.value='';autosize();updateSendButton();sendOutgoingMessage({kind:'t
 async function sendOutgoingMessage(payload){if(!currentChatId)return;const chatId=currentChatId;const id='m-'+Date.now()+Math.random().toString(36).slice(2,5);
 const m=Object.assign({id,type:'outgoing',kind:'text',time:currentFaTime(),status:'sending'},payload);currentMessages.push(m);
 const near=true;appendMessage(m,true);stick=true;scrollToBottom(true);
-try{const _dbp=Object.assign({},payload,{status:'read'});delete _dbp._up;await LINKServer.sendMessage(chatId,_dbp,id);}catch(e){}
-const _ud=payload._up&&window.__upDur?window.__upDur(payload):0;setTimeout(()=>setMsgStatus(id,'sent'),350+_ud);setTimeout(()=>setMsgStatus(id,'read'),1500+_ud);
-allChats=await LINKServer.getChats();renderCurrentChatList();
-if(m.kind==='text'&&!m.forwarded)simulateReply(chatId);}
+let _ok=true;const _t0=Date.now();try{const _dbp=Object.assign({},payload,{status:'read'});delete _dbp._up;await LINKServer.sendMessage(chatId,_dbp,id);}catch(e){_ok=false;showToast(lnkEr(e));}
+if(!_ok){const _el=msgElById(id);if(_el)removeMsgEl(_el);const _i=currentMessages.findIndex(x=>x.id===id);if(_i>-1)currentMessages.splice(_i,1);if(m.kind==='text'&&m.text&&!messageInput.value){messageInput.value=m.text;autosize();updateSendButton();}allChats=await LINKServer.getChats();renderCurrentChatList();return;}
+const _ud=payload._up&&window.__upDur?window.__upDur(payload):0;setTimeout(()=>{const _m=findMsg(id);if(_m&&_m.status==='read')return;setMsgStatus(id,chatId==='saved'?'read':'sent');},Math.max(0,350+_ud-(Date.now()-_t0)));
+allChats=await LINKServer.getChats();renderCurrentChatList();}
 const REPLIES=['باشه، حتماً 👍','ممنون از اطلاعت!','الان می‌بینم و خبر می‌دم','عالیه 😍','هماهنگ می‌کنم','خیلی خوبه، دمت گرم 🔥','🙏','چشم، تا یه ساعت دیگه می‌فرستم','ایول! 😂'];
 function setTyping(on){clearTimeout(typingTimer);const c=allChats.find(x=>x.id===currentChatId);
 if(on)chatStatus.innerHTML='<span>در حال نوشتن</span><span class="dots"><i></i><i></i><i></i></span>';else if(c)chatStatus.textContent=c.status;}
@@ -2664,7 +3164,7 @@ const S={v:'home',mode:'group',sel:new Map(),photo:'',stack:[]};
 const ARW='<svg class="svg-icon" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>',CHK='<svg class="svg-icon" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>';
 const kindOf=c=>c.type==='group'||c.type==='channel'?c.type:c.type==='bot'?'bot':c.id==='saved'?'saved':c.id==='channel'?'channel':(c.id==='family'||c.id==='team')?'group':'private';
 const avc=n=>'c'+(1+[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%6);
-function contacts(){const db=LINKServer.db,out=[];(db.chats||[]).forEach(c=>{if(kindOf(c)==='private')out.push({key:'c:'+c.id,name:c.title,phone:(c.phone&&c.phone!=='—')?c.phone:'',initial:c.initial,avatar:c.avatar,photo:c.photo,chatId:c.id});});
+function contacts(){const db=LINKServer.db,out=[];(db.chats||[]).forEach(c=>{if(kindOf(c)==='private')out.push({key:'c:'+c.id,name:c.title,phone:(c.email&&c.email!=='—')?c.email:'',initial:c.initial,avatar:c.avatar,photo:c.photo,chatId:c.id,peerId:c.peerId});});
 (db.contacts||[]).forEach(k=>{if(!(db.chats||[]).some(c=>c.contactId===k.id))out.push({key:'k:'+k.id,name:k.name,phone:k.phone||'',initial:(k.name.trim().charAt(0)||'؟'),avatar:avc(k.name),contactId:k.id});});
 return out.sort((a,b)=>a.name.localeCompare(b.name,'fa'));}
 function av(o){const d=document.createElement('div');d.className='avatar '+(o.avatar||'c1');d.style.cssText='width:44px;height:44px;font-size:17px';if(o.photo)d.style.background='url('+o.photo+') center/cover';else d.textContent=o.initial||'؟';return d;}
@@ -2690,10 +3190,11 @@ const db=LINKServer.db,id='ct-'+o.contactId;if(!db.chats.some(c=>c.id===id))db.c
 await LINKServer.save();allChats=await LINKServer.getChats();renderCurrentChatList();openChatById(id);}
 function resize(f){return new Promise(res=>{const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d'),m=Math.min(im.width,im.height);x.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,256,256);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.82));};im.onerror=()=>{URL.revokeObjectURL(u);res('');};im.src=u;});}
 async function create(){const name=$('nsName').value.trim();if(!name){showToast('نام را وارد کنید');return;}
-const g=S.mode==='group',mem=[...S.sel.values()],db=LINKServer.db;
-const chat={id:(g?'g-':'ch-')+Date.now().toString(36),type:S.mode,title:name,status:g?toFaDigits(mem.length+1)+' عضو':(mem.length?toFaDigits(mem.length)+' مشترک':'کانال'),initial:name.charAt(0),avatar:avc(name),photo:S.photo||'',unread:0,time:currentFaTime(),lastMessage:g?'گروه ساخته شد':'کانال ساخته شد',lastOut:false,phone:'—',username:'—',email:'—',bio:g?'—':($('nsDesc').value.trim()||'—'),members:mem.map(m=>({name:m.name,phone:m.phone})),messages:[]};
-db.chats.unshift(chat);await LINKServer.save();allChats=await LINKServer.getChats();renderCurrentChatList();closeNs();openChatById(chat.id);}
-async function saveContact(){const n=$('nsCName').value.trim(),ph=$('nsCPhone').value.trim();if(!n){showToast('نام را وارد کنید');return;}const db=LINKServer.db;db.contacts=db.contacts||[];db.contacts.push({id:'k'+Date.now().toString(36),name:n,phone:toFaDigits(ph)});await LINKServer.save();showToast('مخاطب ذخیره شد');$('nsCName').value='';$('nsCPhone').value='';S.stack=[];go('home',false);}
+const g=S.mode==='group',mem=[...S.sel.values()];
+try{const chat=await LINKServer.createGroup(g?'g':'c',name,g?'':$('nsDesc').value.trim(),mem.map(x=>x.peerId).filter(Boolean),S.photo||'');
+allChats=await LINKServer.getChats();renderCurrentChatList();closeNs();openChatById(chat.id);}catch(e){showToast(lnkEr(e));}}
+async function saveContact(){const q=$('nsCPhone').value.trim();if(!q){showToast(LT('ایمیل یا نام کاربری را وارد کنید','Enter an email or username'));return;}
+const b=$('nsCSave');b.disabled=true;try{const chat=await LINKServer.startChat(q);$('nsCName').value='';$('nsCPhone').value='';allChats=await LINKServer.getChats();renderCurrentChatList();closeNs();openChatById(chat.id);}catch(e){showToast(lnkEr(e));}finally{b.disabled=false;}}
 document.querySelector('.fab').addEventListener('click',openNs);
 const dc=document.querySelector('.drawer-item[data-placeholder="مخاطبین"]');if(dc){dc.removeAttribute('data-placeholder');dc.addEventListener('click',openNs);}
 NS.addEventListener('click',e=>{const a=e.target.closest('[data-go]');if(!a)return;const t=a.dataset.go;if(t==='add')go('add');else{S.mode=t;S.sel=new Map();S.photo='';go('pick');}});
@@ -2733,7 +3234,64 @@ if(m.kind==='voice'){mediaUrls.set(id,URL.createObjectURL(wav(sec,[...m.id].redu
 else{m.noMirror=true;video(sec).then(b=>{if(b){mediaUrls.set(id,URL.createObjectURL(b));m.mediaId=id;}}).catch(()=>{});}}));}
 let tries=0;const iv=setInterval(()=>{if(LINKServer.db){clearInterval(iv);run();}else if(++tries>150)clearInterval(iv);},200);
 })();
-(async function initApp(){await PermGate.run();await LINKServer.init();allChats=await LINKServer.getChats();renderCurrentChatList();
+/* ===== v46 · پیوند رابط با سرور: اعمال تغییرات زنده روی گفتگوی باز، نام فرستنده در گروه، خروج از حساب ===== */
+function lnkUiApply(c,d){
+  try{
+    if(currentChatId!==c.id||!chatScreen.classList.contains('active'))return;
+    (d.removed||[]).forEach(id=>lnkUiGone(c,id));
+    (d.added||[]).forEach(m=>{
+      if(currentMessages.some(x=>x.id===m.id))return;
+      const wasNear=nearBottom(160),mm=JSON.parse(JSON.stringify(m));
+      currentMessages.push(mm);appendMessage(mm,true);
+      if(wasNear)scrollToBottom(true);else if(mm.type==='incoming')bumpScrollBadge();
+      if(mm.type==='incoming'){vibrate(6);LINKServer.markRead(c.id);}
+    });
+    (d.changed||[]).forEach(m=>{
+      const old=currentMessages.find(x=>x.id===m.id);if(!old)return;
+      const before=JSON.stringify([old.text,old.caption,old.edited,old.reactions]),st0=old.status;
+      ['reactions','edited','caption'].forEach(k=>{if(!(k in m))delete old[k];});
+      Object.assign(old,JSON.parse(JSON.stringify(m)));
+      if(before!==JSON.stringify([old.text,old.caption,old.edited,old.reactions])){
+        const el=msgElById(m.id);if(el){const n=createMessageEl(old);el.replaceWith(n);regroup();}
+      }else if(old.status!==st0)setMsgStatus(m.id,old.status);
+    });
+    pinnedId=c.pinnedId||null;updatePinBar();
+  }catch(e){}
+}
+function lnkUiGone(c,id){
+  try{
+    if(currentChatId!==c.id)return;
+    const el=msgElById(id);if(el)removeMsgEl(el);
+    const p=players.get(id);if(p){p.stopReset();players.delete(id);}
+    const i=currentMessages.findIndex(x=>x.id===id);if(i>-1)currentMessages.splice(i,1);
+    if(pinnedId===id){pinnedId=null;updatePinBar();}
+  }catch(e){}
+}
+/* نام فرستنده بالای پیام‌های دریافتی در گروه */
+(function(){
+  const base=createMessageEl;
+  createMessageEl=function(m,enter){
+    const el=base(m,enter);
+    try{
+      if(m._grp&&m.type==='incoming'&&m._from&&['photo','album','videoNote','location'].indexOf(m.kind||'text')<0){
+        const bub=el.querySelector('.bubble');
+        if(bub&&!bub.querySelector('.ln-sn')){const d=document.createElement('div');d.className='ln-sn';d.dataset.uid=m._from;d.textContent=LINKServer.names[m._from]||'…';bub.insertBefore(d,bub.firstChild);}
+      }
+    }catch(e){}
+    return el;
+  };
+})();
+function lnkUiBoot(){
+  const f=document.querySelector('.drawer-footer');
+  if(f&&!f.querySelector('.ln-ver'))f.insertAdjacentHTML('beforeend',' <span class="ln-ver" dir="ltr">· '+LINK_VERSION+'</span>');
+  const lt=$('drawerLogoutT');if(lt)lt.textContent=LT('خروج از حساب','Log out');
+  const cp=$('nsCPhone');if(cp){cp.placeholder=LT('ایمیل یا نام کاربری','Email or username');cp.setAttribute('inputmode','email');cp.setAttribute('dir','ltr');cp.setAttribute('autocapitalize','none');cp.setAttribute('autocomplete','off');cp.style.textAlign='left';}
+  const cn=$('nsCName');if(cn)cn.style.display='none';
+  const lo=$('drawerLogout');
+  if(lo)lo.addEventListener('click',async()=>{closeDrawer();const ok=await askConfirm({title:LT('خروج از حساب','Log out'),text:LT('از حساب خود خارج می‌شوید.','You will be signed out of your account.'),yes:LT('خروج','Log out')});if(ok)LINKServer.logout();});
+}
+
+(async function initApp(){await LINKServer.init();await PermGate.run();allChats=await LINKServer.getChats();renderCurrentChatList();lnkUiBoot();
 const p=await LINKServer.getProfile();
 $('drawerName').textContent=p.name;$('drawerPhone').textContent=p.phone;$('drawerAvatar').textContent=p.initial;$('drawerAvatar').className='avatar drawer-avatar '+p.avatar;
 $('settingsName').textContent=p.name;$('settingsPhone').textContent=p.phone;$('settingsUsername').textContent=p.username;$('settingsAvatar').textContent=p.initial;$('settingsAvatar').className='avatar profile-avatar '+p.avatar;
