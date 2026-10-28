@@ -5,13 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#2f9cf0" />
 <title>LINK — پیام‌رسان</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
 <script>
 try {
   const t = localStorage.getItem('link-theme');
   if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.dataset.theme = 'dark';
+} catch (e) {}
+try {
+  if (localStorage.getItem('link-font') === 'vazir') {
+    document.documentElement.dataset.font = 'vazir';
+    const l = document.createElement('link'); l.id = 'vazirLink'; l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800&display=swap';
+    document.head.appendChild(l);
+  }
 } catch (e) {}
 </script>
 <style>
@@ -34,8 +39,9 @@ html[data-theme="dark"]{
 }
 *{box-sizing:border-box;-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;touch-action:manipulation}
-body{font-family:"Vazirmatn","Vazir",Tahoma,Arial,sans-serif;background:var(--bg-body);color:var(--text-main);overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Arabic","SF Pro Text","SF Pro","Geeza Pro","Helvetica Neue",system-ui,Tahoma,Arial,sans-serif;-webkit-font-smoothing:antialiased;background:var(--bg-body);color:var(--text-main);overflow:hidden}
 button,input{font-family:inherit;touch-action:manipulation}
+html[data-font="vazir"] body{font-family:"Vazirmatn","Vazir",Tahoma,Arial,sans-serif}
 img,svg{-webkit-user-drag:none;user-drag:none;pointer-events:none}
 .hidden{display:none !important}
 .phone-frame{height:100dvh;display:flex;align-items:center;justify-content:center}
@@ -555,11 +561,13 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 .trim-sel{position:absolute;top:0;bottom:0;border-top:2px solid var(--primary);border-bottom:2px solid var(--primary);pointer-events:none;box-sizing:border-box}
 .trim-h{position:absolute;top:0;bottom:0;width:18px;background:var(--primary);display:grid;place-items:center;touch-action:none;cursor:ew-resize;z-index:2}
 .trim-h::after{content:"";width:3px;height:16px;border-radius:2px;background:#fff}
-.trim-time{position:absolute;left:50%;bottom:3px;transform:translateX(-50%);font-size:11px;font-weight:700;color:#fff;background:rgba(0,0,0,.5);padding:1px 7px;border-radius:999px;pointer-events:none;z-index:3}
+.trim-time{position:absolute;left:50%;top:1px;transform:translateX(-50%);font-size:9px;font-weight:700;color:#fff;background:rgba(0,0,0,.5);padding:1px 7px;border-radius:999px;pointer-events:none;z-index:3}
 #recPause{display:none}
 .inputbar.recording.locked #recPause{display:grid}
 #recPause,#vrPause{flex-shrink:0}
-#recPlay,#vrPlay{display:none;flex-shrink:0}
+#recPlay,#vrPlay{display:none!important}
+.trim-play{position:absolute;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;padding:0;border:none;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:grid;place-items:center;z-index:4;cursor:pointer}
+.trim-play .svg-icon{width:13px;height:13px}
 .inputbar.paused #recPlay{display:grid}
 .vr-overlay.paused #vrPlay{display:grid}
 .trim-ph{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 3px rgba(0,0,0,.6);display:none;pointer-events:none;z-index:2}
@@ -723,6 +731,11 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
 <span class="setting-label">حالت شب</span>
 <label class="switch"><input type="checkbox" id="darkModeToggle" /><span class="slider"></span></label>
+</div>
+<div class="settings-item">
+<svg class="svg-icon" viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+<span class="setting-label">فونت وزیرمتن (به‌جای فونت سیستم)</span>
+<label class="switch"><input type="checkbox" id="fontToggle" /><span class="slider"></span></label>
 </div>
 </div>
 </main>
@@ -914,6 +927,10 @@ const swipeState={msg:null,shift:null,startX:0,startY:0,dragging:false,dx:0};
 
 function applyTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('link-theme',t);}catch(e){}darkModeToggle.checked=t==='dark';}
 darkModeToggle.addEventListener('change',()=>applyTheme(darkModeToggle.checked?'dark':'light'));
+const fontToggle=$('fontToggle');
+function applyFont(f){const v=f==='vazir';if(v){document.documentElement.dataset.font='vazir';if(!document.getElementById('vazirLink')){const l=document.createElement('link');l.id='vazirLink';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800&display=swap';document.head.appendChild(l);}}else{delete document.documentElement.dataset.font;}try{localStorage.setItem('link-font',v?'vazir':'system');}catch(e){}fontToggle.checked=v;}
+fontToggle.checked=document.documentElement.dataset.font==='vazir';
+fontToggle.addEventListener('change',()=>applyFont(fontToggle.checked?'vazir':'system'));
 
 function showBar(p){activeBarPlayer=p;pbTitle.textContent=p.title;pbSub.textContent=p.kind==='voice'?'پیام صوتی':'پیام ویدیویی';pbSpeed.textContent=toFaDigits(String(p.speed))+'x';pbToggle.innerHTML=p.playing?PAUSE_ICON:PLAY_ICON;playerBar.classList.add('active');}
 function hideBar(){activeBarPlayer=null;playerBar.classList.remove('active');}
@@ -1300,7 +1317,7 @@ function closeChat(){chatScreen.classList.remove('active');chatScreen.setAttribu
 function closeSettings(){settingsScreen.classList.remove('active');settingsScreen.setAttribute('aria-hidden','true');}
 function openSettings(){settingsScreen.classList.add('active');settingsScreen.setAttribute('aria-hidden','false');}
 function closeAppearance(){appearanceScreen.classList.remove('active');appearanceScreen.setAttribute('aria-hidden','true');}
-function openAppearance(){darkModeToggle.checked=document.documentElement.dataset.theme==='dark';appearanceScreen.classList.add('active');appearanceScreen.setAttribute('aria-hidden','false');}
+function openAppearance(){darkModeToggle.checked=document.documentElement.dataset.theme==='dark';fontToggle.checked=document.documentElement.dataset.font==='vazir';appearanceScreen.classList.add('active');appearanceScreen.setAttribute('aria-hidden','false');}
 function closePlaceholder(){placeholderScreen.classList.remove('active');placeholderScreen.setAttribute('aria-hidden','true');}
 function openPlaceholder(t,x){placeholderTitle.textContent=t||'بخش';placeholderText.textContent=x||'این بخش در نسخه نمایشی فعال نیست.';placeholderScreen.classList.add('active');placeholderScreen.setAttribute('aria-hidden','false');}
 function closeProfile(){profileScreen.classList.remove('active');profileScreen.setAttribute('aria-hidden','true');}
@@ -1394,18 +1411,18 @@ function recElapsed(){return recordState.accum+(recordState.paused?0:Date.now()-
 const recPlay=$('recPlay'),vrPlay=$('vrPlay'),recPause=$('recPause'),vrPause=$('vrPause'),voiceTrim=$('voiceTrim'),vrTrimEl=$('vrTrim');
 function setPauseBtn(paused){const voice=recordState.mode==='voice';[recPause,vrPause].forEach(b=>{b.innerHTML=paused?(voice?MIC_ICON:VIDEO_CAPTURE_ICON):PAUSE_ICON;b.classList.toggle('rec-resume',paused);b.setAttribute('aria-label',paused?'ادامه‌ی ضبط':'توقف ضبط');});}
 const PV={el:null,url:null,raf:0};
-function pvStop(){cancelAnimationFrame(PV.raf);if(PV.el){try{PV.el.pause();}catch(e){}if(PV.el.tagName==='VIDEO')PV.el.remove();PV.el=null;}if(PV.url){URL.revokeObjectURL(PV.url);PV.url=null;}recPlay.innerHTML=PLAY_ICON;vrPlay.innerHTML=PLAY_ICON;if(recordState.phHide)recordState.phHide();}
+function pvStop(){cancelAnimationFrame(PV.raf);if(PV.el){try{PV.el.pause();}catch(e){}if(PV.el.tagName==='VIDEO')PV.el.remove();PV.el=null;}if(PV.url){URL.revokeObjectURL(PV.url);PV.url=null;}if(recordState.pb)recordState.pb.innerHTML=PLAY_ICON;if(recordState.phHide)recordState.phHide();}
 function pvToggle(){const voice=recordState.mode==='voice',st=recordState.trim;if(!st||!recordState.paused)return;if(PV.el){pvStop();return;}
 const chunks=voice?VA.chunks:VR.chunks;if(!chunks.length)return;
 const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||(voice?VA.mime:VR.mime)||'').split(';')[0]});PV.url=URL.createObjectURL(blob);
 const el=voice?new Audio():document.createElement('video');
 if(!voice){el.playsInline=true;el.setAttribute('playsinline','');el.className='pv-rec';vrOverlay.querySelector('.vr-circle').appendChild(el);}
-el.src=PV.url;PV.el=el;recPlay.innerHTML=PAUSE_ICON;vrPlay.innerHTML=PAUSE_ICON;
+el.src=PV.url;PV.el=el;if(recordState.pb)recordState.pb.innerHTML=PAUSE_ICON;
 const start=()=>{if(PV.el!==el)return;try{el.currentTime=st.s;}catch(e){}const p=el.play();if(p&&p.catch)p.catch(pvStop);};
 if(el.readyState>0)start();else el.addEventListener('loadedmetadata',start,{once:true});
-const tick=()=>{if(PV.el!==el)return;const t=el.currentTime;if(recordState.phSet)recordState.phSet(t);if(t>=st.e-0.03||el.ended||t<st.s-0.3){try{el.currentTime=st.s;}catch(e){}if(el.paused){const p2=el.play();if(p2&&p2.catch)p2.catch(pvStop);}}PV.raf=requestAnimationFrame(tick);};PV.raf=requestAnimationFrame(tick);}
+const tick=()=>{if(PV.el!==el)return;const t=el.currentTime;if(recordState.phSet)recordState.phSet(t);if(t>=st.e-0.03||el.ended){pvStop();return;}PV.raf=requestAnimationFrame(tick);};PV.raf=requestAnimationFrame(tick);}
 let trimTok=0;
-function hideTrim(){pvStop();recordState.phSet=null;recordState.phHide=null;trimTok++;inputbar.classList.remove('paused');vrOverlay.classList.remove('paused');voiceTrim.innerHTML='';vrTrimEl.innerHTML='';recordState.trim=null;}
+function hideTrim(){pvStop();recordState.phSet=null;recordState.phHide=null;recordState.pb=null;trimTok++;inputbar.classList.remove('paused');vrOverlay.classList.remove('paused');voiceTrim.innerHTML='';vrTrimEl.innerHTML='';recordState.trim=null;}
 async function trimThumbs(ths,total,my){try{const chunks=VR.chunks;if(!chunks.length)return;const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||VR.mime||'video/webm').split(';')[0]});const url=URL.createObjectURL(blob);const v=document.createElement('video');v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.preload='auto';v.src=url;
 const once=(ev,ms)=>new Promise(r=>{let d=false;const f=()=>{if(!d){d=true;v.removeEventListener(ev,f);r();}};v.addEventListener(ev,f);setTimeout(f,ms);});
 await once('loadeddata',2500);const cv=document.createElement('canvas');cv.width=72;cv.height=72;const cx=cv.getContext('2d');
@@ -1419,12 +1436,13 @@ const track=mk('trim-track');
 if(voice){const lv=VA.levels.slice(),N=36,bars=document.createElement('div');bars.className='trim-bars';for(let i=0;i<N;i++){let mx=0.05;if(lv.length){const a=Math.floor(i*lv.length/N),b=Math.max(a+1,Math.floor((i+1)*lv.length/N));mx=0;for(let k=a;k<b&&k<lv.length;k++)mx=Math.max(mx,lv[k]);}const el=document.createElement('i');el.style.height=(5+Math.min(1,mx*2.4)*26)+'px';bars.appendChild(el);}track.appendChild(bars);}
 else{const ths=[];for(let i=0;i<8;i++){const d=document.createElement('div');d.className='th';track.appendChild(d);ths.push(d);}trimThumbs(ths,total,my);}
 const dl=mk('trim-dim'),dr=mk('trim-dim'),sel=mk('trim-sel'),hl=mk('trim-h'),hr=mk('trim-h'),lab=mk('trim-time'),ph=mk('trim-ph');
-recordState.phSet=t=>{ph.style.display='block';ph.style.left=(9+Math.min(1,t/total)*Math.max(1,host.clientWidth-36))+'px';};recordState.phHide=()=>{ph.style.display='none';};recPlay.innerHTML=PLAY_ICON;vrPlay.innerHTML=PLAY_ICON;
-const layout=()=>{const W=host.clientWidth||240,U=Math.max(1,W-36),lx=st.s/total*U,rx=18+st.e/total*U;hl.style.left=lx+'px';hr.style.left=rx+'px';dl.style.left='0px';dl.style.width=lx+'px';dr.style.left=(rx+18)+'px';dr.style.width=Math.max(0,W-rx-18)+'px';sel.style.left=lx+'px';sel.style.width=(rx+18-lx)+'px';lab.textContent=formatTime(st.e-st.s);};
+recordState.phSet=t=>{ph.style.display='block';ph.style.left=(9+Math.min(1,t/total)*Math.max(1,host.clientWidth-36))+'px';};recordState.phHide=()=>{ph.style.display='none';};
+const pb=document.createElement('button');pb.className='trim-play';pb.setAttribute('aria-label','پخش');pb.innerHTML=PLAY_ICON;host.appendChild(pb);recordState.pb=pb;pb.addEventListener('pointerdown',e=>e.stopPropagation());pb.addEventListener('click',e=>{e.stopPropagation();pvToggle();});
+const layout=()=>{const W=host.clientWidth||240,U=Math.max(1,W-36),lx=st.s/total*U,rx=18+st.e/total*U;hl.style.left=lx+'px';hr.style.left=rx+'px';dl.style.left='0px';dl.style.width=lx+'px';dr.style.left=(rx+18)+'px';dr.style.width=Math.max(0,W-rx-18)+'px';sel.style.left=lx+'px';sel.style.width=(rx+18-lx)+'px';pb.style.left=((lx+rx+18)/2)+'px';lab.textContent=formatTime(st.e-st.s);};
 const minGap=Math.min(1,total);
 const drag=(h,left)=>{h.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();pvStop();try{h.setPointerCapture(e.pointerId);}catch(_){}
 const mv=ev=>{const r=host.getBoundingClientRect(),U=Math.max(1,r.width-36),x=ev.clientX-r.left;if(left){st.s=Math.max(0,Math.min((x-9)/U*total,st.e-minGap));}else{st.e=Math.min(total,Math.max((x-27)/U*total,st.s+minGap));}layout();};
-const up=()=>{h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up);h.removeEventListener('pointercancel',up);setTimeout(()=>{if(recordState.paused&&!PV.el)pvToggle();},0);};
+const up=()=>{h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up);h.removeEventListener('pointercancel',up);};
 h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up);});};
 drag(hl,true);drag(hr,false);layout();setTimeout(layout,60);
 setTimeout(()=>{if(recordState.paused&&recordState.trim===st&&!PV.el)pvToggle();},80);}
