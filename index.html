@@ -3995,12 +3995,12 @@ function getMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCancell
 function stopStream(s){try{s.stream&&s.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}s.stream=null}
 function iceDone(pc,ms){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();var t=setTimeout(done,ms);function done(){clearTimeout(t);pc.removeEventListener('icegatheringstatechange',chk);res()}function chk(){if(pc.iceGatheringState==='complete')done()}pc.addEventListener('icegatheringstatechange',chk)})}
 function mkpc(s){
- var pc=new RTCPeerConnection({iceServers:ICE});s.pc=pc;
+ var pc=new RTCPeerConnection({iceServers:(s.ice&&s.ice.length)?s.ice:ICE});s.pc=pc;
  pc.ontrack=function(e){au.srcObject=(e.streams&&e.streams[0])?e.streams[0]:new MediaStream([e.track]);var p=au.play();if(p&&p.catch)p.catch(function(){})};
  pc.onconnectionstatechange=function(){if(S!==s)return;var x=pc.connectionState;
-  if(x==='connected'){clearTimeout(s.timers.dis);if(s.st!=='active')goActive(s)}
-  else if(x==='failed'){finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))}
-  else if(x==='disconnected'){clearTimeout(s.timers.dis);s.timers.dis=setTimeout(function(){if(S===s&&pc.connectionState!=='connected')finish(s,X('اتصال قطع شد','Connection lost'))},7000)}};
+  if(x==='connected'){clearTimeout(s.timers.dis);rsClear(s);if(s.st!=='active')goActive(s)}
+  else if(x==='failed'){rsStart(s,false)}
+  else if(x==='disconnected'){clearTimeout(s.timers.dis);s.timers.dis=setTimeout(function(){if(S===s&&pc.connectionState!=='connected')rsStart(s,false)},1500)}};
  return pc}
 function connTimeout(s){clearTimeout(s.timers.conn);s.timers.conn=setTimeout(function(){if(S===s&&s.st==='connecting')finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))},25000)}
 function goActive(s){clearTimeout(s.timers.conn);s.st='active';s.t0=Date.now();stopTone();chirp(true);s.timers.tick=setInterval(paintTime,1000);paint();
@@ -4013,6 +4013,81 @@ function finish(s,text){
  var ids=s.sigIds.slice();setTimeout(function(){ids.forEach(function(id){Promise.resolve(T.del(id)).catch(function(){})})},30000);
  setTimeout(function(){if(S===s){S=null;hideOv()}},1500)}
 
+/* ===== v2: dynamic ICE servers (chosen by the caller per call) + automatic reconnect (ICE restart) =====
+   Optional hooks you can define BEFORE this script:
+   window.LINK_ICE_PROVIDER = async()=>[{urls:'turn:...',username:'..',credential:'..'}]  // short-lived TURN credentials (e.g. from an Appwrite Function)
+   window.LINK_TURN = [...]  // static TURN list (still supported) */
+var STUN_POOL=['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302','stun:stun2.l.google.com:19302','stun:stun3.l.google.com:19302','stun:stun4.l.google.com:19302','stun:stun.cloudflare.com:3478','stun:global.stun.twilio.com:3478'];
+var iceCache=null,netT=null;
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function cleanIce(r){var out=[];if(!Array.isArray(r))return out;
+ r.slice(0,8).forEach(function(e){if(!e||!e.urls)return;var u=(Array.isArray(e.urls)?e.urls:[e.urls]).filter(function(x){return typeof x==='string'&&/^(stun|turn|turns):[^\s]+$/i.test(x)&&x.length<200}).slice(0,4);if(!u.length)return;
+  var o={urls:u};if(typeof e.username==='string'&&e.username.length<300)o.username=e.username;if(typeof e.credential==='string'&&e.credential.length<500)o.credential=e.credential;out.push(o)});
+ return out}
+function probeStun(url,ms){return new Promise(function(res){var pc,done=false,t;
+ function fin(v){if(done)return;done=true;clearTimeout(t);try{pc&&pc.close()}catch(e){}res(v)}
+ try{pc=new RTCPeerConnection({iceServers:[{urls:url}]});pc.createDataChannel('p');
+  pc.onicecandidate=function(e){if(e.candidate&&/ typ srflx /.test(e.candidate.candidate))fin(true)};
+  pc.createOffer().then(function(o){return pc.setLocalDescription(o)}).catch(function(){fin(false)});
+  t=setTimeout(function(){fin(false)},ms)}catch(e){fin(false)}})}
+function pickStun(){return new Promise(function(res){var pool=shuffle(STUN_POOL.slice()),ok=[],left=pool.length,fin=false;
+ function done(){if(fin)return;fin=true;res(ok.slice(0,3))}
+ setTimeout(done,1500);
+ pool.forEach(function(u){probeStun(u,1400).then(function(v){left--;if(v)ok.push(u);if(ok.length>=3||left<=0)done()})})})}
+function withTimeout(p,ms){return Promise.race([Promise.resolve(p),new Promise(function(_,rej){setTimeout(function(){rej(new Error('timeout'))},ms)})])}
+async function getIce(force){
+ if(!force&&iceCache&&Date.now()-iceCache.t<120000)return iceCache.v;
+ var list=[];
+ if(typeof window.LINK_ICE_PROVIDER==='function'){try{list=cleanIce(await withTimeout(window.LINK_ICE_PROVIDER(),3000))}catch(e){}}
+ var stun=[];
+ if(navigator.onLine!==false){try{stun=await pickStun()}catch(e){}}
+ if(!stun.length)stun=[STUN_POOL[0],STUN_POOL[1]];
+ var v=list.concat(stun.map(function(u){return{urls:u}})).concat(cleanIce(window.LINK_TURN));
+ iceCache={t:Date.now(),v:v};return v}
+function sendT(s,o){return withTimeout(sendTo(s,o),8000)}
+function hintSet(t){try{hint.textContent=t||''}catch(e){}}
+
+/* --- reconnect: caller re-offers with iceRestart; callee asks for it ('rr') --- */
+function rsClear(s){if(!s||!s.rs)return;s.rs=null;clearTimeout(s.timers.rs);clearTimeout(s.timers.rsgive);hintSet('')}
+function rsStart(s,force){
+ if(S!==s||s.ended||(s.st!=='active'&&s.st!=='connecting'))return;
+ if(!s.pc||!s.pc.remoteDescription||!s.pc.localDescription)return;
+ if(s.rs)return;
+ s.rs={n:0,force:!!force};
+ hintSet(X('در حال اتصال مجدد…','Reconnecting…'));
+ s.timers.rsgive=setTimeout(function(){if(S===s&&s.rs)finish(s,X('اتصال قطع شد','Connection lost'))},35000);
+ rsTick(s)}
+function rsTick(s){
+ if(S!==s||s.ended||!s.rs)return;
+ if(s.pc.connectionState==='connected'&&!(s.rs.force&&s.rs.n===0)){rsClear(s);return}
+ s.rs.n++;
+ if(s.role==='caller')doRestart(s);else sendT(s,{t:'rr'}).catch(function(){});
+ clearTimeout(s.timers.rs);s.timers.rs=setTimeout(function(){rsTick(s)},4000)}
+async function doRestart(s){
+ if(s.rbusy||S!==s||s.ended||!s.pc)return;s.rbusy=true;
+ try{var pc=s.pc;
+  if(pc.signalingState==='have-local-offer'&&s.rOffer){await sendT(s,{t:'roffer',sdp:s.rOffer,ice:s.rIce})}
+  else{
+   var ice=await getIce(true);if(S!==s||s.ended)return;
+   s.ice=ice;try{var cfg=pc.getConfiguration();cfg.iceServers=ice;pc.setConfiguration(cfg)}catch(e){}
+   await pc.setLocalDescription(await pc.createOffer({iceRestart:true}));await iceDone(pc,3000);
+   if(S!==s||s.ended)return;
+   s.rOffer=pc.localDescription.sdp;s.rIce=ice;
+   await sendT(s,{t:'roffer',sdp:s.rOffer,ice:ice})}
+ }catch(e){}finally{s.rbusy=false}}
+async function handleROffer(s,o){
+ try{
+  if(s.rAnsFor===o.sdp&&s.rAns){await sendT(s,{t:'ranswer',sdp:s.rAns});return}
+  if(s.rbusy)return;s.rbusy=true;
+  var pc=s.pc,ice=cleanIce(o.ice);
+  if(ice.length){s.ice=ice;try{var cfg=pc.getConfiguration();cfg.iceServers=ice;pc.setConfiguration(cfg)}catch(e){}}
+  await pc.setRemoteDescription({type:'offer',sdp:o.sdp});
+  await pc.setLocalDescription(await pc.createAnswer());await iceDone(pc,3000);
+  if(S!==s||s.ended)return;
+  s.rAnsFor=o.sdp;s.rAns=pc.localDescription.sdp;
+  await sendT(s,{t:'ranswer',sdp:s.rAns});
+ }catch(e){}finally{s.rbusy=false}}
+
 /* ----- actions ----- */
 async function start(chat){
  if(!chat||chat.type!=='private'||chat.id==='saved'||!chat.peerId){toast('تماس فقط در گفتگوی خصوصی ممکن است','Calls work in private chats only');return}
@@ -4022,7 +4097,9 @@ async function start(chat){
  var s=S=newSession('caller',chat,'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5));
  s.st='calling';paint();showOv();ring('out');
  s.timers.ring=setTimeout(function(){if(S===s&&s.st==='calling'){sendTo(s,{t:'end',why:'missed'}).catch(function(){});finish(s,X('پاسخی داده نشد','No answer'))}},45000);
- try{await sendTo(s,{t:'invite',name:(LNK.me&&LNK.me.name)||''})}catch(e){finish(s,X('ارسال درخواست ناموفق بود','Could not send the request'));return}
+ try{s.ice=await getIce(false)}catch(e){s.ice=ICE}
+ if(S!==s)return;
+ try{await sendTo(s,{t:'invite',name:(LNK.me&&LNK.me.name)||'',ice:s.ice})}catch(e){finish(s,X('ارسال درخواست ناموفق بود','Could not send the request'));return}
  if(S!==s)return;
  try{s.stream=await getMic()}catch(e){sendTo(s,{t:'end',why:'nomic'}).catch(function(){});finish(s,X('دسترسی به میکروفون ممکن نشد','Microphone access failed'));return}
  if(S!==s){stopStream(s);return}
@@ -4033,7 +4110,7 @@ async function start(chat){
  }catch(e){if(S===s)finish(s,X('شروع تماس ناموفق بود','Could not start the call'))}}
 function onInvite(chat,o){
  if(S){if(S.cid!==o.cid){var t=newSession('callee',chat,o.cid);sendTo(t,{t:'busy'}).catch(function(){})}return}
- var s=S=newSession('callee',chat,o.cid);s.st='incoming';paint();showOv();ring('in');notify(chat);
+ var s=S=newSession('callee',chat,o.cid);s.ice=cleanIce(o.ice).concat(window.LINK_TURN||[]);s.st='incoming';paint();showOv();ring('in');notify(chat);
  s.timers.ring=setTimeout(function(){if(S===s&&s.st==='incoming')finish(s,X('تماس بی‌پاسخ','Missed call'))},50000)}
 function notify(chat){try{if(document.hidden&&'Notification' in window&&Notification.permission==='granted'){var n=new Notification(chat.title||'LINK',{body:X('تماس صوتی ورودی','Incoming voice call'),tag:'link-call',requireInteraction:true});n.onclick=function(){try{window.focus();n.close()}catch(e){}}}}catch(e){}}
 async function accept(){
@@ -4065,18 +4142,26 @@ function onSig(p){
   if(o.t==='offer'&&s.role==='callee'){s.offer=o.sdp;if(s.wantAnswer)answerNow(s)}
   else if(o.t==='accept'&&s.role==='caller'&&s.st==='calling'){clearTimeout(s.timers.ring);stopTone();s.st='connecting';paint();connTimeout(s)}
   else if(o.t==='answer'&&s.role==='caller'&&s.pc&&s.pc.signalingState==='have-local-offer'){s.pc.setRemoteDescription({type:'answer',sdp:o.sdp}).catch(function(){finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))})}
+  else if(o.t==='roffer'&&s.role==='callee'&&s.pc){handleROffer(s,o)}
+  else if(o.t==='ranswer'&&s.role==='caller'&&s.pc&&s.rOffer&&s.pc.signalingState==='have-local-offer'){s.pc.setRemoteDescription({type:'answer',sdp:o.sdp}).then(function(){s.rOffer=null}).catch(function(){})}
+  else if(o.t==='rr'&&s.role==='caller'&&s.pc&&(s.st==='active'||s.st==='connecting')){doRestart(s)}
   else if(o.t==='reject'&&s.role==='caller'){finish(s,X('تماس رد شد','Call declined'))}
   else if(o.t==='busy'&&s.role==='caller'){finish(s,X('مشغول است','Line busy'))}
   else if(o.t==='end'){finish(s,s.st==='incoming'?X('تماس بی‌پاسخ','Missed call'):X('تماس پایان یافت','Call ended'))}
  }catch(e){}}
 
+function onNet(){iceCache=null;var s=S;if(!s||s.ended||(s.st!=='active'&&s.st!=='connecting'))return;
+ if(s.rs){clearTimeout(s.timers.rs);rsTick(s);return}
+ clearTimeout(netT);netT=setTimeout(function(){if(S===s&&!s.ended)rsStart(s,true)},700)}
+window.addEventListener('online',onNet);
+try{var cn=navigator.connection;if(cn&&cn.addEventListener)cn.addEventListener('change',onNet)}catch(e){}
 function cur(){try{return LINKServer._chat(currentChatId)}catch(e){return null}}
 function sync(c){var b=$('callBtn');if(!b)return;var ch=cur()||c;b.style.display=(ch&&ch.type==='private'&&ch.id!=='saved'&&ch.peerId)?'':'none'}
 document.addEventListener('DOMContentLoaded',function(){
  var b=$('callBtn');if(b)b.addEventListener('click',function(e){e.stopPropagation();start(cur())});
  var p=$('pfCallBtn');if(p)p.addEventListener('click',function(){start(cur())});
 });
-return{start:start,onSig:onSig,sync:sync,transport:T,state:function(){return S&&S.st}};
+return{start:start,onSig:onSig,sync:sync,transport:T,getIce:getIce,state:function(){return S&&S.st}};
 })();
 </script>
 </body>
