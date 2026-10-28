@@ -718,6 +718,11 @@ html[dir="ltr"] .chat-item.enter{animation-name:itemInLtr}
 .ns-screen.fb .ns-fab{display:grid}.ns-fab .svg-icon{width:26px;height:26px}
 html[dir="ltr"] .ns-fab{left:auto;right:18px}
 .ns-btn{width:100%;border:none;border-radius:14px;background:var(--primary);color:#fff;padding:13px;font:inherit;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px}
+
+.ds-btns{flex-direction:column;gap:0;margin-top:6px}
+.ds-btns button{width:100%;text-align:center;border-top:1px solid var(--line);border-radius:0;padding:13px 10px}
+.ds-btns button:last-child{border-radius:0 0 12px 12px}
+.dlg h3+p+.ds-btns{margin-inline:-6px}
 </style>
 <style id="palettes">
 /* ===== v24: color themes (data-palette). Default = berry, matches the LINK logo. Ocean = original blue. ===== */
@@ -1127,6 +1132,7 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 </section>
 <div class="fl-sheet-bg" id="flSheetBg"></div>
 <div class="fl-sheet" id="flSheet"></div>
+<div class="dlg-overlay" id="delScope"><div class="dlg"><h3 id="dsT"></h3><p id="dsP"></p><div class="dlg-btns ds-btns" id="dsB"></div></div></div>
 <div class="dlg-overlay" id="dlg"><div class="dlg"><h3 id="dlgT"></h3><p id="dlgP"></p><label class="dlg-check hidden" id="dlgChkW"><input type="checkbox" id="dlgChk" /><span id="dlgChkT"></span></label><div class="dlg-btns"><button id="dlgYes" class="danger">حذف</button><button id="dlgNo">لغو</button></div></div></div>
 <div class="toast" id="toast"></div>
 <input type="file" id="fileGallery" accept="image/*,video/*" multiple hidden />
@@ -1824,7 +1830,17 @@ async function togglePin(m){pinnedId=pinnedId===m.id?null:m.id;updatePinBar();aw
 pinBar.addEventListener('click',e=>{if(e.target.closest('#pinClose')){pinnedId=null;updatePinBar();LINKServer.patchChat(currentChatId,c=>{c.pinnedId=null;});return;}if(pinnedId)jumpTo(pinnedId);});
 
 /* ---- حذف / کپی / ارسال ---- */
-async function deleteMessages(ids){const ok=await askConfirm({title:ids.length>1?'حذف '+toFaDigits(ids.length)+' پیام':'حذف پیام',text:'این کار قابل بازگشت نیست. مطمئنید؟',yes:'حذف'});if(!ok)return;
+function askDeleteScope(ids){return new Promise(res=>{const c=(LINKServer.db.chats||[]).find(x=>x.id===currentChatId)||{};
+const kind=c.type==='group'||c.type==='channel'?c.type:c.type==='bot'?'bot':c.id==='saved'?'saved':c.id==='channel'?'channel':(c.id==='family'||c.id==='team')?'group':'private';
+const allMine=ids.every(id=>{const m=currentMessages.find(x=>x.id===id);return m&&m.type==='outgoing';});
+const opts=[['me',(kind==='saved'||kind==='bot')?'حذف':'حذف برای من']];
+if(kind==='private')opts.push(['all','حذف برای من و '+(c.title||'طرف مقابل')]);else if((kind==='group'||kind==='channel')&&allMine)opts.push(['all','حذف برای همه']);
+const d=$('delScope'),B=$('dsB');$('dsT').textContent=ids.length>1?'حذف '+toFaDigits(ids.length)+' پیام':'حذف پیام';$('dsP').textContent='این کار قابل بازگشت نیست.';B.innerHTML='';
+const done=v=>{d.classList.remove('active');d.onclick=null;res(v);};
+opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.className='danger';b.textContent=o[1];b.onclick=()=>done(o[0]);B.appendChild(b);});
+const cb=document.createElement('button');cb.type='button';cb.textContent='لغو';cb.onclick=()=>done(null);B.appendChild(cb);
+d.onclick=e=>{if(e.target===d)done(null);};d.classList.add('active');});}
+async function deleteMessages(ids){const scope=await askDeleteScope(ids);if(!scope)return;
 await LINKServer.deleteMessages(currentChatId,ids);
 ids.forEach(id=>{const el=msgElById(id);if(el)removeMsgEl(el);const p=players.get(id);if(p){p.stopReset();players.delete(id);}const i=currentMessages.findIndex(m=>m.id===id);if(i>-1)currentMessages.splice(i,1);});
 if(pinnedId&&ids.includes(pinnedId)){pinnedId=null;updatePinBar();}
