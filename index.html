@@ -4,6 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#2f9cf0" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="LINK" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <title>LINK — Messenger</title>
 <script>
 /* v18: default language is English; user choice is stored in localStorage('link-lang') */
@@ -1888,6 +1895,21 @@ const p=await LINKServer.getProfile();
 $('drawerName').textContent=p.name;$('drawerPhone').textContent=p.phone;$('drawerAvatar').textContent=p.initial;$('drawerAvatar').className='avatar drawer-avatar '+p.avatar;
 $('settingsName').textContent=p.name;$('settingsPhone').textContent=p.phone;$('settingsUsername').textContent=p.username;$('settingsAvatar').textContent=p.initial;$('settingsAvatar').className='avatar profile-avatar '+p.avatar;
 darkModeToggle.checked=document.documentElement.dataset.theme==='dark';updateSendButton();})();
+</script>
+<script>
+/* PWA: service worker + auto-apply updates */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    var hadController=!!navigator.serviceWorker.controller,reloaded=false;
+    navigator.serviceWorker.addEventListener('controllerchange',function(){
+      if(!hadController||reloaded)return; reloaded=true; location.reload();
+    });
+    navigator.serviceWorker.register('sw.js').then(function(reg){
+      reg.update().catch(function(){});
+      document.addEventListener('visibilitychange',function(){if(!document.hidden)reg.update().catch(function(){});});
+    }).catch(function(){});
+  });
+}
 </script>
 </body>
 </html>
