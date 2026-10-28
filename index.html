@@ -783,6 +783,8 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 .chat-header{position:sticky;top:0;z-index:30;transform:none !important;touch-action:none;overscroll-behavior:none;user-select:none;-webkit-user-select:none}
 .chats{touch-action:pan-y}
 #listScreen{overflow:hidden}
+.phone-frame{transition:none !important;will-change:transform}
+.chat-header,.appbar{transition:none !important}
 </style>
 </head>
 <body>
@@ -2164,8 +2166,10 @@ photoViewer.addEventListener('pointerup',end);photoViewer.addEventListener('poin
 /* ---- اندازه‌ی صفحه و کیبورد (رفع بیرون‌زدن از بالا/پایین) ---- */
 const frameEl=document.querySelector('.phone-frame');let baseH=window.innerHeight;
 function fitViewport(){const v=window.visualViewport,h=v?v.height:window.innerHeight,top=v?v.offsetTop:0;baseH=Math.max(baseH,window.innerHeight);
-document.documentElement.style.setProperty('--app-h',h+'px');frameEl.style.top=top+'px';document.body.classList.toggle('kb',h<baseH-120);window.scrollTo(0,0);}
-if(window.visualViewport){visualViewport.addEventListener('resize',fitViewport);visualViewport.addEventListener('scroll',fitViewport);}
+document.documentElement.style.setProperty('--app-h',h+'px');frameEl.style.top='0px';frameEl.style.transform='translate3d(0,'+top+'px,0)';document.body.classList.toggle('kb',h<baseH-120);window.scrollTo(0,0);}
+let _fvT=0,_fvR=0;function fvTrack(){_fvT=Date.now()+900;if(_fvR)return;const loop=()=>{fitViewport();if(Date.now()<_fvT)_fvR=requestAnimationFrame(loop);else _fvR=0;};_fvR=requestAnimationFrame(loop);}
+if(window.visualViewport){visualViewport.addEventListener('resize',fvTrack);visualViewport.addEventListener('scroll',fvTrack);}
+document.addEventListener('focusin',fvTrack);document.addEventListener('focusout',fvTrack);
 window.addEventListener('resize',fitViewport);window.addEventListener('orientationchange',()=>{baseH=0;setTimeout(()=>{baseH=window.innerHeight;fitViewport();},300);});window.addEventListener('scroll',()=>window.scrollTo(0,0));
 document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||document.activeElement===document.body)fitViewport();},120));
 fitViewport();
