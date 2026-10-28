@@ -1551,7 +1551,7 @@ else if(m.type==='attributes')attrs(m.target);
    جدول‌ها: users{name,email,username} · chats{memberA,memberB,pairKey,nameA,nameB,last,lastAt,unreadA,unreadB · kind,title,about,owner,members,msgCount} · messages{chatId,fromId,text,replyTo,pinned,readByOther}
    برای اینکه ستون جدیدی لازم نباشد: پیام متنی ساده مستقیم در text می‌رود؛ پیام‌های رسانه‌ای/پاسخ/واکنش/ویرایش‌شده به‌صورت JSON با نشانهٔ LNV در همان ستون text ذخیره می‌شوند.
    فایل‌ها در Bucket با fileId برابر mediaId ذخیره می‌شوند. رابط LINKServer دقیقاً همان رابط قبلی (نمونهٔ محلی) است و بقیهٔ برنامه تغییری نمی‌کند. */
-const LINK_VERSION='v58';
+const LINK_VERSION='v59';
 const LNC={ep:'https://fra.cloud.appwrite.io/v1',pj:'6ad968ee002c73c4ca9a',db:'6ad969a5001ae9582c3e',tU:'6ad96bc700117baf5a06',tC:'6ad9c6e9001f15568d17',tM:'6ad9ca3a001a0e48e86c',bk:'6adf99470015c4d986f2',sdk:['https://cdn.jsdelivr.net/npm/appwrite@22.3.0/dist/iife/sdk.js','appwrite-sdk.js']};
 const LNL={image:1048576,video:10485760,voice:512000,file:15728640};
 const LNX=['jpg','jpeg','png','webp','gif','mp4','webm','mov','m4a','mp3','ogg','oga','pdf','zip','txt','docx','xlsx','pptx'];
@@ -4731,6 +4731,103 @@ document.addEventListener('DOMContentLoaded',function(){
  var p=$('pfCallBtn');if(p)p.addEventListener('click',function(){askCall()});
 });
 return{start:start,startVideo:function(c){return start(c,true)},onSig:onSig,sync:sync,transport:T,getIce:getIce,state:function(){return S&&S.st}};
+})();
+</script>
+<script>
+/* v59: عکس پروفایل — انتخاب/تغییر/حذف از تنظیمات و ویرایش پروفایل؛ در Bucket با fileId = 'av'+uid ذخیره می‌شود (همان مسیری که دیگران آواتار را از آن می‌خوانند) */
+(function(){
+  var st=document.createElement('style');
+  st.textContent='.ep-avw{position:relative;display:inline-block;cursor:pointer}'
+  +'.ep-cam{position:absolute;bottom:-2px;inset-inline-end:-2px;width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;border:3px solid var(--bg,#fff);box-shadow:0 1px 4px rgba(0,0,0,.25)}'
+  +'.ep-cam svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}'
+  +'.ep-pbtns{display:flex;justify-content:center;gap:18px;padding:6px 16px 14px}'
+  +'.ep-pbtns button{background:none;border:0;font:inherit;font-size:14px;font-weight:700;color:var(--primary);padding:8px 10px;cursor:pointer}'
+  +'.ep-pbtns button.danger{color:#e5484d}.ep-pbtns button[hidden]{display:none}'
+  +'#settingsAvatar{cursor:pointer}';
+  document.head.appendChild(st);
+
+  var IDS=['drawerAvatar','settingsAvatar','epAvatar'],url=null,busy=false,loadedFor='';
+  var inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.style.display='none';document.body.appendChild(inp);
+
+  function paint(){
+    IDS.forEach(function(id){var el=$(id);if(!el)return;
+      if(url){el.style.background='url('+url+') center/cover';el.style.color='transparent';}
+      else{el.style.background='';el.style.color='';}
+    });
+    var rm=$('epPhotoRm');if(rm)rm.hidden=!url;
+    var ch=$('epPhotoSet');if(ch)ch.textContent=url?LT('تغییر عکس','Change photo'):LT('انتخاب عکس','Choose photo');
+  }
+  function setUrl(blob){if(url){try{URL.revokeObjectURL(url)}catch(e){}}url=blob?URL.createObjectURL(blob):null;paint();}
+
+  async function square(file){
+    var bm=await createImageBitmap(file),s=Math.min(bm.width,bm.height),S=320;
+    var cv=document.createElement('canvas');cv.width=cv.height=S;
+    var cx=cv.getContext('2d');cx.imageSmoothingQuality='high';
+    cx.drawImage(bm,(bm.width-s)/2,(bm.height-s)/2,s,s,0,0,S,S);
+    return await new Promise(function(r){cv.toBlob(r,'image/jpeg',.86)});
+  }
+  async function save(file){
+    if(busy)return;var me=LNK.uid;if(!me){showToast(LT('ابتدا وارد شوید','Please sign in first'));return;}
+    busy=true;var ab=$('epAvatar');if(ab)ab.style.opacity='.5';
+    try{
+      var blob=await square(file);if(!blob)throw new Error('x');
+      var fid='av'+me,mk=function(){return LNK.sv.createFile({bucketId:LNC.bk,fileId:fid,file:new File([blob],fid+'.jpg',{type:'image/jpeg'}),permissions:[Appwrite.Permission.read(Appwrite.Role.users()),Appwrite.Permission.update(Appwrite.Role.user(me)),Appwrite.Permission.delete(Appwrite.Role.user(me))]})};
+      try{await mk()}catch(e){
+        if(e&&e.code===409){await LNK.sv.deleteFile({bucketId:LNC.bk,fileId:fid});await mk();}
+        else throw e;
+      }
+      try{await MediaStore.put('avc-'+me,blob)}catch(e){}
+      try{localStorage.setItem('link-avt-'+me,String(Date.now()))}catch(e){}
+      setUrl(blob);showToast(LT('عکس پروفایل ذخیره شد','Profile photo saved'));
+    }catch(e){
+      var m='';try{m=lnkEr(e)}catch(x){}
+      showToast(m||LT('این عکس قابل استفاده نیست','This image can\u2019t be used'));
+    }finally{busy=false;if(ab)ab.style.opacity='';}
+  }
+  async function remove(){
+    if(busy||!url)return;var me=LNK.uid;busy=true;
+    try{
+      try{await LNK.sv.deleteFile({bucketId:LNC.bk,fileId:'av'+me})}catch(e){if(!(e&&e.code===404))throw e}
+      try{await MediaStore.removeWhere(function(k){return k==='avc-'+me})}catch(e){}
+      try{localStorage.setItem('link-avt-'+me,String(Date.now()))}catch(e){}
+      setUrl(null);showToast(LT('عکس پروفایل حذف شد','Profile photo removed'));
+    }catch(e){var m='';try{m=lnkEr(e)}catch(x){}showToast(m||LT('حذف نشد','Couldn\u2019t remove'));}
+    finally{busy=false}
+  }
+  inp.addEventListener('change',function(){var f=inp.files&&inp.files[0];inp.value='';if(f)save(f)});
+  function pick(){if(!busy)inp.click()}
+
+  /* رابط: دوربین کنار آواتار در صفحهٔ ویرایش + دو دکمه */
+  var av=$('epAvatar');
+  if(av&&av.parentNode){
+    var w=document.createElement('div');w.className='ep-avw';av.parentNode.insertBefore(w,av);w.appendChild(av);
+    var cam=document.createElement('div');cam.className='ep-cam';
+    cam.innerHTML='<svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+    w.appendChild(cam);w.addEventListener('click',pick);
+    var row=document.createElement('div');row.className='ep-pbtns';
+    row.innerHTML='<button type="button" id="epPhotoSet"></button><button type="button" class="danger" id="epPhotoRm" hidden></button>';
+    w.parentNode.parentNode.insertBefore(row,w.parentNode.nextSibling);
+    $('epPhotoSet').addEventListener('click',pick);
+    $('epPhotoRm').textContent=LT('حذف عکس','Remove photo');
+    $('epPhotoRm').addEventListener('click',remove);
+  }
+  var sa=$('settingsAvatar');if(sa)sa.addEventListener('click',pick);
+  paint();
+
+  /* بارگذاری عکس خودمان پس از ورود: اول از دستگاه، سپس از سرور */
+  async function load(){
+    var me=LNK&&LNK.uid;if(!me||loadedFor===me||!LNK.sv)return;loadedFor=me;
+    var key='avc-'+me,b=null;
+    try{b=await MediaStore.get(key)}catch(e){}
+    if(b){setUrl(b);return;}
+    try{
+      var fid='av'+me;await LNK.sv.getFile({bucketId:LNC.bk,fileId:fid});
+      var ab=await LNK.cl.call('get',new URL(String(new URL(LNK.sv.getFileView({bucketId:LNC.bk,fileId:fid})))),{},{},'arrayBuffer');
+      b=new Blob([ab],{type:'image/jpeg'});setUrl(b);
+      try{await MediaStore.put(key,b)}catch(e){}
+    }catch(e){}
+  }
+  setInterval(function(){try{load()}catch(e){}},1500);
 })();
 </script>
 </body>
