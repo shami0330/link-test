@@ -1811,9 +1811,9 @@ function setReply(m){if(editTarget){editTarget=null;messageInput.value='';autosi
 function clearReply(){replyTarget=null;if(editTarget){editTarget=null;messageInput.value='';autosize();updateSendButton();}replyPreview.classList.remove('active');}
 rpClose.addEventListener('click',clearReply);
 function replyPayload(){return replyTarget?{id:replyTarget.id,name:replyTarget.type==='outgoing'?'شما':currentChatTitle,snippet:previewText(replyTarget)}:null;}
-function startEdit(m){replyTarget=null;editTarget=m;rpName.textContent='ویرایش پیام';rpText.textContent=m.text;replyPreview.classList.add('active');messageInput.value=m.text;autosize();updateSendButton();messageInput.focus();}
-async function commitEdit(t){const m=editTarget;editTarget=null;messageInput.value='';autosize();updateSendButton();clearReply();if(t===m.text)return;
-m.text=t;m.edited=true;await LINKServer.patchMessage(currentChatId,m.id,x=>{x.text=t;x.edited=true;});
+function startEdit(m){replyTarget=null;editTarget=m;const _v=m.kind==='text'?m.text:(m.caption||'');rpName.textContent=m.kind==='text'?'ویرایش پیام':'ویرایش توضیح';rpText.textContent=_v||previewText(m);replyPreview.classList.add('active');messageInput.value=_v;autosize();updateSendButton();messageInput.focus();}
+async function commitEdit(t){const m=editTarget;editTarget=null;messageInput.value='';autosize();updateSendButton();clearReply();const _f=m.kind==='text'?'text':'caption';if(t===(m[_f]||''))return;
+m[_f]=t;m.edited=true;await LINKServer.patchMessage(currentChatId,m.id,x=>{x[_f]=t;x.edited=true;});
 const old=msgElById(m.id);if(old){const n=createMessageEl(m);old.replaceWith(n);regroup();}
 allChats=await LINKServer.getChats();renderCurrentChatList();}
 function jumpTo(id){const el=msgElById(id);if(!el){showToast('پیام پیدا نشد');return;}centerInMessages(el,true);el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1500);}
@@ -1855,7 +1855,7 @@ let ctxState=null;
 function openCtx(msgEl){const m=findMsg(msgEl.dataset.messageId);if(!m||ctxState)return;vibrate(14);
 const appR=appEl.getBoundingClientRect(),bub=msgEl.querySelector('.bubble'),br=bub.getBoundingClientRect(),sat=safeTop(),mine=m.type==='outgoing';
 const wrap=document.createElement('div');wrap.className='msg ctx-wrap '+m.type+' '+(m.kind||'text')+(msgEl.classList.contains('tail')?' tail':'')+(msgEl.classList.contains('g-top')?' g-top':'');wrap.appendChild(bub.cloneNode(true));
-const items=[['reply','پاسخ']];if(m.kind==='text'||m.caption)items.push(['copy','کپی متن']);if(mine&&m.kind==='text')items.push(['edit','ویرایش']);
+const items=[['reply','پاسخ']];if(m.kind==='text'||m.caption)items.push(['copy','کپی متن']);if(mine&&m.kind==='text')items.push(['edit','ویرایش']);else if(mine&&(m.kind==='photo'||m.kind==='album'||m.kind==='file'))items.push(['edit',m.caption?'ویرایش توضیح':'افزودن توضیح']);
 items.push(['pin',pinnedId===m.id?'برداشتن سنجاق':'سنجاق کردن'],['fwd','ارسال به…'],['sel','انتخاب'],['del','حذف']);
 const menuH=items.length*45+12,reactH=50,gap=8,H=appR.height,W=appR.width;
 const ct=br.top-appR.top;let shift=0;const needBottom=ct+br.height+gap+menuH;if(needBottom>H-10)shift=needBottom-(H-10);
@@ -1986,7 +1986,7 @@ set(v){this.textContent=v||'';}});
 messageInput.addEventListener('input',()=>{if(!messageInput.textContent.replace(/\n/g,'').length&&messageInput.innerHTML!=='')messageInput.innerHTML='';});
 messageInput.addEventListener('paste',e=>{e.preventDefault();const t=(e.clipboardData||window.clipboardData).getData('text/plain');document.execCommand('insertText',false,t);});
 function autosize(){messageInput.style.height='auto';messageInput.style.height=Math.min(messageInput.scrollHeight,128)+'px';}
-function updateSendButton(){const has=messageInput.value.trim().length>0;const mode=has?'send':captureMode;if(sendBtn.dataset.mode===mode)return;sendBtn.dataset.mode=mode;
+function updateSendButton(){const has=messageInput.value.trim().length>0||!!(editTarget&&editTarget.kind!=='text');const mode=has?'send':captureMode;if(sendBtn.dataset.mode===mode)return;sendBtn.dataset.mode=mode;
 if(mode==='send'){sendBtn.className='send-btn send';sendBtn.innerHTML=SEND_ICON;sendBtn.setAttribute('aria-label','ارسال پیام');}
 else if(mode==='voice'){sendBtn.className='send-btn capture voice';sendBtn.innerHTML=MIC_ICON;sendBtn.setAttribute('aria-label','ضبط پیام صوتی؛ ضربه: تبدیل به ویدیو');}
 else{sendBtn.className='send-btn capture video';sendBtn.innerHTML=VIDEO_CAPTURE_ICON;sendBtn.setAttribute('aria-label','ضبط پیام ویدیویی؛ ضربه: تبدیل به صدا');}
@@ -1994,7 +1994,7 @@ sendBtn.classList.remove('swap');void sendBtn.offsetWidth;sendBtn.classList.add(
 function toggleCaptureMode(){captureMode=captureMode==='voice'?'videoNote':'voice';sendBtn.dataset.mode='';updateSendButton();vibrate(8);showToast(captureMode==='voice'?'حالت پیام صوتی':'حالت پیام ویدیویی');}
 messageInput.addEventListener('input',()=>{autosize();updateSendButton();});
 messageInput.addEventListener('focus',()=>{closeEmoji();closeAttachSheet();});
-function sendTextMessage(){const t=messageInput.value.trim();if(!t)return;if(editTarget){commitEdit(t);return;}
+function sendTextMessage(){const t=messageInput.value.trim();if(!t&&!(editTarget&&editTarget.kind!=='text'))return;if(editTarget){commitEdit(t);return;}
 messageInput.value='';autosize();updateSendButton();sendOutgoingMessage({kind:'text',text:t,replyTo:replyPayload()});clearReply();}
 
 async function sendOutgoingMessage(payload){if(!currentChatId)return;const chatId=currentChatId;const id='m-'+Date.now()+Math.random().toString(36).slice(2,5);
