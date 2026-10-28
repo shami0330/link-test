@@ -275,7 +275,6 @@ input:checked+.slider:before{transform:translateX(-20px)}
 .phone-icon{width:72px;height:118px;border:4px solid #fff;border-radius:22px;position:relative;transform:rotate(90deg);animation:rotatePhone 1.4s ease-in-out infinite alternate}
 .phone-icon::after{content:"";position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:26px;height:5px;border-radius:999px;background:#fff}
 @keyframes rotatePhone{from{transform:rotate(90deg)}to{transform:rotate(0deg)}}
-@media screen and (orientation:landscape) and (pointer:coarse) and (max-height:560px){.orientation-overlay{display:flex}}
 /* ================= v2 — Telegram-like chat ================= */
 :root{--ease:cubic-bezier(.22,.82,.25,1);--spring:cubic-bezier(.3,1.35,.5,1);--app-h:100dvh;--sat:env(safe-area-inset-top,0px);--sab:calc(env(safe-area-inset-bottom,0px) + 5px);--ib-h:64px;--chat-grad:linear-gradient(165deg,#a9cbe8 0%,#c9dfd3 55%,#e3dcc3 100%);--primary-soft:rgba(47,156,240,.14)}
 html[data-theme="dark"]{--chat-grad:linear-gradient(165deg,#0d1a28 0%,#102233 60%,#0f1d2a 100%)}
@@ -1540,7 +1539,7 @@ else if(m.type==='attributes')attrs(m.target);
    جدول‌ها: users{name,email,username} · chats{memberA,memberB,pairKey,nameA,nameB,last,lastAt,unreadA,unreadB · kind,title,about,owner,members,msgCount} · messages{chatId,fromId,text,replyTo,pinned,readByOther}
    برای اینکه ستون جدیدی لازم نباشد: پیام متنی ساده مستقیم در text می‌رود؛ پیام‌های رسانه‌ای/پاسخ/واکنش/ویرایش‌شده به‌صورت JSON با نشانهٔ LNV در همان ستون text ذخیره می‌شوند.
    فایل‌ها در Bucket با fileId برابر mediaId ذخیره می‌شوند. رابط LINKServer دقیقاً همان رابط قبلی (نمونهٔ محلی) است و بقیهٔ برنامه تغییری نمی‌کند. */
-const LINK_VERSION='v51';
+const LINK_VERSION='v54';
 const LNC={ep:'https://fra.cloud.appwrite.io/v1',pj:'6ad968ee002c73c4ca9a',db:'6ad969a5001ae9582c3e',tU:'6ad96bc700117baf5a06',tC:'6ad9c6e9001f15568d17',tM:'6ad9ca3a001a0e48e86c',bk:'6adf99470015c4d986f2',sdk:['https://cdn.jsdelivr.net/npm/appwrite@22.3.0/dist/iife/sdk.js','appwrite-sdk.js']};
 const LNL={image:1048576,video:10485760,voice:512000,file:15728640};
 const LNX=['jpg','jpeg','png','webp','gif','mp4','webm','mov','m4a','mp3','ogg','oga','pdf','zip','txt','docx','xlsx','pptx'];
@@ -2557,8 +2556,8 @@ if(isVoice){const r=currentTime/duration,c=Math.floor(r*bars.length);bars.forEac
 else{progress.style.strokeDashoffset=circumference*(1-Math.min(1,currentTime/duration));vTime.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
 }
 function collapse(){if(!isVoice){note.classList.remove('expanded','playing');root.classList.remove('centered');const rv=getV();if(rv){rv.dataset.ctl='';rv.muted=true;rv.loop=true;rv.playbackRate=1;try{rv.currentTime=TS+0.05;const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}}}
-function play(){if(playing)return;if(isVoice&&needDl){needDl=false;playBtn.classList.add('dl-wait');const rg=dlRingAttach(playBtn);resolveMediaUrl(message,{force:true,onProgress:rg.set}).then(u=>{rg.done();playBtn.classList.remove('dl-wait');if(u){mkAudio(u);playBtn.innerHTML=PLAY_ICON;}else{needDl=true;showToast(LT('دانلود ناموفق بود','Download failed')+(LNK._lastErr?': '+lnkEr(LNK._lastErr):''));}});return;}if(isVoice&&!audioEl&&!message.src&&!message.dataUrl&&!mediaUrls.get(message.mediaId)){showToast('فایل صدا در دسترس نیست');return;}if(window.__stopMusic)window.__stopMusic();players.forEach(p=>{if(p!==player&&p.playing)p.stopReset();});
-playing=true;showBar(player);if(isVoice&&audioEl){audioEl.playbackRate=speed;if(currentTime===0){try{audioEl.currentTime=TS;}catch(e){}}try{const pr=audioEl.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}if(!isVoice){const rv=getV();if(rv){rv.dataset.ctl='1';rv.loop=false;if(currentTime===0){try{rv.currentTime=TS;}catch(e){}}rv.playbackRate=speed;rv.muted=false;try{const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{try{rv.muted=true;const p2=rv.play();if(p2&&p2.catch)p2.catch(()=>{});}catch(e){}});}catch(e){}}}
+function play(){if(playing)return;if(isVoice&&needDl){needDl=false;playBtn.classList.add('dl-wait');const rg=dlRingAttach(playBtn);resolveMediaUrl(message,{force:true,onProgress:rg.set}).then(u=>{rg.done();playBtn.classList.remove('dl-wait');if(u){mkAudio(u);playBtn.innerHTML=PLAY_ICON;}else{needDl=true;showToast(LT('دانلود ناموفق بود','Download failed')+(LNK._lastErr?': '+lnkEr(LNK._lastErr):''));}});return;}if(isVoice&&!audioEl&&!message.src&&!message.dataUrl&&!mediaUrls.get(message.mediaId)){showToast('فایل صدا در دسترس نیست');return;}if(window.__stopMusic)window.__stopMusic();
+playing=true;showBar(player);if(isVoice&&audioEl){audioEl.playbackRate=speed;if(currentTime===0&&Math.abs(audioEl.currentTime-TS)>0.05){try{audioEl.currentTime=TS;}catch(e){}}try{const pr=audioEl.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}if(!isVoice){const rv=getV();if(rv){rv.dataset.ctl='1';rv.loop=false;if(currentTime===0){try{rv.currentTime=TS;}catch(e){}}rv.playbackRate=speed;rv.muted=false;try{const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{try{rv.muted=true;const p2=rv.play();if(p2&&p2.catch)p2.catch(()=>{});}catch(e){}});}catch(e){}}}players.forEach(p=>{if(p!==player&&p.playing)p.stopReset();});
 if(!isVoice){note.classList.add('expanded','playing');root.classList.add('centered');centerInMessages(root,true);}
 else playBtn.innerHTML=PAUSE_ICON;
 timer=setInterval(()=>{const v=isVoice?audioEl:getV();let done;if(v&&v.readyState>0){currentTime=Math.max(0,v.currentTime-TS);const lim=(TS||TE)?duration-0.03:duration+1.5;done=v.ended||currentTime>=lim||(TE&&v.currentTime>=TE-0.03)||(isFinite(v.duration)&&v.duration>0&&v.currentTime>=v.duration-0.05);}else{currentTime+=0.1*speed;done=currentTime>=duration;}
@@ -4338,7 +4337,7 @@ function attachRemote(s,stream){
 function ensureMicChain(s){
  if(s.micG)return true;if(!s.stream||!s.pc)return false;var a=ctxOK();if(!a)return false;
  try{var src=a.createMediaStreamSource(s.stream),g=a.createGain(),d=a.createMediaStreamDestination();
-  src.connect(g);g.connect(d);var tr=d.stream.getAudioTracks()[0];if(!tr)return false;
+  src.connect(g);g.connect(d);s.micS=src;var tr=d.stream.getAudioTracks()[0];if(!tr)return false;
   var snd=s.pc.getSenders().filter(function(x){return x.track&&x.track.kind==='audio'})[0];
   if(!snd)return false;snd.replaceTrack(tr).catch(function(){});
   tr.enabled=!s.muted;s.micG=g;s.micProc=tr;return true}catch(e){return false}}
@@ -4372,6 +4371,23 @@ function classify(l){var ear=null,spk=null;
  if(!spk)spk=l.filter(function(d){return d.deviceId==='default'})[0]||l[0]||null;
  return{ear:ear,spk:spk}}
 function setAS(r){try{if(!navigator.audioSession)return false;navigator.audioSession.type=(r==='spk')?'playback':'play-and-record';return true}catch(e){return false}}
+async function routeViaMic(r){
+ var s=S;if(!s||s.ended||!s.stream||!s.pc)return false;
+ try{
+  var l=(await navigator.mediaDevices.enumerateDevices()).filter(function(x){return x.kind==='audioinput'}),dv=null;
+  l.forEach(function(x){var n=x.label||'';if(r==='ear'){if(!dv&&/earpiece|receiver|handset/i.test(n))dv=x}else{if(!dv&&/speakerphone/i.test(n))dv=x}});
+  if(!dv)return false;
+  var old=s.stream.getAudioTracks()[0];
+  if(old&&old.getSettings&&old.getSettings().deviceId===dv.deviceId)return true;
+  var ns=await navigator.mediaDevices.getUserMedia({audio:{deviceId:{exact:dv.deviceId},echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
+  var nt=ns.getAudioTracks()[0];if(!nt)return false;
+  if(S!==s||s.ended){ns.getTracks().forEach(function(t){t.stop()});return false}
+  nt.enabled=!s.muted;
+  if(s.micG&&s.micS){var a=ctxOK();try{s.micS.disconnect()}catch(e){}s.micS=a.createMediaStreamSource(ns);s.micS.connect(s.micG)}
+  else{var snd=s.pc.getSenders().filter(function(x){return x.track&&x.track.kind==='audio'})[0];if(snd)await snd.replaceTrack(nt)}
+  var os=s.stream;s.stream=ns;try{os.getTracks().forEach(function(t){t.stop()})}catch(e){}
+  return true}
+ catch(e){return false}}
 async function applyRoute(quiet){
  var r=AP.route,sink=typeof au.setSinkId==='function',res={ok:true,why:''};
  if(r==='auto')return res;
@@ -4379,9 +4395,12 @@ async function applyRoute(quiet){
  try{
   if(r==='ear'){
    if(cl.ear&&sink){await au.setSinkId(cl.ear.deviceId);if(au.sinkId!==cl.ear.deviceId)throw new Error('sink')}
-   else if(!setAS('ear'))res={ok:false,why:X('این مرورگر/دستگاه خروجی گوشی (اسپیکر بالا) را به برنامه نمی‌دهد (خروجی‌های قابل‌دسترس: '+n+')','This browser/device does not expose the earpiece (outputs available: '+n+')')}}
+   else if(!(await routeViaMic('ear'))&&!setAS('ear'))res={ok:false,why:X('این مرورگر/دستگاه خروجی گوشی (اسپیکر بالا) را به برنامه نمی‌دهد (خروجی‌های قابل‌دسترس: '+n+')','This browser/device does not expose the earpiece (outputs available: '+n+')')}}
   else{
-   if(cl.spk&&sink){await au.setSinkId(cl.spk.deviceId);if(au.sinkId!==cl.spk.deviceId)throw new Error('sink')}
+   var spkExp=cl.spk&&/speaker/i.test(cl.spk.label||'')&&!/head/i.test(cl.spk.label||'');
+   if(spkExp&&sink){await au.setSinkId(cl.spk.deviceId);if(au.sinkId!==cl.spk.deviceId)throw new Error('sink')}
+   else if(await routeViaMic('spk')){}
+   else if(cl.spk&&sink){await au.setSinkId(cl.spk.deviceId);if(au.sinkId!==cl.spk.deviceId)throw new Error('sink')}
    else if(!setAS('spk'))res={ok:false,why:X('انتخاب اسپیکر اصلی در این مرورگر ممکن نیست (خروجی‌های قابل‌دسترس: '+n+')','Speaker selection is not available in this browser (outputs available: '+n+')')}}
  }catch(e){res={ok:false,why:X('تغییر خروجی ناموفق بود','Could not switch the output')}}
  if(!res.ok){AP.route='auto';apSave();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
