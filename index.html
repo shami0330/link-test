@@ -4092,6 +4092,8 @@ function PX(rows){var d='';rows.forEach(function(r,y){var x=0;while(x<r.length){
  return '<svg class="px-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="'+d+'"/></svg>'}
 var PHONE=PX(PXD.PHONE),HANG=PX(PXD.HANG);
 var MIC=PX(PXD.MIC);
+var SCRI=PX(["................",".##############.",".#............#.",".#............#.",".#............#.",".#............#.",".#............#.",".#............#.",".#............#.",".##############.",".......##.......",".......##.......","....########....","................","................","................"]);
+var CANSHARE=!!(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia);
 var MICOFF=PX(PXD.MICOFF);
 var S=null,ac=null,toneT=null;
 /* transport: can be swapped (tests / a dedicated calls table later) */
@@ -4127,7 +4129,8 @@ function paint(){
   var bw=function(cls,a,ic,lab,on){return '<div class="call-bw"><button class="call-b '+cls+(on?' on':'')+'" data-a="'+a+'" type="button" aria-label="'+a+'">'+ic+'</button><span>'+lab+'</span></div>'};
   b=bw('tg','mute',S.muted?MICOFF:MIC,S.muted?X('بی‌صدا','Muted'):X('میکروفون','Mic'),S.muted);
   b+=bw('tg','spk',S.spkMuted?SPKOFF:(AP.route==='ear'?EARI:SPKI),S.spkMuted?X('اسپیکر قطع','Speaker off'):X('اسپیکر','Speaker'),!!S.spkMuted);
-  if(canVid(S))b+=bw('tg','cam',S.cam?VCAM:VCAMOFF,X('دوربین','Camera'),S.cam);
+  if(canVid(S)){var cm=!!(S.cam&&!S.scr);b+=bw('tg','cam',cm?VCAM:VCAMOFF,X('دوربین','Camera'),cm)}
+  if(S.st==='active'&&canVid(S)&&CANSHARE)b+=bw('tg','scr',SCRI,S.scr?X('توقف اشتراک','Stop sharing'):X('اشتراک صفحه','Share screen'),!!S.scr);
   if(S.st==='active')b+=bw('tg','q',GEARI,X('کیفیت','Quality'),!qp.hidden);
   b+=bw('end','end',HANG,S.st==='active'?X('پایان','End'):X('لغو','Cancel'),false)}
  bot.innerHTML=b;bot.classList.toggle('many',S.st==='calling'||S.st==='connecting'||S.st==='active');paintVid(S);if(S.st!=='active'){qClose();smClose()}
@@ -4135,11 +4138,11 @@ function paint(){
 function paintTime(){if(!S||S.st!=='active')return;var s=Math.floor((Date.now()-S.t0)/1000),m=Math.floor(s/60);stEl.textContent=fd(('0'+m).slice(-2)+':'+('0'+(s%60)).slice(-2))}
 function showOv(){ov.hidden=false;ov.classList.remove('on');void ov.offsetWidth;ov.classList.add('on');hint.textContent=''}
 function hideOv(){ov.hidden=true;ov.classList.remove('on','rvid','lvid');bot.innerHTML='';try{rv.srcObject=null;lv.srcObject=null}catch(e){}qClose();smClose()}
-bot.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a;if(a==='acc')accept();else if(a==='rej')reject();else if(a==='end')hangup();else if(a==='mute')mute();else if(a==='cam')setCam(S,!(S&&S.cam));else if(a==='spk'){smClose();if(spkHeld)spkHeld=false;else toggleSpk()}else if(a==='q'){if(qp.hidden)qOpen();else qClose();paint()}});
+bot.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a;if(a==='acc')accept();else if(a==='rej')reject();else if(a==='end')hangup();else if(a==='mute')mute();else if(a==='cam')setCam(S,!(S&&S.cam&&!S.scr));else if(a==='scr')toggleShare(S);else if(a==='spk'){smClose();if(spkHeld)spkHeld=false;else toggleSpk()}else if(a==='q'){if(qp.hidden)qOpen();else qClose();paint()}});
 
 /* ----- WebRTC helpers ----- */
 function getMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false})}
-function stopStream(s){try{s.stream&&s.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}s.stream=null;try{s.micProc&&s.micProc.stop()}catch(e){}s.micProc=null;s.micG=null;try{s.vtrack&&s.vtrack.stop()}catch(e){}s.vtrack=null;s.cam=false}
+function stopStream(s){try{s.stream&&s.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}s.stream=null;try{s.micProc&&s.micProc.stop()}catch(e){}s.micProc=null;s.micG=null;try{s.scrStream&&s.scrStream.getTracks().forEach(function(t){t.onended=null;t.stop()})}catch(e){}s.scrStream=null;s.scr=false;s.scrAud=false;s.scrSrc=null;s.scrG=null;try{s.vtrack&&s.vtrack.stop()}catch(e){}s.vtrack=null;s.cam=false}
 function iceDone(pc,ms){return new Promise(function(res){if(pc.iceGatheringState==='complete')return res();var t=setTimeout(done,ms);function done(){clearTimeout(t);pc.removeEventListener('icegatheringstatechange',chk);res()}function chk(){if(pc.iceGatheringState==='complete')done()}pc.addEventListener('icegatheringstatechange',chk)})}
 function mkpc(s){
  var pc=new RTCPeerConnection({iceServers:(s.ice&&s.ice.length)?s.ice:ICE});s.pc=pc;
@@ -4261,6 +4264,7 @@ var cssEl=document.createElement('style');cssEl.textContent=`
 .call-lvf .px-icon{width:32px;height:32px}
 .call-ov.lvid>.call-lvw{display:block}
 .call-lv.mir{transform:scaleX(-1)}
+.call-ov.scrv>.call-rv{object-fit:contain}
 .call-bot.many{gap:12px;flex-wrap:wrap;padding:0 8px}
 .call-bot.many .call-b{width:58px;height:58px}
 .call-bot.many .call-bw{min-width:58px}
@@ -4306,15 +4310,17 @@ function findVT(pc){var l=pc.getTransceivers().filter(function(t){return t.recei
 function canVid(s){if(!s||!s.vt)return false;var d=s.vt.currentDirection;return d===null||d===undefined||d==='sendrecv'||d==='sendonly'}
 function paintVid(s){
  if(!s||S!==s)return;
- var on=!!(s.cam&&s.vtrack);
+ var on=!!(s.cam&&s.vtrack&&!s.scr);
  if(on){var cs=lv.srcObject;if(!cs||cs.getVideoTracks()[0]!==s.vtrack){lv.srcObject=new MediaStream([s.vtrack]);var p=lv.play();if(p&&p.catch)p.catch(function(){})}}else{lv.srcObject=null}
  lv.classList.toggle('mir',s.facing!=='environment');
  lf.style.display=(on&&TOUCH)?'flex':'none';
  ov.classList.toggle('lvid',on);
- ov.classList.toggle('rvid',!!(s.peerCam&&rv.srcObject))}
+ ov.classList.toggle('rvid',!!(s.peerCam&&rv.srcObject));
+ ov.classList.toggle('scrv',!!(s.peerCam&&s.peerScr&&rv.srcObject))}
 async function setCam(s,on){
  if(!s||s.ended||s.camBusy)return;
  if(!canVid(s)){toast('طرف مقابل از تصویر پشتیبانی نمی‌کند','The other side does not support video');return}
+ if(s.scr){await stopShare(s,false);if(!on)return}
  s.camBusy=true;
  try{
   if(on){var ms=await getCam(s.facing);var tr=ms.getVideoTracks()[0];tr.onended=function(){if(S===s&&s.vtrack===tr)setCam(s,false)};
@@ -4325,12 +4331,54 @@ async function setCam(s,on){
  }catch(e){toast('دسترسی به دوربین ممکن نشد','Camera access failed')}
  finally{s.camBusy=false}}
 async function flipCam(s){
- if(!s||s.ended||!s.cam||s.camBusy)return;s.camBusy=true;
+ if(!s||s.ended||!s.cam||s.scr||s.camBusy)return;s.camBusy=true;
  try{var nf=s.facing==='environment'?'user':'environment';var ms=await getCam(nf);var tr=ms.getVideoTracks()[0];var old=s.vtrack;
   tr.onended=function(){if(S===s&&s.vtrack===tr)setCam(s,false)};
   await s.vt.sender.replaceTrack(tr);s.vtrack=tr;s.facing=nf;try{old&&old.stop()}catch(e){}paintVid(s);
  }catch(e){toast('تعویض دوربین ممکن نشد','Could not switch the camera')}
  finally{s.camBusy=false}}
+
+/* ===== v5: screen sharing (with tab/system audio) over the existing video sender; no renegotiation needed ===== */
+async function startShare(s){
+ if(!s||s.ended||s.st!=='active'||s.scr||s.camBusy)return;
+ if(!canVid(s)){toast('طرف مقابل از تصویر پشتیبانی نمی‌کند','The other side does not support video');return}
+ s.camBusy=true;
+ try{
+  var ds=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:30}},audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false,suppressLocalAudioPlayback:true}});
+  var vt=ds.getVideoTracks()[0];
+  if(!vt||S!==s||s.ended){ds.getTracks().forEach(function(t){t.stop()});return}
+  try{vt.contentHint='detail'}catch(e){}
+  s.camWas=!!(s.cam&&s.vtrack);
+  var old=s.vtrack;s.vtrack=vt;s.scr=true;s.cam=true;s.scrStream=ds;
+  try{old&&old.stop()}catch(e){}
+  vt.onended=function(){if(S===s&&s.vtrack===vt)stopShare(s,true)};
+  await s.vt.sender.replaceTrack(vt);
+  var at=ds.getAudioTracks()[0],okA=false;
+  if(at){
+   try{if(ensureMicChain(s)&&s.micD){var a=ctxOK(),src=a.createMediaStreamSource(new MediaStream([at])),g=a.createGain();g.gain.value=1;src.connect(g);g.connect(s.micD);s.scrSrc=src;s.scrG=g;s.scrAud=true;if(s.micProc)s.micProc.enabled=true;okA=true}}catch(e){}}
+  s.curLv=-9;await applySend(s);
+  hintSet(X('در حال اشتراک‌گذاری صفحه…','Sharing your screen…'));
+  paintVid(s);paint();
+  sendT(s,{t:'scr',on:1}).catch(function(){});sendT(s,{t:'cam',on:1}).catch(function(){});
+  if(!okA)toast('صفحه بدون صدا به اشتراک گذاشته شد (هنگام انتخاب، گزینهٔ «اشتراک صدا» را فعال کنید)','Screen shared without audio (tick "Share audio" in the picker)');
+ }catch(e){
+  if(s.scr){stopShare(s,false)}
+  if(!(e&&(e.name==='NotAllowedError'||e.name==='AbortError')))toast('اشتراک صفحه ممکن نشد','Could not share the screen')
+ }finally{s.camBusy=false}}
+async function stopShare(s,restore){
+ if(!s||!s.scr)return;
+ var ds=s.scrStream;s.scr=false;s.scrAud=false;s.scrStream=null;
+ try{s.scrSrc&&s.scrSrc.disconnect()}catch(e){}s.scrSrc=null;s.scrG=null;
+ try{ds&&ds.getTracks().forEach(function(t){t.onended=null;t.stop()})}catch(e){}
+ s.vtrack=null;s.cam=false;
+ try{if(s.micProc)s.micProc.enabled=!s.muted}catch(e){}
+ try{await s.vt.sender.replaceTrack(null)}catch(e){}
+ hintSet('');
+ if(S===s){paintVid(s);paint()}
+ sendT(s,{t:'scr',on:0}).catch(function(){});sendT(s,{t:'cam',on:0}).catch(function(){});
+ var w=s.camWas;s.camWas=false;
+ if(restore&&w&&!s.ended)setCam(s,true)}
+function toggleShare(s){if(!s)return;if(s.scr)stopShare(s,true);else startShare(s)}
 
 /* --- quality: effective send level = min(my choice or auto level, what the other side asked for) --- */
 function effLv(s){var b=s.sendMode==='auto'?s.autoLv:s.sendMode;return Math.max(0,Math.min(3,Math.min(b,s.peerCap)))}
@@ -4460,10 +4508,10 @@ function attachRemote(s,stream){
 function ensureMicChain(s){
  if(s.micG)return true;if(!s.stream||!s.pc)return false;var a=ctxOK();if(!a)return false;
  try{var src=a.createMediaStreamSource(s.stream),g=a.createGain(),d=a.createMediaStreamDestination();
-  src.connect(g);g.connect(d);s.micS=src;var tr=d.stream.getAudioTracks()[0];if(!tr)return false;
+  src.connect(g);g.connect(d);s.micS=src;s.micD=d;var tr=d.stream.getAudioTracks()[0];if(!tr)return false;
   var snd=s.pc.getSenders().filter(function(x){return x.track&&x.track.kind==='audio'})[0];
   if(!snd)return false;snd.replaceTrack(tr).catch(function(){});
-  tr.enabled=!s.muted;s.micG=g;s.micProc=tr;return true}catch(e){return false}}
+  tr.enabled=!s.muted||!!s.scrAud;s.micG=g;s.micProc=tr;return true}catch(e){return false}}
 function setVol(k,v){
  v=Math.round(Math.max(0,Math.min(2,v))*100)/100;var s=S;
  if(k==='rcv'){AP.rcv=v;if(s&&!s.ended){if(ensureRcvChain(s))s.rcvG.gain.value=v;else if(v<=1){try{au.volume=v}catch(e){}}}}
@@ -4643,7 +4691,7 @@ async function answerNow(s){
  }catch(e){if(S===s)finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))}}
 function reject(){var s=S;if(!s||s.st!=='incoming')return;sendTo(s,{t:'reject'}).catch(function(){});finish(s,X('تماس رد شد','Call declined'))}
 function hangup(){var s=S;if(!s||s.st==='ended')return;var was=s.st;sendTo(s,{t:'end'}).catch(function(){});finish(s,was==='calling'?X('تماس لغو شد','Call cancelled'):X('تماس پایان یافت','Call ended'))}
-function mute(){var s=S;if(!s)return;s.muted=!s.muted;try{s.stream&&s.stream.getAudioTracks().forEach(function(t){t.enabled=!s.muted})}catch(e){}try{s.micProc&&(s.micProc.enabled=!s.muted)}catch(e){}paint()}
+function mute(){var s=S;if(!s)return;s.muted=!s.muted;try{s.stream&&s.stream.getAudioTracks().forEach(function(t){t.enabled=!s.muted})}catch(e){}try{s.micProc&&(s.micProc.enabled=!s.muted||!!s.scrAud)}catch(e){}paint()}
 
 /* ----- incoming signals ----- */
 function onSig(p){
@@ -4658,7 +4706,8 @@ function onSig(p){
   if(o.t==='offer'&&s.role==='callee'){s.offer=o.sdp;if(s.wantAnswer)answerNow(s)}
   else if(o.t==='accept'&&s.role==='caller'&&s.st==='calling'){clearTimeout(s.timers.ring);stopTone();s.st='connecting';paint();connTimeout(s)}
   else if(o.t==='answer'&&s.role==='caller'&&s.pc&&s.pc.signalingState==='have-local-offer'){s.pc.setRemoteDescription({type:'answer',sdp:o.sdp}).catch(function(){finish(s,X('اتصال تماس برقرار نشد','The call could not connect'))})}
-  else if(o.t==='cam'){s.peerCam=!!o.on;paintVid(s);paint()}
+  else if(o.t==='scr'){s.peerScr=!!o.on;paintVid(s)}
+  else if(o.t==='cam'){s.peerCam=!!o.on;if(!o.on)s.peerScr=false;paintVid(s);paint()}
   else if(o.t==='q'){s.peerCap=Math.max(0,Math.min(3,(+o.c)|0));applySend(s)}
   else if(o.t==='roffer'&&s.role==='callee'&&s.pc){handleROffer(s,o)}
   else if(o.t==='ranswer'&&s.role==='caller'&&s.pc&&s.rOffer&&s.pc.signalingState==='have-local-offer'){s.pc.setRemoteDescription({type:'answer',sdp:o.sdp}).then(function(){s.rOffer=null}).catch(function(){})}
