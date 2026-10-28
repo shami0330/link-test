@@ -571,13 +571,20 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 .inputbar.paused #recPlay{display:grid}
 .vr-overlay.paused #vrPlay{display:grid}
 .trim-ph{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 3px rgba(0,0,0,.6);display:none;pointer-events:none;z-index:2}
-.vr-circle>video.pv-rec{transform:scaleX(-1);z-index:3}
+.vr-circle>video.pv-rec{transform:none;z-index:3}
 .vn-video{transform:scaleX(-1)}
-.trim-track .th{transform:scaleX(-1)}
+.trim-track .th{transform:none}
 #recPause.rec-resume{color:var(--danger)}
 #vrPause.rec-resume{color:#ff6b6b}
 /* v13: old still-person placeholder icon removed */
 .video-surface::before{display:none!important}
+/* v15: flash — white screen for front camera, torch for back camera */
+.vr-overlay.flash-on .vr-backdrop{background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}
+.vr-overlay.flash-on .vr-circle{box-shadow:0 6px 24px rgba(0,0,0,.28)}
+.vr-overlay.flash-on .icon-btn.inv{background:rgba(0,0,0,.08);color:#111}
+.vr-overlay.flash-on .vr-cancelbar{background:rgba(0,0,0,.06);color:#111}
+.vr-overlay.flash-on .vr-hint{color:rgba(0,0,0,.6)}
+#vrFlash.flash-active,.vr-overlay.flash-on #vrFlash.flash-active{background:#ffd60a;color:#111}
 </style>
 </head>
 <body>
@@ -809,7 +816,7 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 <div class="vr-circle"><div class="video-surface"></div></div>
 <div class="vr-bottom">
 <div class="vr-row">
-<button class="icon-btn inv" id="vrFlip" aria-label="چرخش دوربین"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></svg></button>
+<button class="icon-btn inv" id="vrFlip" aria-label="چرخش دوربین"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="7.5" y="9.6" width="9" height="6.4" rx="1.5"/><circle cx="12" cy="12.8" r="1.6"/><path d="M10 9.6l.6-1.3h2.8l.6 1.3"/><path d="M4.4 10.6A8 8 0 0 1 18.3 6"/><path d="M18.6 2.8v3.4h-3.4"/><path d="M19.6 13.4A8 8 0 0 1 5.7 18"/><path d="M5.4 21.2v-3.4h3.4"/></svg></button>
 <button class="icon-btn inv" id="vrFlash" aria-label="فلش"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></button>
 <div class="appbar-spacer"></div>
 <button class="icon-btn inv hidden" id="vrPause" aria-label="توقف ضبط"></button>
@@ -952,7 +959,7 @@ async get(id){const db=await this.open();return new Promise((res,rej)=>{const q=
 async function resolveMediaUrl(m){if(m.src&&String(m.src).startsWith('blob:'))return m.src;if(!m.mediaId)return null;let u=mediaUrls.get(m.mediaId);if(u)return u;try{const b=await MediaStore.get(m.mediaId);if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);return u;}}catch(e){}return null;}
 const vnObserver=('IntersectionObserver' in window)?new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(v.dataset.ctl==='1')return;if(e.isIntersecting){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else v.pause();}),{threshold:.25}):null;
 async function attachRealVideo(b,m){if(!m.src&&!m.mediaId){const dn=b.querySelector('.video-note');if(dn)setTimeout(()=>dn.classList.add('dl'),900+Math.random()*1400);return;}const url=await resolveMediaUrl(m);if(!url)return;const note=b.querySelector('.video-note');if(!note||note.querySelector('.vn-video'))return;
-const v=document.createElement('video');v.className='vn-video';v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.loop=true;v.autoplay=true;v.defaultMuted=true;v.setAttribute('muted','');v.setAttribute('loop','');v.addEventListener('loadeddata',()=>{if(v.dataset.ctl!=='1'){const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}});v.disablePictureInPicture=true;const TS=m.trimStart||0,TE=m.trimEnd||0;if(TS||TE){v.addEventListener('loadedmetadata',()=>{try{v.currentTime=TS+0.05;}catch(e){}});v.addEventListener('timeupdate',()=>{if(v.dataset.ctl!=='1'&&TE&&v.currentTime>=TE-0.03){try{v.currentTime=TS+0.05;}catch(e){}}});}
+const v=document.createElement('video');v.className='vn-video';if(m.noMirror)v.style.transform='none';v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.loop=true;v.autoplay=true;v.defaultMuted=true;v.setAttribute('muted','');v.setAttribute('loop','');v.addEventListener('loadeddata',()=>{if(v.dataset.ctl!=='1'){const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}});v.disablePictureInPicture=true;const TS=m.trimStart||0,TE=m.trimEnd||0;if(TS||TE){v.addEventListener('loadedmetadata',()=>{try{v.currentTime=TS+0.05;}catch(e){}});v.addEventListener('timeupdate',()=>{if(v.dataset.ctl!=='1'&&TE&&v.currentTime>=TE-0.03){try{v.currentTime=TS+0.05;}catch(e){}}});}
 v.addEventListener('error',async()=>{if(v.dataset.fix==='1')return;v.dataset.fix='1';try{const b=m.mediaId?await MediaStore.get(m.mediaId):await (await fetch(url)).blob();if(!b)return;const h=new Uint8Array(await b.slice(0,12).arrayBuffer());const isW=h[0]===0x1A&&h[1]===0x45&&h[2]===0xDF&&h[3]===0xA3;const isM=h[4]===0x66&&h[5]===0x74&&h[6]===0x79&&h[7]===0x70;const nb=new Blob([b],{type:isW?'video/webm':isM?'video/mp4':(b.type||'video/mp4')});const nu=URL.createObjectURL(nb);if(m.mediaId)mediaUrls.set(m.mediaId,nu);v.src=nu;v.load();const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}catch(e){}});
 v.src=url;
 note.insertBefore(v,note.querySelector('.progress-ring'));note.classList.add('real');if(vnObserver)vnObserver.observe(v);else{const p=v.play();if(p&&p.catch)p.catch(()=>{});}}
@@ -1032,23 +1039,42 @@ function warmSet(st){if(!st)return;if(warm.stream&&warm.stream!==st)warmClear();
 function warmTake(){const st=warm.stream;if(!st)return null;clearTimeout(warm.timer);warm.timer=null;warm.stream=null;const live=st.getTracks().length>0&&st.getTracks().every(t=>t.readyState==='live');if(!live){st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});return null;}try{st.getTracks().forEach(t=>{t.enabled=true;});}catch(e){}return st;}
 document.addEventListener('visibilitychange',()=>{clearTimeout(warm.hideT);if(document.hidden)warm.hideT=setTimeout(warmClear,300000);});window.addEventListener('pagehide',warmClear);
 function vrStopStream(st){if(st)warmSet(st);}
-function vrDiscard(){VR.token++;const rec=VR.rec,st=VR.stream;VR.rec=null;VR.stream=null;VR.chunks=[];if(rec){rec.onstop=null;rec.ondataavailable=null;try{if(rec.state!=='inactive')rec.stop();}catch(e){}}vrStopStream(st);vrClearPreview();}
+function vrFreeRes(res){if(!res)return;vrOverlay.classList.remove('flash-on');vrFlash.classList.remove('flash-active');clearInterval(res.draw);try{if(res.vs)res.vs.getTracks().forEach(t=>{try{t.stop();}catch(e){}});}catch(e){}try{res.out.getTracks().forEach(t=>{try{t.stop();}catch(e){}});}catch(e){}}
+async function vrSetTorch(on){const res=VR.res;if(!res)return false;const tr=(res.vs||VR.stream).getVideoTracks()[0];if(!tr)return false;try{const caps=tr.getCapabilities?tr.getCapabilities():{};if(!('torch' in caps))return false;await tr.applyConstraints({advanced:[{torch:on}]});return true;}catch(e){return false;}}
+async function vrApplyFlash(){const res=VR.res;if(!res)return;
+if(res.facing==='user'){vrOverlay.classList.toggle('flash-on',!!res.flash);}
+else{vrOverlay.classList.remove('flash-on');if(res.flash){const ok=await vrSetTorch(true);if(!ok){res.flash=false;showToast('فلش دوربین پشت در این دستگاه پشتیبانی نمی‌شود');}}}
+vrFlash.classList.toggle('flash-active',!!res.flash);}
+async function vrFlipCamera(){const res=VR.res;if(!res||!VR.rec||res.flipping)return;res.flipping=true;const next=res.facing==='user'?'environment':'user';
+const getCam=f=>navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:f},width:{ideal:480},height:{ideal:480}}});
+const old=VR.stream;try{(res.vs||old).getVideoTracks().forEach(t=>{try{t.stop();}catch(e){}});}catch(e){}
+let ns=null,used=next;
+try{ns=await getCam(next);}catch(e){try{ns=await getCam(res.facing);used=res.facing;}catch(e2){}if(!ns)showToast('تغییر دوربین ممکن نیست');else showToast('دوربین دیگری در دسترس نیست');}
+if(ns){if(VR.res!==res){ns.getTracks().forEach(t=>{try{t.stop();}catch(e){}});}else{res.vs=ns;res.facing=used;res.pv.srcObject=ns;res.pv.style.transform=used==='user'?'':'none';try{await res.pv.play();}catch(e){}vibrate(8);vrApplyFlash();}}
+res.flipping=false;}
+function vrDiscard(){VR.token++;const rec=VR.rec,st=VR.stream;VR.rec=null;VR.stream=null;VR.chunks=[];const res=VR.res;VR.res=null;if(rec){rec.onstop=null;rec.ondataavailable=null;try{if(rec.state!=='inactive')rec.stop();}catch(e){}}vrStopStream(st);vrFreeRes(res);vrClearPreview();}
 async function vrStartCamera(){const my=++VR.token;
 try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder)throw new Error('unsupported');
 let stream=warmTake()||await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:480},height:{ideal:480}},audio:{echoCancellation:true,noiseSuppression:true}});
 if(my!==VR.token||!recordState.active||recordState.mode!=='videoNote'){vrStopStream(stream);return;}
 const c=vrOverlay.querySelector('.vr-circle');vrClearPreview();const pv=document.createElement('video');pv.muted=true;pv.autoplay=true;pv.playsInline=true;pv.setAttribute('playsinline','');pv.srcObject=stream;c.insertBefore(pv,c.firstChild);c.classList.add('live');try{await pv.play();}catch(e){}
-const mime=vrPickMime();let rec;try{rec=mime?new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:700000,audioBitsPerSecond:64000}):new MediaRecorder(stream);}catch(e){rec=new MediaRecorder(stream);}
+const cv=document.createElement('canvas');cv.width=480;cv.height=480;const cx=cv.getContext('2d');
+const out=new MediaStream();try{cv.captureStream(30).getVideoTracks().forEach(t=>out.addTrack(t));}catch(e){}
+const baked=out.getVideoTracks().length>0;stream.getAudioTracks().forEach(t=>out.addTrack(t));
+const res={pv,vs:null,out,draw:null,facing:'user',baked,flipping:false,flash:false};
+if(baked)res.draw=setInterval(()=>{const v=res.pv;if(!v||v.readyState<2||!v.videoWidth)return;const w=v.videoWidth,h=v.videoHeight,sz=Math.min(w,h);cx.save();if(res.facing==='user'){cx.translate(480,0);cx.scale(-1,1);}cx.drawImage(v,(w-sz)/2,(h-sz)/2,sz,sz,0,0,480,480);cx.restore();},33);
+VR.res=res;vrOverlay.classList.remove('flash-on');vrFlash.classList.remove('flash-active');const recSrc=baked?out:stream;
+const mime=vrPickMime();let rec;try{rec=mime?new MediaRecorder(recSrc,{mimeType:mime,videoBitsPerSecond:700000,audioBitsPerSecond:64000}):new MediaRecorder(recSrc);}catch(e){rec=new MediaRecorder(recSrc);}
 VR.stream=stream;VR.rec=rec;VR.chunks=[];VR.mime=rec.mimeType||mime||'video/webm';
 rec.ondataavailable=e=>{if(e.data&&e.data.size)VR.chunks.push(e.data);};
 rec.start(250);recordState.startTime=Date.now();updateRecordTimers();
 }catch(err){if(my!==VR.token)return;vrDiscard();const denied=err&&(err.name==='NotAllowedError'||err.name==='SecurityError');if(denied)setCamOK(false);showToast(denied?'اجازه‌ی دوربین و میکروفون فعال نیست؛ دوباره امتحان کنید':'ضبط ویدیو در این دستگاه ممکن نیست');if(recordState.active){recordState.canceled=true;finishRecording(false);}}}
-function vrFinish(d,reply,trim){const rec=VR.rec,st=VR.stream,chunks=VR.chunks,mime=VR.mime;VR.rec=null;VR.stream=null;VR.chunks=[];VR.token++;
-if(!rec){vrStopStream(st);vrClearPreview();showToast('دوربین هنوز آماده نبود');return;}
-rec.onstop=async()=>{vrStopStream(st);vrClearPreview();const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||mime||'video/webm').split(';')[0]});if(!blob.size){showToast('ضبط ناموفق بود');return;}
+function vrFinish(d,reply,trim){const rec=VR.rec,st=VR.stream,chunks=VR.chunks,mime=VR.mime;VR.rec=null;VR.stream=null;VR.chunks=[];VR.token++;const res=VR.res;VR.res=null;
+if(!rec){vrStopStream(st);vrFreeRes(res);vrClearPreview();showToast('دوربین هنوز آماده نبود');return;}
+rec.onstop=async()=>{vrStopStream(st);vrFreeRes(res);vrClearPreview();const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||mime||'video/webm').split(';')[0]});if(!blob.size){showToast('ضبط ناموفق بود');return;}
 const mediaId='vm-'+Date.now()+Math.random().toString(36).slice(2,6);const url=URL.createObjectURL(blob);mediaUrls.set(mediaId,url);try{await MediaStore.put(mediaId,blob);}catch(e){}
-await sendOutgoingMessage(Object.assign({kind:'videoNote',duration:d,src:url,mediaId,replyTo:reply},trim?{trimStart:trim.s,trimEnd:trim.e}:{}));};
-try{if(rec.state!=='inactive')rec.stop();}catch(e){vrStopStream(st);vrClearPreview();}}
+await sendOutgoingMessage(Object.assign({kind:'videoNote',duration:d,src:url,mediaId,replyTo:reply,noMirror:!!(res&&res.baked)},trim?{trimStart:trim.s,trimEnd:trim.e}:{}));};
+try{if(rec.state!=='inactive')rec.stop();}catch(e){vrStopStream(st);vrFreeRes(res);vrClearPreview();}}
 function stopAllPlayers(){players.forEach(p=>p.stopReset());players.clear();hideBar();}
 function handleEnd(player){
 const idx=currentMessages.findIndex(m=>m.id===player.id);
@@ -1227,7 +1253,7 @@ function openForward(ids){fwdIds=ids;const l=$('fwdList');l.innerHTML='';allChat
 function closeForward(){$('fwdSheet').classList.remove('active');$('fwdOverlay').classList.remove('active');}
 $('fwdOverlay').addEventListener('click',closeForward);
 async function doForward(cid){closeForward();const from=currentChatTitle;const list=fwdIds.map(findMsg).filter(Boolean);
-for(const m of list){const p={};['kind','text','duration','caption','src','seed','w','h','name','size','video','addr','phone','mediaId','wave','trimStart','trimEnd'].forEach(k=>{if(m[k]!==undefined)p[k]=m[k];});p.forwarded=m.forwarded||(m.type==='outgoing'?'شما':from);
+for(const m of list){const p={};['kind','text','duration','caption','src','seed','w','h','name','size','video','addr','phone','mediaId','wave','trimStart','trimEnd','noMirror'].forEach(k=>{if(m[k]!==undefined)p[k]=m[k];});p.forwarded=m.forwarded||(m.type==='outgoing'?'شما':from);
 if(cid===currentChatId)await sendOutgoingMessage(p);else await LINKServer.sendMessage(cid,p);}
 exitSelect();allChats=await LINKServer.getChats();renderCurrentChatList();if(cid!==currentChatId)showToast('پیام ارسال شد');}
 
@@ -1495,7 +1521,8 @@ voiceSendLocked.addEventListener('click',()=>finishRecording(true));
 vrSend.addEventListener('click',()=>finishRecording(true));
 vrTrash.addEventListener('click',cancelRecording);
 vrLock.addEventListener('click',lockRecording);
-vrFlash.addEventListener('click',()=>vrFlash.classList.toggle('dark'));
+vrFlash.addEventListener('click',async()=>{const res=VR.res;if(!res)return;res.flash=!res.flash;if(res.facing!=='user'&&!res.flash)await vrSetTorch(false);await vrApplyFlash();vibrate(8);});
+$('vrFlip').addEventListener('click',vrFlipCamera);
 
 /* ---- پیوست‌ها ---- */
 const fileGallery=$('fileGallery'),fileAny=$('fileAny'),mediaPreview=$('mediaPreview'),mpStage=$('mpStage'),mpCaption=$('mpCaption');let mpItems=[];
