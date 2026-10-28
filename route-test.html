@@ -1,0 +1,71 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LINK route test</title>
+<style>
+body{font:15px -apple-system,sans-serif;margin:12px;background:#111;color:#eee}
+button{display:block;width:100%;margin:6px 0;padding:14px;font-size:16px;border-radius:10px;border:0;background:#2f9cf0;color:#fff}
+button.g{background:#444}button.r{background:#c0392b}
+h3{margin:16px 0 4px;color:#ffd479}
+pre{white-space:pre-wrap;word-break:break-all;background:#000;padding:8px;border-radius:8px;font-size:12px;max-height:40vh;overflow:auto}
+#st{position:sticky;top:0;background:#222;padding:8px;border-radius:8px;font-size:13px}
+</style></head><body>
+<h2>LINK audio route test</h2>
+<p>1) Tap Start. You hear a beeping tone. 2) Press the buttons below one by one and listen: does the beep come from the <b>top</b> (earpiece) or the <b>bottom</b> speaker? 3) Tell me which buttons gave TOP, or send a screenshot of the log.</p>
+<div id="st">not started</div>
+<button id="bStart">1. Start (mic + beep through a WebRTC loopback)</button>
+<audio id="au" playsinline></audio>
+
+<h3>audioSession.type</h3><div id="as"></div>
+<h3>Output devices (setSinkId)</h3><div id="dev"></div>
+<h3>Other</h3>
+<button class="g" id="bDef">setSinkId('') (default)</button>
+<button class="g" id="bWA">Play through Web Audio (loudspeaker path) + mute element</button>
+<button class="g" id="bEl">Back to element playback</button>
+<button class="g" id="bMicOff">Stop mic capture</button>
+<button class="g" id="bMicOn">Start mic capture again</button>
+<button class="g" id="bScan">Re-scan devices</button>
+<button class="r" id="bCopy">Copy log</button>
+<pre id="log"></pre>
+<script>
+const $=id=>document.getElementById(id),au=$('au'),L=$('log');
+const log=(...a)=>{L.textContent+=a.join(' ')+'\n';L.scrollTop=1e9;st()};
+function st(){$('st').textContent='sink='+(au.sinkId===undefined?'n/a':(au.sinkId||'default'))+' | session='+(navigator.audioSession?navigator.audioSession.type:'n/a')+' | muted='+au.muted+' | mic='+(mic&&mic.getAudioTracks()[0]?mic.getAudioTracks()[0].readyState:'-')}
+let ctx,mic,pc1,pc2,dest,rs,wa;
+log('UA:',navigator.userAgent);
+log('standalone:',navigator.standalone,'| setSinkId:',typeof au.setSinkId,'| audioSession:',!!navigator.audioSession);
+async function getMic(){mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});st()}
+$('bStart').onclick=async()=>{try{
+ await getMic();
+ ctx=new(window.AudioContext||window.webkitAudioContext)();await ctx.resume();
+ dest=ctx.createMediaStreamDestination();
+ const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=523;g.gain.value=.3;o.connect(g);g.connect(dest);o.start();
+ setInterval(()=>{g.gain.value=g.gain.value?0:.3},450);
+ pc1=new RTCPeerConnection();pc2=new RTCPeerConnection();
+ pc1.onicecandidate=e=>e.candidate&&pc2.addIceCandidate(e.candidate);
+ pc2.onicecandidate=e=>e.candidate&&pc1.addIceCandidate(e.candidate);
+ pc2.ontrack=e=>{rs=e.streams[0]||new MediaStream([e.track]);au.srcObject=rs;au.play().then(()=>log('playing')).catch(x=>log('play error',x))};
+ dest.stream.getAudioTracks().forEach(t=>pc1.addTrack(t,dest.stream));
+ const of=await pc1.createOffer();await pc1.setLocalDescription(of);await pc2.setRemoteDescription(of);
+ const an=await pc2.createAnswer();await pc2.setLocalDescription(an);await pc1.setRemoteDescription(an);
+ log('started');scan();buildAS();
+}catch(e){log('start error',e&&e.name,e&&e.message)}};
+function buildAS(){const d=$('as');d.innerHTML='';
+ ['play-and-record','auto','playback','transient','transient-solo','ambient'].forEach(t=>{
+  const b=document.createElement('button');b.className='g';b.textContent='audioSession = '+t;
+  b.onclick=()=>{try{navigator.audioSession.type=t;log('audioSession ->',t,'now',navigator.audioSession.type)}catch(e){log('audioSession error',e&&e.name)}};d.appendChild(b)})}
+async function scan(){try{
+ const l=(await navigator.mediaDevices.enumerateDevices());const out=l.filter(x=>x.kind==='audiooutput'),inn=l.filter(x=>x.kind==='audioinput');
+ log('inputs:',inn.map(x=>x.label||'?').join(' | '));log('outputs:',out.length?out.map(x=>(x.label||'?')+'#'+(x.deviceId||'').slice(0,6)).join(' | '):'NONE');
+ const d=$('dev');d.innerHTML='';
+ out.forEach(x=>{const b=document.createElement('button');b.className='g';b.textContent='setSinkId: '+(x.label||'?')+' ['+(x.deviceId||'').slice(0,6)+']';
+  b.onclick=()=>{try{au.setSinkId(x.deviceId).then(()=>{log('sink ok',x.label,'now',au.sinkId.slice(0,6))}).catch(e=>log('sink error',e&&e.name))}catch(e){log('sink throw',e&&e.name)}};d.appendChild(b)});
+}catch(e){log('scan error',e&&e.name)}}
+$('bScan').onclick=scan;
+$('bDef').onclick=()=>{try{au.setSinkId('').then(()=>log('sink reset')).catch(e=>log('sink error',e&&e.name))}catch(e){log('sink throw',e&&e.name)}};
+$('bWA').onclick=()=>{try{if(!rs)return log('start first');if(!wa){wa=ctx.createMediaStreamSource(rs)}wa.connect(ctx.destination);au.muted=true;log('web audio path on')}catch(e){log('wa error',e&&e.name)}};
+$('bEl').onclick=()=>{try{if(wa)wa.disconnect();au.muted=false;au.play().catch(()=>{});log('element path on')}catch(e){log('el error',e&&e.name)}};
+$('bMicOff').onclick=()=>{try{mic&&mic.getTracks().forEach(t=>t.stop());log('mic stopped')}catch(e){}st()};
+$('bMicOn').onclick=async()=>{try{await getMic();log('mic on')}catch(e){log('mic error',e&&e.name)}};
+$('bCopy').onclick=()=>{try{navigator.clipboard.writeText(L.textContent);log('copied')}catch(e){log('copy failed')}};
+buildAS();st();
+</script></body></html>
