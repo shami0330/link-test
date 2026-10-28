@@ -135,7 +135,7 @@ html[data-theme="dark"] .msg.outgoing .voice-play{background:rgba(255,255,255,.1
 .voice-time{display:flex;align-items:center;gap:4px;font-size:11px}
 .msg.incoming .voice-time{color:var(--incoming-time)}
 .msg.outgoing .voice-time{color:var(--outgoing-time)}
-.video-note{position:relative;width:180px;aspect-ratio:1;border-radius:50%;overflow:hidden;background:#000;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.18);transition:width .28s ease}
+.video-note{position:relative;width:216px;aspect-ratio:1;border-radius:50%;overflow:hidden;background:#000;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.18);transition:width .28s ease}
 .video-note.expanded{width:calc(100vw - 60px);max-width:460px}
 .video-surface{position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.18),transparent 22%),radial-gradient(circle at 70% 65%,rgba(255,255,255,.12),transparent 18%),linear-gradient(135deg,#17324d,#2b5278,#17324d,#2b5278);background-size:220% 220%,200% 200%,350% 350%;animation:videoMove 7s ease infinite;animation-play-state:paused;opacity:.96}
 .video-note.playing .video-surface,.vr-circle .video-surface{animation-play-state:running}
@@ -507,7 +507,7 @@ body.kb .inputbar,.emoji-open .inputbar{padding-bottom:8px}
 .video-mute{display:none!important}
 
 /* v3: video note grows 45% (180px -> 261px) from the side away from the chat edge */
-.video-note.expanded{width:261px!important;max-width:none!important}
+.video-note.expanded{width:313px!important;max-width:calc(100vw - 32px)!important}
 .msg.centered .msg-shift.incoming{justify-content:flex-start!important}
 .msg.centered .msg-shift.outgoing{justify-content:flex-end!important}
 .video-overlay .svg-icon{display:none!important}
@@ -576,6 +576,8 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 .trim-track .th{transform:scaleX(-1)}
 #recPause.rec-resume{color:var(--danger)}
 #vrPause.rec-resume{color:#ff6b6b}
+/* v13: old still-person placeholder icon removed */
+.video-surface::before{display:none!important}
 </style>
 </head>
 <body>
