@@ -690,6 +690,34 @@ html[dir="ltr"] .chat-item.enter{animation-name:itemInLtr}
 .mp-grp input{width:18px;height:18px;accent-color:var(--primary,#2f9cf0)}
 .attach-sheet.choice{padding-top:10px}
 .attach-sheet.choice .attach-grid{grid-template-columns:repeat(3,1fr)}
+
+/* ===== v40 · پیام جدید ===== */
+.ns-screen{z-index:12;transform:translateY(100%);visibility:hidden;transition:transform .35s var(--ease),visibility 0s .35s}
+.ns-screen.active{transform:none;visibility:visible;transition:transform .35s var(--ease),visibility 0s}
+.ns-title{flex:1;font-size:17px;font-weight:800;color:#fff}
+.ns-search{flex:1;display:none;height:36px;border:none;border-radius:18px;background:rgba(255,255,255,.22);color:#fff;padding:0 14px;font:inherit;font-size:14px;outline:none}
+.ns-search::placeholder{color:rgba(255,255,255,.75)}
+.ns-screen.s .ns-title{display:none}.ns-screen.s .ns-search{display:block}
+.ns-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding-bottom:90px}
+.ns-view{display:none}.ns-view.on{display:block;animation:atIn .25s var(--ease) both}
+.ns-act,.ns-crow{width:100%;display:flex;align-items:center;gap:14px;padding:10px 16px;border:none;background:none;color:var(--text-main);font:inherit;font-size:15px;font-weight:700;text-align:right;cursor:pointer}
+.ns-act:active,.ns-crow:active{background:var(--icon-hover)}
+.ns-act .ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--primary-soft,rgba(47,156,240,.14));color:var(--primary);flex-shrink:0}
+.ns-sec{font-size:12.5px;font-weight:800;color:var(--primary);padding:14px 18px 4px}
+.ns-crow .tx{flex:1;min-width:0}.ns-crow .tx b{display:block;font-weight:700}.ns-crow .tx span{display:block;font-size:12.5px;font-weight:500;color:var(--text-muted);margin-top:2px}
+.ns-ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--badge-gray);display:grid;place-items:center;color:#fff;flex-shrink:0}
+.ns-ck .svg-icon{width:15px;height:15px;opacity:0}.ns-crow.on .ns-ck{background:var(--primary);border-color:var(--primary)}.ns-crow.on .ns-ck .svg-icon{opacity:1}
+.ns-chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px 2px}
+.ns-chip{display:flex;align-items:center;gap:6px;background:var(--line-soft);border-radius:16px;padding:5px 11px;font-size:13px;font-weight:600;color:var(--text-main);cursor:pointer}
+.ns-form{padding:18px 16px}
+.ns-ph{width:96px;height:96px;margin:6px auto 18px;border-radius:50%;background:var(--primary) center/cover no-repeat;color:#fff;display:grid;place-items:center;cursor:pointer;border:none}
+.ns-ph .svg-icon{width:34px;height:34px}
+.ns-in{width:100%;border:none;border-bottom:2px solid var(--line);background:none;color:var(--text-main);padding:10px 4px;font:inherit;font-size:16px;outline:none;margin-bottom:14px}
+.ns-in:focus{border-color:var(--primary)}
+.ns-fab{position:absolute;left:18px;bottom:calc(20px + var(--sab));width:58px;height:58px;border:none;border-radius:50%;background:var(--primary);color:#fff;display:none;place-items:center;cursor:pointer;box-shadow:var(--fab-shadow);z-index:3}
+.ns-screen.fb .ns-fab{display:grid}.ns-fab .svg-icon{width:26px;height:26px}
+html[dir="ltr"] .ns-fab{left:auto;right:18px}
+.ns-btn{width:100%;border:none;border-radius:14px;background:var(--primary);color:#fff;padding:13px;font:inherit;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px}
 </style>
 <style id="palettes">
 /* ===== v24: color themes (data-palette). Default = berry, matches the LINK logo. Ocean = original blue. ===== */
@@ -1042,6 +1070,21 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 </main>
 </section>
 
+<section class="screen ns-screen" id="nsScr" aria-hidden="true" aria-label="پیام جدید">
+<header class="appbar"><button class="icon-btn" id="nsBack" aria-label="بازگشت"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button><div class="ns-title" id="nsTitle"></div><input class="ns-search" id="nsSearch" placeholder="جستجو…"><button class="icon-btn" id="nsSearchBtn" aria-label="جستجو"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button></header>
+<div class="ns-body">
+<div class="ns-view" data-v="home">
+<button class="ns-act" data-go="group"><span class="ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>گروه جدید</button>
+<button class="ns-act" data-go="channel"><span class="ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span>کانال جدید</button>
+<button class="ns-act" data-go="add"><span class="ic"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></span>مخاطب جدید</button>
+<div class="ns-sec">مخاطبین</div><div id="nsList"></div></div>
+<div class="ns-view" data-v="pick"><div class="ns-chips" id="nsChips"></div><div class="ns-sec" id="nsPickHint"></div><div id="nsPickList"></div></div>
+<div class="ns-view" data-v="info"><div class="ns-form"><button class="ns-ph" id="nsPhotoBtn" type="button" aria-label="انتخاب عکس"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button><input class="ns-in" id="nsName" maxlength="60"><input class="ns-in" id="nsDesc" placeholder="توضیحات (اختیاری)" maxlength="200"></div><div class="ns-sec" id="nsMemTitle"></div><div id="nsMemList"></div></div>
+<div class="ns-view" data-v="add"><div class="ns-form"><input class="ns-in" id="nsCName" placeholder="نام" maxlength="60"><input class="ns-in" id="nsCPhone" placeholder="شماره تلفن" inputmode="tel" dir="ltr" style="text-align:right"><button class="ns-btn" id="nsCSave" type="button">ذخیره‌ی مخاطب</button></div></div>
+</div>
+<button class="ns-fab" id="nsFab" aria-label="ادامه"></button>
+</section>
+<input type="file" id="nsPhotoIn" accept="image/*" hidden>
 <div class="sheet-overlay" id="attachOverlay"></div>
 <div class="attach-sheet choice" id="attChoice" aria-label="پیوست"><div class="sheet-grab"></div><div class="attach-grid">
 <button class="att" data-ch="media" style="--k:0;--c:#8e6bf2"><span class="att-ic"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span><span>رسانه</span></button>
@@ -1870,7 +1913,7 @@ let firstList=true;
 function currentFilteredChats(){const q=searchInput.value.trim();let l=q?allChats.filter(c=>{const ql=q.toLowerCase(),T=x=>window.i18nTr(x||'').toLowerCase();return c.title.includes(q)||(c.lastMessage||'').includes(q)||T(c.title).includes(ql)||T(c.lastMessage).includes(ql);}):allChats.slice();if(window.__flReady&&!q){const _f=flActive();if(_f)l=l.filter(c=>flMatch(_f,c));}return l.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));}
 function createChatListItem(chat,idx,anim){const item=document.createElement('div');item.className='chat-item'+(anim?' enter':'');item.style.setProperty('--i',idx);item.dataset.id=chat.id;
 const badge=chat.unread?'<div class="badge'+(chat.muted?' gray':'')+'">'+toFaDigits(chat.unread)+'</div>':(chat.pinned?'<div class="pin-ic">'+PIN_SVG+'</div>':'');
-item.innerHTML='<div class="av-wrap"><div class="avatar '+escapeHtml(chat.avatar)+'">'+escapeHtml(chat.initial)+'</div>'+(chat.online?'<span class="online-dot"></span>':'')+'</div><div class="chat-info"><div class="chat-top"><div class="chat-name">'+escapeHtml(chat.title)+(chat.muted?MUTE_SM:'')+'</div><div class="chat-time">'+(chat.lastOut?'<span class="ci-tick">'+TICK2+'</span>':'')+escapeHtml(chat.time)+'</div></div><div class="chat-bottom"><div class="chat-last">'+escapeHtml(chat.lastMessage||'')+'</div>'+badge+'</div></div>';
+item.innerHTML='<div class="av-wrap"><div class="avatar '+escapeHtml(chat.avatar)+'"'+(chat.photo?' style="background:url('+chat.photo+') center/cover"':'')+'>'+(chat.photo?'':escapeHtml(chat.initial))+'</div>'+(chat.online?'<span class="online-dot"></span>':'')+'</div><div class="chat-info"><div class="chat-top"><div class="chat-name">'+escapeHtml(chat.title)+(chat.muted?MUTE_SM:'')+'</div><div class="chat-time">'+(chat.lastOut?'<span class="ci-tick">'+TICK2+'</span>':'')+escapeHtml(chat.time)+'</div></div><div class="chat-bottom"><div class="chat-last">'+escapeHtml(chat.lastMessage||'')+'</div>'+badge+'</div></div>';
 item.addEventListener('click',()=>openChatById(chat.id));return item;}
 function renderCurrentChatList(){const a=firstList;firstList=false;chatListEl.innerHTML='';currentFilteredChats().forEach((c,i)=>chatListEl.appendChild(createChatListItem(c,i,a)));if(typeof flAfterRender==='function')flAfterRender();}
 const searchBar=$('searchbar'),searchBtn=$('searchBtn');
@@ -1903,7 +1946,7 @@ function closeSecondaryScreens(){closeAttachSheet();closePlaceholder();closeAppe
 async function openChatById(chatId){closeSecondaryScreens();closePhotoViewer();
 const chat=await LINKServer.getChat(chatId);if(!chat)return;
 currentChatId=chatId;currentChatTitle=chat.title;
-chatTitle.textContent=chat.title;chatStatus.textContent=chat.status;chatAvatar.textContent=chat.initial;chatAvatar.className='avatar chat-avatar '+chat.avatar;
+chatTitle.textContent=chat.title;chatStatus.textContent=chat.status;chatAvatar.textContent=chat.initial;chatAvatar.className='avatar chat-avatar '+chat.avatar;chatAvatar.style.background=chat.photo?'url('+chat.photo+') center/cover':'';if(chat.photo)chatAvatar.textContent='';
 renderMessages(chat);chatScreen.classList.add('active');chatScreen.setAttribute('aria-hidden','false');
 await LINKServer.markRead(chatId);allChats=await LINKServer.getChats();renderCurrentChatList();}
 chatHeader.addEventListener('click',e=>{if(e.target.closest('#backBtn')||e.target.closest('#chatMoreBtn'))return;const chat=allChats.find(c=>c.id===currentChatId);if(chat)openProfile(chat);});
@@ -2593,6 +2636,55 @@ document.addEventListener('pointerup',()=>finish(true),true);document.addEventLi
 IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.style.touchAction='pan-y';});
 })();
 
+
+/* ===== v40 · پیام جدید / گروه / کانال / مخاطب ===== */
+(function(){
+const NS=$('nsScr'),T=$('nsTitle'),SB=$('nsSearch'),FAB=$('nsFab'),PIN=$('nsPhotoIn');
+const S={v:'home',mode:'group',sel:new Map(),photo:'',stack:[]};
+const ARW='<svg class="svg-icon" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>',CHK='<svg class="svg-icon" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>';
+const kindOf=c=>c.type==='group'||c.type==='channel'?c.type:c.type==='bot'?'bot':c.id==='saved'?'saved':c.id==='channel'?'channel':(c.id==='family'||c.id==='team')?'group':'private';
+const avc=n=>'c'+(1+[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%6);
+function contacts(){const db=LINKServer.db,out=[];(db.chats||[]).forEach(c=>{if(kindOf(c)==='private')out.push({key:'c:'+c.id,name:c.title,phone:(c.phone&&c.phone!=='—')?c.phone:'',initial:c.initial,avatar:c.avatar,photo:c.photo,chatId:c.id});});
+(db.contacts||[]).forEach(k=>{if(!(db.chats||[]).some(c=>c.contactId===k.id))out.push({key:'k:'+k.id,name:k.name,phone:k.phone||'',initial:(k.name.trim().charAt(0)||'؟'),avatar:avc(k.name),contactId:k.id});});
+return out.sort((a,b)=>a.name.localeCompare(b.name,'fa'));}
+function av(o){const d=document.createElement('div');d.className='avatar '+(o.avatar||'c1');d.style.cssText='width:44px;height:44px;font-size:17px';if(o.photo)d.style.background='url('+o.photo+') center/cover';else d.textContent=o.initial||'؟';return d;}
+function crow(o,check){const b=document.createElement('button');b.type='button';b.className='ns-crow';b.dataset.q=(o.name+' '+o.phone).toLowerCase();const tx=document.createElement('span');tx.className='tx';const n=document.createElement('b');n.textContent=o.name;tx.appendChild(n);if(o.phone){const p=document.createElement('span');p.textContent=o.phone;tx.appendChild(p);}
+b.append(av(o),tx);if(check){const k=document.createElement('span');k.className='ns-ck';k.innerHTML=CHK;b.appendChild(k);if(S.sel.has(o.key))b.classList.add('on');}return b;}
+function empty(box,t){const d=document.createElement('div');d.className='at-empty';d.textContent=t;box.appendChild(d);}
+function renderHome(){const box=$('nsList');box.innerHTML='';const cs=contacts();if(!cs.length){empty(box,'هنوز مخاطبی ندارید؛ با «مخاطب جدید» اضافه کنید.');return;}cs.forEach(o=>{const r=crow(o);r.addEventListener('click',()=>openContact(o));box.appendChild(r);});}
+function chips(){const c=$('nsChips');c.innerHTML='';S.sel.forEach((o,k)=>{const h=document.createElement('span');h.className='ns-chip';h.textContent=o.name+' ×';h.addEventListener('click',()=>{S.sel.delete(k);renderPick();});c.appendChild(h);});}
+function renderPick(){chips();$('nsPickHint').textContent=(S.mode==='group'?'اعضای گروه':'مشترکین کانال')+' · '+toFaDigits(S.sel.size)+' انتخاب‌شده';const box=$('nsPickList');box.innerHTML='';const cs=contacts();if(!cs.length){empty(box,'مخاطبی برای انتخاب نیست؛ اول یک مخاطب اضافه کنید.');return;}
+cs.forEach(o=>{const r=crow(o,true);r.addEventListener('click',()=>{if(S.sel.has(o.key))S.sel.delete(o.key);else S.sel.set(o.key,o);renderPick();});box.appendChild(r);});filt();}
+function renderInfo(){const g=S.mode==='group';$('nsName').placeholder=g?'نام گروه':'نام کانال';$('nsDesc').style.display=g?'none':'';const ph=$('nsPhotoBtn');ph.style.backgroundImage=S.photo?'url('+S.photo+')':'';ph.querySelector('svg').style.display=S.photo?'none':'';
+$('nsMemTitle').textContent=(g?'اعضا':'مشترکین')+' · '+toFaDigits(S.sel.size);const b=$('nsMemList');b.innerHTML='';S.sel.forEach(o=>{const r=crow(o);r.style.pointerEvents='none';b.appendChild(r);});}
+const TITLES={home:'پیام جدید',add:'مخاطب جدید'};
+function go(v,push){if(push!==false)S.stack.push(S.v);S.v=v;NS.querySelectorAll('.ns-view').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
+T.textContent=v==='pick'||v==='info'?(S.mode==='group'?'گروه جدید':'کانال جدید'):TITLES[v];NS.classList.remove('s');SB.value='';filt();
+NS.classList.toggle('fb',v==='pick'||v==='info');FAB.innerHTML=v==='pick'?ARW:CHK;$('nsSearchBtn').style.visibility=(v==='home'||v==='pick')?'visible':'hidden';
+if(v==='home')renderHome();if(v==='pick')renderPick();if(v==='info')renderInfo();$('nsBack').parentElement.scrollTop=0;NS.querySelector('.ns-body').scrollTop=0;}
+function filt(){const q=SB.value.trim().toLowerCase();NS.querySelectorAll('.ns-view.on .ns-crow').forEach(r=>{r.style.display=!q||(r.dataset.q||'').includes(q)?'':'none';});}
+function openNs(){if(!LINKServer.db)return;S.stack=[];S.sel=new Map();S.photo='';$('nsName').value='';$('nsDesc').value='';$('nsCName').value='';$('nsCPhone').value='';go('home',false);NS.classList.add('active');NS.setAttribute('aria-hidden','false');}
+function closeNs(){NS.classList.remove('active');NS.setAttribute('aria-hidden','true');}
+async function openContact(o){closeNs();if(o.chatId){openChatById(o.chatId);return;}
+const db=LINKServer.db,id='ct-'+o.contactId;if(!db.chats.some(c=>c.id===id))db.chats.unshift({id,type:'private',contactId:o.contactId,title:o.name,status:'آخرین بازدید اخیراً',initial:o.initial,avatar:o.avatar,unread:0,time:currentFaTime(),lastMessage:'',phone:o.phone||'—',username:'—',email:'—',bio:'—',messages:[]});
+await LINKServer.save();allChats=await LINKServer.getChats();renderCurrentChatList();openChatById(id);}
+function resize(f){return new Promise(res=>{const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d'),m=Math.min(im.width,im.height);x.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,256,256);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.82));};im.onerror=()=>{URL.revokeObjectURL(u);res('');};im.src=u;});}
+async function create(){const name=$('nsName').value.trim();if(!name){showToast('نام را وارد کنید');return;}
+const g=S.mode==='group',mem=[...S.sel.values()],db=LINKServer.db;
+const chat={id:(g?'g-':'ch-')+Date.now().toString(36),type:S.mode,title:name,status:g?toFaDigits(mem.length+1)+' عضو':(mem.length?toFaDigits(mem.length)+' مشترک':'کانال'),initial:name.charAt(0),avatar:avc(name),photo:S.photo||'',unread:0,time:currentFaTime(),lastMessage:g?'گروه ساخته شد':'کانال ساخته شد',lastOut:false,phone:'—',username:'—',email:'—',bio:g?'—':($('nsDesc').value.trim()||'—'),members:mem.map(m=>({name:m.name,phone:m.phone})),messages:[]};
+db.chats.unshift(chat);await LINKServer.save();allChats=await LINKServer.getChats();renderCurrentChatList();closeNs();openChatById(chat.id);}
+async function saveContact(){const n=$('nsCName').value.trim(),ph=$('nsCPhone').value.trim();if(!n){showToast('نام را وارد کنید');return;}const db=LINKServer.db;db.contacts=db.contacts||[];db.contacts.push({id:'k'+Date.now().toString(36),name:n,phone:toFaDigits(ph)});await LINKServer.save();showToast('مخاطب ذخیره شد');$('nsCName').value='';$('nsCPhone').value='';S.stack=[];go('home',false);}
+document.querySelector('.fab').addEventListener('click',openNs);
+const dc=document.querySelector('.drawer-item[data-placeholder="مخاطبین"]');if(dc){dc.removeAttribute('data-placeholder');dc.addEventListener('click',openNs);}
+NS.addEventListener('click',e=>{const a=e.target.closest('[data-go]');if(!a)return;const t=a.dataset.go;if(t==='add')go('add');else{S.mode=t;S.sel=new Map();S.photo='';go('pick');}});
+$('nsBack').addEventListener('click',()=>{if(S.stack.length)go(S.stack.pop(),false);else closeNs();});
+$('nsSearchBtn').addEventListener('click',()=>{NS.classList.toggle('s');if(NS.classList.contains('s'))SB.focus();else{SB.value='';filt();}});
+SB.addEventListener('input',filt);
+FAB.addEventListener('click',()=>{if(S.v==='pick'){if(S.mode==='group'&&!S.sel.size){showToast('حداقل یک عضو انتخاب کنید');return;}go('info');}else create();});
+$('nsPhotoBtn').addEventListener('click',()=>PIN.click());
+PIN.addEventListener('change',async()=>{const f=PIN.files&&PIN.files[0];PIN.value='';if(!f)return;S.photo=await resize(f);renderInfo();});
+$('nsCSave').addEventListener('click',saveContact);
+})();
 (async function initApp(){await PermGate.run();await LINKServer.init();allChats=await LINKServer.getChats();renderCurrentChatList();
 const p=await LINKServer.getProfile();
 $('drawerName').textContent=p.name;$('drawerPhone').textContent=p.phone;$('drawerAvatar').textContent=p.initial;$('drawerAvatar').className='avatar drawer-avatar '+p.avatar;
