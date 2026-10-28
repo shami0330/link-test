@@ -1540,7 +1540,7 @@ else if(m.type==='attributes')attrs(m.target);
    جدول‌ها: users{name,email,username} · chats{memberA,memberB,pairKey,nameA,nameB,last,lastAt,unreadA,unreadB · kind,title,about,owner,members,msgCount} · messages{chatId,fromId,text,replyTo,pinned,readByOther}
    برای اینکه ستون جدیدی لازم نباشد: پیام متنی ساده مستقیم در text می‌رود؛ پیام‌های رسانه‌ای/پاسخ/واکنش/ویرایش‌شده به‌صورت JSON با نشانهٔ LNV در همان ستون text ذخیره می‌شوند.
    فایل‌ها در Bucket با fileId برابر mediaId ذخیره می‌شوند. رابط LINKServer دقیقاً همان رابط قبلی (نمونهٔ محلی) است و بقیهٔ برنامه تغییری نمی‌کند. */
-const LINK_VERSION='v50';
+const LINK_VERSION='v51';
 const LNC={ep:'https://fra.cloud.appwrite.io/v1',pj:'6ad968ee002c73c4ca9a',db:'6ad969a5001ae9582c3e',tU:'6ad96bc700117baf5a06',tC:'6ad9c6e9001f15568d17',tM:'6ad9ca3a001a0e48e86c',bk:'6adf99470015c4d986f2',sdk:['https://cdn.jsdelivr.net/npm/appwrite@22.3.0/dist/iife/sdk.js','appwrite-sdk.js']};
 const LNL={image:1048576,video:10485760,voice:512000,file:15728640};
 const LNX=['jpg','jpeg','png','webp','gif','mp4','webm','mov','m4a','mp3','ogg','oga','pdf','zip','txt','docx','xlsx','pptx'];
@@ -2557,7 +2557,7 @@ if(isVoice){const r=currentTime/duration,c=Math.floor(r*bars.length);bars.forEac
 else{progress.style.strokeDashoffset=circumference*(1-Math.min(1,currentTime/duration));vTime.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
 }
 function collapse(){if(!isVoice){note.classList.remove('expanded','playing');root.classList.remove('centered');const rv=getV();if(rv){rv.dataset.ctl='';rv.muted=true;rv.loop=true;rv.playbackRate=1;try{rv.currentTime=TS+0.05;const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}}}
-function play(){if(playing)return;if(isVoice&&needDl){needDl=false;playBtn.classList.add('dl-wait');const rg=dlRingAttach(playBtn);resolveMediaUrl(message,{force:true,onProgress:rg.set}).then(u=>{rg.done();playBtn.classList.remove('dl-wait');if(u){mkAudio(u);playBtn.innerHTML=PLAY_ICON;}else{needDl=true;showToast(LT('دانلود ناموفق بود','Download failed')+(LNK._lastErr?': '+lnkEr(LNK._lastErr):''));}});return;}if(isVoice&&!audioEl&&!message.src&&!message.dataUrl&&!mediaUrls.get(message.mediaId)){showToast('فایل صدا در دسترس نیست');return;}if(window.__stopMusic)window.__stopMusic();if(activeBarPlayer&&activeBarPlayer!==player&&activeBarPlayer.playing)activeBarPlayer.pause();
+function play(){if(playing)return;if(isVoice&&needDl){needDl=false;playBtn.classList.add('dl-wait');const rg=dlRingAttach(playBtn);resolveMediaUrl(message,{force:true,onProgress:rg.set}).then(u=>{rg.done();playBtn.classList.remove('dl-wait');if(u){mkAudio(u);playBtn.innerHTML=PLAY_ICON;}else{needDl=true;showToast(LT('دانلود ناموفق بود','Download failed')+(LNK._lastErr?': '+lnkEr(LNK._lastErr):''));}});return;}if(isVoice&&!audioEl&&!message.src&&!message.dataUrl&&!mediaUrls.get(message.mediaId)){showToast('فایل صدا در دسترس نیست');return;}if(window.__stopMusic)window.__stopMusic();players.forEach(p=>{if(p!==player&&p.playing)p.stopReset();});
 playing=true;showBar(player);if(isVoice&&audioEl){audioEl.playbackRate=speed;if(currentTime===0){try{audioEl.currentTime=TS;}catch(e){}}try{const pr=audioEl.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}if(!isVoice){const rv=getV();if(rv){rv.dataset.ctl='1';rv.loop=false;if(currentTime===0){try{rv.currentTime=TS;}catch(e){}}rv.playbackRate=speed;rv.muted=false;try{const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{try{rv.muted=true;const p2=rv.play();if(p2&&p2.catch)p2.catch(()=>{});}catch(e){}});}catch(e){}}}
 if(!isVoice){note.classList.add('expanded','playing');root.classList.add('centered');centerInMessages(root,true);}
 else playBtn.innerHTML=PAUSE_ICON;
@@ -2567,7 +2567,7 @@ function pause(){if(!playing)return;playing=false;clearInterval(timer);if(isVoic
 function stopReset(){pause();currentTime=0;if(isVoice&&audioEl){try{audioEl.currentTime=TS;}catch(e){}}update();collapse();}
 function toggle(){playing?pause():play();}
 function cycleSpeed(){speed=speed===1?1.5:speed===1.5?2:1;const rv=isVoice?audioEl:getV();if(rv)rv.playbackRate=speed;refreshBar();}
-const player={id:message.id,kind,title:currentChatTitle,duration,playing,get speed(){return speed;},play,pause,toggle,stopReset,cycleSpeed};
+const player={id:message.id,kind,title:currentChatTitle,duration,get playing(){return playing;},get speed(){return speed;},play,pause,toggle,stopReset,cycleSpeed};
 if(isVoice){
 playBtn.addEventListener('click',e=>{e.stopPropagation();toggle();});
 waveform.addEventListener('click',e=>{const r=waveform.getBoundingClientRect();currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*duration;if(audioEl){try{audioEl.currentTime=currentTime+TS;}catch(x){}}update();});
