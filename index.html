@@ -443,8 +443,8 @@ body.kb .inputbar,.emoji-open .inputbar{padding-bottom:8px}
 .reply-preview.active{max-height:56px;opacity:1;padding:6px 10px;margin-bottom:6px}
 .input-row{align-items:flex-end}
 .input-field{align-items:flex-end;padding:3px 4px;min-height:50px}
-.input-field textarea{flex:1;min-width:0;border:none;outline:none;background:transparent;padding:11px 6px;font:inherit;font-size:15.5px;line-height:1.5;color:var(--text-main);resize:none;height:44px;max-height:128px;overflow-y:auto}
-.input-field textarea::placeholder{color:var(--placeholder)}
+.input-field #messageInput{flex:1;min-width:0;border:none;outline:none;background:transparent;padding:11px 6px;font:inherit;font-size:15.5px;line-height:1.5;color:var(--text-main);height:44px;max-height:128px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;-webkit-user-select:text;user-select:text;-webkit-user-modify:read-write-plaintext-only;cursor:text}
+#messageInput:empty::before{content:attr(placeholder);color:var(--placeholder);pointer-events:none}
 .input-field .icon-btn{flex-shrink:0;margin-bottom:1px}
 .send-btn{position:relative;transition:background .2s,color .2s,transform .2s var(--ease)}
 .send-btn.swap svg{animation:swap .4s var(--spring)}
@@ -740,9 +740,9 @@ html[data-palette="ocean"]{--primary-rgb:47,156,240;--accent-light:#7cc4ff;--acc
 </div>
 <div class="input-row">
 <div class="input-field">
-<button class="icon-btn dark" id="emojiBtn" aria-label="شکلک"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8"/><path d="M9 9.5h.01M15 9.5h.01"/></svg></button>
-<textarea id="messageInput" rows="1" placeholder="پیام" autocomplete="off" enterkeyhint="enter"></textarea>
 <button class="icon-btn dark" id="attachBtn" aria-label="پیوست"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+<div id="messageInput" role="textbox" aria-multiline="true" contenteditable="plaintext-only" spellcheck="false" autocapitalize="sentences" placeholder="پیام" enterkeyhint="enter"></div>
+<button class="icon-btn dark" id="emojiBtn" aria-label="شکلک"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8"/><path d="M9 9.5h.01M15 9.5h.01"/></svg></button>
 </div>
 <button id="sendBtn" class="send-btn capture voice" aria-label="ضبط پیام صوتی"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v4"/></svg></button>
 <div class="recording-bar" id="recordingBar">
@@ -1360,7 +1360,9 @@ if(res.facing==='user'){vrOverlay.classList.toggle('flash-on',!!res.flash);}
 else{vrOverlay.classList.remove('flash-on');if(res.flash){const ok=await vrSetTorch(true);if(!ok){res.flash=false;showToast('فلش دوربین پشت در این دستگاه پشتیبانی نمی‌شود');}}}
 vrFlash.classList.toggle('flash-active',!!res.flash);}
 async function vrFlipCamera(){const res=VR.res;if(!res||!VR.rec||res.flipping)return;res.flipping=true;const next=res.facing==='user'?'environment':'user';
-const getCam=f=>navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:f},width:{ideal:960},height:{ideal:960}}});
+/* دوربین پشتی: فقط لنز اصلی (نه اولتراواید/تله/ماکرو) */
+const mainBackId=async()=>{try{const d=(await navigator.mediaDevices.enumerateDevices()).filter(x=>x.kind==='videoinput'&&x.label);const back=d.filter(x=>/back|rear|environment|facing back|پشت/i.test(x.label));if(!back.length)return null;const exact=back.find(x=>/^back camera$/i.test(x.label.trim()));if(exact)return exact.deviceId;const ok=back.filter(x=>!/ultra|wide|tele|macro|depth|zoom|dual|triple/i.test(x.label));return (ok[0]||back[0]).deviceId;}catch(e){return null;}};
+const getCam=async f=>{const sz={width:{ideal:960},height:{ideal:960}};if(f==='environment'){const id=await mainBackId();if(id){try{return await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:id},...sz}});}catch(e){}}}return navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:f},...sz}});};
 const old=VR.stream;try{(res.vs||old).getVideoTracks().forEach(t=>{try{t.stop();}catch(e){}});}catch(e){}
 let ns=null,used=next;
 try{ns=await getCam(next);}catch(e){try{ns=await getCam(res.facing);used=res.facing;}catch(e2){}if(!ns)showToast('تغییر دوربین ممکن نیست');else showToast('دوربین دیگری در دسترس نیست');}
@@ -1709,6 +1711,13 @@ const KB_ICON='<svg class="svg-icon" viewBox="0 0 24 24"><rect x="2" y="5" width
 const BKSP_ICON='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12z"/><path d="m15 9-4 6M11 9l4 6"/></svg>';
 const emojiBtn=$('emojiBtn'),emojiPanel=$('emojiPanel'),lockHint=$('lockHint'),chatMenu=$('chatMenu'),popupBg=$('popupBg');
 let emojiOpen=false,typingTimer=null;
+
+/* messageInput اکنون div است (برای حذف نوار بالای کیبورد iOS)؛ این کد رفتار .value را مثل textarea نگه می‌دارد */
+Object.defineProperty(messageInput,'value',{configurable:true,
+get(){return (this.innerText||'').replace(/\u200b/g,'').replace(/\n$/,'');},
+set(v){this.textContent=v||'';}});
+messageInput.addEventListener('input',()=>{if(!messageInput.textContent.replace(/\n/g,'').length&&messageInput.innerHTML!=='')messageInput.innerHTML='';});
+messageInput.addEventListener('paste',e=>{e.preventDefault();const t=(e.clipboardData||window.clipboardData).getData('text/plain');document.execCommand('insertText',false,t);});
 function autosize(){messageInput.style.height='auto';messageInput.style.height=Math.min(messageInput.scrollHeight,128)+'px';}
 function updateSendButton(){const has=messageInput.value.trim().length>0;const mode=has?'send':captureMode;if(sendBtn.dataset.mode===mode)return;sendBtn.dataset.mode=mode;
 if(mode==='send'){sendBtn.className='send-btn send';sendBtn.innerHTML=SEND_ICON;sendBtn.setAttribute('aria-label','ارسال پیام');}
