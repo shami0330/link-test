@@ -1392,9 +1392,10 @@ function centerInMessages(el,smooth){if(!el||!messagesEl)return;const mr=message
 const mediaUrls=new Map();
 const MediaStore={db:null,
 open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);try{const r=indexedDB.open('link-media',1);r.onupgradeneeded=()=>r.result.createObjectStore('blobs');r.onsuccess=()=>{this.db=r.result;res(this.db);};r.onerror=()=>rej(r.error);r.onblocked=()=>rej(new Error('blocked'));}catch(e){rej(e);}});},
-async put(id,blob){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction('blobs','readwrite');t.objectStore('blobs').put(blob,id);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error||new Error('abort'));});},
+put(id,blob){return Promise.race([this._put(id,blob),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),4000))]);},
+async _put(id,blob){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction('blobs','readwrite');t.objectStore('blobs').put(blob,id);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error||new Error('abort'));});},
 async get(id){const db=await this.open();return new Promise((res,rej)=>{const q=db.transaction('blobs').objectStore('blobs').get(id);q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error);});}};
-async function resolveMediaUrl(m){if(m.src&&String(m.src).startsWith('blob:'))return m.src;if(!m.mediaId)return null;let u=mediaUrls.get(m.mediaId);if(u)return u;try{const b=await MediaStore.get(m.mediaId);if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);return u;}}catch(e){}return null;}
+async function resolveMediaUrl(m){if(m.src&&String(m.src).startsWith('blob:'))return m.src;if(m.dataUrl)return m.dataUrl;if(!m.mediaId)return null;let u=mediaUrls.get(m.mediaId);if(u)return u;try{const b=await MediaStore.get(m.mediaId);if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);return u;}}catch(e){}return null;}
 const vnObserver=('IntersectionObserver' in window)?new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(v.dataset.ctl==='1')return;if(e.isIntersecting){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else v.pause();}),{threshold:.25}):null;
 async function attachRealVideo(b,m){if(!m.src&&!m.mediaId){const dn=b.querySelector('.video-note');if(dn)setTimeout(()=>dn.classList.add('dl'),900+Math.random()*1400);return;}const url=await resolveMediaUrl(m);if(!url)return;const note=b.querySelector('.video-note');if(!note||note.querySelector('.vn-video'))return;
 const v=document.createElement('video');v.className='vn-video';if(m.noMirror)v.style.transform='none';v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.loop=true;v.autoplay=true;v.defaultMuted=true;v.setAttribute('muted','');v.setAttribute('loop','');v.addEventListener('loadeddata',()=>{if(v.dataset.ctl!=='1'){const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}});v.disablePictureInPicture=true;const TS=m.trimStart||0,TE=m.trimEnd||0;if(TS||TE){v.addEventListener('loadedmetadata',()=>{try{v.currentTime=TS+0.05;}catch(e){}});v.addEventListener('timeupdate',()=>{if(v.dataset.ctl!=='1'&&TE&&v.currentTime>=TE-0.03){try{v.currentTime=TS+0.05;}catch(e){}}});}
@@ -1550,8 +1551,8 @@ rec.start(250);recordState.startTime=Date.now();updateRecordTimers();
 function vaFinish(d,reply,trim){const rec=VA.rec,st=VA.stream,chunks=VA.chunks,mime=VA.mime;const wave=vaWave(34,trim);vaStopMeter();VA.rec=null;VA.stream=null;VA.chunks=[];VA.token++;
 if(!rec){if(st)warmASet(st);showToast('میکروفون هنوز آماده نبود');return;}
 rec.onstop=async()=>{if(st)warmASet(st);const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||mime||'audio/webm').split(';')[0]});if(!blob.size){showToast('ضبط ناموفق بود');return;}
-const mediaId='va-'+Date.now()+Math.random().toString(36).slice(2,6);const url=URL.createObjectURL(blob);mediaUrls.set(mediaId,url);try{await MediaStore.put(mediaId,blob);}catch(e){}
-const payload={kind:'voice',duration:d,src:url,mediaId,replyTo:reply};if(wave)payload.wave=wave;if(trim){payload.trimStart=trim.s;payload.trimEnd=trim.e;}await sendOutgoingMessage(payload);};
+const mediaId='va-'+Date.now()+Math.random().toString(36).slice(2,6);const url=URL.createObjectURL(blob);mediaUrls.set(mediaId,url);let dataUrl='';try{await MediaStore.put(mediaId,blob);}catch(e){if(blob.size<600000){try{dataUrl=await new Promise((r,j)=>{const f=new FileReader();f.onload=()=>r(f.result);f.onerror=j;f.readAsDataURL(blob);});}catch(x){}}}
+const payload={kind:'voice',duration:d,src:url,mediaId,replyTo:reply};if(dataUrl)payload.dataUrl=dataUrl;if(wave)payload.wave=wave;if(trim){payload.trimStart=trim.s;payload.trimEnd=trim.e;}await sendOutgoingMessage(payload);};
 try{if(rec.state!=='inactive')rec.stop();}catch(e){if(st)warmASet(st);}}
 const VR={stream:null,rec:null,chunks:[],mime:'',token:0};
 function vrPickMime(){const list=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return '';return list.find(t=>MediaRecorder.isTypeSupported(t))||'';}
@@ -1643,7 +1644,7 @@ if(isVoice){const r=currentTime/duration,c=Math.floor(r*bars.length);bars.forEac
 else{progress.style.strokeDashoffset=circumference*(1-Math.min(1,currentTime/duration));vTime.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
 }
 function collapse(){if(!isVoice){note.classList.remove('expanded','playing');root.classList.remove('centered');const rv=getV();if(rv){rv.dataset.ctl='';rv.muted=true;rv.loop=true;rv.playbackRate=1;try{rv.currentTime=TS+0.05;const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}}}
-function play(){if(playing)return;if(window.__stopMusic)window.__stopMusic();if(activeBarPlayer&&activeBarPlayer!==player&&activeBarPlayer.playing)activeBarPlayer.pause();
+function play(){if(playing)return;if(isVoice&&!audioEl&&!message.src&&!message.dataUrl&&!mediaUrls.get(message.mediaId)){showToast('فایل صدا در دسترس نیست');return;}if(window.__stopMusic)window.__stopMusic();if(activeBarPlayer&&activeBarPlayer!==player&&activeBarPlayer.playing)activeBarPlayer.pause();
 playing=true;showBar(player);if(isVoice&&audioEl){audioEl.playbackRate=speed;if(currentTime===0){try{audioEl.currentTime=TS;}catch(e){}}try{const pr=audioEl.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}if(!isVoice){const rv=getV();if(rv){rv.dataset.ctl='1';rv.loop=false;if(currentTime===0){try{rv.currentTime=TS;}catch(e){}}rv.playbackRate=speed;rv.muted=false;try{const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{try{rv.muted=true;const p2=rv.play();if(p2&&p2.catch)p2.catch(()=>{});}catch(e){}});}catch(e){}}}
 if(!isVoice){note.classList.add('expanded','playing');root.classList.add('centered');centerInMessages(root,true);}
 else playBtn.innerHTML=PAUSE_ICON;
@@ -2703,6 +2704,34 @@ FAB.addEventListener('click',()=>{if(S.v==='pick'){if(S.mode==='group'&&!S.sel.s
 $('nsPhotoBtn').addEventListener('click',()=>PIN.click());
 PIN.addEventListener('change',async()=>{const f=PIN.files&&PIN.files[0];PIN.value='';if(!f)return;S.photo=await resize(f);renderInfo();});
 $('nsCSave').addEventListener('click',saveContact);
+})();
+
+/* ===== v45 · صدا و تصویر واقعی برای پیام‌های نمونه ===== */
+(function(){
+function wav(sec,seed){const sr=16000,n=Math.floor(sr*sec),b=new ArrayBuffer(44+n*2),v=new DataView(b);const W=(o,t)=>{for(let i=0;i<t.length;i++)v.setUint8(o+i,t.charCodeAt(i));};
+W(0,'RIFF');v.setUint32(4,36+n*2,true);W(8,'WAVE');W(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);W(36,'data');v.setUint32(40,n*2,true);
+let q=seed>>>0;const rnd=()=>{q=(q*1664525+1013904223)>>>0;return q/4294967296;};const syl=[];let t=0.15;
+while(t<sec-0.2){const d=0.12+rnd()*0.22;syl.push([t,d,110+rnd()*70]);t+=d+(rnd()<0.2?0.25+rnd()*0.25:0.03+rnd()*0.06);}
+let ph=0,k=0;for(let i=0;i<n;i++){const tt=i/sr;let a=0,f=120;while(k<syl.length&&tt>=syl[k][0]+syl[k][1])k++;
+if(k<syl.length&&tt>=syl[k][0]){const y=syl[k],p=(tt-y[0])/y[1];a=Math.sin(Math.PI*p);f=y[2]*(1+.15*Math.sin(p*3));}
+ph+=2*Math.PI*f/sr;const sm=Math.sin(ph)+.5*Math.sin(2*ph)+.3*Math.sin(3*ph)+.15*Math.sin(5*ph);v.setInt16(44+i*2,Math.max(-1,Math.min(1,sm*a*.22))*32767,true);}
+return new Blob([b],{type:'audio/wav'});}
+async function video(sec){if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream)return null;
+const c=document.createElement('canvas');c.width=c.height=320;const x=c.getContext('2d'),st=c.captureStream(24);
+const mt=['video/webm;codecs=vp8','video/webm','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));let rec;try{rec=new MediaRecorder(st,mt?{mimeType:mt}:{});}catch(e){return null;}
+const ch=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data);};const t0=performance.now();
+const draw=()=>{const t=(performance.now()-t0)/1000,h=(t*40)%360;const g=x.createLinearGradient(0,0,320,320);g.addColorStop(0,'hsl('+h+',80%,62%)');g.addColorStop(1,'hsl('+((h+70)%360)+',80%,48%)');x.fillStyle=g;x.fillRect(0,0,320,320);
+x.fillStyle='#ffd9b8';x.beginPath();x.arc(160,165+Math.sin(t*2)*4,88,0,7);x.fill();const bl=(t%2.4)<.12;x.fillStyle='#3a2a22';
+[120,200].forEach(ex=>{x.beginPath();x.ellipse(ex,148+Math.sin(t*2)*4,9,bl?1.5:11,0,0,7);x.fill();});
+x.strokeStyle='#b4545a';x.lineWidth=7;x.lineCap='round';x.beginPath();const o=6+Math.abs(Math.sin(t*9))*14;x.ellipse(160,205+Math.sin(t*2)*4,26,o,0,0,Math.PI);x.stroke();};
+draw();const iv=setInterval(draw,42);const stopped=new Promise(r=>{rec.onstop=r;});rec.start(250);await new Promise(r=>setTimeout(r,sec*1000));rec.stop();await stopped;clearInterval(iv);
+return ch.length?new Blob(ch,{type:(mt||'video/webm').split(';')[0]}):null;}
+function run(){const db=LINKServer.db;let n=0;
+(db.chats||[]).forEach(c=>(c.messages||[]).forEach(m=>{if(m.kind!=='voice'&&m.kind!=='videoNote')return;if(m.src||m.dataUrl)return;if(m.mediaId&&m.mediaId.indexOf('demo-')!==0)return;
+const id='demo-'+m.id,sec=Math.max(2,m.duration||5);
+if(m.kind==='voice'){mediaUrls.set(id,URL.createObjectURL(wav(sec,[...m.id].reduce((a,ch)=>a*31+ch.charCodeAt(0),7))));m.mediaId=id;}
+else{m.noMirror=true;video(sec).then(b=>{if(b){mediaUrls.set(id,URL.createObjectURL(b));m.mediaId=id;}}).catch(()=>{});}}));}
+let tries=0;const iv=setInterval(()=>{if(LINKServer.db){clearInterval(iv);run();}else if(++tries>150)clearInterval(iv);},200);
 })();
 (async function initApp(){await PermGate.run();await LINKServer.init();allChats=await LINKServer.getChats();renderCurrentChatList();
 const p=await LINKServer.getProfile();
