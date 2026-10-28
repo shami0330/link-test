@@ -4591,11 +4591,7 @@ async function applyRoute(quiet){
  }catch(e){res={ok:false,why:X('تغییر خروجی ناموفق بود','Could not switch the output')}}
  if(!res.ok){AP.route='auto';setPan(false);apSave();iosRestore();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
  return res}
-async function setRoute(r){AP.route=r;apSave();var res=await applyRoute(false);if(IOS&&!NAT&&res&&res.ok&&!GS.pend){var dg=' | sink='+String(au.sinkId||'').slice(0,6)+' | session='+((navigator.audioSession&&navigator.audioSession.type)||'-')+' | '+(GS.names||'');toast(r==='ear'?'اسپیکر بالا: '+((OUTC.recv&&OUTC.recv.label)||'')+dg:'اسپیکر اصلی'+dg,r==='ear'?'Earpiece: '+((OUTC.recv&&OUTC.recv.label)||'')+dg:'Main speaker'+dg)};if(!sm.hidden)paintSm();paint()}
-/* temporary diagnostics line (small grey text under the top of the call screen) */
-var callDbg=document.createElement('div');callDbg.id='callDbg';callDbg.style.cssText='position:absolute;left:8px;right:8px;top:calc(env(safe-area-inset-top,0px) + 56px);font:10px/1.35 monospace;color:#8c8;opacity:.85;direction:ltr;text-align:left;pointer-events:none;word-break:break-all;z-index:5';ov.appendChild(callDbg);
-setInterval(function(){try{if(ov.hidden||!S||S.ended){callDbg.textContent='';return}
- callDbg.textContent='route='+AP.route+' native='+(NAT?1:0)+' ses='+((navigator.audioSession&&navigator.audioSession.type)||'-')+' sink='+String(au.sinkId==null?'-':(au.sinkId||'default')).slice(0,8)+' recv='+(OUTC.recv?OUTC.recv.label:'none')+' err='+(GS.err||'-')+' pend='+(GS.pend?1:0)+' paused='+(au.paused?1:0)+' muted='+(au.muted?1:0)+' ios='+(navigator.userAgent.match(/OS ([\d_]+)/)||[0,'?'])[1]+' outs='+(GS.names||'?')}catch(e){}},1000);
+async function setRoute(r){AP.route=r;apSave();var res=await applyRoute(false);if(IOS&&!NAT&&res&&res.ok&&!GS.pend)toast(r==='ear'?'اسپیکر تماس فعال شد':'اسپیکر اصلی فعال شد',r==='ear'?'Call speaker on':'Main speaker on');if(!sm.hidden)paintSm();paint()}
 sm.addEventListener('click',function(e){var r=e.target.closest('[data-r]');if(!r)return;gestureSink(r.dataset.r);setRoute(r.dataset.r)});
 bot.addEventListener('pointerdown',function(e){var b=e.target.closest&&e.target.closest('[data-a="spk"]');if(!b)return;
  spkHeld=false;clearTimeout(spkT);spkT=setTimeout(function(){spkT=null;spkHeld=true;smOpen()},300)});
