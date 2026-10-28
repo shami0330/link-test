@@ -675,6 +675,57 @@ html[data-palette="ocean"]{--primary-rgb:47,156,240;--accent-light:#7cc4ff;--acc
 .pal.active{color:var(--text-main)}
 .pal.active .pal-sw{border-color:var(--primary);transform:scale(1.08)}
 .pal span:last-child{white-space:nowrap}
+/* ===== پوشه‌بندی گفتگوها ===== */
+.fl-tabs{display:none;flex-shrink:0;position:relative;background:var(--primary);color:#fff;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:0 6px;z-index:4;direction:ltr;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.fl-tabs.show{display:flex}
+.fl-tabs::-webkit-scrollbar{display:none}
+.fl-tab{flex:0 0 auto;position:relative;display:flex;align-items:center;gap:6px;border:none;background:transparent;color:rgba(255,255,255,.72);font:inherit;font-size:14px;font-weight:700;padding:11px 14px 12px;cursor:pointer;touch-action:pan-x}
+.fl-tab.on{color:#fff}
+.fl-tab::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:#fff;transform:scaleX(0);transition:transform .22s var(--ease)}
+.fl-tab.on::after{transform:scaleX(1)}
+.fl-bd{font-style:normal;min-width:19px;height:19px;border-radius:10px;background:rgba(255,255,255,.28);color:#fff;font-size:11.5px;font-weight:800;display:grid;place-items:center;padding:0 5px}
+.fl-tab.on .fl-bd{background:#fff;color:var(--primary)}
+.chats.fl-in{animation:flIn .24s var(--ease)}
+@keyframes flIn{from{opacity:0;transform:translateX(calc(var(--fx,1)*28px))}to{opacity:1;transform:none}}
+.fl-empty{display:flex;flex-direction:column;align-items:center;gap:12px;padding:60px 30px;color:var(--text-muted);text-align:center;font-size:14px}
+.fl-empty-ic .svg-icon{width:56px;height:56px;opacity:.55}
+.fl-btn{border:none;border-radius:999px;background:var(--primary);color:#fff;font:inherit;font-size:14px;font-weight:700;padding:10px 22px;cursor:pointer}
+.fl-screen{z-index:20;transform:translateX(105%);visibility:hidden;transition:transform .3s var(--ease),visibility 0s .3s}
+.fl-screen.active{transform:none;visibility:visible;transition:transform .3s var(--ease),visibility 0s}
+#flEdit{z-index:21}#flPick{z-index:22}
+.fl-content{flex:1;overflow-y:auto;overscroll-behavior:contain;background:var(--surface)}
+.fl-hint{padding:14px 16px;font-size:13px;line-height:1.7;color:var(--text-muted)}
+.fl-sec{padding:14px 16px 6px;font-size:13px;font-weight:800;color:var(--primary)}
+.fl-group{border-bottom:10px solid var(--section-gap);padding-bottom:4px}
+.fl-row{display:flex;align-items:center;gap:14px;padding:10px 16px;cursor:pointer;color:var(--text-main);transition:background .12s}
+.fl-row:active{background:var(--active-bg)}
+.fl-row .avatar{width:40px;height:40px;font-size:16px}
+.fl-ic{width:40px;height:40px;display:grid;place-items:center;color:var(--icon-muted);flex-shrink:0}
+.fl-ic .svg-icon{width:22px;height:22px}
+.fl-tx{flex:1;min-width:0}
+.fl-nm{flex:1;min-width:0;font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fl-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px}
+.fl-mv{display:flex;gap:2px}
+.fl-mv button,.fl-rm{width:34px;height:34px;border:none;border-radius:50%;background:transparent;color:var(--icon-muted);display:grid;place-items:center;cursor:pointer;flex-shrink:0}
+.fl-mv .svg-icon,.fl-rm .svg-icon{width:18px;height:18px}
+.fl-mv button:disabled{opacity:.25;cursor:default}
+.fl-act,.fl-act .fl-ic{color:var(--primary);font-weight:700}
+.fl-danger,.fl-danger .fl-ic{color:var(--danger)}
+.fl-field{padding:14px 16px;border-bottom:10px solid var(--section-gap)}
+.fl-field input{width:100%;border:none;outline:none;background:var(--field-bg);color:var(--text-main);border-radius:14px;padding:13px 14px;font:inherit;font-size:15.5px}
+.fl-field input::placeholder{color:var(--placeholder)}
+.fl-ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--icon-muted);display:grid;place-items:center;flex-shrink:0;color:transparent;transition:all .15s}
+.fl-ck .svg-icon{width:14px;height:14px;stroke-width:3}
+.fl-ck.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.fl-sheet-bg{position:absolute;inset:0;z-index:90;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .2s}
+.fl-sheet-bg.open{opacity:1;pointer-events:auto}
+.fl-sheet{position:absolute;left:0;right:0;bottom:0;z-index:91;background:var(--surface);border-radius:24px 24px 0 0;padding:14px 8px calc(14px + var(--sab));max-height:75%;overflow-y:auto;transform:translateY(105%);visibility:hidden;transition:transform .32s var(--ease),visibility 0s .32s}
+.fl-sheet.open{transform:none;visibility:visible;transition:transform .32s var(--ease),visibility 0s}
+.fl-sh-title{padding:2px 12px 2px;font-size:16px;font-weight:800;color:var(--text-main)}
+.fl-sh-sub{padding:0 12px 8px;font-size:12.5px;color:var(--text-muted)}
+.fl-srow{width:100%;display:flex;align-items:center;gap:14px;border:none;background:transparent;color:var(--text-main);font:inherit;font-size:15px;font-weight:600;padding:12px;border-radius:14px;cursor:pointer;text-align:start}
+.fl-srow:active{background:var(--active-bg)}
+.fl-srow .svg-icon{width:22px;height:22px}
 </style>
 </head>
 <body>
@@ -704,6 +755,7 @@ html[data-palette="ocean"]{--primary-rgb:47,156,240;--accent-light:#7cc4ff;--acc
 <div class="appbar-spacer"></div>
 <button class="icon-btn" id="searchBtn" aria-label="جستجو"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg></button>
 </header>
+<div class="fl-tabs" id="flTabs" role="tablist"></div>
 <div class="searchbar" id="searchbar"><input id="searchInput" type="search" placeholder="جستجو" aria-label="جستجو" /></div>
 <main class="chats" id="chatList"></main>
 <button class="fab" aria-label="پیام جدید"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
@@ -819,6 +871,7 @@ html[data-palette="ocean"]{--primary-rgb:47,156,240;--accent-light:#7cc4ff;--acc
 <button class="icon-btn dark" aria-label="ویرایش پروفایل"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
 </div>
 <div class="settings-group">
+<button class="settings-item" id="settingsFolders"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="setting-label">پوشه‌های گفتگو</span><svg class="svg-icon chevron" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
 <button class="settings-item" data-placeholder="اطلاع‌رسانی‌ها"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="setting-label">اطلاع‌رسانی‌ها</span><svg class="svg-icon chevron" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
 <button class="settings-item" data-placeholder="حریم خصوصی و امنیت"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span class="setting-label">حریم خصوصی و امنیت</span><svg class="svg-icon chevron" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
 <button class="settings-item" data-placeholder="داده و ذخیره‌سازی"><svg class="svg-icon" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg><span class="setting-label">داده و ذخیره‌سازی</span><svg class="svg-icon chevron" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
@@ -915,6 +968,20 @@ html[data-palette="ocean"]{--primary-rgb:47,156,240;--accent-light:#7cc4ff;--acc
 <div class="mp-stage" id="mpStage"></div>
 <div class="mp-bottom"><input id="mpCaption" type="text" placeholder="افزودن توضیح…" autocomplete="off" /><button class="mp-send" id="mpSend" aria-label="ارسال"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>
 </div>
+<section class="screen fl-screen" id="flMgr" aria-hidden="true">
+<header class="appbar"><button class="icon-btn" id="flMgrBack" aria-label="بازگشت"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m11 6-6 6 6 6"/></svg></button><div class="appbar-title" >پوشه‌ها</div><div class="appbar-spacer"></div></header>
+<main class="fl-content" id="flMgrBody"></main>
+</section>
+<section class="screen fl-screen" id="flEdit" aria-hidden="true">
+<header class="appbar"><button class="icon-btn" id="flEditBack" aria-label="بازگشت"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m11 6-6 6 6 6"/></svg></button><div class="appbar-title" id="flEditTitle" dir="auto">پوشه‌ی جدید</div><div class="appbar-spacer"></div><button class="icon-btn" id="flEditSave" aria-label="ذخیره"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button></header>
+<main class="fl-content" id="flEditBody"></main>
+</section>
+<section class="screen fl-screen" id="flPick" aria-hidden="true">
+<header class="appbar"><button class="icon-btn" id="flPickBack" aria-label="بازگشت"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m11 6-6 6 6 6"/></svg></button><div class="appbar-title" id="flPickTitle" dir="auto">انتخاب گفتگوها</div><div class="appbar-spacer"></div><button class="icon-btn" id="flPickSave" aria-label="ذخیره"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button></header>
+<main class="fl-content" id="flPickBody"></main>
+</section>
+<div class="fl-sheet-bg" id="flSheetBg"></div>
+<div class="fl-sheet" id="flSheet"></div>
 <div class="dlg-overlay" id="dlg"><div class="dlg"><h3 id="dlgT"></h3><p id="dlgP"></p><label class="dlg-check hidden" id="dlgChkW"><input type="checkbox" id="dlgChk" /><span id="dlgChkT"></span></label><div class="dlg-btns"><button id="dlgYes" class="danger">حذف</button><button id="dlgNo">لغو</button></div></div></div>
 <div class="toast" id="toast"></div>
 <input type="file" id="fileGallery" accept="image/*,video/*" multiple hidden />
@@ -933,6 +1000,7 @@ html[data-palette="ocean"]{--primary-rgb:47,156,240;--accent-light:#7cc4ff;--acc
 <button class="drawer-item" data-placeholder="مخاطبین"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>مخاطبین</span></button>
 <button class="drawer-item" data-placeholder="تماس‌ها"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>تماس‌ها</span></button>
 <button class="drawer-item" data-placeholder="چت‌های بایگانی‌شده"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/></svg><span>چت‌های بایگانی‌شده</span><span class="drawer-badge">۳</span></button>
+<button class="drawer-item" id="drawerFolders"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>پوشه‌ها</span></button>
 <button class="drawer-item" id="drawerSettings"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg><span>تنظیمات</span></button>
 <button class="drawer-item" data-placeholder="دعوت دوستان"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span>دعوت دوستان</span></button>
 <button class="drawer-item" data-placeholder="راهنمای LINK"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><span>راهنمای LINK</span></button>
@@ -981,7 +1049,7 @@ html[data-palette="ocean"]{--primary-rgb:47,156,240;--accent-light:#7cc4ff;--acc
 <script>
 /* ===== v18: i18n — English (default) / Persian. The UI text is authored in Persian; in English mode it is translated at render time. ===== */
 (function(){
-const RAW={"تم رنگی": "Color theme", "توت‌فرنگی": "Strawberry", "برگ": "Leaf", "عسل": "Honey", "شکلات": "Chocolate", "اقیانوس": "Ocean", "لیست چت‌ها": "Chat list", "منو": "Menu", "جستجو": "Search", "پیام جدید": "New message", "صفحه چت": "Chat screen", "بازگشت": "Back", "گزینه‌های بیشتر": "More options", "پخش یا توقف": "Play or pause", "بستن پخش": "Close player", "برداشتن سنجاق": "Unpin", "لغو پاسخ": "Cancel reply", "شکلک": "Emoji", "پیام": "Message", "پیوست": "Attach", "ضبط پیام صوتی": "Record voice message", "لغو ضبط": "Cancel recording", "ارسال": "Send", "پخش": "Play", "توقف ضبط": "Pause recording", "رفتن به آخرین پیام": "Scroll to latest message", "لغو انتخاب": "Cancel selection", "کپی": "Copy", "حذف": "Delete", "پروفایل": "Profile", "تماس صوتی": "Voice call", "تماس ویدیویی": "Video call", "بی‌صدا کردن": "Mute", "جستجو در گفتگو": "Search in chat", "تنظیمات": "Settings", "ویرایش پروفایل": "Edit profile", "اطلاع‌رسانی‌ها": "Notifications", "حریم خصوصی و امنیت": "Privacy and Security", "داده و ذخیره‌سازی": "Data and Storage", "زبان": "Language", "خروج از حساب": "Log out", "ظاهر": "Appearance", "صفحه خالی": "Empty page", "منوی پیوست": "Attach menu", "بستن": "Close", "افزودن توضیح…": "Add a caption…", "منوی کشویی": "Side menu", "بستن منو": "Close menu", "مخاطبین": "Contacts", "تماس‌ها": "Calls", "چت‌های بایگانی‌شده": "Archived Chats", "دعوت دوستان": "Invite Friends", "راهنمای LINK": "LINK Features", "چرخش دوربین": "Flip camera", "فلش": "Flash", "قفل ضبط": "Lock recording", "ضبط": "Record", "نمایش عکس": "View photo", "حالت عمودی": "Portrait mode", "دسترسی‌های لازم": "Permissions required", "برای ورود به «لینک» باید دسترسی‌های زیر را بدهید.": "To enter LINK, please grant the permissions below.", "دوربین": "Camera", "برای ضبط پیام ویدیویی و عکس": "For recording video messages and photos", "میکروفون": "Microphone", "برای ضبط پیام صوتی و ویدیویی": "For recording voice and video messages", "حافظه دستگاه": "Device storage", "برای ذخیره‌ی پیام‌ها و رسانه‌ها روی دستگاه": "For saving messages and media on your device", "اعطای دسترسی‌ها": "Grant permissions", "چت": "Chat", "آخرین بازدید اخیراً": "last seen recently", "پیام سنجاق‌شده": "Pinned message", "امروز": "Today", "دیروز": "Yesterday", "برای ارسال رها کنید، برای قفل بالا بکشید": "Release to send, swipe up to lock", "مشاهده پروفایل": "View profile", "پاک کردن تاریخچه": "Clear history", "ویرایش": "Edit", "نام": "Name", "آنلاین": "online", "تماس": "Call", "ویدیو": "Video", "بی‌صدا": "Mute", "بیشتر": "More", "موبایل": "Mobile", "نام کاربری": "Username", "ایمیل": "Email", "بیو": "Bio", "رسانه": "Media", "ذخیره‌شده": "Saved", "فایل‌ها": "Files", "موسیقی": "Music", "صدا": "Voice", "پیوندها": "Links", "کاربر LINK": "LINK User", "حالت شب": "Night Mode", "فونت وزیرمتن (به‌جای فونت سیستم)": "Vazirmatn font (instead of the system font)", "بخش": "Section", "این بخش در نسخه نمایشی فعال نیست.": "This section is not available in the demo.", "گالری": "Gallery", "فایل": "File", "موقعیت": "Location", "مخاطب": "Contact", "نظرسنجی": "Poll", "پیام ویدیویی": "Video message", "پیام صوتی": "Voice message", "ارسال به…": "Forward to…", "لغو": "Cancel", "پیام‌های ذخیره‌شده": "Saved Messages", "نسخه 1.0.0": "Version 1.0.0", "برای لغو بکشید": "Slide to cancel", "LINK — پیام‌رسان": "LINK — Messenger", "لطفاً گوشی را عمودی نگه دارید": "Please hold your phone upright", "LINK برای استفاده در حالت عمودی طراحی شده است. برای ادامه، گوشی را به حالت عمودی بچرخانید.": "LINK is designed for portrait mode. Rotate your phone to portrait to continue.", "ضبط ویدیو در این دستگاه ممکن نیست": "Video recording isn't supported on this device", "دسترسی به دوربین و میکروفون": "Camera and microphone access", "برای ضبط پیام ویدیویی، «لینک» به دوربین و میکروفون شما نیاز دارد. این اجازه فقط یک بار پرسیده می‌شود.": "LINK needs access to your camera and microphone to record video messages. You will only be asked once.", "اجازه می‌دهم": "Allow", "اجازه ثبت شد. حالا دکمه را نگه دارید": "Permission saved. Now hold the button", "اجازه داده نشد": "Permission denied", "دوربین در دسترس نیست": "Camera unavailable", "بدون اجازه‌ی دوربین و میکروفون نمی‌شود پیام ویدیویی ضبط کرد. اجازه را از تنظیمات مرورگر یا دستگاه فعال کنید و دوباره امتحان کنید.": "Video messages can't be recorded without camera and microphone access. Enable it in your browser or device settings and try again.", "دوربین یا میکروفون پیدا نشد. مطمئن شوید به دستگاه وصل است و توسط برنامه‌ی دیگری استفاده نمی‌شود.": "Camera or microphone not found. Make sure it is connected and not in use by another app.", "باشه": "OK", "بررسی دوباره": "Check again", "دوربین و میکروفون فقط در اتصال امن (HTTPS) کار می‌کنند. برنامه را از آدرس https باز کنید.": "Camera and microphone only work over a secure connection (HTTPS). Open the app from an https address.", "این دستگاه یا مرورگر از دوربین و میکروفون پشتیبانی نمی‌کند.": "This device or browser doesn't support camera and microphone.", "دسترسی مسدود شده است. از تنظیمات مرورگر یا دستگاه (قفل کنار آدرس ← مجوزها، یا تنظیمات برنامه) دوربین و میکروفون را روی «اجازه» بگذارید و برگردید؛ خودکار بررسی می‌شود.": "Access is blocked. In your browser or device settings (lock icon next to the address → Permissions, or the app settings) set camera and microphone to “Allow”, then come back; it will be checked automatically.", "ذخیره‌سازی روی دستگاه در دسترس نیست (حالت ناشناس یا مسدود). مرورگر را از حالت خصوصی خارج کنید.": "Device storage is unavailable (private mode or blocked). Exit private browsing and try again.", "لطفاً در پنجره‌ی باز شده «اجازه» را بزنید…": "Please tap “Allow” in the prompt that appeared…", "ضبط صدا در این دستگاه ممکن نیست": "Voice recording isn't supported on this device", "دسترسی به میکروفون": "Microphone access", "برای ضبط پیام صوتی، «لینک» به میکروفون شما نیاز دارد. این اجازه فقط یک بار پرسیده می‌شود.": "LINK needs access to your microphone to record voice messages. You will only be asked once.", "میکروفون در دسترس نیست": "Microphone unavailable", "بدون اجازه‌ی میکروفون نمی‌شود پیام صوتی ضبط کرد. اجازه را از تنظیمات مرورگر یا دستگاه فعال کنید و دوباره امتحان کنید.": "Voice messages can't be recorded without microphone access. Enable it in your browser or device settings and try again.", "میکروفون پیدا نشد. مطمئن شوید به دستگاه وصل است و توسط برنامه‌ی دیگری استفاده نمی‌شود.": "Microphone not found. Make sure it is connected and not in use by another app.", "اجازه‌ی میکروفون فعال نیست؛ دوباره امتحان کنید": "Microphone access is off; try again", "میکروفون هنوز آماده نبود": "Microphone wasn't ready yet", "ضبط ناموفق بود": "Recording failed", "فلش دوربین پشت در این دستگاه پشتیبانی نمی‌شود": "Rear camera flash isn't supported on this device", "تغییر دوربین ممکن نیست": "Can't switch camera", "دوربین دیگری در دسترس نیست": "No other camera available", "اجازه‌ی دوربین و میکروفون فعال نیست؛ دوباره امتحان کنید": "Camera and microphone access is off; try again", "دوربین هنوز آماده نبود": "Camera wasn't ready yet", "عکس": "Photo", "موقعیت مکانی": "Location", "ویرایش‌شده": "edited", "ارسال‌شده از": "Forwarded from", "شما": "You", "هنوز پیامی نیست. سلام کنید 👋": "No messages here yet. Say hello 👋", "ویرایش پیام": "Edit message", "پیام پیدا نشد": "Message not found", "پیام سنجاق شد": "Message pinned", "سنجاق برداشته شد": "Message unpinned", "حذف پیام": "Delete message", "این کار قابل بازگشت نیست. مطمئنید؟": "This can't be undone. Are you sure?", "متن کپی شد": "Text copied", "کپی نشد": "Couldn't copy", "پیام ارسال شد": "Message forwarded", "متنی برای کپی نیست": "Nothing to copy", "پاسخ": "Reply", "کپی متن": "Copy Text", "سنجاق کردن": "Pin", "انتخاب": "Select", "این بخش بعداً فعال می‌شود": "This section will be available later", "در حال نوشتن": "typing", "همه‌ی پیام‌های این گفتگو حذف می‌شود.": "All messages in this chat will be deleted.", "پاک کردن": "Clear", "ادامه‌ی ضبط": "Resume recording", "برای ضبط، دکمه را نگه دارید": "Hold the button to record", "ضبط قفل شد": "Recording locked", "دکمه‌ی میکروفون را نگه دارید": "Hold the microphone button", "دکمه‌ی دوربین را نگه دارید": "Hold the camera button", "حالت پیام صوتی": "Voice message mode", "حالت پیام ویدیویی": "Video message mode", "ضبط پیام صوتی؛ ضربه: تبدیل به ویدیو": "Record voice message; tap to switch to video", "ضبط پیام ویدیویی؛ ضربه: تبدیل به صدا": "Record video message; tap to switch to voice", "ارسال پیام": "Send message", "میدان آزادی، تهران": "Azadi Square, Tehran", "مریم کاظمی": "Maryam Kazemi", "باشه، حتماً 👍": "Sure, of course 👍", "ممنون از اطلاعت!": "Thanks for letting me know!", "الان می‌بینم و خبر می‌دم": "I'll check now and let you know", "عالیه 😍": "Awesome 😍", "هماهنگ می‌کنم": "I'll arrange it", "خیلی خوبه، دمت گرم 🔥": "That's great, nice work 🔥", "چشم، تا یه ساعت دیگه می‌فرستم": "Sure, I'll send it within an hour", "ایول! 😂": "Nice! 😂", "طراحی رابط کاربری": "UI design", "تیم طراحی محصول": "Product Design Team", "گروه طراحی محصول LINK": "LINK product design group", "سلام، فایل جدید رو آپلود کردم.": "Hi, I uploaded the new file.", "سارا احمدی": "Sara Ahmadi", "باشه، مرسی": "Okay, thanks", "عاشق قهوه و طراحی": "Coffee and design lover", "قربانت، فردا هماهنگ می‌کنم.": "You're welcome, I'll sort it out tomorrow.", "ذخیره‌شده‌ها": "Saved Messages", "لینک جلسه طراحی": "Design meeting link", "علی رضایی": "Ali Rezaei", "فردا صبح میام دفتر.": "I'll come to the office tomorrow morning.", "توسعه‌دهنده بک‌اند": "Backend developer", "کانال اخبار": "News Channel", "اطلاعیه مهم: بروزرسانی جدید منتشر شد": "Important announcement: a new update has been released", "اطلاعیه مهم: بروزرسانی جدید منتشر شد.": "Important announcement: a new update has been released.", "اخبار رسمی LINK": "Official LINK news", "گروه خانواده": "Family Group", "مامان: شام چی درست کنم؟": "Mom: What should I make for dinner?", "سلام! امروز جلسه ساعت چنده؟": "Hi! What time is the meeting today?", "سلام سارا جان 🌸 ساعت 4 بعدازظهر": "Hi Sara 🌸 4 PM", "این طرح جدیده، نظرت چیه؟": "This is the new design, what do you think?", "خیلی قشنگه! رنگ‌هاش عالیه ✨": "It's beautiful! The colors are great ✨", "سلام داداش": "Hey bro", "طراحی-نهایی.pdf": "final-design.pdf"},AVR={"ک|c6": "L", "ک|c2": "N", "ت": "P", "س": "S", "ذ": "S", "ع": "A", "گ": "F", "م": "M", "ک": "K"};
+const RAW={"همه": "All", "خوانده‌نشده": "Unread", "خصوصی": "Private", "گروه‌ها": "Groups", "کانال‌ها": "Channels", "ربات‌ها": "Bots", "پوشه‌ها": "Folders", "پوشه‌های گفتگو": "Chat folders", "پوشه‌های من": "My folders", "پوشه‌ی جدید": "New folder", "ویرایش پوشه": "Edit folder", "ویرایش پوشه‌ها": "Edit folders", "افزودن گفتگوها": "Add chats", "افزودن گفتگو": "Add chat", "حذف پوشه": "Delete folder", "ایجاد پوشه‌ی جدید": "Create new folder", "افزودن پوشه‌های پیشنهادی": "Add suggested folders", "نام پوشه": "Folder name", "گفتگوهای گنجانده‌شده": "Included chats", "گفتگوهای مستثنی": "Excluded chats", "چت‌های خصوصی": "Private chats", "بی‌صدا شده‌ها": "Muted chats", "خوانده‌شده‌ها": "Read chats", "افزودن به پوشه": "Add to folder", "گفتگویی در این پوشه نیست": "No chats in this folder", "نتیجه‌ای پیدا نشد": "No results found", "ذخیره": "Save", "بالا": "Move up", "پایین": "Move down", "نام پوشه را وارد کنید": "Enter a folder name", "حداقل یک گفتگو یا نوع گفتگو را انتخاب کنید": "Choose at least one chat or chat type", "پوشه ذخیره شد": "Folder saved", "پوشه حذف شد": "Folder deleted", "لغو تغییرات": "Discard changes", "تغییرات ذخیره نشده‌اند. خارج می‌شوید؟": "Your changes haven't been saved. Leave anyway?", "خروج": "Leave", "فقط پوشه حذف می‌شود؛ گفتگوها حذف نمی‌شوند.": "Only the folder is deleted; your chats are not.", "گفتگوها را در پوشه‌ها مرتب کنید. روی یک پوشه بزنید تا ویرایش شود.": "Organize your chats into folders. Tap a folder to edit it.", "انتخاب گفتگوها": "Select chats", "ربات LINK": "LINK Bot", "ربات": "Bot", "سلام! من ربات LINK هستم.": "Hi! I'm the LINK bot.", "ربات رسمی LINK": "Official LINK bot", "تم رنگی": "Color theme", "توت‌فرنگی": "Strawberry", "برگ": "Leaf", "عسل": "Honey", "شکلات": "Chocolate", "اقیانوس": "Ocean", "لیست چت‌ها": "Chat list", "منو": "Menu", "جستجو": "Search", "پیام جدید": "New message", "صفحه چت": "Chat screen", "بازگشت": "Back", "گزینه‌های بیشتر": "More options", "پخش یا توقف": "Play or pause", "بستن پخش": "Close player", "برداشتن سنجاق": "Unpin", "لغو پاسخ": "Cancel reply", "شکلک": "Emoji", "پیام": "Message", "پیوست": "Attach", "ضبط پیام صوتی": "Record voice message", "لغو ضبط": "Cancel recording", "ارسال": "Send", "پخش": "Play", "توقف ضبط": "Pause recording", "رفتن به آخرین پیام": "Scroll to latest message", "لغو انتخاب": "Cancel selection", "کپی": "Copy", "حذف": "Delete", "پروفایل": "Profile", "تماس صوتی": "Voice call", "تماس ویدیویی": "Video call", "بی‌صدا کردن": "Mute", "جستجو در گفتگو": "Search in chat", "تنظیمات": "Settings", "ویرایش پروفایل": "Edit profile", "اطلاع‌رسانی‌ها": "Notifications", "حریم خصوصی و امنیت": "Privacy and Security", "داده و ذخیره‌سازی": "Data and Storage", "زبان": "Language", "خروج از حساب": "Log out", "ظاهر": "Appearance", "صفحه خالی": "Empty page", "منوی پیوست": "Attach menu", "بستن": "Close", "افزودن توضیح…": "Add a caption…", "منوی کشویی": "Side menu", "بستن منو": "Close menu", "مخاطبین": "Contacts", "تماس‌ها": "Calls", "چت‌های بایگانی‌شده": "Archived Chats", "دعوت دوستان": "Invite Friends", "راهنمای LINK": "LINK Features", "چرخش دوربین": "Flip camera", "فلش": "Flash", "قفل ضبط": "Lock recording", "ضبط": "Record", "نمایش عکس": "View photo", "حالت عمودی": "Portrait mode", "دسترسی‌های لازم": "Permissions required", "برای ورود به «لینک» باید دسترسی‌های زیر را بدهید.": "To enter LINK, please grant the permissions below.", "دوربین": "Camera", "برای ضبط پیام ویدیویی و عکس": "For recording video messages and photos", "میکروفون": "Microphone", "برای ضبط پیام صوتی و ویدیویی": "For recording voice and video messages", "حافظه دستگاه": "Device storage", "برای ذخیره‌ی پیام‌ها و رسانه‌ها روی دستگاه": "For saving messages and media on your device", "اعطای دسترسی‌ها": "Grant permissions", "چت": "Chat", "آخرین بازدید اخیراً": "last seen recently", "پیام سنجاق‌شده": "Pinned message", "امروز": "Today", "دیروز": "Yesterday", "برای ارسال رها کنید، برای قفل بالا بکشید": "Release to send, swipe up to lock", "مشاهده پروفایل": "View profile", "پاک کردن تاریخچه": "Clear history", "ویرایش": "Edit", "نام": "Name", "آنلاین": "online", "تماس": "Call", "ویدیو": "Video", "بی‌صدا": "Mute", "بیشتر": "More", "موبایل": "Mobile", "نام کاربری": "Username", "ایمیل": "Email", "بیو": "Bio", "رسانه": "Media", "ذخیره‌شده": "Saved", "فایل‌ها": "Files", "موسیقی": "Music", "صدا": "Voice", "پیوندها": "Links", "کاربر LINK": "LINK User", "حالت شب": "Night Mode", "فونت وزیرمتن (به‌جای فونت سیستم)": "Vazirmatn font (instead of the system font)", "بخش": "Section", "این بخش در نسخه نمایشی فعال نیست.": "This section is not available in the demo.", "گالری": "Gallery", "فایل": "File", "موقعیت": "Location", "مخاطب": "Contact", "نظرسنجی": "Poll", "پیام ویدیویی": "Video message", "پیام صوتی": "Voice message", "ارسال به…": "Forward to…", "لغو": "Cancel", "پیام‌های ذخیره‌شده": "Saved Messages", "نسخه 1.0.0": "Version 1.0.0", "برای لغو بکشید": "Slide to cancel", "LINK — پیام‌رسان": "LINK — Messenger", "لطفاً گوشی را عمودی نگه دارید": "Please hold your phone upright", "LINK برای استفاده در حالت عمودی طراحی شده است. برای ادامه، گوشی را به حالت عمودی بچرخانید.": "LINK is designed for portrait mode. Rotate your phone to portrait to continue.", "ضبط ویدیو در این دستگاه ممکن نیست": "Video recording isn't supported on this device", "دسترسی به دوربین و میکروفون": "Camera and microphone access", "برای ضبط پیام ویدیویی، «لینک» به دوربین و میکروفون شما نیاز دارد. این اجازه فقط یک بار پرسیده می‌شود.": "LINK needs access to your camera and microphone to record video messages. You will only be asked once.", "اجازه می‌دهم": "Allow", "اجازه ثبت شد. حالا دکمه را نگه دارید": "Permission saved. Now hold the button", "اجازه داده نشد": "Permission denied", "دوربین در دسترس نیست": "Camera unavailable", "بدون اجازه‌ی دوربین و میکروفون نمی‌شود پیام ویدیویی ضبط کرد. اجازه را از تنظیمات مرورگر یا دستگاه فعال کنید و دوباره امتحان کنید.": "Video messages can't be recorded without camera and microphone access. Enable it in your browser or device settings and try again.", "دوربین یا میکروفون پیدا نشد. مطمئن شوید به دستگاه وصل است و توسط برنامه‌ی دیگری استفاده نمی‌شود.": "Camera or microphone not found. Make sure it is connected and not in use by another app.", "باشه": "OK", "بررسی دوباره": "Check again", "دوربین و میکروفون فقط در اتصال امن (HTTPS) کار می‌کنند. برنامه را از آدرس https باز کنید.": "Camera and microphone only work over a secure connection (HTTPS). Open the app from an https address.", "این دستگاه یا مرورگر از دوربین و میکروفون پشتیبانی نمی‌کند.": "This device or browser doesn't support camera and microphone.", "دسترسی مسدود شده است. از تنظیمات مرورگر یا دستگاه (قفل کنار آدرس ← مجوزها، یا تنظیمات برنامه) دوربین و میکروفون را روی «اجازه» بگذارید و برگردید؛ خودکار بررسی می‌شود.": "Access is blocked. In your browser or device settings (lock icon next to the address → Permissions, or the app settings) set camera and microphone to “Allow”, then come back; it will be checked automatically.", "ذخیره‌سازی روی دستگاه در دسترس نیست (حالت ناشناس یا مسدود). مرورگر را از حالت خصوصی خارج کنید.": "Device storage is unavailable (private mode or blocked). Exit private browsing and try again.", "لطفاً در پنجره‌ی باز شده «اجازه» را بزنید…": "Please tap “Allow” in the prompt that appeared…", "ضبط صدا در این دستگاه ممکن نیست": "Voice recording isn't supported on this device", "دسترسی به میکروفون": "Microphone access", "برای ضبط پیام صوتی، «لینک» به میکروفون شما نیاز دارد. این اجازه فقط یک بار پرسیده می‌شود.": "LINK needs access to your microphone to record voice messages. You will only be asked once.", "میکروفون در دسترس نیست": "Microphone unavailable", "بدون اجازه‌ی میکروفون نمی‌شود پیام صوتی ضبط کرد. اجازه را از تنظیمات مرورگر یا دستگاه فعال کنید و دوباره امتحان کنید.": "Voice messages can't be recorded without microphone access. Enable it in your browser or device settings and try again.", "میکروفون پیدا نشد. مطمئن شوید به دستگاه وصل است و توسط برنامه‌ی دیگری استفاده نمی‌شود.": "Microphone not found. Make sure it is connected and not in use by another app.", "اجازه‌ی میکروفون فعال نیست؛ دوباره امتحان کنید": "Microphone access is off; try again", "میکروفون هنوز آماده نبود": "Microphone wasn't ready yet", "ضبط ناموفق بود": "Recording failed", "فلش دوربین پشت در این دستگاه پشتیبانی نمی‌شود": "Rear camera flash isn't supported on this device", "تغییر دوربین ممکن نیست": "Can't switch camera", "دوربین دیگری در دسترس نیست": "No other camera available", "اجازه‌ی دوربین و میکروفون فعال نیست؛ دوباره امتحان کنید": "Camera and microphone access is off; try again", "دوربین هنوز آماده نبود": "Camera wasn't ready yet", "عکس": "Photo", "موقعیت مکانی": "Location", "ویرایش‌شده": "edited", "ارسال‌شده از": "Forwarded from", "شما": "You", "هنوز پیامی نیست. سلام کنید 👋": "No messages here yet. Say hello 👋", "ویرایش پیام": "Edit message", "پیام پیدا نشد": "Message not found", "پیام سنجاق شد": "Message pinned", "سنجاق برداشته شد": "Message unpinned", "حذف پیام": "Delete message", "این کار قابل بازگشت نیست. مطمئنید؟": "This can't be undone. Are you sure?", "متن کپی شد": "Text copied", "کپی نشد": "Couldn't copy", "پیام ارسال شد": "Message forwarded", "متنی برای کپی نیست": "Nothing to copy", "پاسخ": "Reply", "کپی متن": "Copy Text", "سنجاق کردن": "Pin", "انتخاب": "Select", "این بخش بعداً فعال می‌شود": "This section will be available later", "در حال نوشتن": "typing", "همه‌ی پیام‌های این گفتگو حذف می‌شود.": "All messages in this chat will be deleted.", "پاک کردن": "Clear", "ادامه‌ی ضبط": "Resume recording", "برای ضبط، دکمه را نگه دارید": "Hold the button to record", "ضبط قفل شد": "Recording locked", "دکمه‌ی میکروفون را نگه دارید": "Hold the microphone button", "دکمه‌ی دوربین را نگه دارید": "Hold the camera button", "حالت پیام صوتی": "Voice message mode", "حالت پیام ویدیویی": "Video message mode", "ضبط پیام صوتی؛ ضربه: تبدیل به ویدیو": "Record voice message; tap to switch to video", "ضبط پیام ویدیویی؛ ضربه: تبدیل به صدا": "Record video message; tap to switch to voice", "ارسال پیام": "Send message", "میدان آزادی، تهران": "Azadi Square, Tehran", "مریم کاظمی": "Maryam Kazemi", "باشه، حتماً 👍": "Sure, of course 👍", "ممنون از اطلاعت!": "Thanks for letting me know!", "الان می‌بینم و خبر می‌دم": "I'll check now and let you know", "عالیه 😍": "Awesome 😍", "هماهنگ می‌کنم": "I'll arrange it", "خیلی خوبه، دمت گرم 🔥": "That's great, nice work 🔥", "چشم، تا یه ساعت دیگه می‌فرستم": "Sure, I'll send it within an hour", "ایول! 😂": "Nice! 😂", "طراحی رابط کاربری": "UI design", "تیم طراحی محصول": "Product Design Team", "گروه طراحی محصول LINK": "LINK product design group", "سلام، فایل جدید رو آپلود کردم.": "Hi, I uploaded the new file.", "سارا احمدی": "Sara Ahmadi", "باشه، مرسی": "Okay, thanks", "عاشق قهوه و طراحی": "Coffee and design lover", "قربانت، فردا هماهنگ می‌کنم.": "You're welcome, I'll sort it out tomorrow.", "ذخیره‌شده‌ها": "Saved Messages", "لینک جلسه طراحی": "Design meeting link", "علی رضایی": "Ali Rezaei", "فردا صبح میام دفتر.": "I'll come to the office tomorrow morning.", "توسعه‌دهنده بک‌اند": "Backend developer", "کانال اخبار": "News Channel", "اطلاعیه مهم: بروزرسانی جدید منتشر شد": "Important announcement: a new update has been released", "اطلاعیه مهم: بروزرسانی جدید منتشر شد.": "Important announcement: a new update has been released.", "اخبار رسمی LINK": "Official LINK news", "گروه خانواده": "Family Group", "مامان: شام چی درست کنم؟": "Mom: What should I make for dinner?", "سلام! امروز جلسه ساعت چنده؟": "Hi! What time is the meeting today?", "سلام سارا جان 🌸 ساعت 4 بعدازظهر": "Hi Sara 🌸 4 PM", "این طرح جدیده، نظرت چیه؟": "This is the new design, what do you think?", "خیلی قشنگه! رنگ‌هاش عالیه ✨": "It's beautiful! The colors are great ✨", "سلام داداش": "Hey bro", "طراحی-نهایی.pdf": "final-design.pdf"},AVR={"ر": "B", "ک|c6": "L", "ک|c2": "N", "ت": "P", "س": "S", "ذ": "S", "ع": "A", "گ": "F", "م": "M", "ک": "K"};
 const PD='۰۱۲۳۴۵۶۷۸۹',AD='٠١٢٣٤٥٦٧٨٩';
 const norm=s=>String(s).replace(/\u200c/g,'').replace(/[۰-۹]/g,d=>PD.indexOf(d)).replace(/[٠-٩]/g,d=>AD.indexOf(d)).replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/\s+/g,' ').trim();
 const D=Object.create(null);for(const k in RAW)D[norm(k)]=RAW[k];
@@ -990,6 +1058,7 @@ const LET=/[\u0621-\u064A\u0671-\u06D3\u06FA-\u06FF]/;
 const PUN={'٫':'.','٬':',','،':',','؛':';','؟':'?','٪':'%'};
 const sym=s=>s.replace(/[۰-۹]/g,d=>PD.indexOf(d)).replace(/[٠-٩]/g,d=>AD.indexOf(d)).replace(/[٫٬،؛؟٪]/g,c=>PUN[c]);
 const PAT=[
+[/^(\d+) گفتگو$/,(m)=>m[1]+(m[1]==='1'?' chat':' chats')],
 [/^حذف (\d+) پیام$/,(m)=>'Delete '+m[1]+' messages'],
 [/^(\d+) انتخابشده$/,(m)=>m[1]+' selected'],
 [/^(\d+) مورد$/,(m)=>m[1]+(m[1]==='1'?' item':' items')],
@@ -1104,7 +1173,7 @@ chats:[
 seed(){const d=this.seedBase();enrichSeed(d);return d;},
 async load(){try{const r=localStorage.getItem(this.storageKey);if(r)return JSON.parse(r);}catch(e){}return this.seed();},
 async save(){try{localStorage.setItem(this.storageKey,JSON.stringify(this.db,(k,v)=>(k==='src'&&typeof v==='string'&&v.startsWith('blob:'))?undefined:v));}catch(e){}},
-async init(){if(!this.db){this.db=await this.load();await this.save();}},
+async init(){if(!this.db){this.db=await this.load();}if(!this.db.botSeeded){if(!this.db.chats.some(c=>c.id==='linkbot'))this.db.chats.push({id:'linkbot',type:'bot',title:'ربات LINK',status:'ربات',initial:'ر',avatar:'c2',unread:1,time:'۰۸:۳۰',lastMessage:'سلام! من ربات LINK هستم.',phone:'—',username:'@link_bot',email:'—',bio:'ربات رسمی LINK',messages:[{id:'linkbot-1',type:'incoming',kind:'text',text:'سلام! من ربات LINK هستم.',time:'۰۸:۳۰',status:'read'}]});this.db.botSeeded=true;}await this.save();},
 clone(o){return JSON.parse(JSON.stringify(o));},
 async getProfile(){await this.wait();return this.clone(this.db.profile);},
 async getChats(){await this.wait();return this.clone(this.db.chats);},
@@ -1643,12 +1712,12 @@ if(e.target.closest('.loc-map,.contact-row'))showToast('این بخش بعداً
 
 /* ---- لیست گفتگوها ---- */
 let firstList=true;
-function currentFilteredChats(){const q=searchInput.value.trim();let l=q?allChats.filter(c=>{const ql=q.toLowerCase(),T=x=>window.i18nTr(x||'').toLowerCase();return c.title.includes(q)||(c.lastMessage||'').includes(q)||T(c.title).includes(ql)||T(c.lastMessage).includes(ql);}):allChats.slice();return l.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));}
+function currentFilteredChats(){const q=searchInput.value.trim();let l=q?allChats.filter(c=>{const ql=q.toLowerCase(),T=x=>window.i18nTr(x||'').toLowerCase();return c.title.includes(q)||(c.lastMessage||'').includes(q)||T(c.title).includes(ql)||T(c.lastMessage).includes(ql);}):allChats.slice();if(window.__flReady&&!q){const _f=flActive();if(_f)l=l.filter(c=>flMatch(_f,c));}return l.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));}
 function createChatListItem(chat,idx,anim){const item=document.createElement('div');item.className='chat-item'+(anim?' enter':'');item.style.setProperty('--i',idx);item.dataset.id=chat.id;
 const badge=chat.unread?'<div class="badge'+(chat.muted?' gray':'')+'">'+toFaDigits(chat.unread)+'</div>':(chat.pinned?'<div class="pin-ic">'+PIN_SVG+'</div>':'');
 item.innerHTML='<div class="av-wrap"><div class="avatar '+escapeHtml(chat.avatar)+'">'+escapeHtml(chat.initial)+'</div>'+(chat.online?'<span class="online-dot"></span>':'')+'</div><div class="chat-info"><div class="chat-top"><div class="chat-name">'+escapeHtml(chat.title)+(chat.muted?MUTE_SM:'')+'</div><div class="chat-time">'+(chat.lastOut?'<span class="ci-tick">'+TICK2+'</span>':'')+escapeHtml(chat.time)+'</div></div><div class="chat-bottom"><div class="chat-last">'+escapeHtml(chat.lastMessage||'')+'</div>'+badge+'</div></div>';
 item.addEventListener('click',()=>openChatById(chat.id));return item;}
-function renderCurrentChatList(){const a=firstList;firstList=false;chatListEl.innerHTML='';currentFilteredChats().forEach((c,i)=>chatListEl.appendChild(createChatListItem(c,i,a)));}
+function renderCurrentChatList(){const a=firstList;firstList=false;chatListEl.innerHTML='';currentFilteredChats().forEach((c,i)=>chatListEl.appendChild(createChatListItem(c,i,a)));if(typeof flAfterRender==='function')flAfterRender();}
 const searchBar=$('searchbar'),searchBtn=$('searchBtn');
 searchBtn.addEventListener('click',()=>{const open=searchBar.classList.toggle('open');if(open)setTimeout(()=>searchInput.focus(),250);else{searchInput.value='';searchInput.blur();renderCurrentChatList();}});
 const languageScreen=$('languageScreen');
@@ -1932,6 +2001,226 @@ document.addEventListener('dblclick',e=>e.preventDefault());
 document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 window.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault();},{passive:false});
+
+/* ===================== پوشه‌بندی گفتگوها (مثل تلگرام) ===================== */
+var FL_KEY='link-folders-v1';
+var FL_TYPES=[['private','چت‌های خصوصی'],['group','گروه‌ها'],['channel','کانال‌ها'],['bot','ربات‌ها']];
+var FL_ALL=['private','group','channel','bot'];
+var FL_SVG='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+var FL_PLUS='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+var FL_X='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+var FL_CK='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
+var FL_UP='<svg class="svg-icon" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg>';
+var FL_DN='<svg class="svg-icon" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
+function flMk(id,name,types,o){return Object.assign({id:id,name:name,types:types,inc:[],exc:[],exMuted:false,exRead:false},o||{});}
+function flDefaults(){return [flMk('f-unread','خوانده‌نشده',FL_ALL.slice(),{exRead:true}),flMk('f-private','خصوصی',['private']),flMk('f-group','گروه‌ها',['group']),flMk('f-channel','کانال‌ها',['channel']),flMk('f-bot','ربات‌ها',['bot'])];}
+var FL={folders:null,active:'all',dir:1};
+function flLoad(){try{var r=JSON.parse(localStorage.getItem(FL_KEY)||'null');if(r&&Array.isArray(r.folders)){FL.folders=r.folders;FL.active=r.active||'all';return;}}catch(e){}FL.folders=flDefaults();FL.active='all';}
+function flSave(){try{localStorage.setItem(FL_KEY,JSON.stringify({folders:FL.folders,active:FL.active}));}catch(e){}}
+flLoad();
+function chatType(c){if(c.type)return c.type;if(c.id==='team'||c.id==='family')return 'group';if(c.id==='channel')return 'channel';if(c.id==='linkbot')return 'bot';return 'private';}
+function flMatch(f,c){if(f.exc.indexOf(c.id)>=0)return false;if(f.inc.indexOf(c.id)>=0)return true;if(f.types.indexOf(chatType(c))<0)return false;if(f.exMuted&&c.muted)return false;if(f.exRead&&!c.unread)return false;return true;}
+function flActive(){return FL.active==='all'?null:(FL.folders.find(function(f){return f.id===FL.active;})||null);}
+function flCount(f){return allChats.filter(function(c){return flMatch(f,c);}).length;}
+function flUnread(f){return allChats.filter(function(c){return c.unread&&flMatch(f,c);}).length;}
+function flToggleChat(f,c){var has=function(a){return a.indexOf(c.id)>=0;};
+if(flMatch(f,c)){f.inc=f.inc.filter(function(x){return x!==c.id;});if(flMatch(f,c))f.exc.push(c.id);}
+else{f.exc=f.exc.filter(function(x){return x!==c.id;});if(!flMatch(f,c))f.inc.push(c.id);}}
+var flTabsEl=document.getElementById('flTabs'),flMgr=$('flMgr'),flEdit=$('flEdit'),flPick=$('flPick'),flSheet=$('flSheet'),flSheetBg=$('flSheetBg');
+function flShow(el){el.classList.add('active');el.setAttribute('aria-hidden','false');}
+function flHide(el){el.classList.remove('active');el.setAttribute('aria-hidden','true');}
+function flVib(){try{if(typeof vibrate==='function')vibrate(10);}catch(e){}}
+
+/* ---- نوار زبانه‌ها ---- */
+function flRenderTabs(){
+if(!FL.folders.length){flTabsEl.classList.remove('show');flTabsEl.innerHTML='';FL.active='all';return;}
+flTabsEl.classList.add('show');
+if(FL.active!=='all'&&!FL.folders.some(function(f){return f.id===FL.active;}))FL.active='all';
+var sc=flTabsEl.scrollLeft;
+var items=[{id:'all',name:'همه'}].concat(FL.folders);
+flTabsEl.innerHTML=items.map(function(f){var n=f.id==='all'?allChats.filter(function(c){return c.unread;}).length:flUnread(f);
+return '<button class="fl-tab'+(f.id===FL.active?' on':'')+'" data-fid="'+escapeHtml(f.id)+'" role="tab"><span dir="auto">'+escapeHtml(f.name)+'</span>'+(n?'<i class="fl-bd">'+toFaDigits(n)+'</i>':'')+'</button>';}).join('');
+flTabsEl.scrollLeft=sc;
+var on=flTabsEl.querySelector('.fl-tab.on');
+if(on){var l=on.offsetLeft,r=l+on.offsetWidth;if(l<flTabsEl.scrollLeft)flTabsEl.scrollLeft=Math.max(0,l-12);else if(r>flTabsEl.scrollLeft+flTabsEl.clientWidth)flTabsEl.scrollLeft=r-flTabsEl.clientWidth+12;}
+}
+function flAfterRender(){
+if(!window.__flReady)return;
+flRenderTabs();
+if(!chatListEl.children.length){var q=searchInput.value.trim(),f=flActive();var d=document.createElement('div');d.className='fl-empty';
+d.innerHTML='<div class="fl-empty-ic">'+FL_SVG+'</div><div dir="auto">'+(q?'نتیجه‌ای پیدا نشد':'گفتگویی در این پوشه نیست')+'</div>'+((f&&!q)?'<button class="fl-btn" data-act="add" data-id="'+escapeHtml(f.id)+'">افزودن گفتگو</button>':'');
+chatListEl.appendChild(d);}
+}
+function flSetActive(id){if(FL.active===id)return;FL.active=id;flSave();chatListEl.style.setProperty('--fx',FL.dir);renderCurrentChatList();chatListEl.scrollTop=0;chatListEl.classList.remove('fl-in');void chatListEl.offsetWidth;chatListEl.classList.add('fl-in');}
+function flStep(d){var ids=['all'].concat(FL.folders.map(function(f){return f.id;}));var i=ids.indexOf(FL.active),n=ids[i+d];if(n!==undefined){FL.dir=d;flSetActive(n);}}
+
+/* زبانه: ضربه = انتخاب، نگه‌داشتن = منو */
+var flTabLP=null,flTabFired=false;
+flTabsEl.addEventListener('pointerdown',function(e){var t=e.target.closest('.fl-tab');if(!t)return;flTabFired=false;clearTimeout(flTabLP);flTabLP=setTimeout(function(){flTabFired=true;flVib();flTabMenu(t.dataset.fid);},520);});
+['pointerup','pointercancel','pointerleave'].forEach(function(ev){flTabsEl.addEventListener(ev,function(){clearTimeout(flTabLP);});});
+flTabsEl.addEventListener('scroll',function(){clearTimeout(flTabLP);},{passive:true});
+flTabsEl.addEventListener('click',function(e){var t=e.target.closest('.fl-tab');if(!t)return;if(flTabFired){flTabFired=false;return;}
+var ids=['all'].concat(FL.folders.map(function(f){return f.id;}));FL.dir=ids.indexOf(t.dataset.fid)>ids.indexOf(FL.active)?1:-1;flSetActive(t.dataset.fid);});
+
+/* کشیدن انگشت روی لیست = رفتن به پوشه‌ی بعدی/قبلی */
+var flSx=0,flSy=0,flSt=0;
+chatListEl.addEventListener('touchstart',function(e){if(e.touches.length!==1)return;flSx=e.touches[0].clientX;flSy=e.touches[0].clientY;flSt=Date.now();},{passive:true});
+chatListEl.addEventListener('touchend',function(e){if(!FL.folders.length||!e.changedTouches.length||searchInput.value.trim())return;
+var dx=e.changedTouches[0].clientX-flSx,dy=e.changedTouches[0].clientY-flSy;
+if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.8||Date.now()-flSt>700)return;flStep(dx<0?1:-1);},{passive:true});
+
+/* نگه‌داشتن روی گفتگو = افزودن به پوشه */
+var flLP=null,flLX=0,flLY=0,flLFired=false;
+chatListEl.addEventListener('pointerdown',function(e){var it=e.target.closest('.chat-item');if(!it)return;flLFired=false;flLX=e.clientX;flLY=e.clientY;clearTimeout(flLP);flLP=setTimeout(function(){flLFired=true;flVib();flChatSheet(it.dataset.id);},520);});
+['pointerup','pointercancel','pointerleave'].forEach(function(ev){chatListEl.addEventListener(ev,function(){clearTimeout(flLP);});});
+chatListEl.addEventListener('pointermove',function(e){if(Math.abs(e.clientX-flLX)>8||Math.abs(e.clientY-flLY)>8)clearTimeout(flLP);});
+chatListEl.addEventListener('scroll',function(){clearTimeout(flLP);},{passive:true});
+chatListEl.addEventListener('click',function(e){
+if(flLFired){flLFired=false;e.stopPropagation();e.preventDefault();return;}
+var b=e.target.closest('[data-act="add"]');if(b){e.stopPropagation();flOpenEditor(b.dataset.id,true);}
+},true);
+
+/* ---- برگه‌ی پایین ---- */
+function flSheetOpen(){flSheet.classList.add('open');flSheetBg.classList.add('open');}
+function flSheetClose(){flSheet.classList.remove('open');flSheetBg.classList.remove('open');}
+flSheetBg.addEventListener('click',flSheetClose);
+function flRow(a,id,icon,text,cls){return '<button class="fl-srow'+(cls?' '+cls:'')+'" data-a="'+a+'"'+(id?' data-id="'+escapeHtml(id)+'"':'')+'><span class="fl-ic">'+icon+'</span><span dir="auto">'+text+'</span></button>';}
+function flTabMenu(id){
+var h;
+if(id==='all'){h='<div class="fl-sh-title" dir="auto">همه</div><div class="fl-sh-sub"></div>'+flRow('manage','',FL_SVG,'ویرایش پوشه‌ها')+flRow('new','',FL_PLUS,'پوشه‌ی جدید','fl-act');}
+else{var f=FL.folders.find(function(x){return x.id===id;});if(!f)return;
+h='<div class="fl-sh-title" dir="auto">'+escapeHtml(f.name)+'</div><div class="fl-sh-sub"></div>'+flRow('edit',id,FL_SVG,'ویرایش پوشه')+flRow('add',id,FL_PLUS,'افزودن گفتگوها')+flRow('del',id,FL_X,'حذف پوشه','fl-danger');}
+flSheet.dataset.mode='tab';flSheet.innerHTML=h;flSheetOpen();
+}
+function flChatSheet(cid){if(!allChats.some(function(c){return c.id===cid;}))return;flSheet.dataset.mode='chat';flSheet.dataset.cid=cid;flRenderChatSheet();flSheetOpen();}
+function flRenderChatSheet(){
+var c=allChats.find(function(x){return x.id===flSheet.dataset.cid;});if(!c)return;
+var h='<div class="fl-sh-title" dir="auto">'+escapeHtml(c.title)+'</div><div class="fl-sh-sub" dir="auto">افزودن به پوشه</div>';
+FL.folders.forEach(function(f){h+='<button class="fl-srow" data-a="tog" data-id="'+escapeHtml(f.id)+'"><span class="fl-ck'+(flMatch(f,c)?' on':'')+'">'+FL_CK+'</span><span class="fl-nm" dir="auto">'+escapeHtml(f.name)+'</span></button>';});
+h+=flRow('newwith','',FL_PLUS,'پوشه‌ی جدید','fl-act');
+flSheet.innerHTML=h;
+}
+flSheet.addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var a=b.dataset.a,id=b.dataset.id;
+if(a==='tog'){var c=allChats.find(function(x){return x.id===flSheet.dataset.cid;}),f=FL.folders.find(function(x){return x.id===id;});if(c&&f){flToggleChat(f,c);flSave();renderCurrentChatList();flRenderChatSheet();}return;}
+flSheetClose();
+if(a==='newwith')flOpenEditor(null,false,flSheet.dataset.cid);
+else if(a==='edit')flOpenEditor(id);
+else if(a==='add')flOpenEditor(id,true);
+else if(a==='del')flDelete(id);
+else if(a==='manage'){flRenderMgr();flShow(flMgr);}
+else if(a==='new')flOpenEditor(null);
+});
+
+/* ---- مدیریت پوشه‌ها ---- */
+function flRenderMgr(){
+var h='<div class="fl-hint" dir="auto">گفتگوها را در پوشه‌ها مرتب کنید. روی یک پوشه بزنید تا ویرایش شود.</div>';
+if(FL.folders.length){h+='<div class="fl-sec" dir="auto">پوشه‌های من</div><div class="fl-group">';
+FL.folders.forEach(function(f,i){h+='<div class="fl-row" data-id="'+escapeHtml(f.id)+'"><div class="fl-ic">'+FL_SVG+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">'+escapeHtml(f.name)+'</div><div class="fl-sub" dir="auto">'+toFaDigits(flCount(f))+' گفتگو</div></div><div class="fl-mv"><button data-mv="-1" aria-label="بالا"'+(i===0?' disabled':'')+'>'+FL_UP+'</button><button data-mv="1" aria-label="پایین"'+(i===FL.folders.length-1?' disabled':'')+'>'+FL_DN+'</button></div></div>';});
+h+='</div>';}
+h+='<div class="fl-group"><div class="fl-row fl-act" data-act="new"><div class="fl-ic">'+FL_PLUS+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">ایجاد پوشه‌ی جدید</div></div></div>';
+var miss=flDefaults().filter(function(d){return !FL.folders.some(function(f){return f.id===d.id;});});
+if(miss.length)h+='<div class="fl-row fl-act" data-act="defaults"><div class="fl-ic">'+FL_SVG+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">افزودن پوشه‌های پیشنهادی</div></div></div>';
+h+='</div>';
+$('flMgrBody').innerHTML=h;
+}
+$('flMgrBody').addEventListener('click',function(e){
+var mv=e.target.closest('[data-mv]');
+if(mv){var row=mv.closest('.fl-row'),i=FL.folders.findIndex(function(f){return f.id===row.dataset.id;}),j=i+Number(mv.dataset.mv);if(i<0||j<0||j>=FL.folders.length)return;var t=FL.folders[i];FL.folders[i]=FL.folders[j];FL.folders[j]=t;flSave();flRenderMgr();flRenderTabs();return;}
+var act=e.target.closest('[data-act]');
+if(act){if(act.dataset.act==='new')flOpenEditor(null);else if(act.dataset.act==='defaults'){flDefaults().forEach(function(d){if(!FL.folders.some(function(f){return f.id===d.id;}))FL.folders.push(d);});flSave();flRenderMgr();renderCurrentChatList();}return;}
+var r=e.target.closest('.fl-row[data-id]');if(r)flOpenEditor(r.dataset.id);
+});
+$('flMgrBack').addEventListener('click',function(){flHide(flMgr);});
+$('settingsFolders').addEventListener('click',function(){flRenderMgr();flShow(flMgr);});
+$('drawerFolders').addEventListener('click',function(){flRenderMgr();flShow(flMgr);});
+
+/* ---- ویرایشگر پوشه ---- */
+var FLE=null;
+function flOpenEditor(id,thenPick,presetChat){
+var f=id?FL.folders.find(function(x){return x.id===id;}):null;
+if(id&&!f)return;
+var d=f?JSON.parse(JSON.stringify(f)):flMk('f-'+Date.now().toString(36),'',[]);
+if(!f&&presetChat)d.inc=[presetChat];
+FLE={isNew:!f,d:d,snap:'',pick:null};FLE.snap=JSON.stringify(d);
+$('flEditTitle').textContent=f?'ویرایش پوشه':'پوشه‌ی جدید';
+$('flEditBody').innerHTML='<div class="fl-field"><input id="flName" type="text" maxlength="24" dir="auto" placeholder="نام پوشه" autocomplete="off" enterkeyhint="done" /></div><div id="flEditRest"></div>';
+$('flName').value=d.name;
+flRenderEditRest();flShow(flEdit);
+if(thenPick)flOpenPicker('inc');
+}
+function flChatRow(c,extra){return '<div class="fl-row" data-id="'+escapeHtml(c.id)+'"><div class="avatar '+escapeHtml(c.avatar)+'">'+escapeHtml(c.initial)+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">'+escapeHtml(c.title)+'</div></div>'+(extra||'')+'</div>';}
+function flRenderEditRest(){
+var d=FLE.d,h='';
+var byId=function(id){return allChats.find(function(c){return c.id===id;});};
+h+='<div class="fl-group"><div class="fl-sec" dir="auto">گفتگوهای گنجانده‌شده</div>';
+h+='<div class="fl-row fl-act" data-act="pick-inc"><div class="fl-ic">'+FL_PLUS+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">افزودن گفتگو</div></div></div>';
+FL_TYPES.forEach(function(t){h+='<div class="fl-row" data-type="'+t[0]+'"><div class="fl-ic">'+FL_SVG+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">'+t[1]+'</div></div><span class="fl-ck'+(d.types.indexOf(t[0])>=0?' on':'')+'">'+FL_CK+'</span></div>';});
+d.inc.map(byId).filter(Boolean).forEach(function(c){h+=flChatRow(c,'<button class="fl-rm" data-rm="inc" aria-label="حذف">'+FL_X+'</button>');});
+h+='</div><div class="fl-group"><div class="fl-sec" dir="auto">گفتگوهای مستثنی</div>';
+h+='<div class="fl-row fl-act" data-act="pick-exc"><div class="fl-ic">'+FL_PLUS+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">افزودن گفتگو</div></div></div>';
+h+='<div class="fl-row" data-ex="exMuted"><div class="fl-ic">'+FL_SVG+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">بی‌صدا شده‌ها</div></div><span class="fl-ck'+(d.exMuted?' on':'')+'">'+FL_CK+'</span></div>';
+h+='<div class="fl-row" data-ex="exRead"><div class="fl-ic">'+FL_SVG+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">خوانده‌شده‌ها</div></div><span class="fl-ck'+(d.exRead?' on':'')+'">'+FL_CK+'</span></div>';
+d.exc.map(byId).filter(Boolean).forEach(function(c){h+=flChatRow(c,'<button class="fl-rm" data-rm="exc" aria-label="حذف">'+FL_X+'</button>');});
+h+='</div>';
+if(!FLE.isNew)h+='<div class="fl-group" style="border-bottom:none"><div class="fl-row fl-danger" data-act="del"><div class="fl-ic">'+FL_X+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">حذف پوشه</div></div></div></div>';
+$('flEditRest').innerHTML=h;
+}
+$('flEditBody').addEventListener('click',function(e){
+if(!FLE)return;var d=FLE.d;
+var rm=e.target.closest('[data-rm]');if(rm){var id=rm.closest('.fl-row').dataset.id,k=rm.dataset.rm;d[k]=d[k].filter(function(x){return x!==id;});flRenderEditRest();return;}
+var ty=e.target.closest('[data-type]');if(ty){var t=ty.dataset.type,i=d.types.indexOf(t);if(i>=0)d.types.splice(i,1);else d.types.push(t);flRenderEditRest();return;}
+var ex=e.target.closest('[data-ex]');if(ex){d[ex.dataset.ex]=!d[ex.dataset.ex];flRenderEditRest();return;}
+var a=e.target.closest('[data-act]');if(a){var v=a.dataset.act;if(v==='pick-inc')flOpenPicker('inc');else if(v==='pick-exc')flOpenPicker('exc');else if(v==='del')flDelete(d.id);}
+});
+async function flBackEdit(){
+if(!FLE){flHide(flEdit);return;}
+var nm=$('flName');if(nm)FLE.d.name=nm.value;
+if(JSON.stringify(FLE.d)!==FLE.snap){var ok=await askConfirm({title:'لغو تغییرات',text:'تغییرات ذخیره نشده‌اند. خارج می‌شوید؟',yes:'خروج'});if(!ok)return;}
+flHide(flEdit);FLE=null;
+}
+$('flEditBack').addEventListener('click',flBackEdit);
+$('flEditSave').addEventListener('click',function(){
+if(!FLE)return;var d=FLE.d;d.name=($('flName').value||'').trim().slice(0,24);
+if(!d.name){showToast('نام پوشه را وارد کنید');return;}
+if(!d.types.length&&!d.inc.length){showToast('حداقل یک گفتگو یا نوع گفتگو را انتخاب کنید');return;}
+if(FLE.isNew){FL.folders.push(d);FL.active=d.id;FL.dir=1;}
+else{var i=FL.folders.findIndex(function(f){return f.id===d.id;});if(i>=0)FL.folders[i]=d;}
+flSave();flHide(flEdit);FLE=null;
+if(flMgr.classList.contains('active'))flRenderMgr();
+renderCurrentChatList();showToast('پوشه ذخیره شد');
+});
+async function flDelete(id){
+var f=FL.folders.find(function(x){return x.id===id;});if(!f)return;
+var ok=await askConfirm({title:'حذف پوشه',text:'فقط پوشه حذف می‌شود؛ گفتگوها حذف نمی‌شوند.',yes:'حذف'});if(!ok)return;
+FL.folders=FL.folders.filter(function(x){return x.id!==id;});if(FL.active===id)FL.active='all';flSave();
+if(FLE&&FLE.d.id===id){flHide(flEdit);flHide(flPick);FLE=null;}
+if(flMgr.classList.contains('active'))flRenderMgr();
+renderCurrentChatList();showToast('پوشه حذف شد');
+}
+
+/* ---- انتخاب گفتگوها ---- */
+function flOpenPicker(kind){
+if(!FLE)return;FLE.pick={kind:kind,sel:new Set(kind==='inc'?FLE.d.inc:FLE.d.exc)};
+$('flPickTitle').textContent='انتخاب گفتگوها';
+$('flPickBody').innerHTML=allChats.map(function(c){return '<div class="fl-row" data-id="'+escapeHtml(c.id)+'"><span class="fl-ck'+(FLE.pick.sel.has(c.id)?' on':'')+'">'+FL_CK+'</span><div class="avatar '+escapeHtml(c.avatar)+'">'+escapeHtml(c.initial)+'</div><div class="fl-tx"><div class="fl-nm" dir="auto">'+escapeHtml(c.title)+'</div></div></div>';}).join('');
+flShow(flPick);
+}
+$('flPickBody').addEventListener('click',function(e){var r=e.target.closest('.fl-row');if(!r||!FLE||!FLE.pick)return;var id=r.dataset.id,s=FLE.pick.sel;if(s.has(id))s.delete(id);else s.add(id);r.querySelector('.fl-ck').classList.toggle('on',s.has(id));});
+$('flPickBack').addEventListener('click',function(){flHide(flPick);if(FLE)FLE.pick=null;});
+$('flPickSave').addEventListener('click',function(){
+if(!FLE||!FLE.pick)return;var k=FLE.pick.kind,o=k==='inc'?'exc':'inc',arr=Array.from(FLE.pick.sel);
+FLE.d[k]=arr;FLE.d[o]=FLE.d[o].filter(function(x){return arr.indexOf(x)<0;});
+FLE.pick=null;flHide(flPick);flRenderEditRest();
+});
+
+document.addEventListener('keydown',function(e){if(e.key!=='Escape')return;
+if(flSheet.classList.contains('open'))flSheetClose();
+else if(flPick.classList.contains('active')){flHide(flPick);if(FLE)FLE.pick=null;}
+else if(flEdit.classList.contains('active'))flBackEdit();
+else if(flMgr.classList.contains('active'))flHide(flMgr);
+else return;
+e.stopPropagation();},true);
+window.__flReady=true;
 
 (async function initApp(){await PermGate.run();await LINKServer.init();allChats=await LINKServer.getChats();renderCurrentChatList();
 const p=await LINKServer.getProfile();
