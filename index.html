@@ -1,10 +1,17 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#2f9cf0" />
-<title>LINK — پیام‌رسان</title>
+<title>LINK — Messenger</title>
+<script>
+/* v18: default language is English; user choice is stored in localStorage('link-lang') */
+var LANG='en';
+try{var _l=localStorage.getItem('link-lang');if(_l==='fa'||_l==='en')LANG=_l;}catch(e){}
+document.documentElement.lang=LANG;document.documentElement.dir='ltr'; /* layout is always left-to-right, like Telegram; Persian text still flows right-to-left per line */
+if(LANG==='fa')document.title='LINK — پیام‌رسان';
+</script>
 <script>
 try {
   const t = localStorage.getItem('link-theme');
@@ -613,6 +620,32 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 .pg-hint{margin-top:12px;font-size:12.5px;line-height:1.9;color:var(--text-muted);min-height:20px}
 .pg-hint.err{color:#e5484d}
 .vr-overlay{touch-action:none;-webkit-user-select:none;user-select:none}.vr-circle>video{will-change:transform}
+
+/* ===== v19: always-LTR layout; Persian text gets plaintext bidi ===== */
+.txt,.chat-name,.chat-last,.chat-title,.chat-status,.rp-text,.rp-name,.pb-title,.setting-label,.appbar-title,.profile-name,.pf-name,.pf-value,.toast,.dlg-text,.dlg-title,.rq-text,#messageInput,#searchInput{unicode-bidi:plaintext}
+.txt,.chat-last,.rp-text,.rq-text{text-align:start}
+/* ===== v18: language screen + LTR layout ===== */
+.setting-value{flex:none;color:var(--text-muted);font-size:13.5px;font-weight:600;margin-inline-end:2px}
+.lang-check{width:22px;height:22px;color:var(--primary);opacity:0;flex:none}
+.lang-opt.on .lang-check{opacity:1}
+.lang-check path{stroke-width:2.6}
+html[dir="ltr"] .chat-screen,html[dir="ltr"] .settings-screen,html[dir="ltr"] .appearance-screen,html[dir="ltr"] .placeholder-screen,html[dir="ltr"] .profile-screen{transform:translateX(105%)}
+html[dir="ltr"] .chat-screen.active,html[dir="ltr"] .settings-screen.active,html[dir="ltr"] .appearance-screen.active,html[dir="ltr"] .placeholder-screen.active,html[dir="ltr"] .profile-screen.active{transform:translateX(0)}
+html[dir="ltr"] .screen.under{transform:translateX(-24%)}
+html[dir="ltr"] .fab{left:auto;right:18px}
+html[dir="ltr"] .drawer{right:auto;left:0;transform:translateX(-105%);box-shadow:8px 0 30px rgba(0,0,0,.12)}
+html[dir="ltr"] .drawer.active{transform:translateX(0)}
+html[dir="ltr"] .drawer-close{left:auto;right:12px}
+html[dir="ltr"] .popup{left:auto;right:10px;transform-origin:top right}
+html[dir="ltr"] .lock-hint{left:auto;right:10px}
+html[dir="ltr"] .bubble,html[dir="ltr"] .ctx-menu{direction:ltr}
+html[dir="ltr"] .time{float:right}
+html[dir="ltr"] .pb-info,html[dir="ltr"] .sheet-item,html[dir="ltr"] .profile-sub,html[dir="ltr"] .settings-item,html[dir="ltr"] .drawer-phone,html[dir="ltr"] .drawer-item,html[dir="ltr"] .ctx-item,html[dir="ltr"] .fwd-item,html[dir="ltr"] .contact-row span,html[dir="ltr"] .pg-row{text-align:left}
+html[dir="ltr"] .slider:before{right:auto;left:3px}
+html[dir="ltr"] input:checked+.slider:before{transform:translateX(20px)}
+html[dir="ltr"] #backBtn .svg-icon,html[dir="ltr"] #profileBack .svg-icon,html[dir="ltr"] #settingsBack .svg-icon,html[dir="ltr"] #appearanceBack .svg-icon,html[dir="ltr"] #placeholderBack .svg-icon,html[dir="ltr"] #languageBack .svg-icon,html[dir="ltr"] .chevron{transform:scaleX(-1)}
+html[dir="ltr"] .chat-item.enter{animation-name:itemInLtr}
+@keyframes itemInLtr{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -763,7 +796,7 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 </div>
 <div class="settings-group">
 <button class="settings-item" id="settingsAppearance"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></svg><span class="setting-label">ظاهر</span><svg class="svg-icon chevron" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
-<button class="settings-item" data-placeholder="زبان"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18"/><path d="M12 3a15 15 0 0 0 0 18"/></svg><span class="setting-label">زبان</span><svg class="svg-icon chevron" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+<button class="settings-item" id="settingsLanguage"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18"/><path d="M12 3a15 15 0 0 0 0 18"/></svg><span class="setting-label">زبان</span><span class="setting-value" id="langValue"></span><svg class="svg-icon chevron" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
 </div>
 <div class="settings-group">
 <button class="settings-item danger" data-placeholder="خروج از حساب"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span class="setting-label">خروج از حساب</span></button>
@@ -789,6 +822,20 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 <span class="setting-label">فونت وزیرمتن (به‌جای فونت سیستم)</span>
 <label class="switch"><input type="checkbox" id="fontToggle" /><span class="slider"></span></label>
 </div>
+</div>
+</main>
+</section>
+
+<section class="screen appearance-screen" id="languageScreen" aria-hidden="true" aria-label="زبان">
+<header class="appbar">
+<button class="icon-btn" id="languageBack" aria-label="بازگشت"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
+<div class="appbar-title">زبان</div>
+<div class="appbar-spacer"></div>
+</header>
+<main class="appearance-content">
+<div class="settings-group">
+<button class="settings-item lang-opt" data-lang="en"><span class="setting-label">English</span><svg class="svg-icon lang-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+<button class="settings-item lang-opt" data-lang="fa"><span class="setting-label">فارسی</span><svg class="svg-icon lang-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
 </div>
 </main>
 </section>
@@ -893,10 +940,93 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 </div>
 
 <script>
+/* ===== v18: i18n — English (default) / Persian. The UI text is authored in Persian; in English mode it is translated at render time. ===== */
+(function(){
+const RAW={"لیست چت‌ها": "Chat list", "منو": "Menu", "جستجو": "Search", "پیام جدید": "New message", "صفحه چت": "Chat screen", "بازگشت": "Back", "گزینه‌های بیشتر": "More options", "پخش یا توقف": "Play or pause", "بستن پخش": "Close player", "برداشتن سنجاق": "Unpin", "لغو پاسخ": "Cancel reply", "شکلک": "Emoji", "پیام": "Message", "پیوست": "Attach", "ضبط پیام صوتی": "Record voice message", "لغو ضبط": "Cancel recording", "ارسال": "Send", "پخش": "Play", "توقف ضبط": "Pause recording", "رفتن به آخرین پیام": "Scroll to latest message", "لغو انتخاب": "Cancel selection", "کپی": "Copy", "حذف": "Delete", "پروفایل": "Profile", "تماس صوتی": "Voice call", "تماس ویدیویی": "Video call", "بی‌صدا کردن": "Mute", "جستجو در گفتگو": "Search in chat", "تنظیمات": "Settings", "ویرایش پروفایل": "Edit profile", "اطلاع‌رسانی‌ها": "Notifications", "حریم خصوصی و امنیت": "Privacy and Security", "داده و ذخیره‌سازی": "Data and Storage", "زبان": "Language", "خروج از حساب": "Log out", "ظاهر": "Appearance", "صفحه خالی": "Empty page", "منوی پیوست": "Attach menu", "بستن": "Close", "افزودن توضیح…": "Add a caption…", "منوی کشویی": "Side menu", "بستن منو": "Close menu", "مخاطبین": "Contacts", "تماس‌ها": "Calls", "چت‌های بایگانی‌شده": "Archived Chats", "دعوت دوستان": "Invite Friends", "راهنمای LINK": "LINK Features", "چرخش دوربین": "Flip camera", "فلش": "Flash", "قفل ضبط": "Lock recording", "ضبط": "Record", "نمایش عکس": "View photo", "حالت عمودی": "Portrait mode", "دسترسی‌های لازم": "Permissions required", "برای ورود به «لینک» باید دسترسی‌های زیر را بدهید.": "To enter LINK, please grant the permissions below.", "دوربین": "Camera", "برای ضبط پیام ویدیویی و عکس": "For recording video messages and photos", "میکروفون": "Microphone", "برای ضبط پیام صوتی و ویدیویی": "For recording voice and video messages", "حافظه دستگاه": "Device storage", "برای ذخیره‌ی پیام‌ها و رسانه‌ها روی دستگاه": "For saving messages and media on your device", "اعطای دسترسی‌ها": "Grant permissions", "چت": "Chat", "آخرین بازدید اخیراً": "last seen recently", "پیام سنجاق‌شده": "Pinned message", "امروز": "Today", "دیروز": "Yesterday", "برای ارسال رها کنید، برای قفل بالا بکشید": "Release to send, swipe up to lock", "مشاهده پروفایل": "View profile", "پاک کردن تاریخچه": "Clear history", "ویرایش": "Edit", "نام": "Name", "آنلاین": "online", "تماس": "Call", "ویدیو": "Video", "بی‌صدا": "Mute", "بیشتر": "More", "موبایل": "Mobile", "نام کاربری": "Username", "ایمیل": "Email", "بیو": "Bio", "رسانه": "Media", "ذخیره‌شده": "Saved", "فایل‌ها": "Files", "موسیقی": "Music", "صدا": "Voice", "پیوندها": "Links", "کاربر LINK": "LINK User", "حالت شب": "Night Mode", "فونت وزیرمتن (به‌جای فونت سیستم)": "Vazirmatn font (instead of the system font)", "بخش": "Section", "این بخش در نسخه نمایشی فعال نیست.": "This section is not available in the demo.", "گالری": "Gallery", "فایل": "File", "موقعیت": "Location", "مخاطب": "Contact", "نظرسنجی": "Poll", "پیام ویدیویی": "Video message", "پیام صوتی": "Voice message", "ارسال به…": "Forward to…", "لغو": "Cancel", "پیام‌های ذخیره‌شده": "Saved Messages", "نسخه 1.0.0": "Version 1.0.0", "برای لغو بکشید": "Slide to cancel", "LINK — پیام‌رسان": "LINK — Messenger", "لطفاً گوشی را عمودی نگه دارید": "Please hold your phone upright", "LINK برای استفاده در حالت عمودی طراحی شده است. برای ادامه، گوشی را به حالت عمودی بچرخانید.": "LINK is designed for portrait mode. Rotate your phone to portrait to continue.", "ضبط ویدیو در این دستگاه ممکن نیست": "Video recording isn't supported on this device", "دسترسی به دوربین و میکروفون": "Camera and microphone access", "برای ضبط پیام ویدیویی، «لینک» به دوربین و میکروفون شما نیاز دارد. این اجازه فقط یک بار پرسیده می‌شود.": "LINK needs access to your camera and microphone to record video messages. You will only be asked once.", "اجازه می‌دهم": "Allow", "اجازه ثبت شد. حالا دکمه را نگه دارید": "Permission saved. Now hold the button", "اجازه داده نشد": "Permission denied", "دوربین در دسترس نیست": "Camera unavailable", "بدون اجازه‌ی دوربین و میکروفون نمی‌شود پیام ویدیویی ضبط کرد. اجازه را از تنظیمات مرورگر یا دستگاه فعال کنید و دوباره امتحان کنید.": "Video messages can't be recorded without camera and microphone access. Enable it in your browser or device settings and try again.", "دوربین یا میکروفون پیدا نشد. مطمئن شوید به دستگاه وصل است و توسط برنامه‌ی دیگری استفاده نمی‌شود.": "Camera or microphone not found. Make sure it is connected and not in use by another app.", "باشه": "OK", "بررسی دوباره": "Check again", "دوربین و میکروفون فقط در اتصال امن (HTTPS) کار می‌کنند. برنامه را از آدرس https باز کنید.": "Camera and microphone only work over a secure connection (HTTPS). Open the app from an https address.", "این دستگاه یا مرورگر از دوربین و میکروفون پشتیبانی نمی‌کند.": "This device or browser doesn't support camera and microphone.", "دسترسی مسدود شده است. از تنظیمات مرورگر یا دستگاه (قفل کنار آدرس ← مجوزها، یا تنظیمات برنامه) دوربین و میکروفون را روی «اجازه» بگذارید و برگردید؛ خودکار بررسی می‌شود.": "Access is blocked. In your browser or device settings (lock icon next to the address → Permissions, or the app settings) set camera and microphone to “Allow”, then come back; it will be checked automatically.", "ذخیره‌سازی روی دستگاه در دسترس نیست (حالت ناشناس یا مسدود). مرورگر را از حالت خصوصی خارج کنید.": "Device storage is unavailable (private mode or blocked). Exit private browsing and try again.", "لطفاً در پنجره‌ی باز شده «اجازه» را بزنید…": "Please tap “Allow” in the prompt that appeared…", "ضبط صدا در این دستگاه ممکن نیست": "Voice recording isn't supported on this device", "دسترسی به میکروفون": "Microphone access", "برای ضبط پیام صوتی، «لینک» به میکروفون شما نیاز دارد. این اجازه فقط یک بار پرسیده می‌شود.": "LINK needs access to your microphone to record voice messages. You will only be asked once.", "میکروفون در دسترس نیست": "Microphone unavailable", "بدون اجازه‌ی میکروفون نمی‌شود پیام صوتی ضبط کرد. اجازه را از تنظیمات مرورگر یا دستگاه فعال کنید و دوباره امتحان کنید.": "Voice messages can't be recorded without microphone access. Enable it in your browser or device settings and try again.", "میکروفون پیدا نشد. مطمئن شوید به دستگاه وصل است و توسط برنامه‌ی دیگری استفاده نمی‌شود.": "Microphone not found. Make sure it is connected and not in use by another app.", "اجازه‌ی میکروفون فعال نیست؛ دوباره امتحان کنید": "Microphone access is off; try again", "میکروفون هنوز آماده نبود": "Microphone wasn't ready yet", "ضبط ناموفق بود": "Recording failed", "فلش دوربین پشت در این دستگاه پشتیبانی نمی‌شود": "Rear camera flash isn't supported on this device", "تغییر دوربین ممکن نیست": "Can't switch camera", "دوربین دیگری در دسترس نیست": "No other camera available", "اجازه‌ی دوربین و میکروفون فعال نیست؛ دوباره امتحان کنید": "Camera and microphone access is off; try again", "دوربین هنوز آماده نبود": "Camera wasn't ready yet", "عکس": "Photo", "موقعیت مکانی": "Location", "ویرایش‌شده": "edited", "ارسال‌شده از": "Forwarded from", "شما": "You", "هنوز پیامی نیست. سلام کنید 👋": "No messages here yet. Say hello 👋", "ویرایش پیام": "Edit message", "پیام پیدا نشد": "Message not found", "پیام سنجاق شد": "Message pinned", "سنجاق برداشته شد": "Message unpinned", "حذف پیام": "Delete message", "این کار قابل بازگشت نیست. مطمئنید؟": "This can't be undone. Are you sure?", "متن کپی شد": "Text copied", "کپی نشد": "Couldn't copy", "پیام ارسال شد": "Message forwarded", "متنی برای کپی نیست": "Nothing to copy", "پاسخ": "Reply", "کپی متن": "Copy Text", "سنجاق کردن": "Pin", "انتخاب": "Select", "این بخش بعداً فعال می‌شود": "This section will be available later", "در حال نوشتن": "typing", "همه‌ی پیام‌های این گفتگو حذف می‌شود.": "All messages in this chat will be deleted.", "پاک کردن": "Clear", "ادامه‌ی ضبط": "Resume recording", "برای ضبط، دکمه را نگه دارید": "Hold the button to record", "ضبط قفل شد": "Recording locked", "دکمه‌ی میکروفون را نگه دارید": "Hold the microphone button", "دکمه‌ی دوربین را نگه دارید": "Hold the camera button", "حالت پیام صوتی": "Voice message mode", "حالت پیام ویدیویی": "Video message mode", "ضبط پیام صوتی؛ ضربه: تبدیل به ویدیو": "Record voice message; tap to switch to video", "ضبط پیام ویدیویی؛ ضربه: تبدیل به صدا": "Record video message; tap to switch to voice", "ارسال پیام": "Send message", "میدان آزادی، تهران": "Azadi Square, Tehran", "مریم کاظمی": "Maryam Kazemi", "باشه، حتماً 👍": "Sure, of course 👍", "ممنون از اطلاعت!": "Thanks for letting me know!", "الان می‌بینم و خبر می‌دم": "I'll check now and let you know", "عالیه 😍": "Awesome 😍", "هماهنگ می‌کنم": "I'll arrange it", "خیلی خوبه، دمت گرم 🔥": "That's great, nice work 🔥", "چشم، تا یه ساعت دیگه می‌فرستم": "Sure, I'll send it within an hour", "ایول! 😂": "Nice! 😂", "طراحی رابط کاربری": "UI design", "تیم طراحی محصول": "Product Design Team", "گروه طراحی محصول LINK": "LINK product design group", "سلام، فایل جدید رو آپلود کردم.": "Hi, I uploaded the new file.", "سارا احمدی": "Sara Ahmadi", "باشه، مرسی": "Okay, thanks", "عاشق قهوه و طراحی": "Coffee and design lover", "قربانت، فردا هماهنگ می‌کنم.": "You're welcome, I'll sort it out tomorrow.", "ذخیره‌شده‌ها": "Saved Messages", "لینک جلسه طراحی": "Design meeting link", "علی رضایی": "Ali Rezaei", "فردا صبح میام دفتر.": "I'll come to the office tomorrow morning.", "توسعه‌دهنده بک‌اند": "Backend developer", "کانال اخبار": "News Channel", "اطلاعیه مهم: بروزرسانی جدید منتشر شد": "Important announcement: a new update has been released", "اطلاعیه مهم: بروزرسانی جدید منتشر شد.": "Important announcement: a new update has been released.", "اخبار رسمی LINK": "Official LINK news", "گروه خانواده": "Family Group", "مامان: شام چی درست کنم؟": "Mom: What should I make for dinner?", "سلام! امروز جلسه ساعت چنده؟": "Hi! What time is the meeting today?", "سلام سارا جان 🌸 ساعت 4 بعدازظهر": "Hi Sara 🌸 4 PM", "این طرح جدیده، نظرت چیه؟": "This is the new design, what do you think?", "خیلی قشنگه! رنگ‌هاش عالیه ✨": "It's beautiful! The colors are great ✨", "سلام داداش": "Hey bro", "طراحی-نهایی.pdf": "final-design.pdf"},AVR={"ک|c6": "L", "ک|c2": "N", "ت": "P", "س": "S", "ذ": "S", "ع": "A", "گ": "F", "م": "M", "ک": "K"};
+const PD='۰۱۲۳۴۵۶۷۸۹',AD='٠١٢٣٤٥٦٧٨٩';
+const norm=s=>String(s).replace(/\u200c/g,'').replace(/[۰-۹]/g,d=>PD.indexOf(d)).replace(/[٠-٩]/g,d=>AD.indexOf(d)).replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/\s+/g,' ').trim();
+const D=Object.create(null);for(const k in RAW)D[norm(k)]=RAW[k];
+const AVD=Object.create(null);for(const k in AVR)AVD[k]=AVR[k];
+const LET=/[\u0621-\u064A\u0671-\u06D3\u06FA-\u06FF]/;
+const PUN={'٫':'.','٬':',','،':',','؛':';','؟':'?','٪':'%'};
+const sym=s=>s.replace(/[۰-۹]/g,d=>PD.indexOf(d)).replace(/[٠-٩]/g,d=>AD.indexOf(d)).replace(/[٫٬،؛؟٪]/g,c=>PUN[c]);
+const PAT=[
+[/^حذف (\d+) پیام$/,(m)=>'Delete '+m[1]+' messages'],
+[/^(\d+) انتخابشده$/,(m)=>m[1]+' selected'],
+[/^(\d+) مورد$/,(m)=>m[1]+(m[1]==='1'?' item':' items')],
+[/^([\d٫.]+) مگابایت$/,(m)=>m[1].replace('٫','.')+' MB'],
+[/^([\d٫.]+) کیلوبایت$/,(m)=>m[1].replace('٫','.')+' KB'],
+[/^(\d+) عضو، (\d+) آنلاین$/,(m)=>m[1]+' members, '+m[2]+' online'],
+[/^([\d٫.]+) هزار عضو$/,(m)=>m[1].replace('٫','.')+'K subscribers']
+];
+function core(n){
+if(D[n]!==undefined)return D[n];
+for(const [re,f] of PAT){const m=re.exec(n);if(m)return f(m);}
+return undefined;
+}
+function tr(str){
+const s=String(str);if(!/[\u0600-\u06FF]/.test(s))return s;
+const lead=(s.match(/^\s*/)||[''])[0],trail=(s.match(/\s*$/)||[''])[0];
+const n=norm(s);if(!n)return s;
+let r=core(n);
+if(r===undefined){
+ /* "prefix: rest" (chat previews, group senders) */
+ const ci=n.indexOf(': ');
+ if(ci>0){const a=core(n.slice(0,ci)),b=tr(n.slice(ci+2));if(a!==undefined||(b!==n.slice(ci+2)))r=(a!==undefined?a:sym(n.slice(0,ci)))+': '+b;}
+}
+if(r===undefined){
+ /* leading emoji / symbol prefix */
+ const m=/^([^\u0600-\u06FFA-Za-z0-9]+)\s*(.*)$/.exec(n);
+ if(m&&m[2]&&LET.test(m[2])){const c=core(m[2]);if(c!==undefined)r=m[1]+' '+c;}
+}
+if(r===undefined){
+ if(!LET.test(s))r=sym(n);   /* digits / punctuation only */
+ else return s;              /* user-written Persian text: leave untouched */
+}
+return lead+r+trail;
+}
+function avatar(ch,el){
+let col='';if(el&&el.classList)for(const c of el.classList)if(/^c\d$/.test(c))col=c;
+return AVD[ch+'|'+col]||AVD[ch]||ch;
+}
+window.i18nTr=function(s){return LANG==='en'?tr(s):String(s);};
+window.i18nTrAvatar=avatar;
+window.setLang=function(l){try{localStorage.setItem('link-lang',l);}catch(e){}location.reload();};
+window.__i18n={tr,norm,core,avatar};
+
+/* ---- DOM translation (English mode only; Persian is the authored text) ---- */
+if(LANG!=='en'||typeof document==='undefined'||!document.body)return;
+const ATTRS=['aria-label','placeholder','title','alt','data-placeholder'];
+const SKIP=/^(SCRIPT|STYLE|TEXTAREA|NOSCRIPT)$/;
+function text(n){
+const p=n.parentNode;if(p&&SKIP.test(p.nodeName))return;
+const v=n.nodeValue;if(!/[\u0600-\u06FF]/.test(v))return;
+let o;
+if(p&&p.classList&&p.classList.contains('avatar')&&v.trim().length<=2&&LET.test(v))o=avatar(v.trim(),p);
+else o=tr(v);
+if(o!==v)n.nodeValue=o;
+}
+function attrs(el){for(const a of ATTRS){const v=el.getAttribute&&el.getAttribute(a);if(v&&/[\u0600-\u06FF]/.test(v)){const o=tr(v);if(o!==v)el.setAttribute(a,o);}}}
+function walk(root){
+if(root.nodeType===3){text(root);return;}
+if(root.nodeType!==1)return;
+attrs(root);
+const w=document.createTreeWalker(root,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT);
+let n;while((n=w.nextNode())){if(n.nodeType===3)text(n);else attrs(n);}
+}
+walk(document.body);
+new MutationObserver(ms=>{for(const m of ms){
+if(m.type==='childList')m.addedNodes.forEach(walk);
+else if(m.type==='characterData')text(m.target);
+else if(m.type==='attributes')attrs(m.target);
+}}).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:ATTRS});
+})();
+</script>
+<script>
 const faDigits=['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-const toFaDigits=v=>String(v).replace(/\d/g,d=>faDigits[d]);
+const toFaDigits=v=>LANG==='fa'?String(v).replace(/\d/g,d=>faDigits[d]):String(v);
 function formatTime(t){const s=Math.max(0,Math.floor(t));return toFaDigits(Math.floor(s/60)+':'+String(s%60).padStart(2,'0'));}
-const currentFaTime=()=>new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit'}).format(new Date());
+const currentFaTime=()=>new Intl.DateTimeFormat(LANG==='fa'?'fa-IR':'en-GB',{hour:'2-digit',minute:'2-digit'}).format(new Date());
 const escapeHtml=v=>String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 function hashCode(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return Math.abs(h);}
 function generateWaveform(seed,count=34){let s=hashCode(seed)||10;const v=[];for(let i=0;i<count;i++){s=(s*9301+49297)%233280;v.push(Math.floor(6+(s/233280)*18));}return v;}
@@ -1046,7 +1176,7 @@ return flag(kind==='cam'?'link-cam-perm':'link-mic-perm')||flag('link-cam-perm')
 async function checkStorage(){
 try{localStorage.setItem('link-st-test','1');localStorage.removeItem('link-st-test');}catch(e){return 'unavailable';}
 if(!window.indexedDB)return 'unavailable';
-try{if(navigator.storage&&navigator.storage.persisted){return (await navigator.storage.persisted())?'granted':'prompt';}}catch(e){}
+try{if(navigator.storage&&navigator.storage.persisted){if(await navigator.storage.persisted())return 'granted';try{if(localStorage.getItem('link-st-asked')==='1')return 'granted';}catch(e){}return 'prompt';}}catch(e){}
 return 'granted'; /* browser has no persistence API: nothing more to ask */
 }
 async function check(){
@@ -1091,6 +1221,7 @@ if(state.cam!=='granted'){try{const st=await navigator.mediaDevices.getUserMedia
 }
 /* 2) device storage */
 try{if(navigator.storage&&navigator.storage.persist)await navigator.storage.persist();}catch(e){}
+try{localStorage.setItem('link-st-asked','1');}catch(e){} /* asked once: browsers may refuse silently, which must not block entry */
 }finally{
 await check();
 /* without Permissions API, getUserMedia success is the only proof */
@@ -1469,7 +1600,7 @@ if(e.target.closest('.loc-map,.contact-row'))showToast('این بخش بعداً
 
 /* ---- لیست گفتگوها ---- */
 let firstList=true;
-function currentFilteredChats(){const q=searchInput.value.trim();let l=q?allChats.filter(c=>c.title.includes(q)||(c.lastMessage||'').includes(q)):allChats.slice();return l.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));}
+function currentFilteredChats(){const q=searchInput.value.trim();let l=q?allChats.filter(c=>{const ql=q.toLowerCase(),T=x=>window.i18nTr(x||'').toLowerCase();return c.title.includes(q)||(c.lastMessage||'').includes(q)||T(c.title).includes(ql)||T(c.lastMessage).includes(ql);}):allChats.slice();return l.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));}
 function createChatListItem(chat,idx,anim){const item=document.createElement('div');item.className='chat-item'+(anim?' enter':'');item.style.setProperty('--i',idx);item.dataset.id=chat.id;
 const badge=chat.unread?'<div class="badge'+(chat.muted?' gray':'')+'">'+toFaDigits(chat.unread)+'</div>':(chat.pinned?'<div class="pin-ic">'+PIN_SVG+'</div>':'');
 item.innerHTML='<div class="av-wrap"><div class="avatar '+escapeHtml(chat.avatar)+'">'+escapeHtml(chat.initial)+'</div>'+(chat.online?'<span class="online-dot"></span>':'')+'</div><div class="chat-info"><div class="chat-top"><div class="chat-name">'+escapeHtml(chat.title)+(chat.muted?MUTE_SM:'')+'</div><div class="chat-time">'+(chat.lastOut?'<span class="ci-tick">'+TICK2+'</span>':'')+escapeHtml(chat.time)+'</div></div><div class="chat-bottom"><div class="chat-last">'+escapeHtml(chat.lastMessage||'')+'</div>'+badge+'</div></div>';
@@ -1477,7 +1608,8 @@ item.addEventListener('click',()=>openChatById(chat.id));return item;}
 function renderCurrentChatList(){const a=firstList;firstList=false;chatListEl.innerHTML='';currentFilteredChats().forEach((c,i)=>chatListEl.appendChild(createChatListItem(c,i,a)));}
 const searchBar=$('searchbar'),searchBtn=$('searchBtn');
 searchBtn.addEventListener('click',()=>{const open=searchBar.classList.toggle('open');if(open)setTimeout(()=>searchInput.focus(),250);else{searchInput.value='';searchInput.blur();renderCurrentChatList();}});
-const SCREEN_ORDER=[$('listScreen'),chatScreen,settingsScreen,appearanceScreen,profileScreen,placeholderScreen];
+const languageScreen=$('languageScreen');
+const SCREEN_ORDER=[$('listScreen'),chatScreen,settingsScreen,appearanceScreen,languageScreen,profileScreen,placeholderScreen];
 function syncUnder(){const act=el=>el.classList.contains('active')||el.id==='listScreen';SCREEN_ORDER.forEach((el,i)=>{el.classList.toggle('under',act(el)&&SCREEN_ORDER.slice(i+1).some(o=>o.classList.contains('active')));});}
 const underObs=new MutationObserver(syncUnder);SCREEN_ORDER.slice(1).forEach(el=>underObs.observe(el,{attributes:true,attributeFilter:['class']}));
 function resetChatUI(){closeCtx();exitSelect(true);closeEmoji();closeChatMenu();closeForward();closeAttachSheet();setTyping(false);if(typeof editTarget!=='undefined'&&editTarget){editTarget=null;messageInput.value='';autosize();updateSendButton();}}
@@ -1519,6 +1651,14 @@ backBtn.addEventListener('click',closeChat);
 settingsBack.addEventListener('click',closeSettings);
 settingsAppearance.addEventListener('click',openAppearance);
 appearanceBack.addEventListener('click',closeAppearance);
+function markLang(){document.querySelectorAll('.lang-opt').forEach(b=>b.classList.toggle('on',b.dataset.lang===LANG));const v=$('langValue');if(v)v.textContent=LANG==='fa'?'فارسی':'English';}
+function openLanguage(){markLang();languageScreen.classList.add('active');languageScreen.setAttribute('aria-hidden','false');}
+function closeLanguage(){languageScreen.classList.remove('active');languageScreen.setAttribute('aria-hidden','true');}
+$('settingsLanguage').addEventListener('click',openLanguage);
+$('languageBack').addEventListener('click',closeLanguage);
+document.querySelectorAll('.lang-opt').forEach(b=>b.addEventListener('click',()=>{const l=b.dataset.lang;if(l===LANG){closeLanguage();return;}document.querySelectorAll('.lang-opt').forEach(x=>x.classList.toggle('on',x===b));setTimeout(()=>setLang(l),140);}));
+markLang();
+try{$('messageInput').setAttribute('dir','auto');$('searchInput').setAttribute('dir','auto');}catch(e){}
 placeholderBack.addEventListener('click',closePlaceholder);
 searchInput.addEventListener('input',renderCurrentChatList);
 
@@ -1649,13 +1789,14 @@ if(recordState.mode==='voice'){const ok=send&&!recordState.canceled&&currentChat
 if(send&&!recordState.canceled&&currentChatId){if(secs<1){showToast('برای ضبط، دکمه را نگه دارید');return;}const d=Math.max(1,Math.round(secs));
 sendOutgoingMessage({kind:recordState.mode==='voice'?'voice':'videoNote',duration:d,replyTo:replyPayload()});clearReply();}}
 function cancelRecording(){recordState.canceled=true;vibrate([10,30,10]);finishRecording(false);}
+const RS=()=>-1;
 function onRecMove(dx,dy){if(!recordState.active||recordState.locked)return;const cx=Math.max(0,dx),cy=Math.max(0,dy);
-if(recordState.mode==='voice'){recordHintEl.style.transform='translateX('+cx*.55+'px)';recordHintEl.style.opacity=Math.max(0,1-cx/120);sendBtn.style.transform='translate('+Math.min(cx,120)*.5+'px,'+(-Math.min(cy,100)*.55)+'px) scale(1.25)';lockHint.style.transform='translateY('+(-Math.min(cy,90)*.25)+'px)';}
-else{vrHint.style.transform='translateX('+cx*.55+'px)';vrHint.style.opacity=Math.max(0,1-cx/120);vrHold.style.transform='translate('+Math.min(cx,120)*.5+'px,'+(-Math.min(cy,100)*.55)+'px) scale(1.25)';vrLock.style.transform='translateY('+(-Math.min(cy,90)*.25)+'px)';}
+if(recordState.mode==='voice'){recordHintEl.style.transform='translateX('+RS()*cx*.55+'px)';recordHintEl.style.opacity=Math.max(0,1-cx/120);sendBtn.style.transform='translate('+RS()*Math.min(cx,120)*.5+'px,'+(-Math.min(cy,100)*.55)+'px) scale(1.25)';lockHint.style.transform='translateY('+(-Math.min(cy,90)*.25)+'px)';}
+else{vrHint.style.transform='translateX('+RS()*cx*.55+'px)';vrHint.style.opacity=Math.max(0,1-cx/120);vrHold.style.transform='translate('+RS()*Math.min(cx,120)*.5+'px,'+(-Math.min(cy,100)*.55)+'px) scale(1.25)';vrLock.style.transform='translateY('+(-Math.min(cy,90)*.25)+'px)';}
 if(cx>110)cancelRecording();else if(cy>80)lockRecording();}
 sendBtn.addEventListener('pointerdown',e=>{e.preventDefault();if(!sendBtn.classList.contains('capture'))return;pressState.justLocked=false;pressState.pressing=true;pressState.longPress=false;pressState.startX=e.clientX;pressState.startY=e.clientY;
 try{sendBtn.setPointerCapture(e.pointerId);}catch(_){}clearTimeout(pressState.timer);pressState.timer=setTimeout(()=>{pressState.longPress=true;if(pressState.pressing)startRecording();},230);});
-sendBtn.addEventListener('pointermove',e=>{if(pressState.pressing)onRecMove(e.clientX-pressState.startX,pressState.startY-e.clientY);});
+sendBtn.addEventListener('pointermove',e=>{if(pressState.pressing)onRecMove(RS()*(e.clientX-pressState.startX),pressState.startY-e.clientY);});
 sendBtn.addEventListener('pointerup',()=>{clearTimeout(pressState.timer);
 if(recordState.active){if(!recordState.locked)finishRecording(true);else if(pressState.justLocked)pressState.justLocked=false;else finishRecording(true);}else if(pressState.pressing&&!pressState.longPress)toggleCaptureMode();
 pressState.pressing=false;pressState.longPress=false;});
@@ -1725,6 +1866,7 @@ if(photoViewer.classList.contains('active'))closePhotoViewer();
 else if(attachSheet.classList.contains('active'))closeAttachSheet();
 else if(drawer.classList.contains('active'))closeDrawer();
 else if(placeholderScreen.classList.contains('active'))closePlaceholder();
+else if(languageScreen.classList.contains('active'))closeLanguage();
 else if(appearanceScreen.classList.contains('active'))closeAppearance();
 else if(profileScreen.classList.contains('active'))closeProfile();
 else if(settingsScreen.classList.contains('active'))closeSettings();
