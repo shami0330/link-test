@@ -540,6 +540,34 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 .video-note.dl:not(.real) .video-surface{animation:videoMove 7s ease infinite!important}
 .video-note.dl:not(.real) .video-surface::before{animation:vnBob 3.2s ease-in-out infinite}
 .vr-hold{touch-action:none;will-change:transform;position:relative;z-index:2}.vr-hint{will-change:transform,opacity}
+
+/* v5: pause/resume while recording + trim timeline */
+.trim{display:none;flex:1;min-width:0;position:relative;height:44px;border-radius:12px;overflow:hidden;direction:ltr;touch-action:none;user-select:none;-webkit-user-select:none;background:rgba(128,128,128,.2)}
+.inputbar.paused #voiceTrim{display:block}
+.vr-overlay.paused #vrTrim{display:block}
+.inputbar.paused .recording-indicator,.inputbar.paused .recording-hint{display:none}
+.vr-overlay.paused .vr-cancelbar{display:none}
+.trim-track{position:absolute;inset:0;display:flex}
+.trim-track .th{flex:1;min-width:0;height:100%;background:#2a2f35 center/cover no-repeat}
+.trim-bars{display:flex;align-items:center;gap:2px;padding:0 20px;width:100%;box-sizing:border-box}
+.trim-bars i{flex:1;min-width:2px;background:var(--primary);border-radius:2px;opacity:.9}
+.trim-dim{position:absolute;top:0;bottom:0;background:rgba(0,0,0,.45);pointer-events:none}
+.trim-sel{position:absolute;top:0;bottom:0;border-top:2px solid var(--primary);border-bottom:2px solid var(--primary);pointer-events:none;box-sizing:border-box}
+.trim-h{position:absolute;top:0;bottom:0;width:18px;background:var(--primary);display:grid;place-items:center;touch-action:none;cursor:ew-resize;z-index:2}
+.trim-h::after{content:"";width:3px;height:16px;border-radius:2px;background:#fff}
+.trim-time{position:absolute;left:50%;bottom:3px;transform:translateX(-50%);font-size:11px;font-weight:700;color:#fff;background:rgba(0,0,0,.5);padding:1px 7px;border-radius:999px;pointer-events:none;z-index:3}
+#recPause{display:none}
+.inputbar.recording.locked #recPause{display:grid}
+#recPause,#vrPause{flex-shrink:0}
+#recPlay,#vrPlay{display:none;flex-shrink:0}
+.inputbar.paused #recPlay{display:grid}
+.vr-overlay.paused #vrPlay{display:grid}
+.trim-ph{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 3px rgba(0,0,0,.6);display:none;pointer-events:none;z-index:2}
+.vr-circle>video.pv-rec{transform:scaleX(-1);z-index:3}
+.vn-video{transform:scaleX(-1)}
+.trim-track .th{transform:scaleX(-1)}
+#recPause.rec-resume{color:var(--danger)}
+#vrPause.rec-resume{color:#ff6b6b}
 </style>
 </head>
 <body>
@@ -599,7 +627,10 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 <button class="icon-btn dark" id="cancelRecordBtn" aria-label="لغو ضبط"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
 <div class="recording-indicator"><span class="rec-dot"></span><span id="recordTime">۰:۰۰</span></div>
 <button class="icon-btn dark hidden" id="voiceSendLocked" aria-label="ارسال"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
+<button class="icon-btn dark" id="recPlay" aria-label="پخش"></button>
+<div class="trim" id="voiceTrim"></div>
 <div class="recording-hint" id="recordHint">برای ارسال رها کنید، برای قفل بالا بکشید</div>
+<button class="icon-btn dark" id="recPause" aria-label="توقف ضبط"></button>
 </div>
 </div>
 </footer>
@@ -766,10 +797,13 @@ radial-gradient(circle at 50% 36%,#3b2a22 0 17.5%,transparent 18%)}
 <button class="icon-btn inv" id="vrFlip" aria-label="چرخش دوربین"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></svg></button>
 <button class="icon-btn inv" id="vrFlash" aria-label="فلش"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></button>
 <div class="appbar-spacer"></div>
+<button class="icon-btn inv hidden" id="vrPause" aria-label="توقف ضبط"></button>
 <button class="icon-btn inv" id="vrLock" aria-label="قفل ضبط"><svg class="svg-icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></button>
 </div>
 <div class="vr-row">
 <div class="vr-cancelbar" id="vrCancelBar"><span class="rec-dot"></span><span id="vrTime">۰:۰۰</span><span class="vr-hint" id="vrHint">برای لغو بکشید</span></div>
+<button class="icon-btn inv" id="vrPlay" aria-label="پخش"></button>
+<div class="trim" id="vrTrim"></div>
 <button class="icon-btn inv hidden" id="vrTrash" aria-label="حذف"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
 <button class="vr-send hidden" id="vrSend" aria-label="ارسال"><svg class="svg-icon" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
 <button class="vr-hold" id="vrHold" aria-label="ضبط"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="9"/></svg></button>
@@ -874,7 +908,7 @@ placeholderScreen=$('placeholderScreen'),placeholderBack=$('placeholderBack'),pl
 
 let allChats=[],currentChatId=null,currentChatTitle='',currentMessages=[],captureMode='voice',replyTarget=null,activeBarPlayer=null;
 const players=new Map();
-const recordState={active:false,locked:false,canceled:false,startTime:0,timer:null,mode:'voice'};
+const recordState={active:false,locked:false,canceled:false,startTime:0,timer:null,mode:'voice',accum:0,paused:false,trim:null,keepS:0,pauseTok:0};
 const pressState={pressing:false,longPress:false,timer:null,startY:0};
 const swipeState={msg:null,shift:null,startX:0,startY:0,dragging:false,dx:0};
 
@@ -899,7 +933,8 @@ async get(id){const db=await this.open();return new Promise((res,rej)=>{const q=
 async function resolveMediaUrl(m){if(m.src&&String(m.src).startsWith('blob:'))return m.src;if(!m.mediaId)return null;let u=mediaUrls.get(m.mediaId);if(u)return u;try{const b=await MediaStore.get(m.mediaId);if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);return u;}}catch(e){}return null;}
 const vnObserver=('IntersectionObserver' in window)?new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(v.dataset.ctl==='1')return;if(e.isIntersecting){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else v.pause();}),{threshold:.25}):null;
 async function attachRealVideo(b,m){if(!m.src&&!m.mediaId){const dn=b.querySelector('.video-note');if(dn)setTimeout(()=>dn.classList.add('dl'),900+Math.random()*1400);return;}const url=await resolveMediaUrl(m);if(!url)return;const note=b.querySelector('.video-note');if(!note||note.querySelector('.vn-video'))return;
-const v=document.createElement('video');v.className='vn-video';v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.loop=true;v.autoplay=true;v.defaultMuted=true;v.setAttribute('muted','');v.setAttribute('loop','');v.addEventListener('loadeddata',()=>{if(v.dataset.ctl!=='1'){const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}});v.disablePictureInPicture=true;v.addEventListener('error',async()=>{if(v.dataset.fix==='1')return;v.dataset.fix='1';try{const b=m.mediaId?await MediaStore.get(m.mediaId):await (await fetch(url)).blob();if(!b)return;const h=new Uint8Array(await b.slice(0,12).arrayBuffer());const isW=h[0]===0x1A&&h[1]===0x45&&h[2]===0xDF&&h[3]===0xA3;const isM=h[4]===0x66&&h[5]===0x74&&h[6]===0x79&&h[7]===0x70;const nb=new Blob([b],{type:isW?'video/webm':isM?'video/mp4':(b.type||'video/mp4')});const nu=URL.createObjectURL(nb);if(m.mediaId)mediaUrls.set(m.mediaId,nu);v.src=nu;v.load();const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}catch(e){}});
+const v=document.createElement('video');v.className='vn-video';v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.loop=true;v.autoplay=true;v.defaultMuted=true;v.setAttribute('muted','');v.setAttribute('loop','');v.addEventListener('loadeddata',()=>{if(v.dataset.ctl!=='1'){const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}});v.disablePictureInPicture=true;const TS=m.trimStart||0,TE=m.trimEnd||0;if(TS||TE){v.addEventListener('loadedmetadata',()=>{try{v.currentTime=TS+0.05;}catch(e){}});v.addEventListener('timeupdate',()=>{if(v.dataset.ctl!=='1'&&TE&&v.currentTime>=TE-0.03){try{v.currentTime=TS+0.05;}catch(e){}}});}
+v.addEventListener('error',async()=>{if(v.dataset.fix==='1')return;v.dataset.fix='1';try{const b=m.mediaId?await MediaStore.get(m.mediaId):await (await fetch(url)).blob();if(!b)return;const h=new Uint8Array(await b.slice(0,12).arrayBuffer());const isW=h[0]===0x1A&&h[1]===0x45&&h[2]===0xDF&&h[3]===0xA3;const isM=h[4]===0x66&&h[5]===0x74&&h[6]===0x79&&h[7]===0x70;const nb=new Blob([b],{type:isW?'video/webm':isM?'video/mp4':(b.type||'video/mp4')});const nu=URL.createObjectURL(nb);if(m.mediaId)mediaUrls.set(m.mediaId,nu);v.src=nu;v.load();const pp=v.play();if(pp&&pp.catch)pp.catch(()=>{});}catch(e){}});
 v.src=url;
 note.insertBefore(v,note.querySelector('.progress-ring'));note.classList.add('real');if(vnObserver)vnObserver.observe(v);else{const p=v.play();if(p&&p.catch)p.catch(()=>{});}}
 
@@ -937,9 +972,9 @@ const micOK=()=>{if(camOK())return true;try{return localStorage.getItem(MIC_KEY)
 const setMicOK=v=>{try{if(v)localStorage.setItem(MIC_KEY,'1');else localStorage.removeItem(MIC_KEY);}catch(e){}};
 const warmA={stream:null,timer:null};
 function warmAClear(){clearTimeout(warmA.timer);warmA.timer=null;if(warmA.stream){warmA.stream.getTracks().forEach(t=>{try{t.stop();}catch(e){}});warmA.stream=null;}}
-function warmASet(st){if(!st)return;if(warmA.stream&&warmA.stream!==st)warmAClear();clearTimeout(warmA.timer);warmA.stream=st;warmA.timer=setTimeout(warmAClear,60000);}
-function warmATake(){const st=warmA.stream;if(!st)return null;clearTimeout(warmA.timer);warmA.timer=null;warmA.stream=null;const live=st.getTracks().length>0&&st.getTracks().every(t=>t.readyState==='live');if(!live){st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});return null;}return st;}
-document.addEventListener('visibilitychange',()=>{if(document.hidden)warmAClear();});window.addEventListener('pagehide',warmAClear);
+function warmASet(st){if(!st)return;if(warmA.stream&&warmA.stream!==st)warmAClear();clearTimeout(warmA.timer);warmA.stream=st;try{st.getTracks().forEach(t=>{t.enabled=false;});}catch(e){}warmA.timer=setTimeout(warmAClear,1800000);}
+function warmATake(){const st=warmA.stream;if(!st)return null;clearTimeout(warmA.timer);warmA.timer=null;warmA.stream=null;const live=st.getTracks().length>0&&st.getTracks().every(t=>t.readyState==='live');if(!live){st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});return null;}try{st.getTracks().forEach(t=>{t.enabled=true;});}catch(e){}return st;}
+document.addEventListener('visibilitychange',()=>{clearTimeout(warmA.hideT);if(document.hidden)warmA.hideT=setTimeout(warmAClear,300000);});window.addEventListener('pagehide',warmAClear);
 async function requestMicPermissionFlow(){if(camAsking)return;camAsking=true;
 try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){showToast('ضبط صدا در این دستگاه ممکن نیست');return;}
 const ok=await askAppDialog({title:'دسترسی به میکروفون',text:'برای ضبط پیام صوتی، «لینک» به میکروفون شما نیاز دارد. این اجازه فقط یک بار پرسیده می‌شود.',yes:'اجازه می‌دهم'});if(!ok)return;
@@ -950,7 +985,7 @@ finally{camAsking=false;}}
 const VA={stream:null,rec:null,chunks:[],mime:'',token:0,ctx:null,levels:[],meter:null};
 function vaPickMime(){const list=['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'];if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return '';return list.find(t=>MediaRecorder.isTypeSupported(t))||'';}
 function vaStopMeter(){clearInterval(VA.meter);VA.meter=null;if(VA.ctx){try{VA.ctx.close();}catch(e){}VA.ctx=null;}}
-function vaWave(count){const lv=VA.levels.slice();VA.levels=[];if(lv.length<4)return null;const out=[];for(let i=0;i<count;i++){const a=Math.floor(i*lv.length/count),b=Math.max(a+1,Math.floor((i+1)*lv.length/count));let mx=0;for(let k=a;k<b&&k<lv.length;k++)mx=Math.max(mx,lv[k]);out.push(Math.round(4+Math.min(1,mx*2.4)*20));}return out;}
+function vaWave(count,trim){let lv=VA.levels.slice();VA.levels=[];if(trim)lv=lv.slice(Math.floor(trim.s*10),Math.ceil(trim.e*10));if(lv.length<4)return null;const out=[];for(let i=0;i<count;i++){const a=Math.floor(i*lv.length/count),b=Math.max(a+1,Math.floor((i+1)*lv.length/count));let mx=0;for(let k=a;k<b&&k<lv.length;k++)mx=Math.max(mx,lv[k]);out.push(Math.round(4+Math.min(1,mx*2.4)*20));}return out;}
 function vaDiscard(){VA.token++;const rec=VA.rec,st=VA.stream;VA.rec=null;VA.stream=null;VA.chunks=[];vaStopMeter();VA.levels=[];if(rec){rec.onstop=null;rec.ondataavailable=null;try{if(rec.state!=='inactive')rec.stop();}catch(e){}}if(st)warmASet(st);}
 async function vaStart(){const my=++VA.token;
 try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder)throw new Error('unsupported');
@@ -959,14 +994,14 @@ if(my!==VA.token||!recordState.active||recordState.mode!=='voice'){warmASet(stre
 const mime=vaPickMime();let rec;try{rec=mime?new MediaRecorder(stream,{mimeType:mime,audioBitsPerSecond:48000}):new MediaRecorder(stream);}catch(e){rec=new MediaRecorder(stream);}
 VA.stream=stream;VA.rec=rec;VA.chunks=[];VA.levels=[];VA.mime=rec.mimeType||mime||'audio/webm';
 rec.ondataavailable=e=>{if(e.data&&e.data.size)VA.chunks.push(e.data);};
-try{const AC=window.AudioContext||window.webkitAudioContext;if(AC){const ctx=new AC();try{ctx.resume();}catch(e){}const src=ctx.createMediaStreamSource(stream),an=ctx.createAnalyser();an.fftSize=256;src.connect(an);VA.ctx=ctx;const data=new Uint8Array(an.fftSize);VA.meter=setInterval(()=>{an.getByteTimeDomainData(data);let pk=0;for(let i=0;i<data.length;i++)pk=Math.max(pk,Math.abs(data[i]-128)/128);VA.levels.push(pk);},100);}}catch(e){}
+try{const AC=window.AudioContext||window.webkitAudioContext;if(AC){const ctx=new AC();try{ctx.resume();}catch(e){}const src=ctx.createMediaStreamSource(stream),an=ctx.createAnalyser();an.fftSize=256;src.connect(an);VA.ctx=ctx;const data=new Uint8Array(an.fftSize);VA.meter=setInterval(()=>{an.getByteTimeDomainData(data);let pk=0;for(let i=0;i<data.length;i++)pk=Math.max(pk,Math.abs(data[i]-128)/128);if(!recordState.paused)VA.levels.push(pk);},100);}}catch(e){}
 rec.start(250);recordState.startTime=Date.now();updateRecordTimers();
 }catch(err){if(my!==VA.token)return;vaDiscard();const denied=err&&(err.name==='NotAllowedError'||err.name==='SecurityError');if(denied)setMicOK(false);showToast(denied?'اجازه‌ی میکروفون فعال نیست؛ دوباره امتحان کنید':'ضبط صدا در این دستگاه ممکن نیست');if(recordState.active){recordState.canceled=true;finishRecording(false);}}}
-function vaFinish(d,reply){const rec=VA.rec,st=VA.stream,chunks=VA.chunks,mime=VA.mime;const wave=vaWave(34);vaStopMeter();VA.rec=null;VA.stream=null;VA.chunks=[];VA.token++;
+function vaFinish(d,reply,trim){const rec=VA.rec,st=VA.stream,chunks=VA.chunks,mime=VA.mime;const wave=vaWave(34,trim);vaStopMeter();VA.rec=null;VA.stream=null;VA.chunks=[];VA.token++;
 if(!rec){if(st)warmASet(st);showToast('میکروفون هنوز آماده نبود');return;}
-rec.onstop=async()=>{if(st)warmASet(st);const blob=new Blob(chunks,{type:(mime||'audio/webm').split(';')[0]});if(!blob.size){showToast('ضبط ناموفق بود');return;}
+rec.onstop=async()=>{if(st)warmASet(st);const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||mime||'audio/webm').split(';')[0]});if(!blob.size){showToast('ضبط ناموفق بود');return;}
 const mediaId='va-'+Date.now()+Math.random().toString(36).slice(2,6);const url=URL.createObjectURL(blob);mediaUrls.set(mediaId,url);try{await MediaStore.put(mediaId,blob);}catch(e){}
-const payload={kind:'voice',duration:d,src:url,mediaId,replyTo:reply};if(wave)payload.wave=wave;await sendOutgoingMessage(payload);};
+const payload={kind:'voice',duration:d,src:url,mediaId,replyTo:reply};if(wave)payload.wave=wave;if(trim){payload.trimStart=trim.s;payload.trimEnd=trim.e;}await sendOutgoingMessage(payload);};
 try{if(rec.state!=='inactive')rec.stop();}catch(e){if(st)warmASet(st);}}
 const VR={stream:null,rec:null,chunks:[],mime:'',token:0};
 function vrPickMime(){const list=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];if(!window.MediaRecorder||!MediaRecorder.isTypeSupported)return '';return list.find(t=>MediaRecorder.isTypeSupported(t))||'';}
@@ -974,9 +1009,9 @@ function vrClearPreview(){const c=vrOverlay.querySelector('.vr-circle');if(!c)re
 /* granted camera stream is parked for 60s so back-to-back recordings never re-prompt */
 const warm={stream:null,timer:null};
 function warmClear(){clearTimeout(warm.timer);warm.timer=null;if(warm.stream){warm.stream.getTracks().forEach(t=>{try{t.stop();}catch(e){}});warm.stream=null;}}
-function warmSet(st){if(!st)return;if(warm.stream&&warm.stream!==st)warmClear();clearTimeout(warm.timer);warm.stream=st;warm.timer=setTimeout(warmClear,60000);}
-function warmTake(){const st=warm.stream;if(!st)return null;clearTimeout(warm.timer);warm.timer=null;warm.stream=null;const live=st.getTracks().length>0&&st.getTracks().every(t=>t.readyState==='live');if(!live){st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});return null;}return st;}
-document.addEventListener('visibilitychange',()=>{if(document.hidden)warmClear();});window.addEventListener('pagehide',warmClear);
+function warmSet(st){if(!st)return;if(warm.stream&&warm.stream!==st)warmClear();clearTimeout(warm.timer);warm.stream=st;try{st.getTracks().forEach(t=>{t.enabled=false;});}catch(e){}warm.timer=setTimeout(warmClear,1800000);}
+function warmTake(){const st=warm.stream;if(!st)return null;clearTimeout(warm.timer);warm.timer=null;warm.stream=null;const live=st.getTracks().length>0&&st.getTracks().every(t=>t.readyState==='live');if(!live){st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});return null;}try{st.getTracks().forEach(t=>{t.enabled=true;});}catch(e){}return st;}
+document.addEventListener('visibilitychange',()=>{clearTimeout(warm.hideT);if(document.hidden)warm.hideT=setTimeout(warmClear,300000);});window.addEventListener('pagehide',warmClear);
 function vrStopStream(st){if(st)warmSet(st);}
 function vrDiscard(){VR.token++;const rec=VR.rec,st=VR.stream;VR.rec=null;VR.stream=null;VR.chunks=[];if(rec){rec.onstop=null;rec.ondataavailable=null;try{if(rec.state!=='inactive')rec.stop();}catch(e){}}vrStopStream(st);vrClearPreview();}
 async function vrStartCamera(){const my=++VR.token;
@@ -989,11 +1024,11 @@ VR.stream=stream;VR.rec=rec;VR.chunks=[];VR.mime=rec.mimeType||mime||'video/webm
 rec.ondataavailable=e=>{if(e.data&&e.data.size)VR.chunks.push(e.data);};
 rec.start(250);recordState.startTime=Date.now();updateRecordTimers();
 }catch(err){if(my!==VR.token)return;vrDiscard();const denied=err&&(err.name==='NotAllowedError'||err.name==='SecurityError');if(denied)setCamOK(false);showToast(denied?'اجازه‌ی دوربین و میکروفون فعال نیست؛ دوباره امتحان کنید':'ضبط ویدیو در این دستگاه ممکن نیست');if(recordState.active){recordState.canceled=true;finishRecording(false);}}}
-function vrFinish(d,reply){const rec=VR.rec,st=VR.stream,chunks=VR.chunks,mime=VR.mime;VR.rec=null;VR.stream=null;VR.chunks=[];VR.token++;
+function vrFinish(d,reply,trim){const rec=VR.rec,st=VR.stream,chunks=VR.chunks,mime=VR.mime;VR.rec=null;VR.stream=null;VR.chunks=[];VR.token++;
 if(!rec){vrStopStream(st);vrClearPreview();showToast('دوربین هنوز آماده نبود');return;}
 rec.onstop=async()=>{vrStopStream(st);vrClearPreview();const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||mime||'video/webm').split(';')[0]});if(!blob.size){showToast('ضبط ناموفق بود');return;}
 const mediaId='vm-'+Date.now()+Math.random().toString(36).slice(2,6);const url=URL.createObjectURL(blob);mediaUrls.set(mediaId,url);try{await MediaStore.put(mediaId,blob);}catch(e){}
-await sendOutgoingMessage({kind:'videoNote',duration:d,src:url,mediaId,replyTo:reply});};
+await sendOutgoingMessage(Object.assign({kind:'videoNote',duration:d,src:url,mediaId,replyTo:reply},trim?{trimStart:trim.s,trimEnd:trim.e}:{}));};
 try{if(rec.state!=='inactive')rec.stop();}catch(e){vrStopStream(st);vrClearPreview();}}
 function stopAllPlayers(){players.forEach(p=>p.stopReset());players.clear();hideBar();}
 function handleEnd(player){
@@ -1008,7 +1043,8 @@ let currentTime=0,playing=false,timer=null,speed=1,muted=true;
 const isVoice=kind==='voice';
 const playBtn=root.querySelector('.voice-play'),waveform=root.querySelector('.waveform'),timeText=root.querySelector('.voice-time-text');
 const bars=waveform?Array.from(waveform.children):[];
-let audioEl=null;if(isVoice&&(message.src||message.mediaId)){resolveMediaUrl(message).then(u=>{if(!u)return;const a=new Audio();a.preload='auto';a.src=u;audioEl=a;});}
+const TS=message.trimStart||0,TE=message.trimEnd||0;
+let audioEl=null;if(isVoice&&(message.src||message.mediaId)){resolveMediaUrl(message).then(u=>{if(!u)return;const a=new Audio();a.preload='auto';a.src=u;if(TS){a.addEventListener('loadedmetadata',()=>{try{a.currentTime=TS;}catch(e){}});}audioEl=a;});}
 const note=root.querySelector('.video-note'),overlay=root.querySelector('.video-overlay'),progress=root.querySelector('.ring-progress'),vTime=root.querySelector('.video-time-text'),muteBtn=root.querySelector('.video-mute');
 const circumference=2*Math.PI*86;const getV=()=>note?note.querySelector('.vn-video'):null;
 if(progress){progress.style.strokeDasharray=circumference;progress.style.strokeDashoffset=circumference;}
@@ -1017,21 +1053,21 @@ function update(){
 if(isVoice){const r=currentTime/duration,c=Math.floor(r*bars.length);bars.forEach((b,i)=>b.classList.toggle('active',i<c));timeText.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
 else{progress.style.strokeDashoffset=circumference*(1-Math.min(1,currentTime/duration));vTime.textContent=currentTime>0?formatTime(currentTime):formatTime(duration);}
 }
-function collapse(){if(!isVoice){note.classList.remove('expanded','playing');root.classList.remove('centered');const rv=getV();if(rv){rv.dataset.ctl='';rv.muted=true;rv.loop=true;rv.playbackRate=1;try{rv.currentTime=0.05;const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}}}
+function collapse(){if(!isVoice){note.classList.remove('expanded','playing');root.classList.remove('centered');const rv=getV();if(rv){rv.dataset.ctl='';rv.muted=true;rv.loop=true;rv.playbackRate=1;try{rv.currentTime=TS+0.05;const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}}}
 function play(){if(playing)return;if(activeBarPlayer&&activeBarPlayer!==player&&activeBarPlayer.playing)activeBarPlayer.pause();
-playing=true;showBar(player);if(isVoice&&audioEl){audioEl.playbackRate=speed;try{const pr=audioEl.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}if(!isVoice){const rv=getV();if(rv){rv.dataset.ctl='1';rv.loop=false;if(currentTime===0){try{rv.currentTime=0;}catch(e){}}rv.playbackRate=speed;rv.muted=false;try{const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{try{rv.muted=true;const p2=rv.play();if(p2&&p2.catch)p2.catch(()=>{});}catch(e){}});}catch(e){}}}
+playing=true;showBar(player);if(isVoice&&audioEl){audioEl.playbackRate=speed;if(currentTime===0){try{audioEl.currentTime=TS;}catch(e){}}try{const pr=audioEl.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}if(!isVoice){const rv=getV();if(rv){rv.dataset.ctl='1';rv.loop=false;if(currentTime===0){try{rv.currentTime=TS;}catch(e){}}rv.playbackRate=speed;rv.muted=false;try{const pr=rv.play();if(pr&&pr.catch)pr.catch(()=>{try{rv.muted=true;const p2=rv.play();if(p2&&p2.catch)p2.catch(()=>{});}catch(e){}});}catch(e){}}}
 if(!isVoice){note.classList.add('expanded','playing');root.classList.add('centered');centerInMessages(root,true);}
 else playBtn.innerHTML=PAUSE_ICON;
-timer=setInterval(()=>{const v=isVoice?audioEl:getV();let done;if(v&&v.readyState>0){currentTime=v.currentTime;done=v.ended||currentTime>=duration+1.5||(isFinite(v.duration)&&v.duration>0&&currentTime>=v.duration-0.05);}else{currentTime+=0.1*speed;done=currentTime>=duration;}
-if(done){pause();currentTime=0;if(isVoice&&audioEl){try{audioEl.currentTime=0;}catch(e){}}update();collapse();handleEnd(player);}else update();},100);}
+timer=setInterval(()=>{const v=isVoice?audioEl:getV();let done;if(v&&v.readyState>0){currentTime=Math.max(0,v.currentTime-TS);const lim=(TS||TE)?duration-0.03:duration+1.5;done=v.ended||currentTime>=lim||(TE&&v.currentTime>=TE-0.03)||(isFinite(v.duration)&&v.duration>0&&v.currentTime>=v.duration-0.05);}else{currentTime+=0.1*speed;done=currentTime>=duration;}
+if(done){pause();currentTime=0;if(isVoice&&audioEl){try{audioEl.currentTime=TS;}catch(e){}}update();collapse();handleEnd(player);}else update();},100);}
 function pause(){if(!playing)return;playing=false;clearInterval(timer);if(isVoice&&audioEl){try{audioEl.pause();}catch(e){}}if(!isVoice){const pv=getV();if(pv){try{pv.pause();}catch(e){}}}if(isVoice)playBtn.innerHTML=PLAY_ICON;else{note.classList.remove('playing');overlay.innerHTML=PLAY_ICON;}refreshBar();}
-function stopReset(){pause();currentTime=0;if(isVoice&&audioEl){try{audioEl.currentTime=0;}catch(e){}}update();collapse();}
+function stopReset(){pause();currentTime=0;if(isVoice&&audioEl){try{audioEl.currentTime=TS;}catch(e){}}update();collapse();}
 function toggle(){playing?pause():play();}
 function cycleSpeed(){speed=speed===1?1.5:speed===1.5?2:1;const rv=isVoice?audioEl:getV();if(rv)rv.playbackRate=speed;refreshBar();}
 const player={id:message.id,kind,title:currentChatTitle,duration,playing,get speed(){return speed;},play,pause,toggle,stopReset,cycleSpeed};
 if(isVoice){
 playBtn.addEventListener('click',e=>{e.stopPropagation();toggle();});
-waveform.addEventListener('click',e=>{const r=waveform.getBoundingClientRect();currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*duration;if(audioEl){try{audioEl.currentTime=currentTime;}catch(x){}}update();});
+waveform.addEventListener('click',e=>{const r=waveform.getBoundingClientRect();currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*duration;if(audioEl){try{audioEl.currentTime=currentTime+TS;}catch(x){}}update();});
 }else{
 note.addEventListener('click',()=>toggle());
 }
@@ -1172,7 +1208,7 @@ function openForward(ids){fwdIds=ids;const l=$('fwdList');l.innerHTML='';allChat
 function closeForward(){$('fwdSheet').classList.remove('active');$('fwdOverlay').classList.remove('active');}
 $('fwdOverlay').addEventListener('click',closeForward);
 async function doForward(cid){closeForward();const from=currentChatTitle;const list=fwdIds.map(findMsg).filter(Boolean);
-for(const m of list){const p={};['kind','text','duration','caption','src','seed','w','h','name','size','video','addr','phone','mediaId','wave'].forEach(k=>{if(m[k]!==undefined)p[k]=m[k];});p.forwarded=m.forwarded||(m.type==='outgoing'?'شما':from);
+for(const m of list){const p={};['kind','text','duration','caption','src','seed','w','h','name','size','video','addr','phone','mediaId','wave','trimStart','trimEnd'].forEach(k=>{if(m[k]!==undefined)p[k]=m[k];});p.forwarded=m.forwarded||(m.type==='outgoing'?'شما':from);
 if(cid===currentChatId)await sendOutgoingMessage(p);else await LINKServer.sendMessage(cid,p);}
 exitSelect();allChats=await LINKServer.getChats();renderCurrentChatList();if(cid!==currentChatId)showToast('پیام ارسال شد');}
 
@@ -1354,19 +1390,72 @@ else if(a==='clear'){const ok=await askConfirm({title:'پاک کردن تاری�
 else showToast('این بخش بعداً فعال می‌شود');});
 
 /* ---- ضبط صدا و ویدیو ---- */
-function updateRecordTimers(){const f=formatTime((Date.now()-recordState.startTime)/1000);recordTimeEl.textContent=f;vrTime.textContent=f;}
-function startRecording(){if(recordState.active)return;if(captureMode==='videoNote'&&!camOK()){requestCamPermissionFlow();return;}if(captureMode==='voice'&&!micOK()){requestMicPermissionFlow();return;}recordState.active=true;recordState.locked=false;recordState.canceled=false;recordState.startTime=Date.now();recordState.mode=captureMode;vibrate(15);
-if(captureMode==='videoNote'){vrOverlay.classList.add('active');vrLock.innerHTML=LOCK_OPEN;vrSend.classList.add('hidden');vrTrash.classList.add('hidden');vrHold.classList.remove('hidden');vrHint.textContent='برای لغو بکشید';}
+function recElapsed(){return recordState.accum+(recordState.paused?0:Date.now()-recordState.startTime);}
+const recPlay=$('recPlay'),vrPlay=$('vrPlay'),recPause=$('recPause'),vrPause=$('vrPause'),voiceTrim=$('voiceTrim'),vrTrimEl=$('vrTrim');
+function setPauseBtn(paused){const voice=recordState.mode==='voice';[recPause,vrPause].forEach(b=>{b.innerHTML=paused?(voice?MIC_ICON:VIDEO_CAPTURE_ICON):PAUSE_ICON;b.classList.toggle('rec-resume',paused);b.setAttribute('aria-label',paused?'ادامه‌ی ضبط':'توقف ضبط');});}
+const PV={el:null,url:null,raf:0};
+function pvStop(){cancelAnimationFrame(PV.raf);if(PV.el){try{PV.el.pause();}catch(e){}if(PV.el.tagName==='VIDEO')PV.el.remove();PV.el=null;}if(PV.url){URL.revokeObjectURL(PV.url);PV.url=null;}recPlay.innerHTML=PLAY_ICON;vrPlay.innerHTML=PLAY_ICON;if(recordState.phHide)recordState.phHide();}
+function pvToggle(){const voice=recordState.mode==='voice',st=recordState.trim;if(!st||!recordState.paused)return;if(PV.el){pvStop();return;}
+const chunks=voice?VA.chunks:VR.chunks;if(!chunks.length)return;
+const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||(voice?VA.mime:VR.mime)||'').split(';')[0]});PV.url=URL.createObjectURL(blob);
+const el=voice?new Audio():document.createElement('video');
+if(!voice){el.playsInline=true;el.setAttribute('playsinline','');el.className='pv-rec';vrOverlay.querySelector('.vr-circle').appendChild(el);}
+el.src=PV.url;PV.el=el;recPlay.innerHTML=PAUSE_ICON;vrPlay.innerHTML=PAUSE_ICON;
+const start=()=>{if(PV.el!==el)return;try{el.currentTime=st.s;}catch(e){}const p=el.play();if(p&&p.catch)p.catch(pvStop);};
+if(el.readyState>0)start();else el.addEventListener('loadedmetadata',start,{once:true});
+const tick=()=>{if(PV.el!==el)return;const t=el.currentTime;if(recordState.phSet)recordState.phSet(t);if(t>=st.e-0.03||el.ended||t<st.s-0.3){try{el.currentTime=st.s;}catch(e){}if(el.paused){const p2=el.play();if(p2&&p2.catch)p2.catch(pvStop);}}PV.raf=requestAnimationFrame(tick);};PV.raf=requestAnimationFrame(tick);}
+let trimTok=0;
+function hideTrim(){pvStop();recordState.phSet=null;recordState.phHide=null;trimTok++;inputbar.classList.remove('paused');vrOverlay.classList.remove('paused');voiceTrim.innerHTML='';vrTrimEl.innerHTML='';recordState.trim=null;}
+async function trimThumbs(ths,total,my){try{const chunks=VR.chunks;if(!chunks.length)return;const blob=new Blob(chunks,{type:((chunks[0]&&chunks[0].type)||VR.mime||'video/webm').split(';')[0]});const url=URL.createObjectURL(blob);const v=document.createElement('video');v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.preload='auto';v.src=url;
+const once=(ev,ms)=>new Promise(r=>{let d=false;const f=()=>{if(!d){d=true;v.removeEventListener(ev,f);r();}};v.addEventListener(ev,f);setTimeout(f,ms);});
+await once('loadeddata',2500);const cv=document.createElement('canvas');cv.width=72;cv.height=72;const cx=cv.getContext('2d');
+for(let i=0;i<ths.length;i++){if(my!==trimTok)break;const pr=once('seeked',700);try{v.currentTime=Math.min(total,(i+.5)/ths.length*total);}catch(e){}await pr;if(!v.videoWidth)continue;const w=v.videoWidth,h=v.videoHeight,sz=Math.min(w,h);cx.drawImage(v,(w-sz)/2,(h-sz)/2,sz,sz,0,0,72,72);ths[i].style.backgroundImage='url('+cv.toDataURL('image/jpeg',.55)+')';}
+URL.revokeObjectURL(url);}catch(e){}}
+function showTrim(voice){const total=Math.max(1,recElapsed()/1000),host=voice?voiceTrim:vrTrimEl,my=++trimTok;host.innerHTML='';
+(voice?inputbar:vrOverlay).classList.add('paused');
+const st=recordState.trim={s:Math.min(recordState.keepS||0,Math.max(0,total-1)),e:total};
+const mk=c=>{const d=document.createElement('div');d.className=c;host.appendChild(d);return d;};
+const track=mk('trim-track');
+if(voice){const lv=VA.levels.slice(),N=36,bars=document.createElement('div');bars.className='trim-bars';for(let i=0;i<N;i++){let mx=0.05;if(lv.length){const a=Math.floor(i*lv.length/N),b=Math.max(a+1,Math.floor((i+1)*lv.length/N));mx=0;for(let k=a;k<b&&k<lv.length;k++)mx=Math.max(mx,lv[k]);}const el=document.createElement('i');el.style.height=(5+Math.min(1,mx*2.4)*26)+'px';bars.appendChild(el);}track.appendChild(bars);}
+else{const ths=[];for(let i=0;i<8;i++){const d=document.createElement('div');d.className='th';track.appendChild(d);ths.push(d);}trimThumbs(ths,total,my);}
+const dl=mk('trim-dim'),dr=mk('trim-dim'),sel=mk('trim-sel'),hl=mk('trim-h'),hr=mk('trim-h'),lab=mk('trim-time'),ph=mk('trim-ph');
+recordState.phSet=t=>{ph.style.display='block';ph.style.left=(9+Math.min(1,t/total)*Math.max(1,host.clientWidth-36))+'px';};recordState.phHide=()=>{ph.style.display='none';};recPlay.innerHTML=PLAY_ICON;vrPlay.innerHTML=PLAY_ICON;
+const layout=()=>{const W=host.clientWidth||240,U=Math.max(1,W-36),lx=st.s/total*U,rx=18+st.e/total*U;hl.style.left=lx+'px';hr.style.left=rx+'px';dl.style.left='0px';dl.style.width=lx+'px';dr.style.left=(rx+18)+'px';dr.style.width=Math.max(0,W-rx-18)+'px';sel.style.left=lx+'px';sel.style.width=(rx+18-lx)+'px';lab.textContent=formatTime(st.e-st.s);};
+const minGap=Math.min(1,total);
+const drag=(h,left)=>{h.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();pvStop();try{h.setPointerCapture(e.pointerId);}catch(_){}
+const mv=ev=>{const r=host.getBoundingClientRect(),U=Math.max(1,r.width-36),x=ev.clientX-r.left;if(left){st.s=Math.max(0,Math.min((x-9)/U*total,st.e-minGap));}else{st.e=Math.min(total,Math.max((x-27)/U*total,st.s+minGap));}layout();};
+const up=()=>{h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up);h.removeEventListener('pointercancel',up);setTimeout(()=>{if(recordState.paused&&!PV.el)pvToggle();},0);};
+h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up);});};
+drag(hl,true);drag(hr,false);layout();setTimeout(layout,60);
+setTimeout(()=>{if(recordState.paused&&recordState.trim===st&&!PV.el)pvToggle();},80);}
+function pauseRecording(){if(!recordState.active||!recordState.locked||recordState.paused)return;const voice=recordState.mode==='voice',rec=voice?VA.rec:VR.rec;if(!rec||rec.state!=='recording')return;
+recordState.accum+=Date.now()-recordState.startTime;recordState.paused=true;updateRecordTimers();
+try{rec.pause();}catch(e){}
+if(!voice){const pv=vrOverlay.querySelector('.vr-circle video');if(pv){try{pv.pause();}catch(e){}}}
+try{rec.requestData();}catch(e){}
+vibrate(8);setPauseBtn(true);const my=++recordState.pauseTok;
+setTimeout(()=>{if(recordState.active&&recordState.paused&&my===recordState.pauseTok)showTrim(voice);},250);}
+function resumeRecording(){if(!recordState.active||!recordState.paused)return;const voice=recordState.mode==='voice',rec=voice?VA.rec:VR.rec;if(!rec)return;
+recordState.pauseTok++;recordState.keepS=recordState.trim?recordState.trim.s:0;hideTrim();recordState.startTime=Date.now();recordState.paused=false;
+try{rec.resume();}catch(e){}
+if(!voice){const pv=vrOverlay.querySelector('.vr-circle video');if(pv){try{const pp=pv.play();if(pp&&pp.catch)pp.catch(()=>{});}catch(e){}}}
+vibrate(8);setPauseBtn(false);updateRecordTimers();}
+function togglePauseRec(){recordState.paused?resumeRecording():pauseRecording();}
+recPause.addEventListener('click',togglePauseRec);vrPause.addEventListener('click',togglePauseRec);recPlay.addEventListener('click',pvToggle);vrPlay.addEventListener('click',pvToggle);
+function updateRecordTimers(){const f=formatTime(recElapsed()/1000);recordTimeEl.textContent=f;vrTime.textContent=f;}
+function startRecording(){if(recordState.active)return;if(captureMode==='videoNote'&&!camOK()){requestCamPermissionFlow();return;}if(captureMode==='voice'&&!micOK()){requestMicPermissionFlow();return;}recordState.active=true;recordState.locked=false;recordState.canceled=false;recordState.startTime=Date.now();recordState.mode=captureMode;recordState.accum=0;recordState.paused=false;recordState.keepS=0;hideTrim();setPauseBtn(false);vibrate(15);
+if(captureMode==='videoNote'){vrOverlay.classList.add('active');vrLock.innerHTML=LOCK_OPEN;vrLock.classList.remove('hidden');vrPause.classList.add('hidden');vrSend.classList.add('hidden');vrTrash.classList.add('hidden');vrHold.classList.remove('hidden');vrHint.textContent='برای لغو بکشید';}
 else{inputbar.classList.add('recording');voiceSendLocked.classList.add('hidden');recordHintEl.textContent='برای لغو بکشید';}
 updateRecordTimers();recordState.timer=setInterval(updateRecordTimers,200);if(captureMode==='videoNote')vrStartCamera();else vaStart();}
 function lockRecording(){if(!recordState.active||recordState.locked)return;recordState.locked=true;pressState.justLocked=true;vibrate(12);resetRecVisuals();
-if(recordState.mode==='videoNote'){vrLock.innerHTML=LOCK_CLOSED;vrSend.classList.remove('hidden');vrTrash.classList.remove('hidden');vrHold.classList.add('hidden');vrHint.textContent='ضبط قفل شد';}
+if(recordState.mode==='videoNote'){vrLock.innerHTML=LOCK_CLOSED;vrLock.classList.add('hidden');vrPause.classList.remove('hidden');vrSend.classList.remove('hidden');vrTrash.classList.remove('hidden');vrHold.classList.add('hidden');vrHint.textContent='ضبط قفل شد';}
 else{inputbar.classList.add('locked');pressState.justLocked=true;sendBtn.innerHTML=SEND_ICON;sendBtn.setAttribute('aria-label','ارسال');recordHintEl.textContent='ضبط قفل شد';}}
 function resetRecVisuals(){vrHold.style.transition='transform .35s var(--spring)';vrHold.style.transform='';vrHint.style.transform='';vrHint.style.opacity='';vrLock.style.transform='';setTimeout(()=>{vrHold.style.transition='';},380);sendBtn.style.transition='transform .35s var(--spring)';sendBtn.style.transform='';recordHintEl.style.transform='';recordHintEl.style.opacity='';lockHint.style.transform='';vrCancelBar.style.transform='';vrCancelBar.style.opacity='';setTimeout(()=>sendBtn.style.transition='',380);}
-function finishRecording(send){if(!recordState.active)return;recordState.active=false;clearInterval(recordState.timer);const secs=(Date.now()-recordState.startTime)/1000;
+function finishRecording(send){if(!recordState.active)return;recordState.active=false;clearInterval(recordState.timer);const secs=recElapsed()/1000;let trim=null;if(recordState.paused&&recordState.trim&&(recordState.trim.s>0.05||recordState.trim.e<secs-0.05))trim={s:recordState.trim.s,e:Math.min(recordState.trim.e,secs)};const eff=trim?trim.e-trim.s:secs;
+hideTrim();recordState.paused=false;recordState.accum=0;setPauseBtn(false);
 vrOverlay.classList.remove('active');inputbar.classList.remove('recording','locked');resetRecVisuals();if(recordState.mode==='voice'){sendBtn.dataset.mode='';updateSendButton();}
-if(recordState.mode==='videoNote'){const ok=send&&!recordState.canceled&&currentChatId;if(!ok){vrDiscard();return;}if(secs<1){showToast('برای ضبط، دکمه را نگه دارید');vrDiscard();return;}const reply=replyPayload();clearReply();vrFinish(Math.max(1,Math.round(secs)),reply);return;}
-if(recordState.mode==='voice'){const ok=send&&!recordState.canceled&&currentChatId;if(!ok){vaDiscard();return;}if(secs<1){showToast('برای ضبط، دکمه را نگه دارید');vaDiscard();return;}const reply=replyPayload();clearReply();vaFinish(Math.max(1,Math.round(secs)),reply);return;}
+if(recordState.mode==='videoNote'){const ok=send&&!recordState.canceled&&currentChatId;if(!ok){vrDiscard();return;}if(secs<1){showToast('برای ضبط، دکمه را نگه دارید');vrDiscard();return;}const reply=replyPayload();clearReply();vrFinish(Math.max(1,Math.round(eff)),reply,trim);return;}
+if(recordState.mode==='voice'){const ok=send&&!recordState.canceled&&currentChatId;if(!ok){vaDiscard();return;}if(secs<1){showToast('برای ضبط، دکمه را نگه دارید');vaDiscard();return;}const reply=replyPayload();clearReply();vaFinish(Math.max(1,Math.round(eff)),reply,trim);return;}
 if(send&&!recordState.canceled&&currentChatId){if(secs<1){showToast('برای ضبط، دکمه را نگه دارید');return;}const d=Math.max(1,Math.round(secs));
 sendOutgoingMessage({kind:recordState.mode==='voice'?'voice':'videoNote',duration:d,replyTo:replyPayload()});clearReply();}}
 function cancelRecording(){recordState.canceled=true;vibrate([10,30,10]);finishRecording(false);}
