@@ -1322,6 +1322,21 @@ return{play:play};
 <div class="ln-err" id="epErr" dir="auto" style="padding:0 16px 16px;display:none"></div>
 </main>
 </section>
+<section class="screen appearance-screen" id="ecScreen" aria-hidden="true" style="z-index:9">
+<header class="appbar">
+<button class="icon-btn" id="ecBack" aria-label="Back"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
+<div class="appbar-title" id="ecTitle" dir="auto"></div>
+<div class="appbar-spacer"></div>
+<button class="icon-btn" id="ecSave" aria-label="Save"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>
+</header>
+<main class="appearance-content">
+<div class="ep-av"><div class="avatar profile-avatar c6" id="ecAvatar" style="width:96px;height:96px;font-size:38px"></div></div>
+<div class="fl-field"><div class="ep-lab" id="ecLabName" dir="auto"></div><input id="ecName" type="text" maxlength="60" dir="auto" autocomplete="off" enterkeyhint="done"><div class="ep-hint" id="ecHint" dir="auto"></div></div>
+<div class="fl-field"><div class="ep-lab" id="ecLabReal" dir="auto"></div><div class="ep-ro" id="ecReal" dir="auto"></div></div>
+<div class="fl-field" style="border-bottom:none"><div class="ep-lab" id="ecLabId" dir="auto"></div><div class="ep-ro" id="ecId" dir="ltr" style="text-align:start"></div></div>
+<div class="ep-pbtns"><button type="button" class="danger" id="ecReset" hidden></button></div>
+</main>
+</section>
 <section class="screen placeholder-screen" id="placeholderScreen" aria-hidden="true" aria-label="صفحه خالی">
 <header class="appbar">
 <button class="icon-btn" id="placeholderBack" aria-label="بازگشت"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
@@ -1551,7 +1566,7 @@ else if(m.type==='attributes')attrs(m.target);
    جدول‌ها: users{name,email,username} · chats{memberA,memberB,pairKey,nameA,nameB,last,lastAt,unreadA,unreadB · kind,title,about,owner,members,msgCount} · messages{chatId,fromId,text,replyTo,pinned,readByOther}
    برای اینکه ستون جدیدی لازم نباشد: پیام متنی ساده مستقیم در text می‌رود؛ پیام‌های رسانه‌ای/پاسخ/واکنش/ویرایش‌شده به‌صورت JSON با نشانهٔ LNV در همان ستون text ذخیره می‌شوند.
    فایل‌ها در Bucket با fileId برابر mediaId ذخیره می‌شوند. رابط LINKServer دقیقاً همان رابط قبلی (نمونهٔ محلی) است و بقیهٔ برنامه تغییری نمی‌کند. */
-const LINK_VERSION='v59';
+const LINK_VERSION='v60';
 const LNC={ep:'https://fra.cloud.appwrite.io/v1',pj:'6ad968ee002c73c4ca9a',db:'6ad969a5001ae9582c3e',tU:'6ad96bc700117baf5a06',tC:'6ad9c6e9001f15568d17',tM:'6ad9ca3a001a0e48e86c',bk:'6adf99470015c4d986f2',sdk:['https://cdn.jsdelivr.net/npm/appwrite@22.3.0/dist/iife/sdk.js','appwrite-sdk.js']};
 const LNL={image:1048576,video:10485760,voice:512000,file:15728640};
 const LNX=['jpg','jpeg','png','webp','gif','mp4','webm','mov','m4a','mp3','ogg','oga','pdf','zip','txt','docx','xlsx','pptx'];
@@ -2885,7 +2900,7 @@ function renderCurrentChatList(){const a=firstList;firstList=false;chatListEl.in
 const searchBar=$('searchbar'),searchBtn=$('searchBtn');
 searchBtn.addEventListener('click',()=>{const open=searchBar.classList.toggle('open');if(open)setTimeout(()=>searchInput.focus(),250);else{searchInput.value='';searchInput.blur();renderCurrentChatList();}});
 const languageScreen=$('languageScreen');
-const SCREEN_ORDER=[$('listScreen'),chatScreen,settingsScreen,appearanceScreen,languageScreen,$('epScreen'),$('dsScreen'),profileScreen,placeholderScreen];
+const SCREEN_ORDER=[$('listScreen'),chatScreen,settingsScreen,appearanceScreen,languageScreen,$('epScreen'),$('dsScreen'),profileScreen,placeholderScreen,$('ecScreen')];
 function syncUnder(){const act=el=>el.classList.contains('active')||el.id==='listScreen';SCREEN_ORDER.forEach((el,i)=>{el.classList.toggle('under',act(el)&&SCREEN_ORDER.slice(i+1).some(o=>o.classList.contains('active')));});}
 const underObs=new MutationObserver(syncUnder);SCREEN_ORDER.slice(1).forEach(el=>underObs.observe(el,{attributes:true,attributeFilter:['class']}));
 function resetChatUI(){closeCtx();exitSelect(true);closeEmoji();closeChatMenu();closeForward();closeAttachSheet();setTyping(false);if(typeof editTarget!=='undefined'&&editTarget){editTarget=null;messageInput.value='';autosize();updateSendButton();}}
@@ -2917,7 +2932,7 @@ renderMessages(chat);chatScreen.classList.add('active');chatScreen.setAttribute(
 await LINKServer.markRead(chatId);allChats=await LINKServer.getChats();renderCurrentChatList();}
 chatHeader.addEventListener('click',e=>{if(e.target.closest('#backBtn')||e.target.closest('#chatMoreBtn')||e.target.closest('#callBtn'))return;const chat=allChats.find(c=>c.id===currentChatId);if(chat)openProfile(chat);});
 profileBack.addEventListener('click',closeProfile);
-profileEdit.addEventListener('click',()=>openPlaceholder('ویرایش پروفایل'));
+profileEdit.addEventListener('click',()=>{if(window.lnkEditContact)lnkEditContact();else openPlaceholder('ویرایش پروفایل');});
 pfAvatar.addEventListener('click',()=>{const chat=allChats.find(c=>c.id===currentChatId);if(chat)openPhotoViewer(chat);});
 photoViewer.addEventListener('click',closePhotoViewer);
 pvClose.addEventListener('click',closePhotoViewer);
@@ -3361,6 +3376,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){
 if(photoViewer.classList.contains('active'))closePhotoViewer();
 else if(attachSheet.classList.contains('active'))closeAttachSheet();
 else if(drawer.classList.contains('active'))closeDrawer();
+else if($('ecScreen').classList.contains('active'))closeEditContact();
 else if(placeholderScreen.classList.contains('active'))closePlaceholder();
 else if($('dsScreen').classList.contains('active'))closeDataScreen();
 else if($('epScreen').classList.contains('active'))closeEditProfile();
@@ -3761,8 +3777,8 @@ el.addEventListener('pointercancel',()=>end(false));
 
 /* ---- v36: در همه‌ی صفحه‌ها کشیدن از چپ به راست = بازگشت به صفحه‌ی قبل ---- */
 (function(){
-const IDS=['settingsScreen','appearanceScreen','languageScreen','epScreen','dsScreen','profileScreen','placeholderScreen','flMgr','flEdit','flPick'];
-const BACK={dsScreen:'dsBack',epScreen:'epBack',settingsScreen:'settingsBack',appearanceScreen:'appearanceBack',languageScreen:'languageBack',profileScreen:'profileBack',placeholderScreen:'placeholderBack',flMgr:'flMgrBack',flEdit:'flEditBack',flPick:'flPickBack'};
+const IDS=['settingsScreen','appearanceScreen','languageScreen','epScreen','dsScreen','profileScreen','placeholderScreen','ecScreen','flMgr','flEdit','flPick'];
+const BACK={dsScreen:'dsBack',epScreen:'epBack',settingsScreen:'settingsBack',appearanceScreen:'appearanceBack',languageScreen:'languageBack',profileScreen:'profileBack',placeholderScreen:'placeholderBack',ecScreen:'ecBack',flMgr:'flMgrBack',flEdit:'flEditBack',flPick:'flPickBack'};
 const blocked=t=>!!(t.closest&&t.closest('input,textarea,select,[contenteditable],.fl-tabs,.fl-sheet,.dlg-overlay,.sheet-overlay,.popup-bg,.fl-drag,[draggable=true]'));
 function top(){let best=null,bz=-1;IDS.forEach(id=>{const el=document.getElementById(id);if(!el||!el.classList.contains('active'))return;const z=parseInt(getComputedStyle(el).zIndex)||0;if(z>=bz){bz=z;best=el;}});return best;}
 let st=null;
@@ -4828,6 +4844,84 @@ return{start:start,startVideo:function(c){return start(c,true)},onSig:onSig,sync
     }catch(e){}
   }
   setInterval(function(){try{load()}catch(e){}},1500);
+})();
+</script>
+<script>
+/* v60: ذخیرهٔ مخاطب با نام دلخواه — دکمهٔ «ویرایش» در پروفایل؛ نام فقط روی همین دستگاه (برای همین حساب) ذخیره می‌شود و دیگران آن را نمی‌بینند */
+(function(){
+  var AL=null,ALuid='';
+  function al(){var me=(LNK&&LNK.uid)||'';if(AL===null||ALuid!==me){ALuid=me;AL=me?lnkLs('link-alias-'+me,{}):{};}return AL}
+  function saveAl(){if(ALuid)lnkLsSet('link-alias-'+ALuid,AL)}
+  function isP(c){return c&&c.type==='private'&&c.id!=='saved'&&c.peerId}
+  function apply(c,fresh){
+    if(!isP(c))return c;
+    var real=fresh?c.title:(c._aliased?c._realName:c.title);
+    c._realName=real;var a=al()[c.peerId],t=a||real;c._aliased=!!a;
+    if(a||!fresh){c.title=t;c.initial=(String(t).trim().charAt(0)||'؟');c.avatar=lnkAv(t);}
+    return c;
+  }
+  /* هر بار که ردیف گفتگو از سرور می‌آید، نام دلخواه دوباره روی آن اعمال شود */
+  var orig=LINKServer._applyRow;
+  LINKServer._applyRow=function(x){var c=orig.call(this,x);return apply(c,true)};
+  try{(LINKServer.db&&LINKServer.db.chats||[]).forEach(function(c){apply(c,true)})}catch(e){}
+
+  var scr=$('ecScreen'),inp=$('ecName'),cur=null;
+  function setTxt(){
+    $('ecTitle').textContent=LT('ویرایش مخاطب','Edit contact');
+    $('ecLabName').textContent=LT('نام در مخاطبین من','Name in my contacts');inp.placeholder=LT('نام دلخواه','Custom name');
+    $('ecHint').textContent=LT('این نام فقط برای خودتان نمایش داده می‌شود؛ طرف مقابل آن را نمی‌بیند.','This name is shown only to you; the other person won\u2019t see it.');
+    $('ecLabReal').textContent=LT('نام اصلی کاربر','User\u2019s own name');
+    $('ecLabId').textContent=LT('نام کاربری / ایمیل','Username / email');
+    $('ecReset').textContent=LT('بازگرداندن نام اصلی','Restore original name');
+  }
+  window.lnkEditContact=function(){
+    var chat=allChats.find(function(c){return c.id===currentChatId});
+    if(!isP(chat))return;cur=chat;setTxt();
+    inp.value=chat.title||'';
+    $('ecReal').textContent=chat._realName||chat.title||'';
+    var u=[];if(chat.username&&chat.username!=='—')u.push(chat.username);if(chat.email&&chat.email!=='—')u.push(chat.email);
+    $('ecId').textContent=u.join('  ·  ')||'—';
+    var av=$('ecAvatar');av.textContent=chat.initial;av.className='avatar profile-avatar '+chat.avatar;
+    av.style.cssText='width:96px;height:96px;font-size:38px'+(chat.photo?';background:url('+chat.photo+') center/cover;color:transparent':'');
+    $('ecReset').hidden=!chat._aliased;
+    scr.classList.add('active');scr.setAttribute('aria-hidden','false');
+  };
+  window.closeEditContact=function(){scr.classList.remove('active');scr.setAttribute('aria-hidden','true');try{document.activeElement&&document.activeElement.blur()}catch(e){}};
+
+  async function commit(name){
+    if(!cur)return;var peer=cur.peerId,real=cur._realName||cur.title;
+    name=String(name||'').trim();
+    if(name&&name!==real)al()[peer]=name;else delete al()[peer];
+    saveAl();
+    (LINKServer.db.chats||[]).forEach(function(c){if(c.peerId===peer)apply(c,false)});
+    allChats=await LINKServer.getChats();renderCurrentChatList();
+    var ch=allChats.find(function(c){return c.id===currentChatId});
+    if(ch){
+      currentChatTitle=ch.title;chatTitle.textContent=ch.title;
+      chatAvatar.textContent=ch.photo?'':ch.initial;chatAvatar.className='avatar chat-avatar '+ch.avatar;chatAvatar.style.background=ch.photo?'url('+ch.photo+') center/cover':'';
+      pfName.textContent=ch.title;pfAvatar.textContent=ch.initial;pfAvatar.className='avatar pf-avatar '+ch.avatar;
+    }
+    document.querySelectorAll('.ln-sn[data-uid="'+peer+'"]').forEach(function(el){el.textContent=name&&name!==real?name:real});
+    closeEditContact();
+  }
+  $('ecBack').addEventListener('click',closeEditContact);
+  $('ecSave').addEventListener('click',async function(){
+    var had=cur&&cur._aliased;await commit(inp.value);
+    showToast(LT('در مخاطبین ذخیره شد','Saved to contacts'));
+  });
+  $('ecReset').addEventListener('click',async function(){await commit('');showToast(LT('نام اصلی برگردانده شد','Original name restored'))});
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();$('ecSave').click()}});
+
+  /* دکمهٔ «ویرایش» فقط برای گفتگوی خصوصی با یک کاربر (نه گروه/کانال/ذخیره‌شده‌ها) */
+  var po=window.openProfile;
+  window.openProfile=function(chat){po(chat);var b=$('profileEdit');if(b)b.style.visibility=isP(chat)?'':'hidden';};
+
+  /* نام فرستنده در گروه‌ها هم با نام دلخواه نمایش داده شود */
+  var box=$('messages');
+  if(box)new MutationObserver(function(ms){var a=al();ms.forEach(function(m){m.addedNodes.forEach(function(n){
+    if(n.nodeType!==1)return;var l=n.matches&&n.matches('.ln-sn[data-uid]')?[n]:(n.querySelectorAll?n.querySelectorAll('.ln-sn[data-uid]'):[]);
+    Array.prototype.forEach.call(l,function(el){var v=a[el.dataset.uid];if(v)el.textContent=v});
+  })})}).observe(box,{childList:true,subtree:true});
 })();
 </script>
 </body>
