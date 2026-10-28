@@ -4157,6 +4157,7 @@ function finish(s,text){
  if(!s||s.ended)return;s.ended=true;stopTone();
  Object.keys(s.timers).forEach(function(k){clearTimeout(s.timers[k]);clearInterval(s.timers[k])});
  try{s.pc&&s.pc.close()}catch(e){}stopStream(s);try{au.srcObject=null}catch(e){}cleanAudio(s);try{s.wl&&s.wl.release()}catch(e){}
+ try{if(NAT)NAT.postMessage({route:'end'})}catch(e){}
  try{if(IOS){if(typeof au.setSinkId==='function')au.setSinkId('').catch(function(){});if(navigator.audioSession)navigator.audioSession.type='auto'}}catch(e){}
  if(S===s){s.st='ended';s.endText=text||X('تماس پایان یافت','Call ended');paint();chirp(false)}
  var ids=s.sigIds.slice();setTimeout(function(){ids.forEach(function(id){Promise.resolve(T.del(id)).catch(function(){})})},30000);
@@ -4435,6 +4436,9 @@ var cssA=document.createElement('style');cssA.textContent=`
 document.head.appendChild(cssA);
 /* --- audio volumes (0-200%): send = mic gain, receive = speaker gain; Web Audio chain built only when a value != 100% is needed --- */
 var AP={mic:1,rcv:1,route:'auto',pan:false};
+/* native iOS shell (LinkShell) injects this bridge; it controls AVAudioSession directly */
+var NAT=null;try{NAT=(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.audioRoute)||null}catch(e){}
+window.__nativeRoute=function(m){try{toast(m,m)}catch(e){}};
 var IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 try{var sv=JSON.parse(localStorage.getItem('link_call_audio')||'{}');
  if(typeof sv.mic==='number')AP.mic=Math.max(0,Math.min(2,sv.mic));
@@ -4452,7 +4456,7 @@ function ensureRcvChain(s){
 function attachRemote(s,stream){
  s.rstream=stream;try{au.muted=!!s.spkMuted}catch(e){}
  if((AP.rcv!==1||AP.pan)&&ensureRcvChain(s)){s.rcvG.gain.value=AP.rcv}else{au.srcObject=stream}
- applyPan();var p=au.play();if(p&&p.catch)p.catch(function(){});if(IOS&&AP.route!=='auto'){s.iosOn=false;s.spkG=null;iosRoute(AP.route).then(function(ok){if(!ok&&S===s&&!s.ended)applyRoute(true)}).catch(function(){})}}
+ applyPan();var p=au.play();if(p&&p.catch)p.catch(function(){});if(NAT&&AP.route!=='auto'){try{NAT.postMessage({route:AP.route})}catch(e){}}else if(IOS&&AP.route!=='auto'){s.iosOn=false;s.spkG=null;iosRoute(AP.route).then(function(ok){if(!ok&&S===s&&!s.ended)applyRoute(true)}).catch(function(){})}}
 function ensureMicChain(s){
  if(s.micG)return true;if(!s.stream||!s.pc)return false;var a=ctxOK();if(!a)return false;
  try{var src=a.createMediaStreamSource(s.stream),g=a.createGain(),d=a.createMediaStreamDestination();
@@ -4525,7 +4529,7 @@ function pickRecv(l){var m=null;l.forEach(function(d){if(!m&&isRecv(d))m=d});if(
  return o.length===1?o[0]:null}
 function refreshOut(){return outDevs().then(function(l){OUTC.list=l;OUTC.recv=pickRecv(l);GS.names=l.map(function(d){return d.label||'?'}).join(' | ');return l})}
 /* WebKit only accepts setSinkId inside a user gesture: this runs synchronously from the tap, before any await */
-function gestureSink(r){if(!IOS||typeof au.setSinkId!=='function')return;
+function gestureSink(r){if(!IOS||NAT||typeof au.setSinkId!=='function')return;
  try{if(r==='ear'){if(!OUTC.recv)return;GS.id=OUTC.recv.deviceId}else if(r==='spk'){GS.id=''}else return;
   GS.t=Date.now();GS.err='';GS.p=au.setSinkId(GS.id);GS.p.catch(function(e){GS.err=(e&&e.name)||'err'})}catch(e){GS.err=(e&&e.name)||'err'}}
 function gestureApply(){if(!GS.pend||!IOS||!S||S.ended||AP.route!=='ear')return;GS.pend=false;gestureSink('ear');applyRoute(true)}
@@ -4553,6 +4557,7 @@ async function iosRoute(r){var s=S;if(!IOS||!s||s.ended||!s.rstream)return false
   setPan(false);
   if(au.srcObject!==s.rstream)au.srcObject=s.rstream;
   s.iosOn=true;iosSync();
+  if(r==='ear'){try{var mt=s.stream&&s.stream.getAudioTracks()[0];if(mt&&!s.muted){mt.enabled=false;setTimeout(function(){try{if(S===s&&!s.muted)mt.enabled=true}catch(e){}},150)}}catch(e){}}
   var p=au.play();if(p&&p.catch)p.catch(function(){});
   return true}catch(e){GS.err=(e&&e.name)||'err';return false}}
 function iosRestore(){var s=S;if(!IOS||!s||!s.iosOn)return;s.iosOn=false;
@@ -4561,6 +4566,7 @@ function iosRestore(){var s=S;if(!IOS||!s||!s.iosOn)return;s.iosOn=false;
   au.srcObject=(s.rcvD&&(AP.rcv!==1||AP.pan))?s.rcvD.stream:s.rstream;var p=au.play();if(p&&p.catch)p.catch(function(){})}catch(e){}}
 async function applyRoute(quiet){
  var r=AP.route,sink=typeof au.setSinkId==='function',res={ok:true,why:''};
+ if(NAT){setPan(false);try{iosRestore()}catch(e){}try{NAT.postMessage({route:r})}catch(e){}return res}
  if(r!=='ear')setPan(false);
   if(r==='auto'){iosRestore();return res}
  var l=await outDevs(),cl=classify(l),n=l.length;
@@ -4585,7 +4591,7 @@ async function applyRoute(quiet){
  }catch(e){res={ok:false,why:X('تغییر خروجی ناموفق بود','Could not switch the output')}}
  if(!res.ok){AP.route='auto';setPan(false);apSave();iosRestore();try{if(sink)await au.setSinkId('')}catch(e){}if(!quiet)toast(res.why,res.why)}
  return res}
-async function setRoute(r){AP.route=r;apSave();var res=await applyRoute(false);if(IOS&&res&&res.ok&&!GS.pend)toast(r==='ear'?'اسپیکر بالا فعال شد: '+((OUTC.recv&&OUTC.recv.label)||''):'اسپیکر اصلی فعال شد',r==='ear'?'Earpiece on: '+((OUTC.recv&&OUTC.recv.label)||''):'Main speaker on');if(!sm.hidden)paintSm();paint()}
+async function setRoute(r){AP.route=r;apSave();var res=await applyRoute(false);if(IOS&&!NAT&&res&&res.ok&&!GS.pend){var dg=' | sink='+String(au.sinkId||'').slice(0,6)+' | session='+((navigator.audioSession&&navigator.audioSession.type)||'-')+' | '+(GS.names||'');toast(r==='ear'?'اسپیکر بالا: '+((OUTC.recv&&OUTC.recv.label)||'')+dg:'اسپیکر اصلی'+dg,r==='ear'?'Earpiece: '+((OUTC.recv&&OUTC.recv.label)||'')+dg:'Main speaker'+dg)};if(!sm.hidden)paintSm();paint()}
 sm.addEventListener('click',function(e){var r=e.target.closest('[data-r]');if(!r)return;gestureSink(r.dataset.r);setRoute(r.dataset.r)});
 bot.addEventListener('pointerdown',function(e){var b=e.target.closest&&e.target.closest('[data-a="spk"]');if(!b)return;
  spkHeld=false;clearTimeout(spkT);spkT=setTimeout(function(){spkT=null;spkHeld=true;smOpen()},300)});
