@@ -1897,16 +1897,32 @@ $('settingsName').textContent=p.name;$('settingsPhone').textContent=p.phone;$('s
 darkModeToggle.checked=document.documentElement.dataset.theme==='dark';updateSendButton();})();
 </script>
 <script>
-/* PWA: service worker + auto-apply updates */
+/* PWA: service worker + auto-apply updates (reloads only when the app is idle) */
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
-    var hadController=!!navigator.serviceWorker.controller,reloaded=false;
+    var hadController=!!navigator.serviceWorker.controller,pending=false;
+    function busy(){
+      try{ if(typeof VR!=='undefined'&&(VR.rec||VR.stream))return true; }catch(e){}
+      var a=document.activeElement;
+      if(a&&(a.tagName==='TEXTAREA'||(a.tagName==='INPUT'&&a.value))||(a&&a.isContentEditable&&(a.textContent||'').trim()))return true;
+      return false;
+    }
+    function tryReload(){ if(pending&&!busy())location.reload(); }
     navigator.serviceWorker.addEventListener('controllerchange',function(){
-      if(!hadController||reloaded)return; reloaded=true; location.reload();
+      if(!hadController)return; pending=true; tryReload();
     });
+    setInterval(tryReload,4000);
+    /* detect a newer index.html while the app stays open in the background */
+    var base=null;
+    function sig(){return fetch('index.html',{cache:'no-store'}).then(function(r){return r.ok?r.text():null;}).then(function(t){return t?t.length+':'+t.slice(-200):null;}).catch(function(){return null;});}
+    sig().then(function(x){base=x;});
+    function checkNew(){sig().then(function(x){if(x&&base&&x!==base){pending=true;tryReload();}});}
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)checkNew();});
+    setInterval(checkNew,5*60*1000);
     navigator.serviceWorker.register('sw.js').then(function(reg){
       reg.update().catch(function(){});
       document.addEventListener('visibilitychange',function(){if(!document.hidden)reg.update().catch(function(){});});
+      setInterval(function(){reg.update().catch(function(){});},5*60*1000);
     }).catch(function(){});
   });
 }

@@ -1,11 +1,11 @@
-/* Bump CACHE on every release (v22, v23, ...) */
-const CACHE = 'link-v22';
+/* Network-first: no need to bump this when you update index.html */
+const CACHE = 'link-cache';
 const FILES = ['./', './index.html', './manifest.json',
   './icons/icon-192.png', './icons/icon-512.png',
   './icons/icon-maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, { cache: 'reload' })))));
   self.skipWaiting();
 });
 
