@@ -1985,7 +1985,7 @@ const mv=ev=>{const r=host.getBoundingClientRect(),U=Math.max(1,r.width-36),x=ev
 const up=()=>{h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up);h.removeEventListener('pointercancel',up);};
 h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up);});};
 drag(hl,true);drag(hr,false);layout();setTimeout(layout,60);
-setTimeout(()=>{if(recordState.paused&&recordState.trim===st&&!PV.el)pvToggle();},80);}
+}
 function pauseRecording(){if(!recordState.active||!recordState.locked||recordState.paused)return;const voice=recordState.mode==='voice',rec=voice?VA.rec:VR.rec;if(!rec||rec.state!=='recording')return;
 recordState.accum+=Date.now()-recordState.startTime;recordState.paused=true;updateRecordTimers();
 try{rec.pause();}catch(e){}
