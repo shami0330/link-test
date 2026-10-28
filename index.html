@@ -3948,9 +3948,13 @@ var ov=$('callOv'),av=$('callAv'),nm=$('callName'),stEl=$('callSt'),hint=$('call
 var ICE=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}].concat(window.LINK_TURN||[]);
 var X=function(a,b){return typeof LT==='function'?LT(a,b):a};
 var fd=function(n){return(typeof LANG!=='undefined'&&LANG==='fa'&&typeof toFaDigits==='function')?toFaDigits(n):String(n)};
-var PHONE='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
-var MIC='<svg class="svg-icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>';
-var MICOFF='<svg class="svg-icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M3 3l18 18"/></svg>';
+/* pixel icons: 16x16 bitmaps drawn as crisp square cells (shape follows the 8-bit LINK logo) */
+var PXD={"MIC":["................","......####......",".....######.....",".....######.....",".....######.....",".....######.....",".....######.....","..#..######..#..","..#..######..#..","..#...####...#..","..##........##..","...##......##...","....########....","......####......","......####......","....########...."],"MICOFF":["##..............",".##...####......","..##.######.....","...##.#####.....","....##.####.....",".....##.###.....","......##.##.....","..#..#.##.#..#..","..#..##.##...#..","..#...##.##..#..","..##......##.#..","...##......##...","....#######.##..","......####...##.","......####....##","....########...#"],"SPK":["................","................",".......#........","......##....#...",".....###.....#..",".#######..#...#.",".#######...#..#.",".#######...#..#.",".#######...#..#.",".#######...#..#.",".#######..#...#.",".....###.....#..","......##....#...",".......#........","................","................"],"SPKOFF":["................","................",".......#........","......##........",".....###........",".#######..#....#",".#######...#..#.",".#######....##..",".#######....##..",".#######...#..#.",".#######..#....#",".....###........","......##........",".......#........","................","................"],"CAM":["................","................","................","................",".##########....#",".##########...##",".##########..###",".##########.####",".##########.####",".##########..###",".##########...##",".##########....#","................","................","................","................"],"CAMOFF":["##..............",".##.............","..##............","...##...........",".##.##.####....#",".###.##.###...##",".####.##.##..###",".#####.##.#.####",".######.##..####",".#######.##..###",".########.##..##",".#########.##..#","............##..",".............##.","..............##","...............#"],"FLIP":["................","....#######.....","..##.......##...",".##..........#..",".#.........#####",".#..........###.",".#...........#..","................","................","..#...........#.",".###..........#.","#####.........#.","..#..........##.","...##.......##..",".....#######....","................"],"GEAR":["................","..##...##...##..","..##...##...##..","..##...##...##..","..##.######.##..","..##.######.##..","..##...##...##..","..##...##...##..","..##...##...##..","######.##...##..","######.##...##..","..##...##.######","..##...##.######","..##...##...##..","..##...##...##..","................"],"PHONE":["................","..####..........","..#####.........","..#####.........","..####..........","..###...........","..###...........","..###...........","..###...........","...###......##..","....###....####.",".....##########.","......#########.",".......########.","................","................"],"HANG":["................","................","................","................","................","....########....","..############..",".##############.",".####......####.",".###........###.",".###........###.","................","................","................","................","................"]};
+function PX(rows){var d='';rows.forEach(function(r,y){var x=0;while(x<r.length){if(r[x]==='#'){var e=x;while(e<r.length&&r[e]==='#')e++;d+='M'+x+' '+y+'h'+(e-x)+'v1h-'+(e-x)+'z';x=e}else x++}});
+ return '<svg class="px-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="'+d+'"/></svg>'}
+var PHONE=PX(PXD.PHONE),HANG=PX(PXD.HANG);
+var MIC=PX(PXD.MIC);
+var MICOFF=PX(PXD.MICOFF);
 var S=null,ac=null,toneT=null;
 /* transport: can be swapped (tests / a dedicated calls table later) */
 var T={
@@ -3980,14 +3984,14 @@ function paint(){
  var t={calling:X('در حال تماس…','Calling…'),incoming:S.video?X('تماس تصویری ورودی','Incoming video call'):X('تماس صوتی ورودی','Incoming voice call'),connecting:X('در حال اتصال…','Connecting…'),ended:S.endText}[S.st];
  if(S.st==='active')paintTime();else stEl.textContent=t||'';
  var b='';
- if(S.st==='incoming'){b='<div class="call-bw"><button class="call-b rej" data-a="rej" type="button" aria-label="Decline">'+PHONE+'</button><span>'+X('رد','Decline')+'</span></div><div class="call-bw"><button class="call-b acc" data-a="acc" type="button" aria-label="Accept">'+PHONE+'</button><span>'+X('پاسخ','Accept')+'</span></div>'}
+ if(S.st==='incoming'){b='<div class="call-bw"><button class="call-b rej" data-a="rej" type="button" aria-label="Decline">'+HANG+'</button><span>'+X('رد','Decline')+'</span></div><div class="call-bw"><button class="call-b acc" data-a="acc" type="button" aria-label="Accept">'+PHONE+'</button><span>'+X('پاسخ','Accept')+'</span></div>'}
  else if(S.st==='calling'||S.st==='connecting'||S.st==='active'){
   var bw=function(cls,a,ic,lab,on){return '<div class="call-bw"><button class="call-b '+cls+(on?' on':'')+'" data-a="'+a+'" type="button" aria-label="'+a+'">'+ic+'</button><span>'+lab+'</span></div>'};
   b=bw('tg','mute',S.muted?MICOFF:MIC,S.muted?X('بی‌صدا','Muted'):X('میکروفون','Mic'),S.muted);
   b+=bw('tg','spk',S.spkMuted?SPKOFF:SPKI,S.spkMuted?X('اسپیکر قطع','Speaker off'):X('اسپیکر','Speaker'),!!S.spkMuted);
   if(canVid(S))b+=bw('tg','cam',S.cam?VCAM:VCAMOFF,X('دوربین','Camera'),S.cam);
   if(S.st==='active')b+=bw('tg','q',GEARI,X('کیفیت','Quality'),!qp.hidden);
-  b+=bw('end','end',PHONE,S.st==='active'?X('پایان','End'):X('لغو','Cancel'),false)}
+  b+=bw('end','end',HANG,S.st==='active'?X('پایان','End'):X('لغو','Cancel'),false)}
  bot.innerHTML=b;bot.classList.toggle('many',S.st==='calling'||S.st==='connecting'||S.st==='active');paintVid(S);if(S.st!=='active'){qClose();smClose()}
 }
 function paintTime(){if(!S||S.st!=='active')return;var s=Math.floor((Date.now()-S.t0)/1000),m=Math.floor(s/60);stEl.textContent=fd(('0'+m).slice(-2)+':'+('0'+(s%60)).slice(-2))}
@@ -4097,10 +4101,10 @@ async function handleROffer(s,o){
 /* ===== v3: video call + camera on/off/flip + manual & automatic quality ===== */
 var LV=[{n:'240p',sc:3,fps:15,br:120000},{n:'360p',sc:2,fps:20,br:350000},{n:'480p',sc:1.5,fps:24,br:800000},{n:'720p',sc:1,fps:30,br:1800000}];
 var TOUCH=false;try{TOUCH=!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches)}catch(e){}
-var VCAM='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>';
-var VCAMOFF='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/><path d="M3 3l18 18"/></svg>';
-var FLIPI='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>';
-var GEARI='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>';
+var VCAM=PX(PXD.CAM);
+var VCAMOFF=PX(PXD.CAMOFF);
+var FLIPI=PX(PXD.FLIP);
+var GEARI=PX(PXD.GEAR);
 var cssEl=document.createElement('style');cssEl.textContent=`
 .call-ov>*{position:relative;z-index:1}
 .call-ov>.call-rv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:0;display:none}
@@ -4113,8 +4117,8 @@ var cssEl=document.createElement('style');cssEl.textContent=`
 .call-ov>.call-lvw{position:absolute;z-index:3;top:calc(env(safe-area-inset-top,0px) + 54px);right:12px;width:132px;height:188px;display:none;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 .call-lvw.drag{cursor:grabbing}
 .call-lvw>.call-lv{display:block;width:100%;height:100%;object-fit:cover;border-radius:14px;border:2px solid rgba(255,255,255,.85);background:#000;box-shadow:0 4px 18px rgba(0,0,0,.4);pointer-events:none}
-.call-lvw>.call-lvf{position:absolute;left:6px;bottom:6px;width:36px;height:36px;padding:7px;border-radius:50%;border:1px solid rgba(255,255,255,.7);background:rgba(0,0,0,.55);color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center}
-.call-lvf .svg-icon{width:20px;height:20px}
+.call-lvw>.call-lvf{position:absolute;left:6px;bottom:6px;width:44px;height:44px;padding:2px;border-radius:0;border:2px solid #fff;background:rgba(0,0,0,.6);box-shadow:2px 2px 0 #000;color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center}
+.call-lvf .px-icon{width:32px;height:32px}
 .call-ov.lvid>.call-lvw{display:block}
 .call-lv.mir{transform:scaleX(-1)}
 .call-bot.many{gap:12px;flex-wrap:wrap;padding:0 8px}
@@ -4251,9 +4255,9 @@ function paintQ(){if(!S||qp.hidden)return;
   +'<div class="qs" id="callQS"></div>'
   +'<div class="qa"><b>♪ '+X('صدا','Audio')+'</b></div>'
   +'<div class="qt qv2"><span>'+X('صدای ارسالی (میکروفون شما)','Send volume (your mic)')+'</span><em id="apM">'+Math.round(AP.mic*100)+'%</em></div>'
-  +'<input type="range" class="qv" data-vol="mic" min="0" max="200" step="5" value="'+Math.round(AP.mic*100)+'">'
+  +'<input type="range" class="qv" data-vol="mic" min="0" max="200" step="1" value="'+Math.round(AP.mic*100)+'">'
   +'<div class="qt qv2"><span>'+X('صدای دریافتی (اسپیکر شما)','Receive volume (your speaker)')+'</span><em id="apR">'+Math.round(AP.rcv*100)+'%</em></div>'
-  +'<input type="range" class="qv" data-vol="rcv" min="0" max="200" step="5" value="'+Math.round(AP.rcv*100)+'">';paintStat()}
+  +'<input type="range" class="qv" data-vol="rcv" min="0" max="200" step="1" value="'+Math.round(AP.rcv*100)+'">';paintStat()}
 function qOpen(){qp.hidden=false;paintQ()}
 function qClose(){qp.hidden=true}
 qp.addEventListener('input',function(e){var t=e.target;if(t&&t.dataset&&t.dataset.vol)setVol(t.dataset.vol,(+t.value)/100)});
@@ -4267,20 +4271,27 @@ qp.addEventListener('click',function(e){
 
 /* ===== v4: 8-bit call panel styles (shared with the quality panel) + remote audio attach ===== */
 var cssA=document.createElement('style');cssA.textContent=`
-.call-ov>.call-q{border-radius:0;border:3px solid #fff;background:#1b1030;box-shadow:4px 4px 0 #000;font-family:ui-monospace,"Courier New",monospace}
-.call-q .qc{border-radius:0;border:2px solid #fff;background:#2a1a4a;color:#fff;padding:6px 10px;font:inherit;font-size:12.5px;cursor:pointer}
+.call-ov>.call-q{border-radius:0;border:3px solid #fff;background:#1b1030;background:color-mix(in srgb,var(--primary-dark) 38%,#0a0610);box-shadow:4px 4px 0 #000;font-family:ui-monospace,"Courier New",monospace}
+.call-q .qc{border-radius:0;border:2px solid #fff;background:#2a1a4a;background:color-mix(in srgb,var(--primary) 30%,#0a0610);color:#fff;padding:6px 10px;font:inherit;font-size:12.5px;cursor:pointer}
 .call-q .qc.on{background:#fff;color:#1b1030}
 .call-q .qc.on::before{content:"\\25B6 "}
-.call-ov>.call-sm{position:absolute;z-index:6;display:flex;flex-direction:row;gap:8px;padding:8px;border:3px solid #fff;background:#1b1030;box-shadow:4px 4px 0 #000;color:#fff;font-family:ui-monospace,"Courier New",monospace}
+.call-ov>.call-sm{position:absolute;z-index:6;display:flex;flex-direction:row;gap:8px;padding:8px;border:3px solid #fff;background:#1b1030;background:color-mix(in srgb,var(--primary-dark) 38%,#0a0610);box-shadow:4px 4px 0 #000;color:#fff;font-family:ui-monospace,"Courier New",monospace}
 .call-sm[hidden]{display:none}
-.call-sm .qc{border-radius:0;border:2px solid #fff;background:#2a1a4a;color:#fff;padding:9px 14px;font:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.call-sm .qc{border-radius:0;border:2px solid #fff;background:#2a1a4a;background:color-mix(in srgb,var(--primary) 30%,#0a0610);color:#fff;padding:9px 14px;font:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .call-sm .qc.on{background:#fff;color:#1b1030}
-.call-sm .qc .svg-icon{width:24px;height:24px;display:block}
+.call-sm .qc .px-icon{width:32px;height:32px}
 .call-b[data-a="spk"]{touch-action:manipulation;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.px-icon{width:32px;height:32px;display:block;flex:none;fill:currentColor;shape-rendering:crispEdges}
+.call-ov{background:linear-gradient(180deg,color-mix(in srgb,var(--primary-dark) 30%,#000) 0%,color-mix(in srgb,var(--primary-dark) 14%,#000) 60%,#06040a 100%)}
+.call-b{border-radius:0;border:2px solid #fff;border:2px solid color-mix(in srgb,var(--primary) 55%,#fff);background:color-mix(in srgb,var(--primary) 34%,#12060b);box-shadow:3px 3px 0 #000;transition:none}
+.call-b:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+.call-b.tg.on{background:#fff;border-color:#fff;color:#12060b}
+.call-b.acc{background:#2fbf71;border-color:#b6f5d0}
+.call-b.rej,.call-b.end{background:#e5484d;border-color:#ffc1c3}
 .call-q .qa{margin-top:14px;padding-top:10px;border-top:2px solid #fff;font-size:15px}
 .call-q .qv2{display:flex;justify-content:space-between;align-items:center}
-.call-q .qv2 em{font-style:normal;color:#5af78e;direction:ltr;font-variant-numeric:tabular-nums}
-.call-q .qv{width:100%;direction:ltr;accent-color:#fff;margin:2px 0}
+.call-q .qv2 em{font-style:normal;color:#5af78e;color:color-mix(in srgb,var(--primary) 45%,#fff);direction:ltr;font-variant-numeric:tabular-nums}
+.call-q .qv{width:100%;direction:ltr;accent-color:#fff;accent-color:color-mix(in srgb,var(--primary) 45%,#fff);margin:2px 0}
 .call-bot.many .call-b{width:54px;height:54px}.call-bot.many .call-bw{min-width:54px}`;
 document.head.appendChild(cssA);
 /* --- audio volumes (0-200%): send = mic gain, receive = speaker gain; Web Audio chain built only when a value != 100% is needed --- */
@@ -4310,7 +4321,7 @@ function ensureMicChain(s){
   if(!snd)return false;snd.replaceTrack(tr).catch(function(){});
   tr.enabled=!s.muted;s.micG=g;s.micProc=tr;return true}catch(e){return false}}
 function setVol(k,v){
- v=Math.round(Math.max(0,Math.min(2,v))*20)/20;var s=S;
+ v=Math.round(Math.max(0,Math.min(2,v))*100)/100;var s=S;
  if(k==='rcv'){AP.rcv=v;if(s&&!s.ended){if(ensureRcvChain(s))s.rcvG.gain.value=v;else if(v<=1){try{au.volume=v}catch(e){}}}}
  else{AP.mic=v;if(s&&!s.ended){if(ensureMicChain(s))s.micG.gain.value=v}}
  apSave();var el=document.getElementById(k==='rcv'?'apR':'apM');if(el)el.textContent=Math.round(v*100)+'%'}
@@ -4321,12 +4332,12 @@ function applyAudioPrefs(s){
 function cleanAudio(s){try{s.keep&&(s.keep.srcObject=null)}catch(e){}}
 
 /* --- speaker tab: tap = mute incoming sound; hold (300ms) = small menu to pick call speaker or phone's main speakers --- */
-var SPKI='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
-var SPKOFF='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>';
+var SPKI=PX(PXD.SPK);
+var SPKOFF=PX(PXD.SPKOFF);
 var spkT=null,spkHeld=false;
 var sm=document.createElement('div');sm.id='callSM';sm.className='call-sm';sm.hidden=true;sm.setAttribute('dir','auto');ov.appendChild(sm);
 function toggleSpk(){var s=S;if(!s)return;s.spkMuted=!s.spkMuted;try{au.muted=!!s.spkMuted}catch(e){}paint()}
-var EARI='<svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+var EARI=PX(PXD.PHONE);
 function paintSm(){sm.innerHTML='<button type="button" class="qc'+(AP.route==='ear'?' on':'')+'" data-r="ear" aria-label="Call speaker (earpiece)">'+EARI+'</button>'
  +'<button type="button" class="qc'+(AP.route==='spk'?' on':'')+'" data-r="spk" aria-label="Phone speakers">'+SPKI+'</button>'}
 function smOpen(){var b=bot.querySelector('[data-a="spk"]');if(!b||!S||S.st==='ended')return;
