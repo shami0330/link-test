@@ -868,6 +868,15 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 #lnForm{display:flex;flex-direction:column;gap:10px}
 .ln-in{width:100%;border:none;border-radius:14px;background:var(--field-bg);color:var(--text-main);padding:14px 16px;font:inherit;font-size:16px;outline:none;-webkit-user-select:text;user-select:text}
 .ln-in::placeholder{color:var(--placeholder)}
+.ln-pw{position:relative;width:100%}
+.ln-pw .ln-in{padding-right:48px}
+.ln-eye{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:40px;height:40px;border:none;border-radius:50%;background:transparent;color:var(--icon-muted);display:grid;place-items:center;cursor:pointer}
+.ln-eye:active{background:var(--icon-hover)}
+.ln-eye .svg-icon{width:22px;height:22px}
+.ep-av{display:flex;justify-content:center;padding:22px 0 8px}
+.ep-lab{font-size:12.5px;font-weight:700;color:var(--primary);margin-bottom:8px}
+.ep-hint{font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.6}
+.ep-ro{font-size:15px;color:var(--text-muted);padding:4px 2px;word-break:break-all}
 .ln-err{color:var(--danger);font-size:13.5px;line-height:1.6}
 .ln-tog{border:none;background:none;color:var(--primary);font:inherit;font-size:14.5px;font-weight:700;padding:8px;cursor:pointer}
 .ln-sn{font-size:12.5px;font-weight:700;color:var(--primary);margin-bottom:2px;line-height:1.3}
@@ -884,7 +893,7 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 <div id="lnForm">
 <input class="ln-in" id="lnName" type="text" maxlength="60" dir="auto" autocomplete="name" style="display:none">
 <input class="ln-in" id="lnEmail" type="email" dir="ltr" autocomplete="email" autocapitalize="none" spellcheck="false">
-<input class="ln-in" id="lnPass" type="password" dir="ltr" autocomplete="current-password">
+<div class="ln-pw"><input class="ln-in" id="lnPass" type="password" dir="ltr" autocomplete="current-password"><button class="ln-eye" id="lnEye" type="button" aria-label="Show password"><svg class="svg-icon" id="lnEyeIc" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
 </div>
 <div class="ln-err" id="lnErr" dir="auto" style="display:none"></div>
 <button class="pg-btn" id="lnGo" type="button"></button>
@@ -1030,7 +1039,7 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 <div class="profile-card">
 <div class="avatar profile-avatar c6" id="settingsAvatar">ک</div>
 <div class="profile-info"><div class="profile-name" id="settingsName">کاربر LINK</div><div class="profile-sub" id="settingsPhone">۰۹۱۲ ۰۰۰ ۰۰۰۰</div><div class="profile-sub" id="settingsUsername">@link_user</div></div>
-<button class="icon-btn dark" aria-label="ویرایش پروفایل"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+<button class="icon-btn dark" id="settingsEditProfile" aria-label="ویرایش پروفایل"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
 </div>
 <div class="settings-group">
 <button class="settings-item" id="settingsFolders"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="setting-label">پوشه‌های گفتگو</span><svg class="svg-icon chevron" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
@@ -1094,6 +1103,22 @@ img,video,svg{-webkit-user-drag:none;user-drag:none}
 </main>
 </section>
 
+<section class="screen appearance-screen" id="epScreen" aria-hidden="true">
+<header class="appbar">
+<button class="icon-btn" id="epBack" aria-label="Back"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
+<div class="appbar-title" id="epTitle" dir="auto"></div>
+<div class="appbar-spacer"></div>
+<button class="icon-btn" id="epSave" aria-label="Save"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>
+</header>
+<main class="appearance-content">
+<div class="ep-av"><div class="avatar profile-avatar c6" id="epAvatar" style="width:96px;height:96px;font-size:38px"></div></div>
+<div class="fl-field"><div class="ep-lab" id="epLabName" dir="auto"></div><input id="epName" type="text" maxlength="60" dir="auto" autocomplete="off" enterkeyhint="next"></div>
+<div class="fl-field"><div class="ep-lab" id="epLabUser" dir="auto"></div><input id="epUser" type="text" maxlength="20" dir="ltr" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="next"><div class="ep-hint" id="epHintUser" dir="auto"></div></div>
+<div class="fl-field"><div class="ep-lab" id="epLabBio" dir="auto"></div><input id="epBio" type="text" maxlength="120" dir="auto" autocomplete="off" enterkeyhint="done"></div>
+<div class="fl-field" style="border-bottom:none"><div class="ep-lab" id="epLabEmail" dir="auto"></div><div class="ep-ro" id="epEmail" dir="ltr"></div></div>
+<div class="ln-err" id="epErr" dir="auto" style="padding:0 16px 16px;display:none"></div>
+</main>
+</section>
 <section class="screen placeholder-screen" id="placeholderScreen" aria-hidden="true" aria-label="صفحه خالی">
 <header class="appbar">
 <button class="icon-btn" id="placeholderBack" aria-label="بازگشت"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
@@ -1319,11 +1344,11 @@ else if(m.type==='attributes')attrs(m.target);
 })();
 </script>
 <script>
-/* ===== v46 · اتصال به سرور Appwrite — ورود/ثبت‌نام، گفتگوها، پیام‌ها، فایل‌ها، به‌روزرسانی زنده =====
+/* ===== v47 · اتصال به سرور Appwrite — ورود/ثبت‌نام، گفتگوها، پیام‌ها، فایل‌ها، به‌روزرسانی زنده =====
    جدول‌ها: users{name,email,username} · chats{memberA,memberB,pairKey,nameA,nameB,last,lastAt,unreadA,unreadB · kind,title,about,owner,members,msgCount} · messages{chatId,fromId,text,replyTo,pinned,readByOther}
    برای اینکه ستون جدیدی لازم نباشد: پیام متنی ساده مستقیم در text می‌رود؛ پیام‌های رسانه‌ای/پاسخ/واکنش/ویرایش‌شده به‌صورت JSON با نشانهٔ LNV در همان ستون text ذخیره می‌شوند.
    فایل‌ها در Bucket با fileId برابر mediaId ذخیره می‌شوند. رابط LINKServer دقیقاً همان رابط قبلی (نمونهٔ محلی) است و بقیهٔ برنامه تغییری نمی‌کند. */
-const LINK_VERSION='v46';
+const LINK_VERSION='v47';
 const LNC={ep:'https://fra.cloud.appwrite.io/v1',pj:'6ad968ee002c73c4ca9a',db:'6ad969a5001ae9582c3e',tU:'6ad96bc700117baf5a06',tC:'6ad9c6e9001f15568d17',tM:'6ad9ca3a001a0e48e86c',bk:'6adf99470015c4d986f2',sdk:['https://cdn.jsdelivr.net/npm/appwrite@22.3.0/dist/iife/sdk.js','appwrite-sdk.js']};
 const LNL={image:1048576,video:10485760,voice:512000,file:15728640};
 const LNX=['jpg','jpeg','png','webp','gif','mp4','webm','mov','m4a','mp3','ogg','oga','pdf','zip','txt','docx','xlsx','pptx'];
@@ -1418,12 +1443,17 @@ async function lnSubmit(){
       try{await LNK.au.createEmailPasswordSession({email:em,password:pw})}catch(e){if(!(e&&e.type==='user_session_already_exists'))throw e}
       u=await LNK.au.get();
     }
-    LA.busy=0;lnA('lnPass').value='';const r=LA.res;LA.res=null;r&&r(u);
+    LA.busy=0;lnA('lnPass').value='';lnA('lnPass').type='password';lnA('lnEyeIc').innerHTML='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>';const r=LA.res;LA.res=null;r&&r(u);
   }catch(e){LA.busy=0;LA.err=lnkEr(e);lnRender()}
 }
 document.addEventListener('DOMContentLoaded',()=>{
   const g=lnA('lnGo'),t=lnA('lnTog');if(!g)return;
   g.addEventListener('click',lnSubmit);
+  const eye=lnA('lnEye'),pi=lnA('lnPass'),ei=lnA('lnEyeIc');
+  const EYE_ON='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>';
+  const EYE_OFF='<path d="M17.94 17.94A10.9 10.9 0 0 1 12 20c-7 0-11-8-11-8a19.8 19.8 0 0 1 5.06-5.94M9.9 4.24A10.9 10.9 0 0 1 12 4c7 0 11 8 11 8a19.8 19.8 0 0 1-3.17 4.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/>';
+  eye.addEventListener('pointerdown',e=>e.preventDefault());
+  eye.addEventListener('click',()=>{const show=pi.type==='password';pi.type=show?'text':'password';ei.innerHTML=show?EYE_OFF:EYE_ON;eye.setAttribute('aria-label',show?'Hide password':'Show password');});
   t.addEventListener('click',()=>{LA.reg=LA.reg?0:1;LA.err='';lnRender()});
   ['lnName','lnEmail','lnPass'].forEach(i=>lnA(i).addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();lnSubmit()}}));
 });
@@ -1453,7 +1483,7 @@ const LINKServer={
     LNK.me={id:me,name:nm,email:u.email||'',un:(row&&row.username)||''};
     this.names={};this.users={};this.names[me]=nm;
     this._vis=lnkLs('link-vis-'+me,{});this._hid=lnkLs('link-hid-'+me,{});this._clr=lnkLs('link-clr-'+me,{});this._gr=lnkLs('link-gr-'+me,{});
-    this._ck='link-cache-v46-'+me;
+    this._ck='link-cache-v47-'+me;
     const un=LNK.me.un||(LNK.me.email.split('@')[0]||'');
     this.db={profile:{name:nm,phone:LNK.me.email||'—',username:un?'@'+un:'—',email:LNK.me.email||'—',bio:'—',initial:(nm.trim().charAt(0)||'؟'),avatar:lnkAv(nm)},chats:[],contacts:[]};
     this._restore();
@@ -1519,7 +1549,42 @@ const LINKServer={
   },
   _peerInfo(c,u){c.email=u.email||'—';c.username=u.username?'@'+u.username:'—'},
   _visible(c){return c.id==='saved'||c.type!=='private'||!!(c._raw&&(c._raw.last||c._raw.lastAt))||!!this._vis[c.sid]||(c.messages&&c.messages.length>0)},
+  async searchUsers(q){
+    q=String(q||'').trim().replace(/^@/,'').toLowerCase();if(q.length<2)return[];
+    const Q=Appwrite.Query,me=LNK.uid;
+    const r=await Promise.all([lnkRows(LNC.tU,[Q.startsWith('email',q),Q.limit(10)]).catch(()=>[]),lnkRows(LNC.tU,[Q.startsWith('username',q),Q.limit(10)]).catch(()=>[])]);
+    const seen={},out=[];
+    [].concat(r[0],r[1]).forEach(u=>{
+      if(!u||u.$id===me||seen[u.$id])return;seen[u.$id]=1;
+      const loc=((u.email||'').split('@')[0]||'').toLowerCase(),un=(u.username||'').toLowerCase(),c=[];
+      if(loc.indexOf(q)===0)c.push(loc.length-q.length);
+      if(un&&un.indexOf(q)===0)c.push(un.length-q.length);
+      if(!c.length)return;
+      u._sc=Math.min.apply(null,c);u._un=u.username||loc;out.push(u);
+    });
+    out.sort((a,b)=>a._sc-b._sc);
+    const top=out.slice(0,3);top.forEach(u=>{this.users[u.$id]=u;this.names[u.$id]=u.name||u.email||''});
+    return top;
+  },
   async getProfile(){return this.clone(this.db.profile)},
+  async updateProfile(name,un,bio){
+    const me=LNK.uid;name=String(name||'').trim();un=String(un||'').trim().replace(/^@/,'').toLowerCase();
+    if(!name)throw lnkE('نام نمی‌تواند خالی باشد','Name cannot be empty');
+    if(un&&!/^[a-z0-9_]{3,20}$/.test(un))throw lnkE('نام کاربری باید ۳ تا ۲۰ نویسهٔ انگلیسی/عدد/خط‌زیر باشد','Username must be 3–20 characters: letters, numbers or underscore');
+    const data={name:name},oldUn=LNK.me.un||'';
+    if(un&&un!==oldUn){
+      const ex=await lnkRows(LNC.tU,[Appwrite.Query.equal('username',[un]),Appwrite.Query.limit(1)]);
+      if(ex[0]&&ex[0].$id!==me)throw lnkE('این نام کاربری قبلاً گرفته شده است','This username is already taken');
+      data.username=un;
+    }
+    try{await lnkUp(LNC.tU,me,data)}catch(e){throw {fa:lnkEr(e)}}
+    try{await LNK.au.updateName({name:name})}catch(e){}
+    this.db.chats.forEach(c=>{if(c.type==='private'&&c.id!=='saved'&&c.sid&&c.side){lnkUp(LNC.tC,c.sid,{[c.side==='A'?'nameA':'nameB']:name}).catch(()=>{})}});
+    LNK.me.name=name;if(data.username)LNK.me.un=un;this.names[me]=name;
+    const p=this.db.profile;p.name=name;p.initial=(name.charAt(0)||'؟');p.avatar=lnkAv(name);if(data.username)p.username='@'+un;
+    lnkLsSet('link-bio-'+me,String(bio||'').trim());p.bio=String(bio||'').trim()||'—';
+    return this.clone(p);
+  },
   async getChats(){return this.clone(this.db.chats.filter(c=>this._visible(c)).sort((a,b)=>(b._t||0)-(a._t||0)))},
   async getChat(id){
     const c=this._chat(id);if(!c)return null;
@@ -2435,11 +2500,11 @@ function createChatListItem(chat,idx,anim){const item=document.createElement('di
 const badge=chat.unread?'<div class="badge'+(chat.muted?' gray':'')+'">'+toFaDigits(chat.unread)+'</div>':(chat.pinned?'<div class="pin-ic">'+PIN_SVG+'</div>':'');
 item.innerHTML='<div class="av-wrap"><div class="avatar '+escapeHtml(chat.avatar)+'"'+(chat.photo?' style="background:url('+chat.photo+') center/cover"':'')+'>'+(chat.photo?'':escapeHtml(chat.initial))+'</div>'+(chat.online?'<span class="online-dot"></span>':'')+'</div><div class="chat-info"><div class="chat-top"><div class="chat-name">'+escapeHtml(chat.title)+(chat.muted?MUTE_SM:'')+'</div><div class="chat-time">'+(chat.lastOut?'<span class="ci-tick">'+TICK2+'</span>':'')+escapeHtml(chat.time)+'</div></div><div class="chat-bottom"><div class="chat-last">'+escapeHtml(chat.lastMessage||'')+'</div>'+badge+'</div></div>';
 item.addEventListener('click',()=>openChatById(chat.id));return item;}
-function renderCurrentChatList(){const a=firstList;firstList=false;chatListEl.innerHTML='';currentFilteredChats().forEach((c,i)=>chatListEl.appendChild(createChatListItem(c,i,a)));if(typeof flAfterRender==='function')flAfterRender();}
+function renderCurrentChatList(){const a=firstList;firstList=false;chatListEl.innerHTML='';currentFilteredChats().forEach((c,i)=>chatListEl.appendChild(createChatListItem(c,i,a)));if(typeof lnkFound==='function')lnkFound();if(typeof flAfterRender==='function')flAfterRender();}
 const searchBar=$('searchbar'),searchBtn=$('searchBtn');
 searchBtn.addEventListener('click',()=>{const open=searchBar.classList.toggle('open');if(open)setTimeout(()=>searchInput.focus(),250);else{searchInput.value='';searchInput.blur();renderCurrentChatList();}});
 const languageScreen=$('languageScreen');
-const SCREEN_ORDER=[$('listScreen'),chatScreen,settingsScreen,appearanceScreen,languageScreen,profileScreen,placeholderScreen];
+const SCREEN_ORDER=[$('listScreen'),chatScreen,settingsScreen,appearanceScreen,languageScreen,$('epScreen'),profileScreen,placeholderScreen];
 function syncUnder(){const act=el=>el.classList.contains('active')||el.id==='listScreen';SCREEN_ORDER.forEach((el,i)=>{el.classList.toggle('under',act(el)&&SCREEN_ORDER.slice(i+1).some(o=>o.classList.contains('active')));});}
 const underObs=new MutationObserver(syncUnder);SCREEN_ORDER.slice(1).forEach(el=>underObs.observe(el,{attributes:true,attributeFilter:['class']}));
 function resetChatUI(){closeCtx();exitSelect(true);closeEmoji();closeChatMenu();closeForward();closeAttachSheet();setTyping(false);if(typeof editTarget!=='undefined'&&editTarget){editTarget=null;messageInput.value='';autosize();updateSendButton();}}
@@ -2836,6 +2901,7 @@ if(photoViewer.classList.contains('active'))closePhotoViewer();
 else if(attachSheet.classList.contains('active'))closeAttachSheet();
 else if(drawer.classList.contains('active'))closeDrawer();
 else if(placeholderScreen.classList.contains('active'))closePlaceholder();
+else if($('epScreen').classList.contains('active'))closeEditProfile();
 else if(languageScreen.classList.contains('active'))closeLanguage();
 else if(appearanceScreen.classList.contains('active'))closeAppearance();
 else if(profileScreen.classList.contains('active'))closeProfile();
@@ -3133,8 +3199,8 @@ el.addEventListener('pointercancel',()=>end(false));
 
 /* ---- v36: در همه‌ی صفحه‌ها کشیدن از چپ به راست = بازگشت به صفحه‌ی قبل ---- */
 (function(){
-const IDS=['settingsScreen','appearanceScreen','languageScreen','profileScreen','placeholderScreen','flMgr','flEdit','flPick'];
-const BACK={settingsScreen:'settingsBack',appearanceScreen:'appearanceBack',languageScreen:'languageBack',profileScreen:'profileBack',placeholderScreen:'placeholderBack',flMgr:'flMgrBack',flEdit:'flEditBack',flPick:'flPickBack'};
+const IDS=['settingsScreen','appearanceScreen','languageScreen','epScreen','profileScreen','placeholderScreen','flMgr','flEdit','flPick'];
+const BACK={epScreen:'epBack',settingsScreen:'settingsBack',appearanceScreen:'appearanceBack',languageScreen:'languageBack',profileScreen:'profileBack',placeholderScreen:'placeholderBack',flMgr:'flMgrBack',flEdit:'flEditBack',flPick:'flPickBack'};
 const blocked=t=>!!(t.closest&&t.closest('input,textarea,select,[contenteditable],.fl-tabs,.fl-sheet,.dlg-overlay,.sheet-overlay,.popup-bg,.fl-drag,[draggable=true]'));
 function top(){let best=null,bz=-1;IDS.forEach(id=>{const el=document.getElementById(id);if(!el||!el.classList.contains('active'))return;const z=parseInt(getComputedStyle(el).zIndex)||0;if(z>=bz){bz=z;best=el;}});return best;}
 let st=null;
@@ -3234,7 +3300,39 @@ if(m.kind==='voice'){mediaUrls.set(id,URL.createObjectURL(wav(sec,[...m.id].redu
 else{m.noMirror=true;video(sec).then(b=>{if(b){mediaUrls.set(id,URL.createObjectURL(b));m.mediaId=id;}}).catch(()=>{});}}));}
 let tries=0;const iv=setInterval(()=>{if(LINKServer.db){clearInterval(iv);run();}else if(++tries>150)clearInterval(iv);},200);
 })();
-/* ===== v46 · پیوند رابط با سرور: اعمال تغییرات زنده روی گفتگوی باز، نام فرستنده در گروه، خروج از حساب ===== */
+/* ===== جست‌وجوی کاربران در لیست گفتگوها: حداکثر ۳ نتیجهٔ نزدیک؛ اگر نبود چیزی نشان نمی‌دهد ===== */
+const LNF={q:'',res:[],t:0,tok:0};
+function lnkFoundQ(){return searchInput.value.trim().toLowerCase().replace(/^@/,'')}
+function lnkFound(){
+  chatListEl.querySelectorAll('.ln-found').forEach(e=>e.remove());
+  const q=lnkFoundQ();
+  if(q.length<2){LNF.q='';LNF.res=[];clearTimeout(LNF.t);LNF.tok++;return}
+  if(LNF.q===q){lnkFoundDraw();return}
+  clearTimeout(LNF.t);const tok=++LNF.tok;
+  LNF.t=setTimeout(async()=>{
+    let res=[];try{res=await LINKServer.searchUsers(q)}catch(e){}
+    if(tok!==LNF.tok)return;LNF.q=q;LNF.res=res;lnkFoundDraw();
+  },350);
+}
+function lnkFoundDraw(){
+  const q=lnkFoundQ();if(LNF.q!==q)return;
+  chatListEl.querySelectorAll('.ln-found').forEach(e=>e.remove());
+  const have=new Set(currentFilteredChats().map(c=>c.peerId).filter(Boolean));
+  const list=LNF.res.filter(u=>!have.has(u.$id));
+  if(!list.length)return;
+  const em=chatListEl.querySelector('.fl-empty');if(em)em.remove();
+  const h=document.createElement('div');h.className='ns-sec ln-found';h.textContent=LT('کاربران','Users');chatListEl.appendChild(h);
+  list.forEach(u=>{
+    const nm=u.name||u.email||LT('کاربر','User'),it=document.createElement('div');it.className='chat-item ln-found';
+    it.innerHTML='<div class="av-wrap"><div class="avatar '+lnkAv(nm)+'">'+escapeHtml(nm.trim().charAt(0)||'؟')+'</div></div><div class="chat-info"><div class="chat-top"><div class="chat-name">'+escapeHtml(nm)+'</div></div><div class="chat-bottom"><div class="chat-last" dir="ltr" style="text-align:left">@'+escapeHtml(u._un||'')+'</div></div></div>';
+    it.addEventListener('click',async()=>{
+      try{const chat=await LINKServer.startChat(u.email);searchInput.value='';searchBar.classList.remove('open');allChats=await LINKServer.getChats();renderCurrentChatList();openChatById(chat.id)}
+      catch(e){showToast(lnkEr(e))}
+    });
+    chatListEl.appendChild(it);
+  });
+}
+/* ===== v47 · پیوند رابط با سرور: اعمال تغییرات زنده روی گفتگوی باز، نام فرستنده در گروه، خروج از حساب ===== */
 function lnkUiApply(c,d){
   try{
     if(currentChatId!==c.id||!chatScreen.classList.contains('active'))return;
@@ -3281,7 +3379,41 @@ function lnkUiGone(c,id){
     return el;
   };
 })();
+function lnkProfileBoot(){
+  const scr=$('epScreen'),err=$('epErr');let busy=false;
+  const setErr=t=>{err.textContent=t||'';err.style.display=t?'':'none'};
+  function open(){
+    const p=LINKServer.db.profile;
+    $('epTitle').textContent=LT('ویرایش پروفایل','Edit profile');
+    $('epLabName').textContent=LT('نام','Name');$('epName').placeholder=LT('نام','Name');
+    $('epLabUser').textContent=LT('نام کاربری','Username');$('epUser').placeholder='username';
+    $('epHintUser').textContent=LT('۳ تا ۲۰ نویسهٔ انگلیسی، عدد یا خط‌زیر؛ دیگران با آن شما را پیدا می‌کنند.','3–20 characters: letters, numbers or underscore. Others can find you with it.');
+    $('epLabBio').textContent=LT('بیو','Bio');$('epBio').placeholder=LT('دربارهٔ خودتان بنویسید','Write something about yourself');
+    $('epLabEmail').textContent=LT('ایمیل (قابل تغییر نیست)','Email (cannot be changed)');$('epEmail').textContent=LNK.me.email||'—';
+    $('epName').value=p.name||'';
+    $('epUser').value=(p.username&&p.username!=='—')?p.username.replace(/^@/,''):'';
+    $('epBio').value=lnkLs('link-bio-'+LNK.uid,'');
+    const av=$('epAvatar');av.textContent=p.initial;av.className='avatar profile-avatar '+p.avatar;
+    setErr('');scr.classList.add('active');scr.setAttribute('aria-hidden','false');
+  }
+  window.closeEditProfile=function(){scr.classList.remove('active');scr.setAttribute('aria-hidden','true');try{document.activeElement&&document.activeElement.blur()}catch(e){}};
+  async function save(){
+    if(busy)return;busy=true;setErr('');$('epSave').style.opacity='.5';
+    try{
+      const p=await LINKServer.updateProfile($('epName').value,$('epUser').value,$('epBio').value);
+      $('drawerName').textContent=p.name;$('drawerAvatar').textContent=p.initial;$('drawerAvatar').className='avatar drawer-avatar '+p.avatar;
+      $('settingsName').textContent=p.name;$('settingsUsername').textContent=p.username;$('settingsAvatar').textContent=p.initial;$('settingsAvatar').className='avatar profile-avatar '+p.avatar;
+      closeEditProfile();showToast(LT('پروفایل ذخیره شد','Profile saved'));
+    }catch(e){setErr(lnkEr(e))}
+    finally{busy=false;$('epSave').style.opacity=''}
+  }
+  $('settingsEditProfile').addEventListener('click',open);
+  $('epBack').addEventListener('click',closeEditProfile);
+  $('epSave').addEventListener('click',save);
+  ['epName','epUser','epBio'].forEach(i=>$(i).addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();save()}}));
+}
 function lnkUiBoot(){
+  lnkProfileBoot();
   const f=document.querySelector('.drawer-footer');
   if(f&&!f.querySelector('.ln-ver'))f.insertAdjacentHTML('beforeend',' <span class="ln-ver" dir="ltr">· '+LINK_VERSION+'</span>');
   const lt=$('drawerLogoutT');if(lt)lt.textContent=LT('خروج از حساب','Log out');
