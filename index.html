@@ -4549,8 +4549,6 @@ async function iosRoute(r){var s=S;if(!IOS||!s||s.ended||!s.rstream)return false
   else{
    /* earpiece: Web Audio output always goes to the loudspeaker, so keep that path silent and play only through the media element, pinned to the receiver */
    if(s.spkG){s.spkG.gain.value=0;try{s.spkG.disconnect()}catch(e){}s.spkC=false;try{s.spkS&&s.spkS.disconnect()}catch(e){}s.spkS=null;s.spkG=null}
-   /* a running (even silent) Web Audio context keeps iOS on the loudspeaker: close it unless a volume/pan chain needs it (actx() rebuilds it on demand) */
-   try{if(ac&&!s.rcvG&&!s.micG&&!AP.pan){var c0=ac;ac=null;await c0.close()}}catch(e){}
    await refreshOut();var rc=OUTC.recv;
    if(S!==s||s.ended)return false;
    /* on iOS the receiver is the default output of play-and-record: pin it if Safari lists it, otherwise just reset the sink and rely on the audio session */
@@ -4558,8 +4556,8 @@ async function iosRoute(r){var s=S;if(!IOS||!s||s.ended||!s.rstream)return false
     if(rc){if(GS.p&&GS.id===rc.deviceId&&Date.now()-GS.t<10000){GS.err='';await GS.p}else{GS.err='';await au.setSinkId(rc.deviceId)}}
     else{await au.setSinkId('')}
    }catch(e){GS.err=(e&&e.name)||'err'}}}
-  setPan(false);
-  if(au.srcObject!==s.rstream)au.srcObject=s.rstream;
+  if(r==='ear'){setPan(true);if(s.rcvG)s.rcvG.gain.value=AP.rcv}else setPan(false);
+  if(!(r==='ear'&&AP.pan&&s.rcvD)){if(au.srcObject!==s.rstream)au.srcObject=s.rstream}
   s.iosOn=true;iosSync();
   if(r==='ear'){setTimeout(function(){if(S===s&&!s.ended&&AP.route==='ear')setAS('ear')},500);try{var mt=s.stream&&s.stream.getAudioTracks()[0];if(mt&&!s.muted){mt.enabled=false;setTimeout(function(){try{if(S===s&&!s.muted)mt.enabled=true}catch(e){}},150)}}catch(e){}}
   var p=au.play();if(p&&p.catch)p.catch(function(){});
