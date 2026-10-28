@@ -1382,8 +1382,8 @@ function centerInMessages(el,smooth){if(!el||!messagesEl)return;const mr=message
 /* ===== v3: real video-message recording (camera) ===== */
 const mediaUrls=new Map();
 const MediaStore={db:null,
-open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);try{const r=indexedDB.open('link-media',1);r.onupgradeneeded=()=>r.result.createObjectStore('blobs');r.onsuccess=()=>{this.db=r.result;res(this.db);};r.onerror=()=>rej(r.error);}catch(e){rej(e);}});},
-async put(id,blob){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction('blobs','readwrite');t.objectStore('blobs').put(blob,id);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error);});},
+open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);try{const r=indexedDB.open('link-media',1);r.onupgradeneeded=()=>r.result.createObjectStore('blobs');r.onsuccess=()=>{this.db=r.result;res(this.db);};r.onerror=()=>rej(r.error);r.onblocked=()=>rej(new Error('blocked'));}catch(e){rej(e);}});},
+async put(id,blob){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction('blobs','readwrite');t.objectStore('blobs').put(blob,id);t.oncomplete=()=>res(true);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error||new Error('abort'));});},
 async get(id){const db=await this.open();return new Promise((res,rej)=>{const q=db.transaction('blobs').objectStore('blobs').get(id);q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error);});}};
 async function resolveMediaUrl(m){if(m.src&&String(m.src).startsWith('blob:'))return m.src;if(!m.mediaId)return null;let u=mediaUrls.get(m.mediaId);if(u)return u;try{const b=await MediaStore.get(m.mediaId);if(b){u=URL.createObjectURL(b);mediaUrls.set(m.mediaId,u);return u;}}catch(e){}return null;}
 const vnObserver=('IntersectionObserver' in window)?new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(v.dataset.ctl==='1')return;if(e.isIntersecting){const p=v.play();if(p&&p.catch)p.catch(()=>{});}else v.pause();}),{threshold:.25}):null;
@@ -2139,7 +2139,7 @@ el.onload=()=>f({w:el.naturalWidth||4,h:el.naturalHeight||5,ok:true});el.onloade
 if(video){el.preload='metadata';el.muted=true;}el.src=url;setTimeout(()=>f({w:4,h:5,ok:true}),4000);});}
 /* فایل را در حافظه‌ی دستگاه (IndexedDB) نگه می‌داریم تا بعد از رفرش هم بماند */
 async function persistFile(file,prefix){const id=prefix+'-'+Date.now()+Math.random().toString(36).slice(2,7),url=URL.createObjectURL(file);mediaUrls.set(id,url);let ok=true;
-try{await MediaStore.put(id,file);}catch(e){ok=false;}
+try{await Promise.race([MediaStore.put(id,file),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),4000))]);}catch(e){ok=false;}
 if(!ok&&!warnedStore){warnedStore=true;showToast('ذخیره‌سازی روی دستگاه ممکن نشد؛ فایل پس از بستن برنامه حذف می‌شود');}return{mediaId:id,url,ok};}
 const mpEff=()=>mpAsFile||mpItems.some(i=>!i.media);
 async function openMediaPreview(files,opt){files=Array.from(files||[]);if(!files.length)return;
@@ -2176,7 +2176,7 @@ else{for(let c=0;c<items.length;c+=10){const ch=items.slice(c,c+10),first=c===0,
 for(const it of ch){const p=await persistFile(it.file,it.video?'vd':'ph');ps.push({mediaId:p.mediaId,video:it.video,w:it.w,h:it.h,name:it.name});}
 if(ps.length===1)await sendOutgoingMessage({kind:'photo',mediaId:ps[0].mediaId,video:ps[0].video,w:ps[0].w,h:ps[0].h,name:ps[0].name,caption:first?cap:'',replyTo:first?reply:null});
 else await sendOutgoingMessage({kind:'album',items:ps,caption:first?cap:'',replyTo:first?reply:null});}}
-}finally{items.forEach(i=>URL.revokeObjectURL(i.url));mpBusy=false;}}
+}catch(e){showToast('ارسال ناموفق بود؛ دوباره امتحان کنید');}finally{mpBusy=false;}}
 $('mpSend').addEventListener('click',mpSend);
 mpCaption.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();mpSend();}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mediaPreview.classList.contains('active'))closeMediaPreview();});
