@@ -14,6 +14,9 @@ pre{white-space:pre-wrap;word-break:break-all;background:#000;padding:8px;border
 <div id="st">not started</div>
 <button id="bStart">1. Start (mic + beep through a WebRTC loopback)</button>
 <audio id="au" playsinline></audio>
+<button id="pEar" style="background:#27ae60">A) EAR preset: play-and-record + Receiver</button>
+<button id="pSpk" style="background:#8e44ad">B) SPEAKER preset: play-and-record + Speaker</button>
+<button id="pEar2" style="background:#16a085">C) EAR preset 2: Receiver first, then play-and-record</button>
 
 <h3>audioSession.type</h3><div id="as"></div>
 <h3>Output devices (setSinkId)</h3><div id="dev"></div>
@@ -30,7 +33,7 @@ pre{white-space:pre-wrap;word-break:break-all;background:#000;padding:8px;border
 const $=id=>document.getElementById(id),au=$('au'),L=$('log');
 const log=(...a)=>{L.textContent+=a.join(' ')+'\n';L.scrollTop=1e9;st()};
 function st(){$('st').textContent='sink='+(au.sinkId===undefined?'n/a':(au.sinkId||'default'))+' | session='+(navigator.audioSession?navigator.audioSession.type:'n/a')+' | muted='+au.muted+' | mic='+(mic&&mic.getAudioTracks()[0]?mic.getAudioTracks()[0].readyState:'-')}
-let ctx,mic,pc1,pc2,dest,rs,wa;
+let ctx,mic,pc1,pc2,dest,rs,wa,OUTS=[];
 log('UA:',navigator.userAgent);
 log('standalone:',navigator.standalone,'| setSinkId:',typeof au.setSinkId,'| audioSession:',!!navigator.audioSession);
 async function getMic(){mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});st()}
@@ -54,7 +57,7 @@ function buildAS(){const d=$('as');d.innerHTML='';
   const b=document.createElement('button');b.className='g';b.textContent='audioSession = '+t;
   b.onclick=()=>{try{navigator.audioSession.type=t;log('audioSession ->',t,'now',navigator.audioSession.type)}catch(e){log('audioSession error',e&&e.name)}};d.appendChild(b)})}
 async function scan(){try{
- const l=(await navigator.mediaDevices.enumerateDevices());const out=l.filter(x=>x.kind==='audiooutput'),inn=l.filter(x=>x.kind==='audioinput');
+ const l=(await navigator.mediaDevices.enumerateDevices());const out=l.filter(x=>x.kind==='audiooutput');OUTS=out;const inn=l.filter(x=>x.kind==='audioinput');
  log('inputs:',inn.map(x=>x.label||'?').join(' | '));log('outputs:',out.length?out.map(x=>(x.label||'?')+'#'+(x.deviceId||'').slice(0,6)).join(' | '):'NONE');
  const d=$('dev');d.innerHTML='';
  out.forEach(x=>{const b=document.createElement('button');b.className='g';b.textContent='setSinkId: '+(x.label||'?')+' ['+(x.deviceId||'').slice(0,6)+']';
@@ -67,5 +70,18 @@ $('bEl').onclick=()=>{try{if(wa)wa.disconnect();au.muted=false;au.play().catch((
 $('bMicOff').onclick=()=>{try{mic&&mic.getTracks().forEach(t=>t.stop());log('mic stopped')}catch(e){}st()};
 $('bMicOn').onclick=async()=>{try{await getMic();log('mic on')}catch(e){log('mic error',e&&e.name)}};
 $('bCopy').onclick=()=>{try{navigator.clipboard.writeText(L.textContent);log('copied')}catch(e){log('copy failed')}};
+function pick(re,ex){return OUTS.find(x=>re.test(x.label||'')&&!(ex&&ex.test(x.label||'')))}
+function preset(name,order,re,ex){const d=pick(re,ex);if(!d)return log(name,': device not found, press Start first');
+ try{
+  const setT=()=>{navigator.audioSession.type='play-and-record'};
+  if(order==='typeFirst'){setT();}
+  const pr=au.setSinkId(d.deviceId);
+  if(order==='sinkFirst'){setT();}
+  au.muted=false;au.play().catch(()=>{});
+  pr.then(()=>log(name,'OK sink=',d.label,'session=',navigator.audioSession.type)).catch(e=>log(name,'sink error',e&&e.name));
+ }catch(e){log(name,'error',e&&e.name)}}
+$('pEar').onclick=()=>preset('EAR','typeFirst',/receiver|earpiece/i);
+$('pEar2').onclick=()=>preset('EAR2','sinkFirst',/receiver|earpiece/i);
+$('pSpk').onclick=()=>preset('SPK','typeFirst',/speaker/i,/default/i);
 buildAS();st();
 </script></body></html>
