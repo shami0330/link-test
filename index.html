@@ -1040,7 +1040,8 @@ async function loadImg(it){if(it.img)return it.img;try{it.img=await createImageB
  it.w=it.img.width||it.img.naturalWidth;it.h=it.img.height||it.img.naturalHeight;return it.img}
 function rotC(it,sc){const iw=it.w,ih=it.h,odd=it.rot%2,sw=odd?ih:iw,sh=odd?iw:ih,c=document.createElement('canvas');c.width=Math.max(1,Math.round(sw*sc));c.height=Math.max(1,Math.round(sh*sc));const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.translate(c.width/2,c.height/2);x.rotate(it.rot*Math.PI/2);x.drawImage(it.img,-iw*sc/2,-ih*sc/2,iw*sc,ih*sc);return c}
 function outC(it,maxS){const odd=it.rot%2,sw=odd?it.h:it.w,sh=odd?it.w:it.h,cr=it.crop||{x:0,y:0,w:1,h:1},cw=sw*cr.w,ch=sh*cr.h,sc=Math.min(1,maxS/Math.max(cw,ch)),r=rotC(it,sc);if(!it.crop)return r;const o=document.createElement('canvas');o.width=Math.max(1,Math.round(r.width*cr.w));o.height=Math.max(1,Math.round(r.height*cr.h));o.getContext('2d').drawImage(r,r.width*cr.x,r.height*cr.y,r.width*cr.w,r.height*cr.h,0,0,o.width,o.height);return o}
-function vThumb(file){return new Promise(res=>{const u=URL.createObjectURL(file),v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.src=u;const bad=()=>{URL.revokeObjectURL(u);res(null)};v.onerror=bad;
+function vThumb(file){return Promise.race([vThumb0(file),new Promise(r=>setTimeout(()=>r(null),6000))])}
+function vThumb0(file){return new Promise(res=>{const u=URL.createObjectURL(file),v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.src=u;const bad=()=>{URL.revokeObjectURL(u);res(null)};v.onerror=bad;
  v.onloadedmetadata=()=>{let d=v.duration;if(!isFinite(d))d=0;v.currentTime=Math.min(.5,d/2||0)};
  v.onseeked=()=>{const w=v.videoWidth,h=v.videoHeight,k=240/Math.max(w,h),c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);c.getContext('2d').drawImage(v,0,0,c.width,c.height);const r={t:c.toDataURL('image/jpeg',.7),d:isFinite(v.duration)?v.duration:0,w,h};URL.revokeObjectURL(u);res(r)}})}
 /* ---------- video transcode: MP4 / H.264 + AAC, 240..1080 ---------- */
@@ -1086,9 +1087,9 @@ async function cropUI(it,after){await loadImg(it);const rot0=it.rot,crop0=it.cro
 let S=null;
 async function addFiles(fs,asFile){for(const f of fs){const it={id:Math.random().toString(36).slice(2),file:f,name:f.name||'file',size:f.size,mime:f.type,rot:0,crop:null,q:720,kind:'f'};
  if(isImg(f)){try{await loadImg(it);it.kind='p';it.th=outC(it,160).toDataURL('image/jpeg',.7)}catch(e){it.kind='f';it.img=null}}
- else if(isVid(f)){const t=await vThumb(f);if(t){it.kind='v';it.th=t.t;it.d=t.d;it.w=t.w;it.h=t.h;it.q=Math.min(720,[240,360,480,720,1080].filter(q=>q<=Math.min(t.w,t.h)).pop()||240)}}
+ else if(isVid(f)){const t=await vThumb(f);if(t){it.kind='v';it.th=t.t;it.d=t.d;it.w=t.w;it.h=t.h;it.q=Math.min(720,[240,360,480,720,1080].filter(q=>q<=Math.min(t.w,t.h)).pop()||240)}else{it.kind='v';it.th='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><rect width="160" height="160" fill="#222"/></svg>');it.d=0;it.w=640;it.h=360;it.q=360}}
  S.items.push(it)}}
-window.openMc=async(fs,asFile)=>{if(S)return;S={items:[],i:0,file:!!asFile};await addFiles(fs,asFile);if(!S.items.length){S=null;return}
+window.openMc=async(fs,asFile)=>{if(S)return;S={items:[],i:0,file:!!asFile};const lg=document.createElement('div');lg.id='mp';lg.innerHTML='<div class="mpb"><b>در حال آماده‌سازی…</b><div class="mpr"><i style="width:100%;animation:fade 1s infinite alternate"></i></div></div>';ap.appendChild(lg);try{await addFiles(fs,asFile)}catch(e){S.items=[]}lg.remove();if(!S.items.length){S=null;toast('فایل قابل خواندن نیست');return}
  const o=document.createElement('div');o.id='mc';o.innerHTML=`<div class="mh"><button id="mx">${I('x',24)}</button><span id="mn2"></span><div class="mtl"><button id="mcr">${IC.crop}</button><button id="mro">${IC.rot}</button><button id="mdl">${I('trash',22)}</button></div></div><div class="ms" id="mst"></div><div class="mq" id="mqq"></div><div class="mth" id="mthh"></div><div class="mbt"><textarea id="mcap" rows="1" dir="auto" placeholder="افزودن توضیح…"></textarea><div class="mrow"><label class="mfl"><span>ارسال به‌صورت فایل</span><div class="sw" id="mfs"></div></label><button class="msd" id="msd">ارسال</button></div></div>`;ap.appendChild(o);
  const $q=s=>o.querySelector(s);
  const refresh=async()=>{const it=S.items[S.i];if(!it){return close()}
@@ -1113,7 +1114,7 @@ window.openMc=async(fs,asFile)=>{if(S)return;S={items:[],i:0,file:!!asFile};awai
  $q('#mcap').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(110,e.target.scrollHeight)+'px'});
  $q('#msd').onclick=()=>{const items=S.items.slice(),asF=S.file,cap=$q('#mcap').value.trim();items.forEach(q=>{if(q.url){}});S=null;o.remove();sendMedia(items,asF,cap)};
  refresh()};
-function pick(media,cb){const i=document.createElement('input');i.type='file';i.multiple=true;i.accept=media?'image/*,video/*':'*/*';i.style.cssText='position:fixed;left:-9999px;opacity:0';document.body.appendChild(i);i.onchange=()=>{const fs=[...i.files];i.remove();fs.length&&cb(fs)};i.addEventListener('cancel',()=>i.remove());i.click()}
+function pick(media,cb){const i=document.createElement('input');i.type='file';i.multiple=true;i.accept=media?'image/*,video/*':'*/*';i.style.cssText='position:fixed;left:-9999px;opacity:0';document.body.appendChild(i);i.onchange=async()=>{const fs=[...i.files];if(!fs.length){i.remove();return}try{await cb(fs)}catch(e){toast('انتخاب فایل انجام نشد')}finally{setTimeout(()=>i.remove(),1500)}};i.addEventListener('cancel',()=>setTimeout(()=>i.remove(),300));i.click()}
 /* ---------- send ---------- */
 async function sendMedia(items,asF,cap){const c=cur,sig={c:0};
  const pg=document.createElement('div');pg.id='mp';pg.innerHTML='<div class="mpb"><b id="mpt">در حال آماده‌سازی…</b><div class="mpr"><i id="mpi"></i></div><button id="mpc">لغو</button></div>';ap.appendChild(pg);
@@ -1123,7 +1124,11 @@ async function sendMedia(items,asF,cap){const c=cur,sig={c:0};
  try{for(let i=0;i<items.length;i++){if(sig.c)throw new Error('cancel');const it=items[i];set(i,0);
   if(asF||it.kind=='f'){out.push({k:'f',u:URL.createObjectURL(it.file),n:it.name,s:it.size,t:it.kind!='f'?it.th:'',mime:it.mime});continue}
   if(it.kind=='p'){const cv=outC(it,1280),b=await new Promise(r=>cv.toBlob(r,'image/jpeg',.82));out.push({k:'p',u:URL.createObjectURL(b),w:cv.width,h:cv.height,s:b.size,n:(it.name.replace(/\.[^.]+$/,'')||'photo')+'.jpg'});continue}
-  const r=await transcode(it,p=>set(i,p),sig),ext=/webm/.test(r.blob.type)?'webm':'mp4';if(ext=='webm')toast('MP4 در این مرورگر پشتیبانی نمی‌شود؛ WebM ارسال شد');
+  const isg={c:0};let last=Date.now(),iv,r=null;
+  try{r=await Promise.race([transcode(it,p=>{last=Date.now();set(i,p)},isg),new Promise((_,j)=>{iv=setInterval(()=>{if(sig.c){isg.c=1;clearInterval(iv);j(new Error('cancel'))}else if(Date.now()-last>20000){isg.c=1;clearInterval(iv);j(new Error('stall'))}},500)})])}catch(e){if(sig.c)throw e;r=null}
+  clearInterval(iv);
+  if(!r){toast('ویدیو بدون فشرده‌سازی ارسال شد');out.push({k:'v',u:URL.createObjectURL(it.file),w:it.w||640,h:it.h||360,d:it.d||0,t:it.th,s:it.size,n:it.name});continue}
+  const ext=/webm/.test(r.blob.type)?'webm':'mp4';if(ext=='webm')toast('MP4 در این مرورگر پشتیبانی نمی‌شود؛ WebM ارسال شد');
   out.push({k:'v',u:URL.createObjectURL(r.blob),w:r.w,h:r.h,d:r.d,t:r.poster,s:r.blob.size,n:(it.name.replace(/\.[^.]+$/,'')||'video')+'.'+ext})}}
  catch(e){pg.remove();if(!sig.c)toast('آماده‌سازی انجام نشد');return}
  pg.remove();
