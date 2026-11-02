@@ -1592,5 +1592,19 @@ const _cc=closeChat;closeChat=function(){off();_cc()};
 const _oc2=openChat;openChat=function(id){off();_oc2(id)};
 })();
 </script>
+<style>
+#t-settings .press:active,#sp .press:active,#ng .press:active,#info .press:active{transform:none;opacity:1}
+#t-settings .press.pdn,#sp .press.pdn,#ng .press.pdn,#info .press.pdn{transform:scale(.95);opacity:.7}
+</style>
+<script>
+(()=>{const SC='#t-settings,#sp,#ng,#info';let el=null,t0=0,x0=0,y0=0,mv=0,tm=0;
+const clr=()=>{clearTimeout(tm);if(el){const e=el;setTimeout(()=>e.classList.remove('pdn'),e.dataset.q?110:0);delete e.dataset.q;}el=null};
+document.addEventListener('touchstart',e=>{if(e.touches.length>1)return;const t=e.target.closest&&e.target.closest('.press');if(!t||!t.closest(SC))return;el=t;mv=0;x0=e.touches[0].clientX;y0=e.touches[0].clientY;tm=setTimeout(()=>{if(el&&!mv)el.classList.add('pdn')},70)},{passive:true});
+document.addEventListener('touchmove',e=>{if(!el||mv)return;const q=e.touches[0];if(Math.abs(q.clientX-x0)>6||Math.abs(q.clientY-y0)>6){mv=1;clearTimeout(tm);el.classList.remove('pdn');el=null}},{passive:true});
+document.addEventListener('touchend',()=>{if(!el)return;if(!mv&&!el.classList.contains('pdn')){el.classList.add('pdn');el.dataset.q=1}clr()},{passive:true});
+document.addEventListener('touchcancel',()=>{if(el){el.classList.remove('pdn');}clearTimeout(tm);el=null},{passive:true});
+document.addEventListener('scroll',()=>{if(el){clearTimeout(tm);el.classList.remove('pdn');mv=1;el=null}},true);
+})();
+</script>
 </body>
 </html>
