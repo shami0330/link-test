@@ -404,7 +404,16 @@ else{R.pa=new Audio(url);const L=R.pk.length,fr=document.createDocumentFragment(
 trimUI(R)}
 function playPv(){const R=Z;if(!R)return;const p=R.vid?R.pvv:R.pa;if(!p)return;if(!p.paused){p.pause();return}const d=R.acc/1000;if(p.currentTime<R.s*d||p.currentTime>=R.e*d-.05)p.currentTime=R.s*d;p.ontimeupdate=()=>{if(p.currentTime>=R.e*d)p.pause()};p.play()}
 function resumeRec(){const R=Z;if(!R||R.st!='pause')return;R.pa&&R.pa.pause();R.pvv&&R.pvv.remove();{const q=document.querySelector('#ro .snb');q&&q.remove()};R.pvv=R.pa=null;R.s=0;R.e=1;R.st='lock';R.run=1;R.s0=performance.now();R.mr.resume();$('#ro').dataset.s='lock'}
-async function flipCam(){const R=Z;if(!R||!R.vid||R.st=='pause')return;R.front=!R.front;try{await getMS(1,R.front);R.ve.srcObject=new MediaStream(MST.getVideoTracks());R.flash=0;$('#ro').classList.remove('fl')}catch(e){R.front=!R.front;toast('چرخش دوربین ممکن نیست')}}
+async function flipCam(){const R=Z;if(!R||!R.vid||R.st=='pause'||R.flipping)return;R.flipping=1;const nf=!R.front,fm=nf?'user':'environment',z=RC.v.size,old=MST.getVideoTracks()[0];
+const open=async f=>{const c={width:{ideal:z},height:{ideal:z},aspectRatio:1,facingMode:f};return Promise.race([navigator.mediaDevices.getUserMedia({video:c}),new Promise((_,j)=>setTimeout(()=>j(new Error('to')),4000))])};
+try{try{old&&old.applyConstraints({advanced:[{torch:false}]}).catch(()=>0)}catch(e){}
+if(old){old.stop();MST.removeTrack(old)}
+let n;try{n=await open({exact:fm})}catch(e){n=await open(fm)}
+const nt=n.getVideoTracks()[0];if(!nt)throw new Error('nocam');
+if(Z!==R){nt.stop();return}
+MST.addTrack(nt);R.front=nf;R.ve.srcObject=new MediaStream([nt]);await R.ve.play().catch(()=>0);R.flash=0;$('#ro').classList.remove('fl');const fb=$('#ro [data-a=flash]');fb&&(fb.style.opacity=.7)}
+catch(e){try{if(Z===R&&!MST.getVideoTracks().length){const n=await navigator.mediaDevices.getUserMedia({video:{facingMode:R.front?'user':'environment'}});MST.addTrack(n.getVideoTracks()[0]);R.ve.srcObject=new MediaStream(MST.getVideoTracks());await R.ve.play().catch(()=>0)}}catch(e2){}toast('چرخش دوربین ممکن نیست')}
+finally{R.flipping=0}}
 async function flashCam(){const R=Z;if(!R||!R.vid||R.st=='pause')return;R.flash=!R.flash;const o=$('#ro');if(R.front)o.classList.toggle('fl',R.flash);else{try{await MST.getVideoTracks()[0].applyConstraints({advanced:[{torch:!!R.flash}]})}catch(e){R.flash=0;toast('فلش دوربین پشت پشتیبانی نمی‌شود')}}o.querySelector('[data-a=flash]').style.opacity=R.flash?1:.7}
 function ui(R){cancelAnimationFrame(R.raf);R.ac&&R.ac.close();R.pa&&R.pa.pause();R.pvv&&R.pvv.remove();{const q=document.querySelector('#ro .snb');q&&q.remove()};R.cv&&R.cv.remove();try{MST&&MST.getVideoTracks().forEach(t=>t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0))}catch(e){}if(MST){MST.getTracks().forEach(t=>t.enabled=false);clearTimeout(window._rel);window._rel=setTimeout(()=>{MST&&MST.getTracks().forEach(t=>t.stop());MST=null},3e5)}const o=$('#ro');o.className='';o.dataset.s='';Z=null}
 function fin(send_){const R=Z;if(!R||R.fin)return;if(!R.mr){R.send=send_;R.abort=1;return}
@@ -620,6 +629,7 @@ addEventListener('pagehide',()=>{clearTimeout(window._rel);MST&&MST.getTracks().
 #msgs{overflow-x:hidden;transition:padding .3s}
 #chat.pb #msgs{padding-top:calc(env(safe-area-inset-top) + 184px)}
 .rv .ph{overflow:visible}
+.b.rv{transition:margin .35s cubic-bezier(.3,1.2,.5,1)}.b.rv:has(.ph[style*="scale("]){margin-top:46px;margin-bottom:46px}
 .b.rv.out .ph{transform-origin:right center}.b.rv.in .ph{transform-origin:left center}
 .dlb{width:58px;height:58px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:#fff;position:relative;z-index:2;transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
 .vp{position:relative}.vp .arc{position:absolute;inset:0;width:100%;height:100%;animation:rot 1.1s linear infinite}
