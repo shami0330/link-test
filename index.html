@@ -187,7 +187,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
   <div id="t-contacts" class="tab hide"><div class="top"><span class="tb gl press" onclick="toast('به‌زودی')">ویرایش</span><div class="ttl">مخاطبین</div><span class="tb gl press" onclick="toast('به‌زودی')" id="ic-plus"></span></div><div class="sc"><div class="srch"><span id="ic-s1"></span><input placeholder="جستجوی مخاطبین"></div><div id="clist"></div></div></div>
   <div id="t-chats" class="tab"><div class="top"><button class="tb gl press" id="edt">ویرایش</button><div class="ttl" id="ctt"><div class="spin"></div>در حال اتصال…</div><div style="display:flex;gap:8px"><span class="tb gl press" id="ic-pen"></span></div></div>
    <div class="sc" id="csc"><div id="hd"><div class="srch"><span id="ic-s2"></span><input id="q" placeholder="جستجو"></div><div class="chips gl" id="chips"></div></div><div id="list"></div></div></div>
-  <div id="t-settings" class="tab hide"><div class="top"><span class="tb gl press" onclick="toast('به‌زودی')" id="ic-qr"></span><div class="ttl">تنظیمات</div><span class="tb gl press" onclick="toast('به‌زودی')">ویرایش</span></div><div class="sc" id="ssc"></div></div>
+  <div id="t-settings" class="tab hide"><div class="top"><span class="tb gl press" onclick="toast('به‌زودی')" id="ic-qr"></span><div class="ttl">تنظیمات</div><span class="tb gl press" onclick="openMyProfile()">ویرایش</span></div><div class="sc" id="ssc"></div></div>
   <div class="eb gl h hide" id="eb" style="background:none;box-shadow:none"><button class="gl press" onclick="bulk('read')">خواندن</button><button class="gl press" style="color:var(--red)" onclick="bulk('del')">حذف</button></div>
   <div class="tabbar gl" id="tabbar"></div>
  </div>
@@ -214,7 +214,7 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const P={back:'<path d="M15 5l-7 7 7 7"/>',search:'<circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/>',pen:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',pin:'<path d="M9 4h6l-1 6 3 3H7l3-3zM12 13v7"/>',mute:'<path d="M6 16v-5a6 6 0 0112 0v5l2 2H4zM3 3l18 18"/>',bell:'<path d="M6 16v-5a6 6 0 0112 0v5l2 2H4zM10 21h4"/>',clip:'<path d="M20 11l-8 8a5 5 0 01-7-7l9-9a3.5 3.5 0 015 5l-9 9a2 2 0 01-3-3l8-8"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',send:'<path d="M12 19V5M5 12l7-7 7 7"/>',call:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>',video:'<rect x="3" y="6" width="12" height="12" rx="3"/><path d="M15 10l6-3v10l-6-3"/>',more:'<circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/>',plus:'<path d="M12 5v14M5 12h14"/>',down:'<path d="M6 9l6 6 6-6"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',play:'<path d="M8 5l11 7-11 7z" fill="currentColor"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',chat:'<path d="M4 5h16v11H9l-5 4z"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',qr:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2z"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/>',reply:'<path d="M10 8V4l-7 7 7 7v-4c6 0 9 2 11 6 0-6-3-11-11-12z"/>',fwd:'<path d="M14 8V4l7 7-7 7v-4c-6 0-9 2-11 6 0-6 3-11 11-12z"/>',trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',bm:'<path d="M7 4h10v17l-5-4-5 4z"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14a6.5 6.5 0 013.5 6"/>',megaphone:'<path d="M4 10v4h3l8 4V6L7 10zM18 9a4 4 0 010 6"/>',loc:'<path d="M12 21s6-5.5 6-11a6 6 0 10-12 0c0 5.5 6 11 6 11z"/><circle cx="12" cy="10" r="2"/>',shield:'<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',laptop:'<rect x="4" y="5" width="16" height="11" rx="2"/><path d="M2 20h20"/>',folder:'<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>',moon:'<path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/>',logout:'<path d="M10 4H6a2 2 0 00-2 2v12a2 2 0 002 2h4M15 8l4 4-4 4M19 12H9"/>',camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',gift:'<rect x="4" y="9" width="16" height="11" rx="1"/><path d="M3 9h18V6H3zM12 6v14M12 6C9 2 6 6 9 6M12 6c3-4 6 0 3 0"/>',block:'<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>',img:'<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M4 17l5-4 4 3 3-2 4 3"/>',file:'<path d="M7 3h7l5 5v13H7zM14 3v5h5"/>',pause:'<path d="M8 5v14M16 5v14"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'};
 const I=(n,s=24)=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${P[n]}</svg>`;
 const G=['#ff885e,#ff516a','#ffcd6a,#ffa85c','#82b1ff,#665fff','#a0de7e,#54cb68','#53edd6,#28c9b7','#72d5fd,#2a9ef1','#e0a2f3,#d669ed'];
-const av=(c,z)=>`<div class="av" style="width:${z}px;height:${z}px;font-size:${z*.42}px;background:linear-gradient(${c.saved?'#72d5fd,#2a9ef1':G[c.id%7]})">${c.saved?I('bm',z*.5):c.n[0]}</div>`;
+const av=(c,z)=>c.ph?`<div class="av" style="width:${z}px;height:${z}px;background:url(${c.ph}) center/cover"></div>`:`<div class="av" style="width:${z}px;height:${z}px;font-size:${z*.42}px;background:linear-gradient(${c.saved?'#72d5fd,#2a9ef1':G[c.id%7]})">${c.saved?I('bm',z*.5):c.n[0]}</div>`;
 const esc=s=>String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 const T=()=>{const d=new Date();return d.getHours()+':'+String(d.getMinutes()).padStart(2,'0')};
 let M=0,uid=100;
@@ -238,7 +238,8 @@ const C=[
 {id:10,n:'فیفی',t:'pv',out:1,time:'سه‌شنبه',last:'☺️ استیکر',seen:'مدتی پیش',msgs:[m(1,'',"10:00",{type:'st',emo:'☺️'})]},
 {id:11,n:'اسمره',t:'pv',time:'۲۱ آبان',last:'😒 استیکر',seen:'مدتی پیش',msgs:[m(0,'',"10:00",{type:'st',emo:'😒'})]}
 ];
-const CL=[{id:'all',n:'همه'},{id:'pv',n:'شخصی'},{id:'gp',n:'گروه'},{id:'ch',n:'کانال'}];
+const CL=[{id:'all',n:'همه'},{id:'pv',n:'شخصی'},{id:'gp',n:'گروه'},{id:'ch',n:'کانال'}];let FD=[];try{FD=JSON.parse(localStorage.getItem('folders'))||[]}catch(e){}FD.forEach(f=>CL.push({id:f.id,n:f.n}));
+const inF=(c,id)=>id=='all'||(id[0]=='f'?((FD.find(f=>f.id==id)||{ids:[]}).ids.includes(c.id)):c.t==id);
 let lang='fa';try{lang=localStorage.getItem('lang')||'fa'}catch(e){}
 let fl='all',ed=0,selS=new Set(),cur=null,tab='chats',rep=null,rec=0,recT=0,logged=0,sq='';
 const sv=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},ld=k=>{try{return localStorage.getItem(k)}catch(e){}};
@@ -247,9 +248,9 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 function drawTabs(){const u=C.reduce((a,c)=>a+(c.unread&&!c.mute?1:0),0);$('#tabbar').innerHTML=[['contacts','مخاطبین','user'],['chats','گفتگوها','chat'],['settings','تنظیمات','gear']].map(([k,l,i])=>`<div class="ti press ${tab==k?'on':''}" data-k="${k}">${I(i,26)}${l}${k=='chats'&&u?`<span class="bg2">${u}</span>`:''}</div>`).join('');
 $$('.ti').forEach(e=>e.onclick=()=>{tab=e.dataset.k;$$('.tab').forEach(t=>t.classList.add('hide'));$('#t-'+tab).classList.remove('hide');drawTabs()})}
 /* list */
-function drawChips(){$('#chips').innerHTML=CL.map(f=>{const n=C.filter(c=>(f.id=='all'||c.t==f.id)&&c.unread).length;return`<div class="chip press ${fl==f.id?'on':''}" data-f="${f.id}">${f.n}${n?`<span class="cnt ${f.id=='pv'?'g':''}">${n}</span>`:''}</div>`}).join('');
+function drawChips(){$('#chips').innerHTML=CL.map(f=>{const n=C.filter(c=>inF(c,f.id)&&c.unread).length;return`<div class="chip press ${fl==f.id?'on':''}" data-f="${f.id}">${f.n}${n?`<span class="cnt ${f.id=='pv'?'g':''}">${n}</span>`:''}</div>`}).join('');
 $$('.chip').forEach(e=>e.onclick=()=>{fl=e.dataset.f;drawChips();drawList()})}
-function drawList(){const L=C.filter(c=>(fl=='all'||c.t==fl)&&(!sq||c.n.includes(sq))).sort((a,b)=>(b.pin||0)-(a.pin||0));
+function drawList(){const L=C.filter(c=>inF(c,fl)&&(!sq||c.n.includes(sq))).sort((a,b)=>(b.pin||0)-(a.pin||0));
 $('#list').className=ed?'edit':'';
 $('#list').innerHTML=L.map(c=>{const l=c.msgs[c.msgs.length-1];return`<div class="row ${c.pin?'p':''}" data-id="${c.id}"><div class="sel ${selS.has(c.id)?'on':''}"></div>${av(c,58)}<div class="rb"><div class="r1"><div class="nm" dir="auto">${c.t=='gp'?`<span style="color:var(--t2)">${I('users',17)}</span>`:c.t=='ch'?`<span style="color:var(--t2)">${I('megaphone',17)}</span>`:''}${esc(c.n)}${c.mute?`<span style="color:var(--t2)">${I('mute',15)}</span>`:''}</div><div class="tm">${c.out&&!c.unread?'<span class="ok">✓✓</span> ':''}${c.time}</div></div><div class="r2"><div class="lm" dir="auto">${c.sender?`<b>${c.sender}</b>`:''}${esc(c.last)}</div><div style="display:flex;gap:5px;align-items:center">${c.at&&c.unread?'<span class="at">@</span>':''}${c.unread?`<span class="bd ${c.mute?'m':''}">${c.unread}</span>`:c.pin?`<span style="color:var(--t2)">${I('pin',20)}</span>`:''}</div></div></div></div>`}).join('')||'<p style="text-align:center;color:var(--t2);margin-top:60px">گفتگویی پیدا نشد</p>';
 $$('#list .row').forEach(r=>{const id=+r.dataset.id;let tm,mv=0,sx=0,sy=0;
@@ -467,14 +468,14 @@ $$('.acts button').forEach(b=>b.onclick=()=>{const a=b.dataset.a;if(a=='more'){c
 $('#isc').scrollTop=0;push('#info','#chat')}
 $('#ib').onclick=()=>pop('#info','#chat');
 function drawContacts(){$('#clist').innerHTML=C.filter(c=>c.t=='pv'&&!c.saved).sort((a,b)=>a.n.localeCompare(b.n,'fa')).map(c=>`<div class="row" data-id="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'آنلاین'}</div></div></div>`).join('');$$('#clist .row').forEach(r=>r.onclick=()=>openChat(+r.dataset.id))}
-function drawSettings(){let u;try{u=JSON.parse(ld('u'))}catch(e){}u=u||{n:'من',e:'me@link.app'};const me={id:3,n:u.n};
+function drawSettings(){let u;try{u=JSON.parse(ld('u'))}catch(e){}u=u||{n:'من',e:'me@link.app'};const me={id:3,n:u.n,ph:ld('myphoto')||''};
 const row=(c,i,t,v,f)=>`<div class="sr press" ${f?`onclick="${f}"`:''}><div class="si" style="background:${c}">${i}</div>${t}${v?`<span class="v">${v}</span>`:'<span>›</span>'}</div>`;
-$('#ssc').innerHTML=`<div class="pf">${av(me,120)}<h2 dir="auto">${esc(u.n)}</h2><small dir="ltr">${esc(u.e)}</small></div>
-<div class="card" style="margin-top:20px"><div class="sr press" style="color:var(--ac)" onclick="toast('به‌زودی')">${I('camera',26)} تغییر عکس پروفایل</div></div>
+$('#ssc').innerHTML=`<div class="pf">${av(me,120)}<h2 dir="auto">${esc(u.n)}</h2><small dir="ltr">${esc(u.e)}</small>${u.b?`<small dir="auto" style="margin-top:6px;font-size:15px">${esc(u.b)}</small>`:''}</div>
+<div class="card" style="margin-top:20px"><div class="sr press" style="color:var(--ac)" onclick="pickPhoto()">${I('camera',26)} تغییر عکس پروفایل</div></div>
 <div class="card"><div class="sr press">${av(me,34)}${esc(u.n)}</div><div class="sr press" style="color:var(--ac)">${I('plus',26)} افزودن حساب</div></div>
-<div class="card">${row('#ef5b4c',I('user',22),'پروفایل من','', "toast('به‌زودی')")}</div>
-<div class="card">${row('#4cc45d',I('shield',22),'پروکسی','غیرفعال',"toast('به‌زودی')")}</div>
-<div class="card">${row('#2f8cf0',I('bm',22),'پیام‌های ذخیره‌شده','',"openChat(2)")}${row('#4cc45d',I('call',22),'تماس‌های اخیر','',"toast('به‌زودی')")}${row('#f5a53a',I('laptop',22),'دستگاه‌ها','اسکن QR',"toast('به‌زودی')")}${row('#4aa8e8',I('folder',22),'پوشه‌های گفتگو','',"toast('به‌زودی')")}</div>
+<div class="card">${row('#ef5b4c',I('user',22),'پروفایل من','', "openMyProfile()")}</div>
+<div class="card">${row('#4cc45d',I('shield',22),'پروکسی',(()=>{try{return JSON.parse(ld('proxy')).on?'فعال':'غیرفعال'}catch(e){return 'غیرفعال'}})(),"openProxy()")}</div>
+<div class="card">${row('#2f8cf0',I('bm',22),'پیام‌های ذخیره‌شده','',"openChat(2)")}${row('#4cc45d',I('call',22),'تماس‌های اخیر','',"openCalls()")}${row('#f5a53a',I('laptop',22),'دستگاه‌ها','اسکن QR',"toast('به‌زودی')")}${row('#4aa8e8',I('folder',22),'پوشه‌های گفتگو','',"openFolders()")}</div>
 <div class="card">${row('#2f8cf0',I('globe',22),'زبان',lang=='fa'?'فارسی':'English',"langMenu(this)")}<div class="sr"><div class="si" style="background:#5a5adf">${I('moon',22)}</div>حالت تاریک<div class="sw ${document.documentElement.classList.contains('dark')?'on':''}" id="dk"></div></div>${row('#ef5b4c',I('logout',22),'خروج','',"logout()")}</div>`;
 $('#dk').onclick=e=>{const d=document.getElementById('app').classList.toggle('dark');document.documentElement.classList.toggle('dark',d);e.target.classList.toggle('on',d);sv('dark',d?1:'');document.querySelector('meta[name=theme-color]').content=d?'#000':'#fff'}}
 function logout(){sv('u','');logged=0;$('#auth').classList.remove('gone')}
@@ -685,6 +686,24 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=',
 #auth .ln-eye{position:absolute;top:50%;left:6px;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#6f7880;cursor:pointer;background:transparent}
 #auth .ln-eye:active{background:rgba(120,120,128,.18)}
 #auth.kb{padding-bottom:55vh}
+#sp{position:fixed;inset:0;max-width:520px;margin:auto;z-index:45;background:var(--bg2);display:flex;flex-direction:column;transform:translateX(105%);transition:transform .35s cubic-bezier(.22,.9,.28,1);direction:rtl}
+#sp.on{transform:none}
+#sp .h2{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;font-weight:700;font-size:18px}
+#sp .h2 button{color:var(--ac);font-size:17px;padding:8px 10px;font-weight:500}
+#sp .bd2{flex:1;overflow-y:auto;padding:10px 0 40px}
+#sp .fld{max-width:none;width:calc(100% - 28px);margin:0 14px 10px;display:block;-webkit-user-select:text;user-select:text}
+#sp .em{text-align:center;color:var(--t2);padding:60px 20px;font-size:16px;line-height:2}
+#sp .cap{color:var(--t2);font-size:14px;padding:0 28px 8px}
+#sp .sr .sw{margin-left:auto}
+#cp{position:fixed;inset:0;z-index:80;background:#000;display:flex;flex-direction:column;touch-action:none;color:#fff;direction:rtl}
+#cp .st{position:relative;flex:1;overflow:hidden;touch-action:none}
+#cp img{position:absolute;max-width:none;pointer-events:none;-webkit-user-drag:none}
+#cp .mk{position:absolute;border-radius:50%;box-shadow:0 0 0 200vmax rgba(110,110,116,.82);pointer-events:none}
+#cp .sq{position:absolute;pointer-events:none;border:1px solid rgba(255,255,255,.45)}
+#cp .bt{display:flex;justify-content:space-between;align-items:center;padding:14px 22px calc(env(safe-area-inset-bottom) + 16px);background:#000}
+#cp .bt button{font-size:18px;padding:10px 14px;color:#fff}#cp .bt .ok{color:#4cd964;font-weight:700}
+#cp .pvw{display:flex;justify-content:center;padding:8px 0 0;background:#000;font-size:13px;color:#aaa}
+
 .inb{transition:bottom .12s}.inb.kbo{padding-bottom:2px}
 #ro,#ro *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 #ro .pv,#ro .pl,#ro .hd,#ro .pv *{touch-action:none}
@@ -904,6 +923,59 @@ document.addEventListener('focusin',e=>{if(typeof Z!=='undefined'&&Z&&ed(e.targe
 const up=()=>{const off=vv?Math.max(0,Math.round(innerHeight-vv.height-vv.offsetTop)):0,open=document.activeElement===ti||off>80;bar.classList.toggle('kbo',open);bar.style.bottom=open&&off>0?off+'px':'0px'};
 ti.addEventListener('focus',()=>{up();setTimeout(up,150);setTimeout(up,400)});ti.addEventListener('blur',()=>setTimeout(up,50));
 if(vv){vv.addEventListener('resize',up);vv.addEventListener('scroll',up)}
+})();
+</script>
+<script>
+/* ===== settings that need no server ===== */
+(()=>{
+const ap=document.getElementById('app');
+let sp=document.getElementById('sp');if(!sp){sp=document.createElement('div');sp.id='sp';ap.appendChild(sp)}
+let onc=null;
+window.openSheet=(title,html,done)=>{onc=done||null;sp.innerHTML=`<div class="h2"><button id="spx">بستن</button><span>${title}</span><span style="width:60px"></span></div><div class="bd2" id="spb">${html}</div>`;requestAnimationFrame(()=>sp.classList.add('on'));document.getElementById('spx').onclick=closeSheet;return document.getElementById('spb')};
+window.closeSheet=()=>{sp.classList.remove('on');const f=onc;onc=null;f&&f()};
+const getU=()=>{let u;try{u=JSON.parse(ld('u'))}catch(e){}return u||{n:'من',e:'me@link.app'}};
+/* ---- profile photo with square crop, circular preview ---- */
+window.pickPhoto=()=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files&&i.files[0];if(f)cropPhoto(f)};i.click()};
+function cropPhoto(file){const url=URL.createObjectURL(file),img=new Image;img.onload=()=>{
+ const o=document.createElement('div');o.id='cp';o.innerHTML='<div class="st"></div><div class="pvw">با دو انگشت بزرگ/کوچک کنید و بکشید</div><div class="bt"><button id="cpc">انصراف</button><button id="cpr" style="opacity:.8">بازنشانی</button><button class="ok" id="cpo">تأیید</button></div>';ap.appendChild(o);
+ const st=o.querySelector('.st'),W=st.clientWidth,H=st.clientHeight,D=Math.min(W,H)-48,cx=W/2,cy=H/2,iw=img.naturalWidth,ih=img.naturalHeight,min=D/Math.min(iw,ih),max=min*8;
+ const im=document.createElement('img');im.src=url;im.draggable=false;st.appendChild(im);
+ const mk=document.createElement('div');mk.className='mk';mk.style.cssText=`left:${cx-D/2}px;top:${cy-D/2}px;width:${D}px;height:${D}px`;st.appendChild(mk);
+ const sq=document.createElement('div');sq.className='sq';sq.style.cssText=mk.style.cssText;st.appendChild(sq);
+ let sc=min,tx=0,ty=0;
+ const clamp=()=>{sc=Math.min(max,Math.max(min,sc));const mx=(iw*sc-D)/2,my=(ih*sc-D)/2;tx=Math.min(mx,Math.max(-mx,tx));ty=Math.min(my,Math.max(-my,ty))};
+ const draw=()=>{clamp();im.style.width=iw*sc+'px';im.style.height=ih*sc+'px';im.style.left=cx+tx-iw*sc/2+'px';im.style.top=cy+ty-ih*sc/2+'px'};draw();
+ const P=new Map();let d0=0,s0=1;
+ st.addEventListener('pointerdown',e=>{st.setPointerCapture(e.pointerId);P.set(e.pointerId,[e.clientX,e.clientY]);if(P.size==2){const a=[...P.values()];d0=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);s0=sc}});
+ st.addEventListener('pointermove',e=>{if(!P.has(e.pointerId))return;const pr=P.get(e.pointerId);if(P.size==1){tx+=e.clientX-pr[0];ty+=e.clientY-pr[1]}P.set(e.pointerId,[e.clientX,e.clientY]);if(P.size==2){const a=[...P.values()],d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);if(d0){const k=s0*d/d0/sc;sc*=k;tx*=k;ty*=k}}draw()});
+ const up=e=>{P.delete(e.pointerId);d0=0};st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
+ st.addEventListener('wheel',e=>{e.preventDefault();const k=Math.exp(-e.deltaY*.0015),n=Math.min(max,Math.max(min,sc*k)),r=n/sc;sc=n;tx*=r;ty*=r;draw()},{passive:false});
+ const close=()=>{o.remove();URL.revokeObjectURL(url)};
+ o.querySelector('#cpc').onclick=close;o.querySelector('#cpr').onclick=()=>{sc=min;tx=ty=0;draw()};
+ o.querySelector('#cpo').onclick=()=>{const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d'),left=D/2+tx-iw*sc/2,top=D/2+ty-ih*sc/2;x.drawImage(img,-left/sc,-top/sc,D/sc,D/sc,0,0,512,512);sv('myphoto',c.toDataURL('image/jpeg',.88));close();drawSettings();toast('عکس پروفایل تغییر کرد')};
+};img.onerror=()=>toast('این تصویر قابل باز شدن نیست');img.src=url}
+/* ---- my profile ---- */
+window.openMyProfile=()=>{const u=getU();const b=openSheet('پروفایل من',`<div class="pf" style="margin-bottom:18px">${av({id:3,n:u.n,ph:ld('myphoto')||''},110)}<div class="sr press" style="color:var(--ac);justify-content:center" onclick="pickPhoto()">تغییر عکس</div></div><input id="pfn" class="fld" placeholder="نام" dir="auto" maxlength="40" value="${esc(u.n)}"><input id="pfb" class="fld" placeholder="درباره من" dir="auto" maxlength="120" value="${esc(u.b||'')}"><div class="cap">نام و توضیح شما به مخاطبین نمایش داده می‌شود.</div><div class="card" style="margin-top:14px"><div class="sr press" style="color:var(--ac);justify-content:center" id="pfs">ذخیره</div></div>${ld('myphoto')?'<div class="card"><div class="sr press" style="color:var(--red);justify-content:center" id="pfd">حذف عکس</div></div>':''}`);
+ b.querySelector('#pfs').onclick=()=>{const n=b.querySelector('#pfn').value.trim();if(!n)return toast('نام را وارد کنید');const u2=getU();u2.n=n;u2.b=b.querySelector('#pfb').value.trim();sv('u',JSON.stringify(u2));drawSettings();closeSheet();toast('ذخیره شد')};
+ const d=b.querySelector('#pfd');d&&(d.onclick=()=>{sv('myphoto','');drawSettings();closeSheet()})};
+/* ---- proxy ---- */
+window.openProxy=()=>{let p={on:0,host:'',port:'',secret:''};try{p=Object.assign(p,JSON.parse(ld('proxy')))}catch(e){}
+ const b=openSheet('پروکسی',`<div class="card"><div class="sr"><span>استفاده از پروکسی</span><div class="sw ${p.on?'on':''}" id="pxo"></div></div></div><input id="pxh" class="fld" dir="ltr" style="text-align:left" placeholder="آدرس سرور (Host)" value="${esc(p.host)}"><input id="pxp" class="fld" dir="ltr" style="text-align:left" inputmode="numeric" placeholder="پورت" value="${esc(p.port)}"><input id="pxs" class="fld" dir="ltr" style="text-align:left" placeholder="رمز / Secret (اختیاری)" value="${esc(p.secret)}"><div class="card" style="margin-top:14px"><div class="sr press" style="color:var(--ac);justify-content:center" id="pxv">ذخیره</div></div>`);
+ b.querySelector('#pxo').onclick=e=>e.target.classList.toggle('on');
+ b.querySelector('#pxv').onclick=()=>{const on=b.querySelector('#pxo').classList.contains('on'),h=b.querySelector('#pxh').value.trim(),pt=b.querySelector('#pxp').value.trim();if(on&&(!h||!/^\d{1,5}$/.test(pt)||+pt>65535))return toast('آدرس و پورت معتبر وارد کنید');sv('proxy',JSON.stringify({on:on?1:0,host:h,port:pt,secret:b.querySelector('#pxs').value.trim()}));drawSettings();closeSheet();toast(on?'پروکسی فعال شد':'ذخیره شد')}};
+/* ---- recent calls (local log) ---- */
+window.openCalls=()=>{let L=[];try{L=JSON.parse(ld('calls'))||[]}catch(e){}
+ const b=openSheet('تماس‌های اخیر',L.length?`<div class="card">${L.slice().reverse().map(c=>`<div class="sr"><div class="si" style="background:${c.in?'#4cc45d':'#2f8cf0'}">${I('call',22)}</div><div style="flex:1"><div dir="auto">${esc(c.n)}</div><small style="color:var(--t2);font-size:14px">${esc(c.t||'')}</small></div></div>`).join('')}</div><div class="card"><div class="sr press" style="color:var(--red);justify-content:center" id="clr">پاک کردن سابقه</div></div>`:'<div class="em">هنوز تماسی ثبت نشده است.</div>');
+ const c=b.querySelector('#clr');c&&(c.onclick=()=>{sv('calls','[]');closeSheet();toast('پاک شد')})};
+/* ---- chat folders ---- */
+const saveF=()=>{sv('folders',JSON.stringify(FD));CL.length=4;FD.forEach(f=>CL.push({id:f.id,n:f.n}));if(!CL.some(f=>f.id==fl))fl='all';drawChips();drawList()};
+window.openFolders=()=>{const b=openSheet('پوشه‌های گفتگو',(FD.length?`<div class="card">${FD.map(f=>`<div class="sr press" data-f="${f.id}"><div class="si" style="background:#4aa8e8">${I('folder',22)}</div><span style="flex:1;margin:0">${esc(f.n)}</span><span style="color:var(--t2)">${f.ids.length} گفتگو</span></div>`).join('')}</div>`:'<div class="em" style="padding:30px 20px">هنوز پوشه‌ای نساخته‌اید.</div>')+`<div class="card"><div class="sr press" style="color:var(--ac)" id="fnw">${I('plus',26)} پوشه‌ی جدید</div></div>`);
+ b.querySelector('#fnw').onclick=()=>editFolder();b.querySelectorAll('[data-f]').forEach(e=>e.onclick=()=>editFolder(e.dataset.f))};
+function editFolder(id){const f=FD.find(q=>q.id==id)||{id:'f'+Date.now().toString(36),n:'',ids:[],isNew:1},sel=new Set(f.ids);
+ const b=openSheet(f.isNew?'پوشه‌ی جدید':'ویرایش پوشه',`<input id="fnm" class="fld" dir="auto" maxlength="20" placeholder="نام پوشه" value="${esc(f.n)}"><div class="cap">گفتگوهای این پوشه</div><div class="card">${C.map(c=>`<div class="sr press" data-c="${c.id}">${av(c,34)}<span style="flex:1;margin:0" dir="auto">${esc(c.n)}</span><div class="sw ${sel.has(c.id)?'on':''}"></div></div>`).join('')}</div><div class="card"><div class="sr press" style="color:var(--ac);justify-content:center" id="fsv">ذخیره</div></div>${f.isNew?'':'<div class="card"><div class="sr press" style="color:var(--red);justify-content:center" id="fdl">حذف پوشه</div></div>'}`);
+ b.querySelectorAll('[data-c]').forEach(r=>r.onclick=()=>{const k=+r.dataset.c;sel.has(k)?sel.delete(k):sel.add(k);r.querySelector('.sw').classList.toggle('on',sel.has(k))});
+ b.querySelector('#fsv').onclick=()=>{const n=b.querySelector('#fnm').value.trim();if(!n)return toast('نام پوشه را وارد کنید');f.n=n;f.ids=[...sel];delete f.isNew;if(!FD.includes(f))FD.push(f);saveF();openFolders()};
+ const d=b.querySelector('#fdl');d&&(d.onclick=()=>{FD=FD.filter(q=>q!=f);saveF();openFolders()})}
 })();
 </script>
 <script>
