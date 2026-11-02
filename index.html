@@ -969,15 +969,15 @@ const ibh=()=>ch.style.setProperty('--ibh',Math.max(0,bar.offsetHeight-3)+'px');
 if(window.ResizeObserver)new ResizeObserver(ibh).observe(bar);
 const up=()=>{const off=vv?Math.max(0,Math.round(innerHeight-vv.height-vv.offsetTop)):0,open=document.activeElement===ti||off>80,chOn=!ch.classList.contains('r'),fit=!!vv&&chOn&&(innerHeight-vv.height>1||vv.offsetTop>0);
 bar.classList.toggle('kbo',open);bar.style.bottom='0px';
-const EZ='height .3s cubic-bezier(.22,.9,.28,1),top .3s cubic-bezier(.22,.9,.28,1)';
-if(fit){if(ap.style.height===''){ap.style.transition='none';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=ap.offsetHeight+'px';void ap.offsetHeight}ap.style.transition=EZ;ap.style.top=vv.offsetTop+'px';ap.style.bottom='auto';ap.style.height=vv.height+'px';clearTimeout(ap._ez)}
+const EZ='height .3s cubic-bezier(.22,.9,.28,1)',SET=Date.now()<(window._kbFT||0)+450;
+if(fit){if(ap.style.height===''){ap.style.transition='none';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=ap.offsetHeight+'px';void ap.offsetHeight}ap.style.transition=EZ;ap.style.top=SET?'0px':vv.offsetTop+'px';ap.style.bottom='auto';ap.style.height=(SET?vv.height+vv.offsetTop:vv.height)+'px';clearTimeout(ap._ez)}
 else if(ap.style.height!==''){ap.style.transition=EZ;ap.style.top='0px';ap.style.height=innerHeight+'px';clearTimeout(ap._ez);ap._ez=setTimeout(()=>{ap.style.top=ap.style.bottom=ap.style.height='';ap.style.transition=''},340)}
 const k=open&&chOn;ch.classList.toggle('kbo2',k);ibh();
 if(k!==was){was=k;stick=Date.now()+700}
 if(chOn&&Date.now()<stick)ms.scrollTop=ms.scrollHeight};
 {let tx=0,ty=0,tm=0;ch.addEventListener('pointerdown',e=>{tx=e.clientX;ty=e.clientY;tm=1},true);ch.addEventListener('pointermove',e=>{if(tm&&Math.hypot(e.clientX-tx,e.clientY-ty)>10)tm=0},true);ch.addEventListener('pointercancel',()=>tm=0,true);
 ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement===ti&&!(e.target.closest&&e.target.closest('.inb'))){window._kbKeep=0;ti.blur()}},true)}
-ti.addEventListener('focus',()=>{up();setTimeout(up,150);setTimeout(up,400)});ti.addEventListener('blur',()=>{if(Date.now()<(window._kbKeep||0)){const f=()=>{if(Date.now()<(window._kbKeep||0)+100&&document.activeElement!==ti)ti.focus({preventScroll:true})};f();setTimeout(f,0);setTimeout(f,80)}setTimeout(up,50)});
+ti.addEventListener('focus',()=>{window._kbFT=Date.now();up();setTimeout(up,150);setTimeout(up,400);setTimeout(up,470)});ti.addEventListener('blur',()=>{if(Date.now()<(window._kbKeep||0)){const f=()=>{if(Date.now()<(window._kbKeep||0)+100&&document.activeElement!==ti)ti.focus({preventScroll:true})};f();setTimeout(f,0);setTimeout(f,80)}setTimeout(up,50)});
 if(vv){vv.addEventListener('resize',up);vv.addEventListener('scroll',up)}
 })();
 </script>
