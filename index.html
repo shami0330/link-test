@@ -829,12 +829,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 return{play:play};
 })();
 const permMark=ok=>{try{sv('permOK',ok?'1':'')}catch(e){}};
+/* every launch and every exit: forget what the app remembers about permissions, so the gate always runs from scratch */
+const resetPerm=()=>{['link-cam-perm','link-mic-perm','link-loc-ok','link-loc-asked','link-st-asked'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});try{sv('permOK','')}catch(e){}try{clearTimeout(window._rel);MST&&MST.getTracks().forEach(t=>t.stop());MST=null}catch(e){}};
+resetPerm();addEventListener('pagehide',resetPerm);addEventListener('pageshow',e=>{if(e.persisted)location.reload()});
 const PermGate=(function(){
 const $g=id=>document.getElementById(id);
 const gate=$g('permGate'),inner=$g('pgInner'),btn=$g('pgBtn'),hint=$g('pgHint'),sub=$g('pgSub');
 const rows={cam:[$g('pgCam'),$g('pgCamSt')],mic:[$g('pgMic'),$g('pgMicSt')],sto:[$g('pgSto'),$g('pgStoSt')],loc:[$g('pgLoc'),$g('pgLocSt')]};
 const MARK={granted:'✓',denied:'✕',unavailable:'!',prompt:'!'};
-let state={cam:'prompt',mic:'prompt',sto:'prompt',loc:'prompt'},busy=false,done=null,wasDenied=false,manual=false;
+let state={cam:'prompt',mic:'prompt',sto:'prompt',loc:'prompt'},busy=false,done=null,wasDenied=false,manual=false,asked=false;
 const hasMedia=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 const flag=k=>{try{return localStorage.getItem(k)==='1';}catch(e){return false;}};
 
@@ -859,7 +862,9 @@ async function checkLoc(){if(!navigator.geolocation)return 'unavailable';const a
 async function check(){
 const [cam,mic,sto,loc]=await Promise.all([checkMedia('cam'),checkMedia('mic'),checkStorage(),checkLoc()]);
 state={cam,mic,sto,loc};
-try{if(cam==='granted'&&mic==='granted'){permMark(true);permMark(true);}else{if(cam!=='granted')permMark(false);if(mic!=='granted')permMark(false);}}catch(e){}
+/* before the user presses the button in this launch, nothing counts as granted */
+if(!asked)for(const k in state)if(state[k]==='granted')state[k]='prompt';
+try{if(state.cam==='granted'&&state.mic==='granted'){permMark(true);permMark(true);}else{permMark(false);}}catch(e){}
 return state;
 }
 const allOK=()=>state.cam==='granted'&&state.mic==='granted'&&state.sto==='granted'&&state.loc!=='prompt';
@@ -885,7 +890,7 @@ async function recheck(){await check();render();if(allOK())enter();}
 function onBack(){if(!document.hidden&&done&&!busy)recheck();}
 
 async function ask(){
-if(busy)return;busy=true;btn.disabled=true;hint.className='pg-hint';hint.textContent='لطفاً در پنجره‌ی باز شده «اجازه» را بزنید…';
+if(busy)return;busy=true;asked=true;btn.disabled=true;hint.className='pg-hint';hint.textContent='لطفاً در پنجره‌ی باز شده «اجازه» را بزنید…';
 try{
 /* 1) camera + microphone */
 if(hasMedia()&&(state.cam!=='granted'||state.mic!=='granted')&&state.cam!=='denied'&&state.mic!=='denied'){
@@ -911,7 +916,7 @@ if(!navigator.permissions&&hasMedia()){
 try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});st.getTracks().forEach(t=>t.stop());state.cam=state.mic='granted';permMark(true);permMark(true);render();if(allOK()){enter();return;}}catch(e){state.cam=state.mic='denied';render();}
 }
 }
-btn.addEventListener('click',()=>{const denied=['cam','mic'].some(k=>state[k]==='denied');manual=true;Promise.resolve(denied?recheck():ask()).finally(()=>{manual=false});});
+btn.addEventListener('click',()=>{const denied=['cam','mic'].some(k=>state[k]==='denied');manual=true;asked=true;Promise.resolve(denied?recheck():ask()).finally(()=>{manual=false});});
 
 /* live updates when the user flips a permission in browser settings */
 async function watch(){for(const n of ['camera','microphone']){try{const p=await navigator.permissions.query({name:n});p.onchange=()=>{if(done&&!busy)recheck();};}catch(e){}}}
