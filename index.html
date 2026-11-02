@@ -834,7 +834,7 @@ const $g=id=>document.getElementById(id);
 const gate=$g('permGate'),inner=$g('pgInner'),btn=$g('pgBtn'),hint=$g('pgHint'),sub=$g('pgSub');
 const rows={cam:[$g('pgCam'),$g('pgCamSt')],mic:[$g('pgMic'),$g('pgMicSt')],sto:[$g('pgSto'),$g('pgStoSt')],loc:[$g('pgLoc'),$g('pgLocSt')]};
 const MARK={granted:'✓',denied:'✕',unavailable:'!',prompt:'!'};
-let state={cam:'prompt',mic:'prompt',sto:'prompt',loc:'prompt'},busy=false,done=null,wasDenied=false;
+let state={cam:'prompt',mic:'prompt',sto:'prompt',loc:'prompt'},busy=false,done=null,wasDenied=false,manual=false;
 const hasMedia=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 const flag=k=>{try{return localStorage.getItem(k)==='1';}catch(e){return false;}};
 
@@ -875,7 +875,7 @@ else if(state.sto==='unavailable'){hint.className='pg-hint err';hint.textContent
 else{hint.className='pg-hint';hint.textContent='';}
 }
 function enter(){
-if(!done)return;
+if(!done||!manual)return;
 gate.classList.add('out');
 setTimeout(()=>{gate.hidden=true;},300);
 document.removeEventListener('visibilitychange',onBack);window.removeEventListener('focus',onBack);
@@ -911,7 +911,7 @@ if(!navigator.permissions&&hasMedia()){
 try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});st.getTracks().forEach(t=>t.stop());state.cam=state.mic='granted';permMark(true);permMark(true);render();if(allOK()){enter();return;}}catch(e){state.cam=state.mic='denied';render();}
 }
 }
-btn.addEventListener('click',()=>{const denied=['cam','mic'].some(k=>state[k]==='denied');if(denied)recheck();else ask();});
+btn.addEventListener('click',()=>{const denied=['cam','mic'].some(k=>state[k]==='denied');manual=true;Promise.resolve(denied?recheck():ask()).finally(()=>{manual=false});});
 
 /* live updates when the user flips a permission in browser settings */
 async function watch(){for(const n of ['camera','microphone']){try{const p=await navigator.permissions.query({name:n});p.onchange=()=>{if(done&&!busy)recheck();};}catch(e){}}}
@@ -933,7 +933,6 @@ inner.classList.add('pg-in');}
 /* Runs at every launch. Resolves immediately if everything is already granted, otherwise shows the gate. */
 async function run(){
 await check();
-if(allOK()){gate.hidden=true;return;}
 render();
 inner.classList.remove('pg-wait');enterMotion();
 await new Promise(res=>{done=res;document.addEventListener('visibilitychange',onBack);window.addEventListener('focus',onBack);watch();});
@@ -1342,6 +1341,20 @@ addEventListener('pagehide',()=>{clearTimeout(window._rel);MST&&MST.getTracks().
 .sp{padding:6px 9px;border-radius:99px;font-size:13px;font-weight:700;white-space:nowrap;transition:background .25s,color .25s;direction:ltr}
 .sp.on{background:var(--ac);color:#fff}
 </style>
+<script>
+/* video-message play: shift neighbours by the exact grown pixels */
+(()=>{const M=document.getElementById('msgs');if(!M)return;
+const gap=(b,t)=>{cancelAnimationFrame(b._gr);const f=b._g||0,t0=performance.now();M.style.scrollBehavior='auto';
+const st=n=>{if(!b.isConnected){M.scrollTop-=b._g||0;b._g=0;M.style.scrollBehavior='';return}
+let k=Math.min(1,(n-t0)/350);k=1-Math.pow(1-k,3);const g=f+(t-f)*k,d=g-(b._g||0);b._g=g;
+b.style.transition='none';b.style.marginTop=b.style.marginBottom=(5+g)+'px';M.scrollTop+=d;
+if(k<1)b._gr=requestAnimationFrame(st);else{M.style.scrollBehavior='';if(!t){b.style.marginTop=b.style.marginBottom=b.style.transition=''}}};
+b._gr=requestAnimationFrame(st)};
+new MutationObserver(ms=>ms.forEach(r=>{const p=r.target;if(!p.matches||!p.matches('.b.rv .ph'))return;
+const b=p.parentElement,m=/scale\(([\d.]+)\)/.exec(p.style.transform),k=m?+m[1]:1,H=p.offsetHeight,
+t=k>1?Math.ceil((H/2+14)*k-H/2)+2:0;if((b._t||0)===t)return;b._t=t;gap(b,t)}))
+.observe(M,{subtree:true,attributes:true,attributeFilter:['style']})})();
+</script>
 <script>
 /* media player: single playback, loop preview, download, autoplay chain, speed bar */
 (()=>{
