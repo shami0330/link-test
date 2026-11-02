@@ -502,9 +502,9 @@ let u=null;try{u=JSON.parse(ld('u'))}catch(e){}if(u){$('#auth').classList.add('g
 const EN={'ذخیره‌سازی و اطلاعات':'Storage and Data','لیمیت روزانه':'Daily Limit','مشاهده لیمیت روزانه':'View Daily Limit','تغییر رمز ورود':'Change Password','پروفایل':'Profile','تنظیمات':'Settings','مخاطبین':'Contacts','گفتگوها':'Chats','ویرایش':'Edit','تمام':'Done','همه':'All','شخصی':'Private','گروه':'Groups','کانال':'Channels','جستجو':'Search','لغو':'Cancel','جستجوی مخاطبین':'Search contacts','در حال اتصال…':'Connecting…','خواندن':'Read','حذف':'Delete','ورود':'Log In','ثبت‌نام':'Sign Up','حساب ندارید؟ ثبت‌نام':"Don't have an account? Sign up",'حساب دارید؟ ورود':'Have an account? Log in','برای ادامه وارد شوید':'Log in to continue','یک حساب جدید بسازید':'Create a new account','ایمیل':'Email','رمز عبور':'Password','نام':'Name','پیام':'Message','تغییر عکس پروفایل':'Change Profile Photo','افزودن حساب':'Add Account','پروفایل من':'My Profile','پروکسی':'Proxy','غیرفعال':'Disabled','پیام‌های ذخیره‌شده':'Saved Messages','تماس‌های اخیر':'Recent Calls','دستگاه‌ها':'Devices','اسکن QR':'Scan QR','پوشه‌های گفتگو':'Chat Folders','حالت تاریک':'Dark Mode','خروج':'Log Out','زبان':'Language','به‌زودی':'Coming soon','گفتگویی پیدا نشد':'No chats found','سنجاق':'Pin','برداشتن سنجاق':'Unpin','علامت‌گذاری خوانده':'Mark as Read','علامت‌گذاری ناخوانده':'Mark as Unread','بی‌صدا':'Mute','باصدا':'Unmute','پاسخ':'Reply','کپی':'Copy','کپی شد':'Copied','ارسال':'Forward','پیام سنجاق‌شده':'Pinned Message','موقعیت زنده · ۲ عضو':'Live Location · 2 members','امروز':'Today','شما':'You','تماس':'Call','ویدیو':'Video','بیشتر':'More','موبایل':'mobile','نام کاربری':'username','تولد':'birthday','بیوگرافی':'bio','توضیحات':'info','رسانه':'Media','ذخیره‌شده':'Saved','فایل‌ها':'Files','موسیقی':'Music','صدا':'Voice','پیوندها':'Links','تغییر والپیپر':'Change Wallpaper','شروع چت رمزنگاری‌شده':'Start Secret Chat','اشتراک مخاطب':'Share Contact','ارسال هدیه':'Send a Gift','پاک‌کردن پیام‌ها':'Clear Messages','مسدود کردن':'Block User','عکس یا ویدیو':'Photo or Video','فایل':'File','موقعیت مکانی':'Location','مخاطب':'Contact','برای ضبط نگه دارید':'Hold to record','در حال نوشتن…':'typing…','آنلاین':'online','اخیراً آنلاین بود':'last seen recently','مدتی پیش':'last seen a while ago','۳ عضو':'3 members','۱۲۰۰ مشترک':'1,200 subscribers','پاک شد':'Cleared','مسدود شد':'Blocked','بی‌صدا شد':'Muted','باصدا شد':'Unmuted','جستجو: به‌زودی':'Search: coming soon','تماس: بعد از اتصال به سرور':'Calls: after server connection','گفتگوی جدید: به‌زودی':'New chat: coming soon','یکشنبه':'Sun','شنبه':'Sat','سه‌شنبه':'Tue','۲۱ آبان':'Nov 12','عکس':'Photo','پیام صوتی':'Voice Message','استیکر':'Sticker','ویدیو پیام':'Video Message','گیف':'GIF','حذف':'Delete','برای ارسال بزنید':'Tap to send'};
 const EP=[['برای لغو بکشید','Slide to cancel'],['ضبط ویدیو','Recording video'],['ضبط صدا','Recording voice'],['رها کنید تا ارسال شود','release to send'],['آخرین بازدید امروز','last seen today at'],['آخرین بازدید شنبه','last seen Saturday']];
 function tx(s){const t=s.trim();if(!t)return s;let r=EN[t];if(r===undefined){r=t;EP.forEach(([a,b])=>r=r.split(a).join(b));if(r===t)return s}return s.replace(t,r)}
-let lq=0,obs;
+let lq=0,obs;const dgt=(n,t)=>{const p=n.parentNode;return p&&p.closest&&p.closest('.b span[dir],.b .rp,.b .sn')?t:t.replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d))};
 function runLang(){lq=0;obs.disconnect();const w=document.createTreeWalker($('#app'),NodeFilter.SHOW_TEXT);let n;
-while(n=w.nextNode()){if(n._tv===undefined||n.nodeValue!==n._tv)n._o=n.nodeValue;const v=lang=='en'?tx(n._o):n._o;n._tv=v;if(n.nodeValue!==v)n.nodeValue=v}
+while(n=w.nextNode()){if(n._tv===undefined||n.nodeValue!==n._tv)n._o=n.nodeValue;const v=lang=='en'?dgt(n,tx(n._o)):n._o;n._tv=v;if(n.nodeValue!==v)n.nodeValue=v}
 $$('#app [placeholder]').forEach(e=>{if(e._po===undefined)e._po=e.placeholder;e.placeholder=lang=='en'?tx(e._po):e._po});
 obs.observe($('#app'),{childList:true,subtree:true,characterData:true})}
 obs=new MutationObserver(()=>{if(!lq){lq=1;requestAnimationFrame(runLang)}});
@@ -526,7 +526,7 @@ let S=null,busy=0,block=0;
 document.addEventListener('click',e=>{if(block){e.stopPropagation();e.preventDefault()}},true);
 const top=()=>!$('#info').classList.contains('r')?['#info','#chat']:!$('#chat').classList.contains('r')?['#chat','#main']:null;
 const ovl=()=>{const n=document.getElementById('ng');if(n)return n;const p=document.getElementById('sp');return p&&p.classList.contains('on')?p:null};
-const ovBack=o=>{if(o.id=='sp')closeSheet();else{const b=o.querySelector('.ngl');b?b.click():o.remove()}};
+const ovBack=o=>{if(o.id=='sp')o._back?o._back():closeSheet();else{const b=o.querySelector('.ngl');b?b.click():o.remove()}};
 const FI=()=>CL.map(f=>f.id);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const tick=()=>{try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}};
@@ -972,13 +972,13 @@ if(vv){vv.addEventListener('resize',up);vv.addEventListener('scroll',up)}
 const ap=document.getElementById('app');
 let sp=document.getElementById('sp');if(!sp){sp=document.createElement('div');sp.id='sp';ap.appendChild(sp)}
 let onc=null;
-window.openSheet=(title,html,done)=>{onc=done||null;sp.innerHTML=`<div class="h2"><button id="spx">بستن</button><span>${title}</span><span style="width:60px"></span></div><div class="bd2" id="spb">${html}</div>`;requestAnimationFrame(()=>sp.classList.add('on'));document.getElementById('spx').onclick=closeSheet;return document.getElementById('spb')};
+window.openSheet=(title,html,done)=>{onc=done||null;sp._back=null;sp.innerHTML=`<div class="h2"><button id="spx">${I('x',22)}</button><span>${title}</span><span style="width:60px"></span></div><div class="bd2" id="spb">${html}</div>`;requestAnimationFrame(()=>sp.classList.add('on'));document.getElementById('spx').onclick=closeSheet;return document.getElementById('spb')};
 window.closeSheet=()=>{sp.classList.remove('on');const f=onc;onc=null;f&&f()};
 const getU=()=>{let u;try{u=JSON.parse(ld('u'))}catch(e){}return u||{n:'من',e:'me@link.app'}};
 /* ---- profile photo with square crop, circular preview ---- */
 window.pickPhoto=()=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files&&i.files[0];if(f)cropPhoto(f)};i.click()};
 function cropPhoto(file){const url=URL.createObjectURL(file),img=new Image;img.onload=()=>{
- const o=document.createElement('div');o.id='cp';o.innerHTML='<div class="st"></div><div class="pvw">با دو انگشت بزرگ/کوچک کنید و بکشید</div><div class="bt"><button id="cpc">انصراف</button><button id="cpr" style="opacity:.8">بازنشانی</button><button class="ok" id="cpo">تأیید</button></div>';ap.appendChild(o);
+ const o=document.createElement('div');o.id='cp';o.innerHTML='<div class="st"></div><div class="pvw">با دو انگشت بزرگ/کوچک کنید و بکشید</div><div class="bt"><button id="cpc">'+I('x',24)+'</button><button id="cpr" style="opacity:.8">بازنشانی</button><button class="ok" id="cpo">تأیید</button></div>';ap.appendChild(o);
  const st=o.querySelector('.st'),W=st.clientWidth,H=st.clientHeight,D=Math.min(W,H)-48,cx=W/2,cy=H/2,iw=img.naturalWidth,ih=img.naturalHeight,min=D/Math.min(iw,ih),max=min*8;
  const im=document.createElement('img');im.src=url;im.draggable=false;st.appendChild(im);
  const mk=document.createElement('div');mk.className='mk';mk.style.cssText=`left:${cx-D/2}px;top:${cy-D/2}px;width:${D}px;height:${D}px`;st.appendChild(mk);
@@ -1062,7 +1062,7 @@ async function transcode(it,onP,sig){
   mr.start(500);el.currentTime=0;el.play().then(loop).catch(e=>{if(!done){done=1;rej(e)}})})}
 /* ---------- crop UI (free / presets) ---------- */
 async function cropUI(it,after){await loadImg(it);const rot0=it.rot,crop0=it.crop;
- const o=document.createElement('div');o.id='cr';o.innerHTML=`<div class="crs"></div><div class="crp"><button data-r="0" class="on">آزاد</button><button data-r="1">۱:۱</button><button data-r="1.3333">۴:۳</button><button data-r="0.75">۳:۴</button><button data-r="1.7778">۱۶:۹</button><button data-r="0.5625">۹:۱۶</button></div><div class="crb"><button id="crc">انصراف</button><button id="crr">${IC.rot}</button><button class="ok" id="cro">تأیید</button></div>`;ap.appendChild(o);
+ const o=document.createElement('div');o.id='cr';o.innerHTML=`<div class="crs"></div><div class="crp"><button data-r="0" class="on">آزاد</button><button data-r="1">۱:۱</button><button data-r="1.3333">۴:۳</button><button data-r="0.75">۳:۴</button><button data-r="1.7778">۱۶:۹</button><button data-r="0.5625">۹:۱۶</button></div><div class="crb"><button id="crc">${I('x',24)}</button><button id="crr">${IC.rot}</button><button class="ok" id="cro">تأیید</button></div>`;ap.appendChild(o);
  const st=o.querySelector('.crs');let cvs,box,ratio=0,dw,dh,ox,oy,bx;
  const paint=()=>{bx.style.cssText=`left:${box.x}px;top:${box.y}px;width:${box.w}px;height:${box.h}px`};
  const layout=(keep)=>{const t=Object.assign({},it,{crop:null}),c=outC(t,1600);cvs&&cvs.remove();cvs=c;st.prepend(c);const W=st.clientWidth-24,H=st.clientHeight-24,s=Math.min(W/c.width,H/c.height);dw=Math.round(c.width*s);dh=Math.round(c.height*s);ox=(st.clientWidth-dw)/2;oy=(st.clientHeight-dh)/2;c.style.cssText=`position:absolute;width:${dw}px;height:${dh}px;left:${ox}px;top:${oy}px`;
@@ -1412,6 +1412,7 @@ window.openCache=async()=>{const u=await usage();const b=openSheet('حافظه �
   last='';await tick();if(cur)drawMsgs();closeSheet();toast('کش رسانه پاک شد')};
  b.querySelector('#cc2').onclick=async()=>{try{await tx('kv','readwrite',o=>o.clear())}catch(e){}last=JSON.stringify(C,san);closeSheet();toast('گفتگوهای ذخیره‌شده پاک شد')}};
 /* ============ storage & data (per chat) + daily quota ============ */
+window.sheetBack=fn=>{const sp=document.getElementById('sp'),x=document.getElementById('spx');sp._back=fn;x.innerHTML='<span style="display:inline-flex;transform:scaleX(-1)">'+I('back',24)+'</span>';x.onclick=fn};
 const CATS=[['im','عکس‌ها','#4aa8e8'],['vd','ویدیوها','#8e6fe0'],['au','پیام‌های صوتی','#f5a623'],['fl','فایل‌ها','#34c759'],['ot','سایر','#8e8e93']];
 const keyMap=()=>{const m=new Map();C.forEach(c=>c.msgs.forEach(x=>{if(x.items)x.items.forEach((it,k)=>m.set(c.id+':'+x.id+':'+k,[c.id,it.k=='v'?'vd':it.k=='p'?'im':'fl']));else m.set(c.id+':'+x.id,[c.id,x.type=='rv'?'vd':x.type=='vc'?'au':x.type=='im'?'im':'ot'])}));return m};
 async function scanMedia(){const R={},m=keyMap();try{const d=await openDB();await new Promise(r=>{const q=d.transaction('media').objectStore('media').openCursor();q.onsuccess=()=>{const c=q.result;if(c){const k=String(c.key),[id,ct]=m.get(k)||[k.split(':')[0],'ot'],o=R[String(id)]||(R[String(id)]={im:0,vd:0,au:0,fl:0,ot:0,t:0}),z=c.value.size||0;o[ct]+=z;o.t+=z;c.continue()}else r()};q.onerror=()=>r()})}catch(e){}return R}
@@ -1423,9 +1424,9 @@ async function clearChatMedia(cid,cats){const m=keyMap(),ks=[...m].filter(([k,v]
  last='';await tick();if(cur)drawMsgs()}
 const ckI='<i class="ck on"></i>';
 function openChatStorage(cid,R){const c=C.find(q=>String(q.id)==String(cid)),o=R[String(cid)]||{},on=new Set(CATS.filter(k=>o[k[0]]>0).map(k=>k[0]));
- const body=()=>`<div class="card"><div class="sr press" id="sbk" style="color:var(--ac)">‹ بازگشت</div></div><div class="card">${CATS.filter(k=>o[k[0]]>0).map(k=>`<div class="sr press" data-k="${k[0]}"><i class="ck ${on.has(k[0])?'on':''}"></i><span style="flex:1;margin-right:10px">${k[1]}</span><span class="v">${fmtB(o[k[0]])}</span></div>`).join('')}</div><div class="card"><div class="sr press ${on.size?'':'dis'}" id="scl" style="color:var(--red);justify-content:center">پاک‌کردن ${fmtB([...on].reduce((a,k)=>a+o[k],0))}</div></div>`;
+ const body=()=>`<div class="card">${CATS.filter(k=>o[k[0]]>0).map(k=>`<div class="sr press" data-k="${k[0]}"><i class="ck ${on.has(k[0])?'on':''}"></i><span style="flex:1;margin-right:10px">${k[1]}</span><span class="v">${fmtB(o[k[0]])}</span></div>`).join('')}</div><div class="card"><div class="sr press ${on.size?'':'dis'}" id="scl" style="color:var(--red);justify-content:center">پاک‌کردن ${fmtB([...on].reduce((a,k)=>a+o[k],0))}</div></div>`;
  const b=openSheet(esc(c?c.n:'گفتگو'),body());
- const bind=()=>{b.querySelector('#sbk').onclick=()=>openCache();b.querySelectorAll('[data-k]').forEach(e=>e.onclick=()=>{const k=e.dataset.k;on.has(k)?on.delete(k):on.add(k);b.innerHTML=body();bind()});
+ const bind=()=>{window.sheetBack(()=>openCache());b.querySelectorAll('[data-k]').forEach(e=>e.onclick=()=>{const k=e.dataset.k;on.has(k)?on.delete(k):on.add(k);b.innerHTML=body();bind()});
   b.querySelector('#scl').onclick=async()=>{if(!on.size)return;await clearChatMedia(cid,[...on]);toast('پاک شد');openCache()}};bind()}
 window.openCache=async()=>{const R=await scanMedia(),tot={im:0,vd:0,au:0,fl:0,ot:0,t:0};Object.values(R).forEach(o=>{CATS.forEach(k=>tot[k[0]]+=o[k[0]]);tot.t+=o.t});
  const list=C.filter(c=>R[String(c.id)]&&R[String(c.id)].t>0).sort((a,b)=>R[String(b.id)].t-R[String(a.id)].t);
@@ -1448,9 +1449,9 @@ const qGet=()=>{let d;try{d=JSON.parse(ld('qu'))}catch(e){}return d&&d.d==qDay()
 window.setQuota=o=>{sv('quota',JSON.stringify(o||{}))};
 window.quotaAdd=(k,n)=>{const d=qGet();d[k]=(d[k]||0)+(n||0);sv('qu',JSON.stringify(d))};
 window.quotaGate=(k,n)=>{const l=qLim()[k];if(!l)return true;if(qGet()[k]+n>l){toast(k=='up'?'سهمیهٔ آپلود امروز شما تمام شده است':'سهمیهٔ دانلود امروز شما تمام شده است');return false}return true};
-window.openQuota=()=>{const d=qGet(),L=qLim(),row=(t,u,l)=>`<div class="sr" style="flex-direction:column;align-items:stretch;gap:8px"><div style="display:flex"><span style="flex:1">${t}</span><span class="v">${fmtB(u)}${l?' از '+fmtB(l):' · نامحدود'}</span></div><div class="qb"><i style="width:${l?Math.min(100,u/l*100):0}%"></i></div>${l?`<small style="color:var(--t2)">باقی‌مانده: ${fmtB(Math.max(0,l-u))}</small>`:''}</div>`;
- const b=openSheet('لیمیت روزانه',`<div class="card"><div class="sr press" id="qbk" style="color:var(--ac)">‹ بازگشت</div></div><div class="card">${row('آپلود امروز',d.up||0,L.up)}${row('دانلود امروز',d.down||0,L.down)}</div><div class="cap">سهمیهٔ روزانهٔ هر کاربر از طرف مدیریت تعیین می‌شود و هر روز از نو شروع می‌شود.</div>`);
- b.querySelector('#qbk').onclick=()=>openCache()};
+window.openQuota=()=>{const d=qGet(),L=qLim(),row=(t,u,l)=>`<div class="sr" style="flex-direction:column;align-items:stretch;gap:8px"><div style="display:flex"><span style="flex:1">${t}</span><span class="v">${fmtB(u)}${l?' / '+fmtB(l):' · نامحدود'}</span></div><div class="qb"><i style="width:${l?Math.min(100,u/l*100):0}%"></i></div>${l?`<small style="color:var(--t2)">باقی‌مانده: ${fmtB(Math.max(0,l-u))}</small>`:''}</div>`;
+ const b=openSheet('لیمیت روزانه',`<div class="card">${row('آپلود امروز',d.up||0,L.up)}${row('دانلود امروز',d.down||0,L.down)}</div><div class="cap">سهمیهٔ روزانهٔ هر کاربر از طرف مدیریت تعیین می‌شود و هر روز از نو شروع می‌شود.</div>`);
+ window.sheetBack(()=>openCache())};
 /* ============ 2) composer: sticker / GIF / emoji panel replaces clock ============ */
 const inb=$('.inb'),irow=$('.irow'),ti=$('#ti'),stI=$('#ic-st');
 const SMILE='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14c1 1.5 2.2 2.2 3.5 2.2s2.5-.7 3.5-2.2M9 9.5h.01M15 9.5h.01"/></svg>';
@@ -1504,7 +1505,7 @@ const _oc=openChat;openChat=function(id){_oc(id);const c=cur;if(!c)return;closeP
  if(c.members){const s=$('#cs');if(s)s.textContent=fa(c.members.length)+(c.t=='ch'?' مشترک':' عضو')}
  const ro=c.t=='ch'&&!can(c,'post');P.dataset.ro=ro?1:'';irow.classList.toggle('hide',ro);rob.classList.toggle('hide',!ro);
  if(ro){rob.innerHTML=`<span>فقط مدیران می‌توانند پیام ارسال کنند</span><button id="robm">${c.mute?'فعال‌سازی صدا':'بی‌صدا'}</button>`;$('#robm').onclick=()=>{c.mute=!c.mute;$('#robm').textContent=c.mute?'فعال‌سازی صدا':'بی‌صدا';drawList()}}};
-let NG=null;
+let NG=null;const BKI='<span style="display:inline-flex;transform:scaleX(-1)">'+I('back',24)+'</span>',XI=I('x',22);
 const ngOpen=()=>{NG=document.createElement('div');NG.id='ng';$('#app').appendChild(NG)},ngClose=()=>{NG&&NG.remove();NG=null};
 function page(o){NG.innerHTML=`<div class="ngh"><button class="ngl">${o.lt||''}</button><b>${o.title}</b><button class="ngr ${o.rd?'dis':''}">${o.rt||''}</button></div><div class="ngb">${o.html||''}</div>`;NG.querySelector('.ngl').onclick=o.lf;const r=NG.querySelector('.ngr');r.onclick=()=>{if(!r.classList.contains('dis')&&o.rf)o.rf()};o.bind&&o.bind(NG.querySelector('.ngb'),r)}
 function picker(o){const L=C.filter(c=>c.t=='pv'&&!c.saved&&!(o.exclude||[]).includes(c.id)).sort((a,b)=>a.n.localeCompare(b.n,'fa'));let q='';
@@ -1521,20 +1522,20 @@ const avM=mm=>{const k=C.find(x=>x.id==mm.id);return av(k||{id:3,n:mm.n,ph:mm.id
 const memRows=ids=>ids.map(id=>{const c=C.find(x=>x.id==id);return `<div class="sr">${av(c,40)}<span dir="auto" style="flex:1;margin:0 10px">${esc(c.n)}</span></div>`}).join('');
 function mkChat(o){const id=Math.max(100,...C.map(c=>+c.id||0))+1;const c={id,n:o.n,t:o.t,time:T(),last:o.t=='ch'?'کانال ساخته شد':'گروه ساخته شد',msgs:[],ph:o.ph||'',desc:o.desc||'',link:o.link||'',pub:!!o.pub,my:'owner',members:[{id:'me',n:'شما',role:'owner'}].concat(o.ids.map(i=>({id:i,n:C.find(x=>x.id==i).n,role:'member'})))};C.unshift(c);drawList();ngClose();openChat(id);toast(o.t=='ch'?'کانال ساخته شد':'گروه ساخته شد')}
 const fieldBind=(b,r,need)=>{const n=b.querySelector('#ngn'),chk=()=>r.classList.toggle('dis',!n.value.trim());n.oninput=chk;chk()};
-function ngGroup(){ngOpen();const sel=new Set();const s1=()=>picker({title:'گروه جدید',lt:'انصراف',lf:ngClose,rt:'بعدی',min:1,sel,rf:s2});
- const s2=()=>{const st={ph:''};page({title:'گروه جدید',lt:'بازگشت',lf:s1,rt:'ایجاد',rd:1,rf:()=>mkChat({t:'gp',n:NG.querySelector('#ngn').value.trim(),ph:st.ph,ids:[...sel]}),
+function ngGroup(){ngOpen();const sel=new Set();const s1=()=>picker({title:'گروه جدید',lt:XI,lf:ngClose,rt:'بعدی',min:1,sel,rf:s2});
+ const s2=()=>{const st={ph:''};page({title:'گروه جدید',lt:BKI,lf:s1,rt:'ایجاد',rd:1,rf:()=>mkChat({t:'gp',n:NG.querySelector('#ngn').value.trim(),ph:st.ph,ids:[...sel]}),
   html:`<div class="ngph"><div class="ngav" id="ngav">${I('camera',34)}</div></div><input class="fld" id="ngn" maxlength="128" placeholder="نام گروه" dir="auto"><div class="cap">${fa(sel.size)} عضو</div><div class="card">${memRows([...sel])}</div>`,
   bind:(b,r)=>{fieldBind(b,r);b.querySelector('#ngav').onclick=()=>pickImg(u=>{st.ph=u;const a=b.querySelector('#ngav');a.style.backgroundImage=`url(${u})`;a.innerHTML=''})}})};s1()}
 function ngChannel(){ngOpen();const st={ph:'',desc:'',pub:1,link:'',n:''},sel=new Set();
- const s0=()=>page({title:'',lt:'انصراف',lf:ngClose,html:`<div class="ngi"><div class="ic">${I('megaphone',54)}</div><b>کانال جدید</b>کانال‌ها ابزاری برای پخش پیام به مخاطبان نامحدود هستند. فقط سازنده و مدیران می‌توانند در کانال پیام بفرستند.</div><button class="btn" id="go">ایجاد کانال</button>`,bind:b=>{b.querySelector('#go').onclick=s1}});
- const s1=()=>page({title:'کانال جدید',lt:'بازگشت',lf:s0,rt:'بعدی',rd:!st.n,rf:()=>{st.n=NG.querySelector('#ngn').value.trim();st.desc=NG.querySelector('#ngd').value.trim();s2()},
+ const s0=()=>page({title:'',lt:XI,lf:ngClose,html:`<div class="ngi"><div class="ic">${I('megaphone',54)}</div><b>کانال جدید</b>کانال‌ها ابزاری برای پخش پیام به مخاطبان نامحدود هستند. فقط سازنده و مدیران می‌توانند در کانال پیام بفرستند.</div><button class="btn" id="go">ایجاد کانال</button>`,bind:b=>{b.querySelector('#go').onclick=s1}});
+ const s1=()=>page({title:'کانال جدید',lt:BKI,lf:s0,rt:'بعدی',rd:!st.n,rf:()=>{st.n=NG.querySelector('#ngn').value.trim();st.desc=NG.querySelector('#ngd').value.trim();s2()},
   html:`<div class="ngph"><div class="ngav" id="ngav" style="${st.ph?`background-image:url(${st.ph})`:''}">${st.ph?'':I('camera',34)}</div></div><input class="fld" id="ngn" maxlength="128" placeholder="نام کانال" dir="auto" value="${esc(st.n)}"><textarea class="fld" id="ngd" rows="3" maxlength="255" placeholder="توضیحات (اختیاری)" dir="auto">${esc(st.desc)}</textarea><div class="cap">می‌توانید توضیحاتی برای کانال خود اضافه کنید.</div>`,
   bind:(b,r)=>{fieldBind(b,r);b.querySelector('#ngav').onclick=()=>pickImg(u=>{st.ph=u;const a=b.querySelector('#ngav');a.style.backgroundImage=`url(${u})`;a.innerHTML=''})}});
- const s2=()=>{const rnd=()=>Math.random().toString(36).slice(2,14);if(!st.priv)st.priv='link.app/+'+rnd();page({title:'نوع کانال',lt:'بازگشت',lf:s1,rt:'ذخیره',rd:0,rf:()=>{if(st.pub){const v=NG.querySelector('#ngl').value.trim();if(!/^[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(v))return toast('نام کاربری معتبر نیست');if(C.some(c=>c.link=='link.app/'+v))return toast('این نام کاربری گرفته شده است');st.link='link.app/'+v}else st.link=st.priv;s3()},
+ const s2=()=>{const rnd=()=>Math.random().toString(36).slice(2,14);if(!st.priv)st.priv='link.app/+'+rnd();page({title:'نوع کانال',lt:BKI,lf:s1,rt:'ذخیره',rd:0,rf:()=>{if(st.pub){const v=NG.querySelector('#ngl').value.trim();if(!/^[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(v))return toast('نام کاربری معتبر نیست');if(C.some(c=>c.link=='link.app/'+v))return toast('این نام کاربری گرفته شده است');st.link='link.app/'+v}else st.link=st.priv;s3()},
   html:`<div class="card"><div class="opt ${st.pub?'on':''}" data-p="1"><i></i><div><div>عمومی</div><small style="color:var(--t2)">هر کسی می‌تواند با جستجو یا لینک عضو شود</small></div></div><div class="opt ${st.pub?'':'on'}" data-p="0"><i></i><div><div>خصوصی</div><small style="color:var(--t2)">فقط افرادی که لینک دعوت دارند می‌توانند عضو شوند</small></div></div></div><div class="cap" style="padding-top:12px">${st.pub?'پیوند کانال':'لینک دعوت'}</div>${st.pub?`<input class="fld" id="ngl" dir="ltr" style="text-align:left" placeholder="نام کاربری" value="${esc(st.link.replace('link.app/',''))}"><div class="cap">link.app/نام‌کاربری — حداقل ۵ نویسه (حروف انگلیسی، عدد و _)</div>`:`<div class="card"><div class="sr" dir="ltr" style="justify-content:flex-start">${st.priv}</div></div>`}`,
   bind:b=>b.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{st.pub=+o.dataset.p;if(st.pub&&NG.querySelector('#ngl'))st.link='link.app/'+NG.querySelector('#ngl').value;s2()})})};
- const s3=()=>picker({title:'افزودن مشترک',lt:'بازگشت',lf:s2,rt:'ایجاد',min:0,sel,rf:ids=>mkChat({t:'ch',n:st.n,ph:st.ph,desc:st.desc,link:st.link,pub:st.pub,ids})});s0()}
-function ngMsg(){ngOpen();picker({title:'پیام جدید',lt:'انصراف',lf:ngClose,sel:new Set(),single:1,rf:([id])=>{ngClose();openChat(id)}})}
+ const s3=()=>picker({title:'افزودن مشترک',lt:BKI,lf:s2,rt:'ایجاد',min:0,sel,rf:ids=>mkChat({t:'ch',n:st.n,ph:st.ph,desc:st.desc,link:st.link,pub:st.pub,ids})});s0()}
+function ngMsg(){ngOpen();picker({title:'پیام جدید',lt:XI,lf:ngClose,sel:new Set(),single:1,rf:([id])=>{ngClose();openChat(id)}})}
 $('#ic-pen').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();menu([['گروه جدید','users',ngGroup],['کانال جدید','megaphone',ngChannel],['پیام جدید','chat',ngMsg]],r.bottom+8,r.left+r.width/2)};
 /* info page: members, admins, edit (permission based) */
 const refresh=c=>{drawList();if(cur===c)openInfo()};
@@ -1550,7 +1551,7 @@ function extendInfo(c){const box=$('#isc'),acts=box.querySelector('.acts');if(!a
  let h='';if(c.desc||c.link)h+=`<div class="card">${c.desc?`<div class="ir"><small>توضیحات</small><div dir="auto">${esc(c.desc)}</div></div>`:''}${c.link?`<div class="ir"><small>پیوند</small><div class="g" dir="ltr" style="text-align:right">${esc(c.link)}</div></div>`:''}</div>`;
  if(c.members){h+=`<div class="cap" style="padding:8px 28px 4px">${isCh?'مشترکان':'اعضا'} · ${fa(c.members.length)}</div><div class="card">${can(c,'invite')?`<div class="sr press" id="gAdd" style="color:var(--ac)">${I('plus',24)} ${isCh?'افزودن مشترک':'افزودن عضو'}</div>`:''}${c.members.map(mm=>`<div class="sr press" data-m="${mm.id}">${avM(mm)}<span dir="auto" style="flex:1;margin:0 10px">${esc(mm.n)}</span><small style="color:var(--ac)">${mm.role=='owner'?'سازنده':mm.role=='admin'?'مدیر':''}</small></div>`).join('')}</div><div class="card"><div class="sr press" id="gLeave" style="color:var(--red)">${R=='owner'?'حذف ':'ترک '}${isCh?'کانال':'گروه'}</div></div>`}
  acts.insertAdjacentHTML('afterend',h);if(!c.members)return;
- const ad=box.querySelector('#gAdd');ad&&(ad.onclick=()=>{if(!can(c,'invite'))return toast(NOPE);ngOpen();picker({title:isCh?'افزودن مشترک':'افزودن عضو',lt:'انصراف',lf:ngClose,rt:'افزودن',min:1,sel:new Set(),exclude:c.members.map(x=>x.id),rf:ids=>{ids.forEach(i=>c.members.push({id:i,n:C.find(x=>x.id==i).n,role:'member'}));ngClose();refresh(c)}})});
+ const ad=box.querySelector('#gAdd');ad&&(ad.onclick=()=>{if(!can(c,'invite'))return toast(NOPE);ngOpen();picker({title:isCh?'افزودن مشترک':'افزودن عضو',lt:XI,lf:ngClose,rt:'افزودن',min:1,sel:new Set(),exclude:c.members.map(x=>x.id),rf:ids=>{ids.forEach(i=>c.members.push({id:i,n:C.find(x=>x.id==i).n,role:'member'}));ngClose();refresh(c)}})});
  box.querySelectorAll('[data-m]').forEach(el=>el.onclick=()=>{const mm=c.members.find(x=>String(x.id)==el.dataset.m);if(!mm||mm.id=='me'||mm.role=='owner')return;const it=[];
   if(R=='owner'){if(mm.role=='admin'){it.push(['ویرایش دسترسی‌ها','gear',()=>permSheet(c,mm)]);it.push(['برکناری از مدیریت','user',()=>{mm.role='member';delete mm.perms;refresh(c)}])}else it.push(['ارتقا به مدیر','shield',()=>permSheet(c,mm)])}
   if(can(c,'ban')&&(R=='owner'||mm.role!='admin'))it.push(['حذف از '+(isCh?'کانال':'گروه'),'trash',()=>{c.members=c.members.filter(x=>x!==mm);refresh(c)},1]);
@@ -1605,6 +1606,175 @@ document.addEventListener('touchend',()=>{if(!el)return;if(!mv&&!el.classList.co
 document.addEventListener('touchcancel',()=>{if(el){el.classList.remove('pdn');}clearTimeout(tm);el=null},{passive:true});
 document.addEventListener('scroll',()=>{if(el){clearTimeout(tm);el.classList.remove('pdn');mv=1;el=null}},true);
 })();
+</script>
+<script>
+Object.assign(EN,{'آدرس سرور (Host)':'Server address (Host)',
+'رمز / Secret (اختیاری)':'Password / Secret (optional)',
+'آدرس و پورت معتبر وارد کنید':'Enter a valid address and port',
+'آلبوم':'Album',
+'آماده‌سازی انجام نشد':'Preparation failed',
+'آپلود امروز':'Today’s upload',
+'دانلود امروز':'Today’s download',
+'ارتقا به مدیر':'Promote to admin',
+'ارسال به‌صورت فایل':'Send as file',
+'ارسال زمان‌بندی‌شده':'Schedule message',
+'ارسال شد':'Sent',
+'ارسال هنگام آنلاین شدن':'Send when online',
+'ارسال پیام':'Send message',
+'استفاده از پروکسی':'Use proxy',
+'اعضا':'Members',
+'اعطای دسترسی‌ها':'Grant permissions',
+'افزودن':'Add',
+'افزودن اعضا':'Add members',
+'افزودن توضیح…':'Add description…',
+'افزودن عضو':'Add member',
+'افزودن مشترک':'Add subscriber',
+'انتخاب':'Select',
+'انصراف':'Cancel',
+'ایجاد':'Create',
+'ایجاد کانال':'Create channel',
+'ایموجی':'Emoji',
+'ایمیل معتبر نیست':'Invalid email',
+'این تصویر قابل باز شدن نیست':'This image can’t be opened',
+'این دستگاه یا مرورگر از دوربین و میکروفون پشتیبانی نمی‌کند.':'This device or browser does not support camera and microphone.',
+'این نام کاربری گرفته شده است':'This username is taken',
+'با دو انگشت بزرگ/کوچک کنید و بکشید':'Pinch to zoom and drag',
+'با پاک‌کردن کش، رسانه‌های دریافتی را باید دوباره دستی دانلود کنید.':'After clearing the cache, received media must be downloaded again manually.',
+'بازنشانی':'Reset',
+'برای ارسال موقعیت شما (اختیاری)':'To send your location (optional)',
+'برای ذخیره‌ی پیام‌ها و رسانه‌ها روی دستگاه':'To store messages and media on your device',
+'برای ضبط پیام صوتی و ویدیویی':'To record voice and video messages',
+'برای ضبط پیام ویدیویی و عکس':'To record video messages and photos',
+'برای ورود به «لینک» باید دسترسی‌های زیر را بدهید.':'To sign in to “Link” you need to grant the permissions below.',
+'بررسی دوباره':'Check again',
+'برکناری از مدیریت':'Remove as admin',
+'بعدی':'Next',
+'تأیید':'Confirm',
+'ترک شد':'Left',
+'ترک':'Leave',
+'تغییر اطلاعات':'Change info',
+'تغییر عکس':'Change photo',
+'توضیحات (اختیاری)':'Description (optional)',
+'تکرار رمز جدید':'Repeat new password',
+'تکرار رمز یکسان نیست':'Passwords don’t match',
+'جستجوی گیف':'Search GIFs',
+'حافظه دستگاه':'Device storage',
+'حافظه و کش':'Storage and Cache',
+'link.app/نام‌کاربری — حداقل ۵ نویسه (حروف انگلیسی، عدد و _)':'link.app/username — at least 5 characters (letters, digits and _)',
+'حذف اعضا':'Remove members',
+'حذف شد':'Deleted',
+'حذف عکس':'Delete photo',
+'حذف پوشه':'Delete folder',
+'حذف پیام‌ها':'Delete messages',
+'خصوصی':'Private',
+'عمومی':'Public',
+'دانلود ناموفق بود':'Download failed',
+'MP4 در این مرورگر پشتیبانی نمی‌شود؛ WebM ارسال شد':'MP4 is not supported in this browser; WebM was sent',
+'در حال آماده‌سازی':'Preparing',
+'در حال آماده‌سازی…':'Preparing…',
+'در حالت «فایل» ویرایش ممکن نیست':'Editing isn’t possible in “File” mode',
+'درباره من':'About me',
+'دسترسی دوربین/میکروفون ممکن نیست':'Camera/microphone access isn’t available',
+'دسترسی مسدود شده است. از تنظیمات مرورگر یا دستگاه (قفل کنار آدرس ← مجوزها، یا تنظیمات برنامه) دوربین و میکروفون را روی «اجازه» بگذارید و برگردید؛ خودکار بررسی می‌شود.':'Access is blocked. In your browser or device settings (lock icon next to the address → permissions, or app settings), set camera and microphone to “Allow” and come back; it is checked automatically.',
+'دسترسی میکروفون ممکن نیست':'Microphone access isn’t available',
+'دسترسی‌ها ذخیره شد':'Permissions saved',
+'دسترسی‌های لازم':'Required permissions',
+'دسترسی‌های مدیر':'Admin permissions',
+'دوربین':'Camera',
+'میکروفون':'Microphone',
+'دوربین و میکروفون فقط در اتصال امن (HTTPS) کار می‌کنند. برنامه را از آدرس https باز کنید.':'Camera and microphone only work over a secure connection (HTTPS). Open the app from an https address.',
+'ذخیره':'Save',
+'ذخیره رمز':'Save password',
+'ذخیره شد':'Saved',
+'ذخیره‌سازی روی دستگاه در دسترس نیست (حالت ناشناس یا مسدود). مرورگر را از حالت خصوصی خارج کنید.':'Device storage isn’t available (private mode or blocked). Exit private browsing.',
+'رسانه‌ای ذخیره نشده است':'No media stored',
+'رسانه‌های دانلودشده':'Downloaded media',
+'رمز':'Password',
+'رمز جدید':'New password',
+'رمز جدید حداقل ۶ حرف باشد.':'New password must be at least 6 characters.',
+'رمز جدید خیلی کوتاه است':'New password is too short',
+'رمز فعلی':'Current password',
+'رمز فعلی درست نیست':'Current password is incorrect',
+'رمز ورود تغییر کرد':'Password changed',
+'زمان ارسال پیام را انتخاب کنید':'Choose when to send',
+'زمان باید در آینده باشد':'Time must be in the future',
+'زمان‌بندی':'Schedule',
+'زمان‌بندی‌شده':'Scheduled',
+'سازنده':'Owner',
+'سایر':'Other',
+'سنجاق کردن پیام':'Pin message',
+'سهمیهٔ آپلود امروز شما تمام شده است':'Your upload quota for today is used up',
+'سهمیهٔ دانلود امروز شما تمام شده است':'Your download quota for today is used up',
+'سهمیهٔ روزانهٔ هر کاربر از طرف مدیریت تعیین می‌شود و هر روز از نو شروع می‌شود.':'Each user’s daily quota is set by the administration and resets every day.',
+'عضو':'Member',
+'عکس پروفایل تغییر کرد':'Profile photo changed',
+'عکس‌ها':'Photos',
+'ویدیوها':'Videos',
+'پیام‌های صوتی':'Voice messages',
+'فایل‌ها':'Files',
+'فعال':'Enabled',
+'فعال‌سازی صدا':'Unmute',
+'فقط افرادی که لینک دعوت دارند می‌توانند عضو شوند':'Only people with the invite link can join',
+'فقط سازنده و مدیران دارای دسترسی مجازند':'Only the owner and admins with access are allowed',
+'فقط مدیران می‌توانند پیام ارسال کنند':'Only admins can send messages',
+'فلش دوربین پشت پشتیبانی نمی‌شود':'Rear camera flash isn’t supported',
+'لطفاً در پنجره‌ی باز شده «اجازه» را بزنید…':'Please tap “Allow” in the window that opened…',
+'لینک دعوت':'Invite link',
+'لینک':'Link',
+'مدیر':'Admin',
+'مشترک':'Subscriber',
+'مشترکان':'Subscribers',
+'من':'Me',
+'منتظر آنلاین شدن…':'Waiting to be online…',
+'موردی یافت نشد':'No results found',
+'می‌توانید توضیحاتی برای کانال خود اضافه کنید.':'You can add a description for your channel.',
+'نام را وارد کنید':'Enter a name',
+'نام و توضیح شما به مخاطبین نمایش داده می‌شود. نام کاربری ۵ تا ۳۲ حرف انگلیسی، عدد یا _ باشد.':'Your name and bio are shown to your contacts. Username: 5–32 English letters, digits or _.',
+'نام پوشه':'Folder name',
+'نام پوشه را وارد کنید':'Enter a folder name',
+'نام کاربری (مثلاً ali_123)':'Username (e.g. ali_123)',
+'نام کاربری معتبر نیست':'Invalid username',
+'نام کانال':'Channel name',
+'نام گروه':'Group name',
+'نامحدود':'Unlimited',
+'نام‌کاربری':'Username',
+'نمایش رمز':'Show password',
+'پنهان کردن رمز':'Hide password',
+'نوع کانال':'Channel type',
+'هر کسی می‌تواند با جستجو یا لینک عضو شود':'Anyone can join via search or link',
+'هنوز تماسی ثبت نشده است.':'No calls yet.',
+'هنوز پوشه‌ای نساخته‌اید.':'You haven’t created any folders yet.',
+'ورود به لینک':'Sign in to Link',
+'ویرایش دسترسی‌ها':'Edit permissions',
+'ویرایش پوشه':'Edit folder',
+'پاک کردن سابقه':'Clear history',
+'پاک‌کردن':'Clear',
+'پاک‌کردن رسانه‌های دانلودشده':'Clear downloaded media',
+'پاک‌کردن همهٔ رسانه‌های دانلودشده':'Clear all downloaded media',
+'پاک‌کردن گفتگوهای ذخیره‌شده':'Clear saved chats',
+'پروکسی فعال شد':'Proxy enabled',
+'پورت':'Port',
+'پوشه‌ی جدید':'New folder',
+'پیام جدید':'New message',
+'پیام زمان‌بندی شد':'Message scheduled',
+'پیام هنگام آنلاین شدن مخاطب ارسال می‌شود':'The message will be sent when the contact comes online',
+'پیوند':'Link',
+'پیوند کانال':'Channel link',
+'چرخش دوربین ممکن نیست':'Can’t flip the camera',
+'کانال جدید':'New channel',
+'کانال ساخته شد':'Channel created',
+'کانال‌ها ابزاری برای پخش پیام به مخاطبان نامحدود هستند. فقط سازنده و مدیران می‌توانند در کانال پیام بفرستند.':'Channels are a tool for broadcasting messages to unlimited audiences. Only the owner and admins can post in a channel.',
+'کش رسانه پاک شد':'Media cache cleared',
+'گروه جدید':'New group',
+'گروه ساخته شد':'Group created',
+'گفتگو':'Chat',
+'گفتگوهای این پوشه':'Chats in this folder',
+'گفتگوهای ذخیره‌شده':'Saved chats',
+'گفتگوهای ذخیره‌شده پاک شد':'Saved chats cleared',
+'گیفی پیدا نشد':'No GIFs found'});
+EP.push([['· نامحدود','· Unlimited'],'باقی‌مانده','Remaining'],['کیلوبایت','KB'],['مگابایت','MB'],['بایت','B'],['حذف برای من و ','Delete for me and '],['حذف از کانال','Remove from channel'],['حذف از گروه','Remove from group'],['حذف کانال','Delete channel'],['ترک کانال','Leave channel'],['حذف گروه','Delete group'],['ترک گروه','Leave group']);
+{const _cf=window.confirm,_al=window.alert;window.confirm=m=>_cf.call(window,lang=='en'?tx(String(m)):m);window.alert=m=>_al.call(window,lang=='en'?tx(String(m)):m)}
+runLang();
 </script>
 </body>
 </html>
