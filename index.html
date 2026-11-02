@@ -499,7 +499,7 @@ bindTi();updBtn();drawChips();drawList();drawContacts();drawTabs();drawSettings(
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 let u=null;try{u=JSON.parse(ld('u'))}catch(e){}if(u){$('#auth').classList.add('gone');enter(u)}}
 /* language */
-const EN={'پروفایل':'Profile','تنظیمات':'Settings','مخاطبین':'Contacts','گفتگوها':'Chats','ویرایش':'Edit','تمام':'Done','همه':'All','شخصی':'Private','گروه':'Groups','کانال':'Channels','جستجو':'Search','لغو':'Cancel','جستجوی مخاطبین':'Search contacts','در حال اتصال…':'Connecting…','خواندن':'Read','حذف':'Delete','ورود':'Log In','ثبت‌نام':'Sign Up','حساب ندارید؟ ثبت‌نام':"Don't have an account? Sign up",'حساب دارید؟ ورود':'Have an account? Log in','برای ادامه وارد شوید':'Log in to continue','یک حساب جدید بسازید':'Create a new account','ایمیل':'Email','رمز عبور':'Password','نام':'Name','پیام':'Message','تغییر عکس پروفایل':'Change Profile Photo','افزودن حساب':'Add Account','پروفایل من':'My Profile','پروکسی':'Proxy','غیرفعال':'Disabled','پیام‌های ذخیره‌شده':'Saved Messages','تماس‌های اخیر':'Recent Calls','دستگاه‌ها':'Devices','اسکن QR':'Scan QR','پوشه‌های گفتگو':'Chat Folders','حالت تاریک':'Dark Mode','خروج':'Log Out','زبان':'Language','به‌زودی':'Coming soon','گفتگویی پیدا نشد':'No chats found','سنجاق':'Pin','برداشتن سنجاق':'Unpin','علامت‌گذاری خوانده':'Mark as Read','علامت‌گذاری ناخوانده':'Mark as Unread','بی‌صدا':'Mute','باصدا':'Unmute','پاسخ':'Reply','کپی':'Copy','کپی شد':'Copied','ارسال':'Forward','پیام سنجاق‌شده':'Pinned Message','موقعیت زنده · ۲ عضو':'Live Location · 2 members','امروز':'Today','شما':'You','تماس':'Call','ویدیو':'Video','بیشتر':'More','موبایل':'mobile','نام کاربری':'username','تولد':'birthday','بیوگرافی':'bio','توضیحات':'info','رسانه':'Media','ذخیره‌شده':'Saved','فایل‌ها':'Files','موسیقی':'Music','صدا':'Voice','پیوندها':'Links','تغییر والپیپر':'Change Wallpaper','شروع چت رمزنگاری‌شده':'Start Secret Chat','اشتراک مخاطب':'Share Contact','ارسال هدیه':'Send a Gift','پاک‌کردن پیام‌ها':'Clear Messages','مسدود کردن':'Block User','عکس یا ویدیو':'Photo or Video','فایل':'File','موقعیت مکانی':'Location','مخاطب':'Contact','برای ضبط نگه دارید':'Hold to record','در حال نوشتن…':'typing…','آنلاین':'online','اخیراً آنلاین بود':'last seen recently','مدتی پیش':'last seen a while ago','۳ عضو':'3 members','۱۲۰۰ مشترک':'1,200 subscribers','پاک شد':'Cleared','مسدود شد':'Blocked','بی‌صدا شد':'Muted','باصدا شد':'Unmuted','جستجو: به‌زودی':'Search: coming soon','تماس: بعد از اتصال به سرور':'Calls: after server connection','گفتگوی جدید: به‌زودی':'New chat: coming soon','یکشنبه':'Sun','شنبه':'Sat','سه‌شنبه':'Tue','۲۱ آبان':'Nov 12','عکس':'Photo','پیام صوتی':'Voice Message','استیکر':'Sticker','ویدیو پیام':'Video Message','گیف':'GIF','حذف':'Delete','برای ارسال بزنید':'Tap to send'};
+const EN={'ذخیره‌سازی و اطلاعات':'Storage and Data','لیمیت روزانه':'Daily Limit','مشاهده لیمیت روزانه':'View Daily Limit','تغییر رمز ورود':'Change Password','پروفایل':'Profile','تنظیمات':'Settings','مخاطبین':'Contacts','گفتگوها':'Chats','ویرایش':'Edit','تمام':'Done','همه':'All','شخصی':'Private','گروه':'Groups','کانال':'Channels','جستجو':'Search','لغو':'Cancel','جستجوی مخاطبین':'Search contacts','در حال اتصال…':'Connecting…','خواندن':'Read','حذف':'Delete','ورود':'Log In','ثبت‌نام':'Sign Up','حساب ندارید؟ ثبت‌نام':"Don't have an account? Sign up",'حساب دارید؟ ورود':'Have an account? Log in','برای ادامه وارد شوید':'Log in to continue','یک حساب جدید بسازید':'Create a new account','ایمیل':'Email','رمز عبور':'Password','نام':'Name','پیام':'Message','تغییر عکس پروفایل':'Change Profile Photo','افزودن حساب':'Add Account','پروفایل من':'My Profile','پروکسی':'Proxy','غیرفعال':'Disabled','پیام‌های ذخیره‌شده':'Saved Messages','تماس‌های اخیر':'Recent Calls','دستگاه‌ها':'Devices','اسکن QR':'Scan QR','پوشه‌های گفتگو':'Chat Folders','حالت تاریک':'Dark Mode','خروج':'Log Out','زبان':'Language','به‌زودی':'Coming soon','گفتگویی پیدا نشد':'No chats found','سنجاق':'Pin','برداشتن سنجاق':'Unpin','علامت‌گذاری خوانده':'Mark as Read','علامت‌گذاری ناخوانده':'Mark as Unread','بی‌صدا':'Mute','باصدا':'Unmute','پاسخ':'Reply','کپی':'Copy','کپی شد':'Copied','ارسال':'Forward','پیام سنجاق‌شده':'Pinned Message','موقعیت زنده · ۲ عضو':'Live Location · 2 members','امروز':'Today','شما':'You','تماس':'Call','ویدیو':'Video','بیشتر':'More','موبایل':'mobile','نام کاربری':'username','تولد':'birthday','بیوگرافی':'bio','توضیحات':'info','رسانه':'Media','ذخیره‌شده':'Saved','فایل‌ها':'Files','موسیقی':'Music','صدا':'Voice','پیوندها':'Links','تغییر والپیپر':'Change Wallpaper','شروع چت رمزنگاری‌شده':'Start Secret Chat','اشتراک مخاطب':'Share Contact','ارسال هدیه':'Send a Gift','پاک‌کردن پیام‌ها':'Clear Messages','مسدود کردن':'Block User','عکس یا ویدیو':'Photo or Video','فایل':'File','موقعیت مکانی':'Location','مخاطب':'Contact','برای ضبط نگه دارید':'Hold to record','در حال نوشتن…':'typing…','آنلاین':'online','اخیراً آنلاین بود':'last seen recently','مدتی پیش':'last seen a while ago','۳ عضو':'3 members','۱۲۰۰ مشترک':'1,200 subscribers','پاک شد':'Cleared','مسدود شد':'Blocked','بی‌صدا شد':'Muted','باصدا شد':'Unmuted','جستجو: به‌زودی':'Search: coming soon','تماس: بعد از اتصال به سرور':'Calls: after server connection','گفتگوی جدید: به‌زودی':'New chat: coming soon','یکشنبه':'Sun','شنبه':'Sat','سه‌شنبه':'Tue','۲۱ آبان':'Nov 12','عکس':'Photo','پیام صوتی':'Voice Message','استیکر':'Sticker','ویدیو پیام':'Video Message','گیف':'GIF','حذف':'Delete','برای ارسال بزنید':'Tap to send'};
 const EP=[['برای لغو بکشید','Slide to cancel'],['ضبط ویدیو','Recording video'],['ضبط صدا','Recording voice'],['رها کنید تا ارسال شود','release to send'],['آخرین بازدید امروز','last seen today at'],['آخرین بازدید شنبه','last seen Saturday']];
 function tx(s){const t=s.trim();if(!t)return s;let r=EN[t];if(r===undefined){r=t;EP.forEach(([a,b])=>r=r.split(a).join(b));if(r===t)return s}return s.replace(t,r)}
 let lq=0,obs;
@@ -547,7 +547,7 @@ app.addEventListener('touchmove',e=>{if(!S)return;const t=e.touches[0],dx=t.clie
   if(S.pr){if(d<0){S=null;return}S.kind='page';S.p=S.ov||$(S.pr[0]);S.u=S.ov?document.createElement('i'):$(S.pr[1]);S.p.style.transition=S.u.style.transition='none';S.p.style.willChange=S.u.style.willChange='transform'}
   else{const FL=FI(),i=FL.indexOf(fl),ti=TABS.indexOf(tab);
    if(tab=='chats'&&i-d>=0&&i-d<FL.length){S.kind='fl';S.el=$('#list');S.cl=mkClone(FL[i-d]);S.ni=i-d;S.el.style.transition='none';S.el.style.willChange='transform'}
-   else{const nt=TABS[ti-d];S.cur=$('#t-'+tab);S.cur.style.transition='none';S.cur.style.willChange='transform';
+   else{if(tab!='chats'){S=null;return}const nt=null;S.cur=$('#t-'+tab);S.cur.style.transition='none';S.cur.style.willChange='transform';
     if(!nt){S.kind='rb'}else{S.kind='tab';S.nt=nt;S.tg=$('#t-'+nt);S.tg.classList.remove('hide');S.tg.style.animation='none';S.tg.style.transition='none';S.tg.style.willChange='transform'}}}}
  e.preventDefault();
  S.dx=dx;S.sm.push({x:t.clientX,t:now});while(S.sm.length>2&&now-S.sm[0].t>100)S.sm.shift();
@@ -1411,6 +1411,46 @@ window.openCache=async()=>{const u=await usage();const b=openSheet('حافظه �
   C.forEach(c=>c.msgs.forEach(x=>{x._ck=1;x.hb=0;if(x.items)x.items.forEach(it=>{it._ck=1;it.hb=0});if(!x.out&&(x.type=='rv'||x.type=='vc'||x.type=='al'||x.type=='fl'||x.type=='im')){if(x.url){try{URL.revokeObjectURL(x.url)}catch(e){}x.url=null;x._v=x._a=null}x.dl=0}}));
   last='';await tick();if(cur)drawMsgs();closeSheet();toast('کش رسانه پاک شد')};
  b.querySelector('#cc2').onclick=async()=>{try{await tx('kv','readwrite',o=>o.clear())}catch(e){}last=JSON.stringify(C,san);closeSheet();toast('گفتگوهای ذخیره‌شده پاک شد')}};
+/* ============ storage & data (per chat) + daily quota ============ */
+const CATS=[['im','عکس‌ها','#4aa8e8'],['vd','ویدیوها','#8e6fe0'],['au','پیام‌های صوتی','#f5a623'],['fl','فایل‌ها','#34c759'],['ot','سایر','#8e8e93']];
+const keyMap=()=>{const m=new Map();C.forEach(c=>c.msgs.forEach(x=>{if(x.items)x.items.forEach((it,k)=>m.set(c.id+':'+x.id+':'+k,[c.id,it.k=='v'?'vd':it.k=='p'?'im':'fl']));else m.set(c.id+':'+x.id,[c.id,x.type=='rv'?'vd':x.type=='vc'?'au':x.type=='im'?'im':'ot'])}));return m};
+async function scanMedia(){const R={},m=keyMap();try{const d=await openDB();await new Promise(r=>{const q=d.transaction('media').objectStore('media').openCursor();q.onsuccess=()=>{const c=q.result;if(c){const k=String(c.key),[id,ct]=m.get(k)||[k.split(':')[0],'ot'],o=R[String(id)]||(R[String(id)]={im:0,vd:0,au:0,fl:0,ot:0,t:0}),z=c.value.size||0;o[ct]+=z;o.t+=z;c.continue()}else r()};q.onerror=()=>r()})}catch(e){}return R}
+async function clearChatMedia(cid,cats){const m=keyMap(),ks=[...m].filter(([k,v])=>String(v[0])==String(cid)&&cats.includes(v[1])).map(a=>a[0]);
+ try{await tx('media','readwrite',o=>{ks.forEach(k=>o.delete(k))})}catch(e){}
+ const c=C.find(q=>String(q.id)==String(cid));if(c)c.msgs.forEach(x=>{
+  if(x.items){let hit=0;x.items.forEach((it,k)=>{const ct=it.k=='v'?'vd':it.k=='p'?'im':'fl';if(cats.includes(ct)){it._ck=1;it.hb=0;it.u=it.t||'';hit=1}});if(hit&&!x.out)x.dl=0}
+  else{const ct=x.type=='rv'?'vd':x.type=='vc'?'au':x.type=='im'?'im':'ot';if(cats.includes(ct)){x._ck=1;x.hb=0;if(!x.out){if(x.url){try{URL.revokeObjectURL(x.url)}catch(e){}x.url=null;x._v=x._a=null}x.dl=0}}}});
+ last='';await tick();if(cur)drawMsgs()}
+const ckI='<i class="ck on"></i>';
+function openChatStorage(cid,R){const c=C.find(q=>String(q.id)==String(cid)),o=R[String(cid)]||{},on=new Set(CATS.filter(k=>o[k[0]]>0).map(k=>k[0]));
+ const body=()=>`<div class="card"><div class="sr press" id="sbk" style="color:var(--ac)">‹ بازگشت</div></div><div class="card">${CATS.filter(k=>o[k[0]]>0).map(k=>`<div class="sr press" data-k="${k[0]}"><i class="ck ${on.has(k[0])?'on':''}"></i><span style="flex:1;margin-right:10px">${k[1]}</span><span class="v">${fmtB(o[k[0]])}</span></div>`).join('')}</div><div class="card"><div class="sr press ${on.size?'':'dis'}" id="scl" style="color:var(--red);justify-content:center">پاک‌کردن ${fmtB([...on].reduce((a,k)=>a+o[k],0))}</div></div>`;
+ const b=openSheet(esc(c?c.n:'گفتگو'),body());
+ const bind=()=>{b.querySelector('#sbk').onclick=()=>openCache();b.querySelectorAll('[data-k]').forEach(e=>e.onclick=()=>{const k=e.dataset.k;on.has(k)?on.delete(k):on.add(k);b.innerHTML=body();bind()});
+  b.querySelector('#scl').onclick=async()=>{if(!on.size)return;await clearChatMedia(cid,[...on]);toast('پاک شد');openCache()}};bind()}
+window.openCache=async()=>{const R=await scanMedia(),tot={im:0,vd:0,au:0,fl:0,ot:0,t:0};Object.values(R).forEach(o=>{CATS.forEach(k=>tot[k[0]]+=o[k[0]]);tot.t+=o.t});
+ const list=C.filter(c=>R[String(c.id)]&&R[String(c.id)].t>0).sort((a,b)=>R[String(b.id)].t-R[String(a.id)].t);
+ const bar=tot.t?`<div class="stk">${CATS.filter(k=>tot[k[0]]>0).map(k=>`<i style="flex:${tot[k[0]]};background:${k[2]}"></i>`).join('')}</div>`:'';
+ const b=openSheet('ذخیره‌سازی و اطلاعات',`<div class="card"><div class="sr"><span style="flex:1">رسانه‌های دانلودشده</span><span class="v">${fmtB(tot.t)}</span></div>${bar?`<div style="padding:0 16px 12px">${bar}</div>`:''}${CATS.filter(k=>tot[k[0]]>0).map(k=>`<div class="sr"><i class="dt" style="background:${k[2]}"></i><span style="flex:1;margin-right:10px">${k[1]}</span><span class="v">${fmtB(tot[k[0]])}</span></div>`).join('')}</div>
+ <div class="card"><div class="sr press" id="q1"><span style="flex:1">مشاهده لیمیت روزانه</span><span>›</span></div></div>
+ <div class="cap">گفتگوها</div><div class="card">${list.length?list.map(c=>`<div class="sr press" data-c="${c.id}">${av(c,36)}<span style="flex:1;margin-right:10px" dir="auto">${esc(c.n)}</span><span class="v">${fmtB(R[String(c.id)].t)}</span></div>`).join(''):'<div class="em" style="padding:20px">رسانه‌ای ذخیره نشده است</div>'}</div>
+ <div class="cap">با پاک‌کردن کش، رسانه‌های دریافتی را باید دوباره دستی دانلود کنید.</div>
+ <div class="card"><div class="sr press" id="cc1" style="color:var(--red)">پاک‌کردن همهٔ رسانه‌های دانلودشده</div><div class="sr press" id="cc2" style="color:var(--red)">پاک‌کردن گفتگوهای ذخیره‌شده</div></div>`);
+ b.querySelector('#q1').onclick=()=>openQuota();
+ b.querySelectorAll('[data-c]').forEach(e=>e.onclick=()=>openChatStorage(e.dataset.c,R));
+ b.querySelector('#cc1').onclick=async()=>{try{await tx('media','readwrite',o=>o.clear())}catch(e){}
+  C.forEach(c=>c.msgs.forEach(x=>{x._ck=1;x.hb=0;if(x.items)x.items.forEach(it=>{it._ck=1;it.hb=0});if(!x.out&&(x.type=='rv'||x.type=='vc'||x.type=='al'||x.type=='fl'||x.type=='im')){if(x.url){try{URL.revokeObjectURL(x.url)}catch(e){}x.url=null;x._v=x._a=null}x.dl=0}}));
+  last='';await tick();if(cur)drawMsgs();closeSheet();toast('کش رسانه پاک شد')};
+ b.querySelector('#cc2').onclick=async()=>{try{await tx('kv','readwrite',o=>o.clear())}catch(e){}last=JSON.stringify(C,san);closeSheet();toast('گفتگوهای ذخیره‌شده پاک شد')}};
+/* daily quota: limits are set by the admin console later (bytes per day; empty = unlimited) */
+const qLim=()=>{let q=window.QUOTA;if(!q){try{q=JSON.parse(ld('quota'))}catch(e){}}return q||{}};
+const qDay=()=>new Date().toLocaleDateString('en-CA');
+const qGet=()=>{let d;try{d=JSON.parse(ld('qu'))}catch(e){}return d&&d.d==qDay()?d:{d:qDay(),up:0,down:0}};
+window.setQuota=o=>{sv('quota',JSON.stringify(o||{}))};
+window.quotaAdd=(k,n)=>{const d=qGet();d[k]=(d[k]||0)+(n||0);sv('qu',JSON.stringify(d))};
+window.quotaGate=(k,n)=>{const l=qLim()[k];if(!l)return true;if(qGet()[k]+n>l){toast(k=='up'?'سهمیهٔ آپلود امروز شما تمام شده است':'سهمیهٔ دانلود امروز شما تمام شده است');return false}return true};
+window.openQuota=()=>{const d=qGet(),L=qLim(),row=(t,u,l)=>`<div class="sr" style="flex-direction:column;align-items:stretch;gap:8px"><div style="display:flex"><span style="flex:1">${t}</span><span class="v">${fmtB(u)}${l?' از '+fmtB(l):' · نامحدود'}</span></div><div class="qb"><i style="width:${l?Math.min(100,u/l*100):0}%"></i></div>${l?`<small style="color:var(--t2)">باقی‌مانده: ${fmtB(Math.max(0,l-u))}</small>`:''}</div>`;
+ const b=openSheet('لیمیت روزانه',`<div class="card"><div class="sr press" id="qbk" style="color:var(--ac)">‹ بازگشت</div></div><div class="card">${row('آپلود امروز',d.up||0,L.up)}${row('دانلود امروز',d.down||0,L.down)}</div><div class="cap">سهمیهٔ روزانهٔ هر کاربر از طرف مدیریت تعیین می‌شود و هر روز از نو شروع می‌شود.</div>`);
+ b.querySelector('#qbk').onclick=()=>openCache()};
 /* ============ 2) composer: sticker / GIF / emoji panel replaces clock ============ */
 const inb=$('.inb'),irow=$('.irow'),ti=$('#ti'),stI=$('#ic-st');
 const SMILE='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14c1 1.5 2.2 2.2 3.5 2.2s2.5-.7 3.5-2.2M9 9.5h.01M15 9.5h.01"/></svg>';
@@ -1522,6 +1562,14 @@ const _ds=drawSettings;drawSettings=function(){_ds();const cards=$$('#ssc .card'
 drawSettings();
 })();
 </script>
+<style>
+.ck{width:22px;height:22px;border-radius:6px;border:2px solid #b5b5ba;flex:none;box-sizing:border-box}
+.ck.on{background:var(--ac) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E") center/14px no-repeat;border-color:var(--ac)}
+.dt{width:12px;height:12px;border-radius:50%;flex:none}
+.stk{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;width:100%}.stk i{display:block;min-width:4px}
+.qb{height:8px;border-radius:4px;background:rgba(120,120,128,.2);overflow:hidden}.qb i{display:block;height:100%;background:var(--ac);border-radius:4px}
+#sp .sr.dis{opacity:.4;pointer-events:none}
+</style>
 <style>
 .b.sel2{outline:2.5px solid var(--ac);outline-offset:2px}
 #chat.selm .b::before{content:"";position:absolute;top:-6px;width:20px;height:20px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.28);z-index:7;box-sizing:border-box}
