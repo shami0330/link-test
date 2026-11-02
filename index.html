@@ -83,7 +83,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
 #chat{background:linear-gradient(160deg,#e9a46b,#ecd68a 48%,#e8a36c)}
 .dark #chat{background:linear-gradient(160deg,#1c2a20,#0f1a14 50%,#1a2420)}
 #chat::before{content:"";position:absolute;inset:0;opacity:.2;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' fill='none' stroke='%23b0672f' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='28' cy='30' r='10'/%3E%3Cpath d='M90 24l5 11 12 2-9 8 3 12-11-6-11 6 3-12-9-8 12-2zM30 100c-8-8 3-17 9-9 6-8 17 1 9 9l-9 9zM110 100h22v16h-22zM100 140l30-4M60 140a8 8 0 1016 0 8 8 0 10-16 0'/%3E%3C/svg%3E");pointer-events:none}
-#msgs{position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top) + 130px) 10px 96px;display:flex;flex-direction:column;gap:5px;scroll-behavior:smooth}
+#msgs{position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top) + 130px) 10px calc(var(--ibh,56px) + 15px);display:flex;flex-direction:column;gap:5px;scroll-behavior:smooth}
 .chead{flex-direction:column;align-items:stretch;gap:8px}
 .ch1{display:flex;justify-content:space-between;align-items:center}
 .ctitle{padding:5px 28px;border-radius:99px;text-align:center;min-width:150px}
@@ -324,7 +324,7 @@ function closeChat(){pop('#chat','#main');cur=null;drawList()}
 function updBtn(){const v=$('#ti').value.trim();const b=$('#mic');b.className='cb press '+(v?'sbtn':'gl');b.innerHTML=v?I('send',24):I(mmode=='v'?'video':'mic',24)}
 function addMsg(o){cur.msgs.push(o);const c=cur;c.last=o.type=='al'||o.type=='fl'?_lblMsg(o):o.type=='im'?'عکس':o.type=='vc'?'پیام صوتی':o.type=='st'?'استیکر':o.text;c.out=o.out;c.time=o.time;drawMsgs()}
 const AR=['باشه 👍','جدی؟ 😂','آره دقیقا','بعدا حرف می‌زنیم','عالیه!','😍😍','چه خبر؟','فهمیدم، ممنون ❤️'];
-function send(){const v=$('#ti').value.trim();if(!v)return;const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent]}:{});o.st=1;addMsg(o);$('#ti').value='';$('#ti').style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();reply(o)}
+function send(){const v=$('#ti').value.trim();if(!v)return;const _kb=document.activeElement===$('#ti');setTimeout(()=>{if(_kb&&document.activeElement!==$('#ti'))$('#ti').focus({preventScroll:true})},0);const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent]}:{});o.st=1;addMsg(o);$('#ti').value='';$('#ti').style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();reply(o)}
 function reply(o){const c=cur;setTimeout(()=>{o.st=2;cur==c&&drawMsgs()},700);
 setTimeout(()=>{if(cur!=c)return;const s=$('#cs');s&&(s.textContent='در حال نوشتن…');$('#msgs').insertAdjacentHTML('beforeend','<div class="b in typ"><i></i><i></i><i></i></div>');$('#msgs').scrollTop=1e5},1100);
 setTimeout(()=>{const t=$('#msgs .typ');t&&t.remove();if(cur!=c)return;addMsg(m(0,AR[Math.random()*AR.length|0],T(),{s:'سامان'}));const s=$('#cs');s&&(s.textContent=c.seen||'آنلاین')},2600)}
@@ -447,7 +447,7 @@ el.onseeked=()=>{if(go)return;go=1;let ac,ds;try{ac=new(window.AudioContext||win
 if(vid){cv=document.createElement('canvas');cv.width=cv.height=RC.v.size;const cx=cv.getContext('2d'),d=()=>{cx.drawImage(el,0,0,cv.width,cv.height);raf=requestAnimationFrame(d)};d();tr=[...cv.captureStream(30).getVideoTracks(),...tr]}
 const mr=new MediaRecorder(new MediaStream(tr),Object.assign(mt?{mimeType:mt}:{},{audioBitsPerSecond:vid?48000:32000},vid?{videoBitsPerSecond:1500000}:{})),ch=[];mr.ondataavailable=x=>x.data.size&&ch.push(x.data);mr.onstop=()=>{cancelAnimationFrame(raf);ac.close();{const nb=new Blob(ch,{type:mr.mimeType||mt});res(nb.size>800?nb:b)}};
 let done=0;const fn=()=>{if(done)return;done=1;el.pause();mr.state!='inactive'&&mr.stop()};el.ontimeupdate=()=>{el.currentTime>=e&&fn()};el.onended=fn;setTimeout(fn,(e-s)*1000+1500);try{mr.start();el.play().catch(()=>res(b))}catch(_){res(b)}}})}
-{const b=$('#mic');b.style.touchAction='none';b.oncontextmenu=e=>e.preventDefault();let x0=0,y0=0,tap=0;
+{const b=$('#mic');b.style.touchAction='none';b.addEventListener('mousedown',e=>e.preventDefault());b.addEventListener('touchstart',e=>{if(document.activeElement===$('#ti'))e.preventDefault()},{passive:false});b.oncontextmenu=e=>e.preventDefault();let x0=0,y0=0,tap=0;
 b.onpointerdown=e=>{held=0;tap=1;x0=e.clientX;y0=e.clientY;if(!hasTxt()){try{b.setPointerCapture(e.pointerId)}catch(_){}hold=setTimeout(()=>{held=1;tap=0;startRec()},350)}};
 b.onpointermove=e=>{if(!held||!Z||Z.st!='rec')return;const dx=Math.min(0,e.clientX-x0),dy=Math.min(0,e.clientY-y0);moveBig(dx,dy);if(dx<-100){held=0;fin(0)}else if(dy<-80){held=0;lockRec()}};
 b.onpointerup=e=>{const tp=tap;tap=0;clearTimeout(hold);if(held){held=0;if(Z&&Z.st=='rec')fin(1);return}if(Z||!tp)return;if(hasTxt())send();else{mmode=mmode=='a'?'v':'a';updBtn()}};
