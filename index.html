@@ -476,7 +476,7 @@ $('#ssc').innerHTML=`<div class="pf">${av(me,120)}<h2 dir="auto">${esc(u.n)}</h2
 <div class="card">${row('#ef5b4c',I('user',22),'پروفایل من','', "openMyProfile()")}</div>
 <div class="card">${row('#4cc45d',I('shield',22),'پروکسی',(()=>{try{return JSON.parse(ld('proxy')).on?'فعال':'غیرفعال'}catch(e){return 'غیرفعال'}})(),"openProxy()")}</div>
 <div class="card">${row('#2f8cf0',I('bm',22),'پیام‌های ذخیره‌شده','',"openChat(2)")}${row('#4cc45d',I('call',22),'تماس‌های اخیر','',"openCalls()")}${row('#f5a53a',I('laptop',22),'دستگاه‌ها','اسکن QR',"toast('به‌زودی')")}${row('#4aa8e8',I('folder',22),'پوشه‌های گفتگو','',"openFolders()")}</div>
-<div class="card">${row('#2f8cf0',I('globe',22),'زبان',lang=='fa'?'فارسی':'English',"langMenu(this)")}<div class="sr"><div class="si" style="background:#5a5adf">${I('moon',22)}</div>حالت تاریک<div class="sw ${document.documentElement.classList.contains('dark')?'on':''}" id="dk"></div></div>${row('#ef5b4c',I('logout',22),'خروج','',"logout()")}</div>`;
+<div class="card">${row('#e85d9a',I('pen',22),'تم و پس‌زمینه','',"openTheme()")}${row('#2f8cf0',I('globe',22),'زبان',lang=='fa'?'فارسی':'English',"langMenu(this)")}<div class="sr"><div class="si" style="background:#5a5adf">${I('moon',22)}</div>حالت تاریک<div class="sw ${document.documentElement.classList.contains('dark')?'on':''}" id="dk"></div></div>${row('#ef5b4c',I('logout',22),'خروج','',"logout()")}</div>`;
 $('#dk').onclick=e=>{const d=document.getElementById('app').classList.toggle('dark');document.documentElement.classList.toggle('dark',d);e.target.classList.toggle('on',d);sv('dark',d?1:'');document.querySelector('meta[name=theme-color]').content=d?'#000':'#fff'}}
 function logout(){sv('u','');logged=0;$('#auth').classList.remove('gone')}
 /* auth */
@@ -1341,6 +1341,37 @@ addEventListener('pagehide',()=>{clearTimeout(window._rel);MST&&MST.getTracks().
 .sp{padding:6px 9px;border-radius:99px;font-size:13px;font-weight:700;white-space:nowrap;transition:background .25s,color .25s;direction:ltr}
 .sp.on{background:var(--ac);color:#fff}
 </style>
+<style>
+[data-th=blue]{--ac:#2f8cf0;--outb:#d6eafd}[data-th=blue].dark{--outb:#1f4e86}
+[data-th=purple]{--ac:#8a5cf0;--outb:#e6dcfb}[data-th=purple].dark{--outb:#4a3586}
+[data-th=rose]{--ac:#e8527f;--outb:#fbdce6}[data-th=rose].dark{--outb:#7a2f49}
+[data-th=orange]{--ac:#f08a2f;--outb:#fde5c8}[data-th=orange].dark{--outb:#7a4a1f}
+.tz{direction:rtl}.tz h4{margin:6px 4px 12px;font-size:15px;color:var(--t2);font-weight:500}
+.tz-r{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.tz-c{width:46px;height:46px;border-radius:50%;box-shadow:inset 0 0 0 3px var(--bg);outline:3px solid transparent;transition:outline-color .2s,transform .2s}.tz-c.on{outline-color:var(--tx)}.tz-c:active{transform:scale(.92)}
+.tz-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tz-b{aspect-ratio:1/1.2;border-radius:14px;border:3px solid transparent;background-size:cover!important;background-position:center!important;transition:border-color .2s,transform .2s}.tz-b.on{border-color:var(--ac)}.tz-b:active{transform:scale(.95)}
+</style>
+<script>
+/* themes (5 colors) + chat background (presets or own photo) */
+(()=>{const D=document.documentElement,A=document.getElementById('app');
+const TH=[['','#3f9c35','پیش‌فرض'],['blue','#2f8cf0','آبی'],['purple','#8a5cf0','بنفش'],['rose','#e8527f','صورتی'],['orange','#f08a2f','نارنجی']];
+const BG=['linear-gradient(160deg,#ff9a76,#ffd27d)','linear-gradient(160deg,#4facfe,#00f2fe)','linear-gradient(160deg,#56ab2f,#a8e063)','linear-gradient(160deg,#8e54e9,#4776e6)','linear-gradient(160deg,#f093fb,#f5576c)','linear-gradient(160deg,#0f2027,#2c5364)','#f3ead7','#1b1b1f'];
+const st=document.createElement('style');document.head.appendChild(st);
+const th=n=>[D,A].forEach(e=>n?e.setAttribute('data-th',n):e.removeAttribute('data-th'));
+const bg=k=>{let c='';if(k=='photo'){const p=ld('cbgPhoto');if(p)c='url("'+p+'") center/cover no-repeat'}else if(k&&k[0]=='p')c=BG[+k.slice(1)]||'';st.textContent=c?'#chat{background:'+c+'!important}#chat::before{display:none}':''};
+th(ld('th')||'');bg(ld('cbg')||'');
+window.openTheme=()=>{const t=ld('th')||'',b=ld('cbg')||'',ph=ld('cbgPhoto');
+openSheet('تم و پس‌زمینه',`<div class="tz"><h4>رنگ تم برنامه</h4><div class="tz-r">${TH.map(x=>`<button class="tz-c ${x[0]==t?'on':''}" data-t="${x[0]}" style="background:${x[1]}" aria-label="${x[2]}"></button>`).join('')}</div><h4>پس‌زمینه گفتگوها</h4><div class="tz-g"><button class="tz-b ${!b?'on':''}" data-b="" style="background:linear-gradient(160deg,#e9a46b,#ecd68a 48%,#e8a36c)"></button>${BG.map((c,i)=>`<button class="tz-b ${b=='p'+i?'on':''}" data-b="p${i}" style="background:${c}"></button>`).join('')}${ph?`<button class="tz-b ${b=='photo'?'on':''}" data-b="photo" style="background:url('${ph}')"></button>`:''}</div><div class="card" style="margin:16px 0 0"><div class="sr press" id="tzp">${I('camera',26)} انتخاب عکس از گالری</div></div></div>`);
+const sb=document.getElementById('spb');if(!sb)return;
+sb.onclick=e=>{const c=e.target.closest('.tz-c'),g=e.target.closest('.tz-b');
+if(c){sv('th',c.dataset.t);th(c.dataset.t);sb.querySelectorAll('.tz-c').forEach(x=>x.classList.toggle('on',x==c))}
+else if(g){sv('cbg',g.dataset.b);bg(g.dataset.b);sb.querySelectorAll('.tz-b').forEach(x=>x.classList.toggle('on',x==g))}
+else if(e.target.closest('#tzp')){const f=document.createElement('input');f.type='file';f.accept='image/*';
+f.onchange=()=>{const fl=f.files[0];if(!fl)return;const u=URL.createObjectURL(fl),im=new Image();
+im.onload=()=>{const k=Math.min(1,1280/Math.max(im.width,im.height)),c2=document.createElement('canvas');c2.width=Math.round(im.width*k);c2.height=Math.round(im.height*k);c2.getContext('2d').drawImage(im,0,0,c2.width,c2.height);URL.revokeObjectURL(u);sv('cbgPhoto',c2.toDataURL('image/jpeg',.82));sv('cbg','photo');bg('photo');openTheme()};im.src=u};f.click()}}};
+})();
+</script>
 <script>
 /* video-message play: shift neighbours by the exact grown pixels */
 (()=>{const M=document.getElementById('msgs');if(!M)return;
