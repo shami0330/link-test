@@ -401,7 +401,7 @@ o.addEventListener('click',e=>{const a=e.target.closest('[data-a]');if(!a||!Z)re
 o.addEventListener('pointerdown',e=>{const h=e.target.closest('[data-h]');if(!h||!Z)return;const R=Z,k=h.dataset.h,pl=$('#pl');h.setPointerCapture(e.pointerId);h.onpointermove=ev=>{const r=pl.getBoundingClientRect(),f=Math.min(1,Math.max(0,(ev.clientX-r.left)/r.width));if(k=='s')R.s=Math.min(f,R.e-.08);else R.e=Math.max(f,R.s+.08);trimUI(R);if(R.pvv){const d=R.acc/1000;R.pvv.currentTime=(k=='s'?R.s:Math.max(R.s,R.e-.15))*d}};h.onpointerup=()=>{h.onpointermove=null}});return o}
 function trimUI(R){const o=$('#ro'),h=o.querySelectorAll('.hd');h[0].style.left=R.s*100+'%';h[1].style.left=R.e*100+'%';o.querySelector('.dm.l').style.width=R.s*100+'%';o.querySelector('.dm.r').style.width=(1-R.e)*100+'%';o.querySelector('.pp').innerHTML=(R.vid?'':I('play',16))+fmtD(Math.max(1,Math.round((R.e-R.s)*R.acc/1000)))}
 function moveBig(dx,dy){const o=$('#ro');$('#bg').style.transform=`translate(${dx*.6}px,${dy*.6}px)`;o.querySelector('.lkh').style.opacity=1+dy/120;$('#rx').style.opacity=1+dx/140}
-async function startRec(){if(Z)return;try{const a=document.activeElement;a&&a.blur&&a.blur()}catch(_){}const vid=mmode=='v',S=RC[mmode],o=ensureRO(),R=Z={mode:mmode,vid,st:'rec',acc:0,s0:0,run:0,pk:[],th:[],lv:0,lp:0,tp:0,ch:[],front:1,flash:0,s:0,e:1};
+async function startRec(){if(Z)return;try{const a=document.activeElement;a&&a!==$('#ti')&&a.blur&&a.blur()}catch(_){}const vid=mmode=='v',S=RC[mmode],o=ensureRO(),R=Z={mode:mmode,vid,st:'rec',acc:0,s0:0,run:0,pk:[],th:[],lv:0,lp:0,tp:0,ch:[],front:1,flash:0,s:0,e:1};
 o.className='on'+(vid?' v':'');o.dataset.s='rec';$('#rt').textContent='0:00,00';$('#rx').textContent='برای لغو بکشید';$('#bg').innerHTML=I(vid?'video':'mic',30);$('#rsb').innerHTML=I(vid?'video':'mic',24);moveBig(0,0);$('#rg').style.strokeDasharray='0 100';
 let st;try{await getMS(vid,1);st=vid?MST:new MediaStream(MST.getAudioTracks());MST.getAudioTracks().forEach(t=>t.enabled=true);MST.getVideoTracks().forEach(t=>t.enabled=vid)}catch(e){ui(R);toast(vid?'دسترسی دوربین/میکروفون ممکن نیست':'دسترسی میکروفون ممکن نیست');return}
 if(R.abort){ui(R);return}
@@ -1035,7 +1035,7 @@ const ibh=()=>ch.style.setProperty('--ibh',Math.max(0,bar.offsetHeight-3)+'px');
 if(window.ResizeObserver)new ResizeObserver(ibh).observe(bar);
 /* keyboard "pre-opened box": the app shrinks to leave an empty box the size of the keyboard BEFORE the keyboard appears,
    so the input is never hidden and iOS never scrolls/pans the page. Closing shrinks the box back right after blur. */
-const EZ='height .28s cubic-bezier(.22,.9,.28,1)';let K=0,isOpen=0,gap=0,raf=0,clT=0;
+const EZ='height 238ms cubic-bezier(.17,.59,.4,.77)',EZS='height 476ms cubic-bezier(.17,.59,.4,.77)';let K=0,isOpen=0,gap=0,raf=0,clT=0;
 const getK=()=>{let v=0;try{v=+localStorage.getItem('kbH')}catch(e){}return v>150&&v<600?v:Math.round(innerHeight*.38)};
 const setK=v=>{try{localStorage.setItem('kbH',v)}catch(e){}};
 const chOn=()=>!ch.classList.contains('r');
@@ -1049,7 +1049,7 @@ const closeKb=()=>{if(!isOpen)return;isOpen=0;gap=gp();
  ap.style.transition=EZ;ap.style.height=innerHeight+'px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(450);
  clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height='';ap.style.transition=''}},340)};
 const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;const k=Math.round(innerHeight-vv.height-vv.offsetTop);
- if(k>150&&k<600&&Math.abs(k-K)>3){K=k;setK(k);gap=gp();ap.style.transition=EZ;ap.style.height=(innerHeight-K)+'px';follow(350)}};
+ if(k>150&&k<600&&Math.abs(k-K)>3){const sl=k<K;K=k;setK(k);gap=gp();ap.style.transition=sl?EZS:EZ;ap.style.height=(innerHeight-K)+'px';follow(sl?520:350)}};
 {let tx=0,ty=0,tm=0;ch.addEventListener('pointerdown',e=>{tx=e.clientX;ty=e.clientY;tm=1},true);ch.addEventListener('pointermove',e=>{if(tm&&Math.hypot(e.clientX-tx,e.clientY-ty)>10)tm=0},true);ch.addEventListener('pointercancel',()=>tm=0,true);
 ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement===ti&&!(e.target.closest&&e.target.closest('.inb'))){window._kbKeep=0;ti.blur()}},true)}
 /* head start: open the box the moment the finger touches the input, keyboard follows on release */
