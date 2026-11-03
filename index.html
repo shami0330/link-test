@@ -1038,7 +1038,7 @@ if(window.ResizeObserver)new ResizeObserver(ibh).observe(bar);
    so the input is never hidden and iOS never scrolls/pans the page. Closing shrinks the box back right after blur. */
 const EZ='height 238ms cubic-bezier(.17,.59,.4,.77)',EZS='height 476ms cubic-bezier(.17,.59,.4,.77)';let K=0,isOpen=0,gap=0,raf=0,clT=0,mT=0,H=innerHeight;
 const setH=()=>{if(!isOpen&&document.activeElement!==ti)H=innerHeight};addEventListener('resize',()=>setTimeout(setH,350));addEventListener('orientationchange',()=>setTimeout(setH,450));
-const getK=()=>Math.round(H*.5);let mOk=0;
+const getK=()=>Math.round(H*.35);let mOk=0;
 const setK=v=>{try{localStorage.setItem('kbH',v)}catch(e){}};
 const chOn=()=>!ch.classList.contains('r');
 const follow=d=>{if(window._kbOn&&window._kbOn())return;cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
