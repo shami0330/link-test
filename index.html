@@ -489,7 +489,7 @@ $('#ib').onclick=()=>pop('#info','#chat');
 function drawContacts(){$('#clist').innerHTML=C.filter(c=>c.t=='pv'&&!c.saved).sort((a,b)=>a.n.localeCompare(b.n,'fa')).map(c=>`<div class="row" data-id="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'آنلاین'}</div></div></div>`).join('');$$('#clist .row').forEach(r=>r.onclick=()=>openChat(+r.dataset.id))}
 function drawSettings(){try{drawTabs()}catch(e){}let u;try{u=JSON.parse(ld('u'))}catch(e){}u=u||{n:'من',e:'me@link.app'};const me={id:3,n:u.n,ph:ld('myphoto')||''};
 const row=(c,i,t,v,f)=>`<div class="sr press" ${f?`onclick="${f}"`:''}><div class="si" style="background:${c}">${i}</div>${t}${v?`<span class="v">${v}</span>`:'<span>›</span>'}</div>`;
-$('#ssc').innerHTML=`<div class="pfx"><div class="pfa">${av(me,400)}</div><div class="pfg"></div><div class="pfn"><h2 dir="auto">${esc(u.n)}</h2><small dir="ltr">${esc(u.e)}</small></div></div><div class="pf" style="padding-top:0">${u.un?`<small dir="ltr">@${esc(u.un)}</small>`:''}${u.b?`<small dir="auto" style="margin-top:6px;font-size:15px">${esc(u.b)}</small>`:''}</div>
+$('#ssc').innerHTML=`<div class="upf" id="upf"><div class="upfw" id="upfw"></div></div>
 <div class="card" style="margin-top:20px"><div class="sr press" style="color:var(--ac)" onclick="pickPhoto()">${I('camera',26)} تغییر عکس پروفایل</div></div>
 <div class="card"><div class="sr press">${av(me,34)}${esc(u.n)}</div><div class="sr press" style="color:var(--ac)">${I('plus',26)} افزودن حساب</div></div>
 <div class="card">${row('#ef5b4c',I('user',22),'پروفایل من','', "openMyProfile()")}</div>
@@ -756,6 +756,7 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=',
 
 #cr .crs{position:relative;flex:1;touch-action:none;overflow:hidden}#cr .cb{position:absolute;border-radius:0;display:block;box-shadow:0 0 0 200vmax rgba(0,0,0,.6);border:1.5px solid #fff;pointer-events:none;background:linear-gradient(90deg,transparent 33%,rgba(255,255,255,.3) 33%,rgba(255,255,255,.3) calc(33% + 1px),transparent calc(33% + 1px),transparent 66%,rgba(255,255,255,.3) 66%,rgba(255,255,255,.3) calc(66% + 1px),transparent calc(66% + 1px)),linear-gradient(180deg,transparent 33%,rgba(255,255,255,.3) 33%,rgba(255,255,255,.3) calc(33% + 1px),transparent calc(33% + 1px),transparent 66%,rgba(255,255,255,.3) 66%,rgba(255,255,255,.3) calc(66% + 1px),transparent calc(66% + 1px))}
 #cr .h{position:absolute;width:22px;height:22px;border:3px solid #fff}#cr .h.a{left:-3px;top:-3px;border-right:0;border-bottom:0}#cr .h.b{right:-3px;top:-3px;border-left:0;border-bottom:0}#cr .h.c{left:-3px;bottom:-3px;border-right:0;border-top:0}#cr .h.d{right:-3px;bottom:-3px;border-left:0;border-top:0}
+#cr .cb.av{background:none}#cr .cb .gd{position:absolute;inset:0;background:radial-gradient(circle closest-side,transparent calc(100% - 1px),rgba(140,140,140,.75) calc(100% - 1px))}#cr .cb .gd::after{content:"";position:absolute;inset:0;border-radius:50%;border:1.5px dashed rgba(255,255,255,.9)}#cr .cav{text-align:center;font-size:13px;opacity:.8;padding:8px}
 #cr .crp{display:flex;gap:6px;justify-content:center;padding:8px;overflow-x:auto;direction:rtl}#cr .crp button{padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.14);font-size:14px;flex:none}#cr .crp .on{background:#fff;color:#000}
 #cr .crb{display:flex;justify-content:space-between;align-items:center;padding:8px 18px calc(env(safe-area-inset-bottom) + 12px)}#cr .crb button{font-size:17px;padding:10px 12px}#cr .crb .ok{color:#4cd964;font-weight:700}
 #vw .vpg{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;direction:ltr;scrollbar-width:none}#vw .vpg::-webkit-scrollbar{display:none}#vw .sl{flex:none;width:100%;scroll-snap-align:center;display:flex;align-items:center;justify-content:center}#vw .sl img,#vw .sl video{max-width:100%;max-height:100%;object-fit:contain}
@@ -1092,7 +1093,7 @@ window.openSheet=(title,html,done)=>{onc=done||null;sp._back=null;sp.innerHTML=`
 window.closeSheet=()=>{sp.classList.remove('on');const f=onc;onc=null;f&&f()};
 const getU=()=>{let u;try{u=JSON.parse(ld('u'))}catch(e){}return u||{n:'من',e:'me@link.app'}};
 /* ---- profile photo with square crop, circular preview ---- */
-window.pickPhoto=()=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files&&i.files[0];if(f)cropPhoto(f)};i.click()};
+window.pickPhoto=()=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files&&i.files[0];if(f)window.cropAvatar(f,c=>{sv('myphoto',c.toDataURL('image/jpeg',.88));drawSettings();toast('عکس پروفایل تغییر کرد')})};i.click()};
 function cropPhoto(file){const url=URL.createObjectURL(file),img=new Image;img.onload=()=>{
  const o=document.createElement('div');o.id='cp';o.innerHTML='<div class="st"></div><div class="pvw">با دو انگشت بزرگ/کوچک کنید و بکشید</div><div class="bt"><button id="cpc">'+I('x',24)+'</button><button id="cpr" style="opacity:.8">بازنشانی</button><button class="ok" id="cpo">تأیید</button></div>';ap.appendChild(o);
  const st=o.querySelector('.st'),W=st.clientWidth,H=st.clientHeight,D=Math.min(W,H)-48,cx=W/2,cy=H/2,iw=img.naturalWidth,ih=img.naturalHeight,min=D/Math.min(iw,ih),max=min*8;
@@ -1215,13 +1216,13 @@ async function viaFast(it,i,sig,set){
  catch(e){stopJob(it);throw e}
  finally{clearInterval(iv);it.onP=null}}
 /* ---------- crop UI (free / presets) ---------- */
-async function cropUI(it,after){await loadImg(it);const rot0=it.rot,crop0=it.crop;
- const o=document.createElement('div');o.id='cr';o.innerHTML=`<div class="crs"></div><div class="crp"><button data-r="0" class="on">آزاد</button><button data-r="1">۱:۱</button><button data-r="1.3333">۴:۳</button><button data-r="0.75">۳:۴</button><button data-r="1.7778">۱۶:۹</button><button data-r="0.5625">۹:۱۶</button></div><div class="crb"><button id="crc">${I('x',24)}</button><button id="crr">${IC.rot}</button><button class="ok" id="cro">تأیید</button></div>`;ap.appendChild(o);
- const st=o.querySelector('.crs');let cvs,box,ratio=0,dw,dh,ox,oy,bx;
+async function cropUI(it,after,opt){await loadImg(it);const rot0=it.rot,crop0=it.crop;
+ const o=document.createElement('div');o.id='cr';o.innerHTML=`<div class="crs"></div>${opt&&opt.avatar?'<div class="cav">بخش روشن‌شده در پروفایل نمایش داده می‌شود</div>':''}<div class="crp"${opt&&opt.avatar?' style="display:none"':''}><button data-r="0" class="on">آزاد</button><button data-r="1">۱:۱</button><button data-r="1.3333">۴:۳</button><button data-r="0.75">۳:۴</button><button data-r="1.7778">۱۶:۹</button><button data-r="0.5625">۹:۱۶</button></div><div class="crb"><button id="crc">${I('x',24)}</button><button id="crr">${IC.rot}</button><button class="ok" id="cro">تأیید</button></div>`;ap.appendChild(o);
+ const st=o.querySelector('.crs');let cvs,box,ratio=opt&&opt.avatar?1:0,dw,dh,ox,oy,bx;
  const paint=()=>{bx.style.cssText=`left:${box.x}px;top:${box.y}px;width:${box.w}px;height:${box.h}px`};
  const layout=(keep)=>{const t=Object.assign({},it,{crop:null}),c=outC(t,1600);cvs&&cvs.remove();cvs=c;st.prepend(c);const W=st.clientWidth-24,H=st.clientHeight-24,s=Math.min(W/c.width,H/c.height);dw=Math.round(c.width*s);dh=Math.round(c.height*s);ox=(st.clientWidth-dw)/2;oy=(st.clientHeight-dh)/2;c.style.cssText=`position:absolute;width:${dw}px;height:${dh}px;left:${ox}px;top:${oy}px`;
-  if(!bx){bx=document.createElement('div');bx.className='cb';bx.innerHTML='<i class="h a"></i><i class="h b"></i><i class="h c"></i><i class="h d"></i>';st.appendChild(bx)}
-  const cr=keep&&it.crop;box=cr?{x:ox+cr.x*dw,y:oy+cr.y*dh,w:cr.w*dw,h:cr.h*dh}:{x:ox,y:oy,w:dw,h:dh};paint()};
+  if(!bx){bx=document.createElement('div');bx.className='cb'+(opt&&opt.avatar?' av':'');bx.innerHTML=(opt&&opt.avatar?'<i class="gd"></i>':'')+'<i class="h a"></i><i class="h b"></i><i class="h c"></i><i class="h d"></i>';st.appendChild(bx)}
+  const cr=keep&&it.crop;box=cr?{x:ox+cr.x*dw,y:oy+cr.y*dh,w:cr.w*dw,h:cr.h*dh}:(opt&&opt.avatar?{x:ox+(dw-Math.min(dw,dh))/2,y:oy+(dh-Math.min(dw,dh))/2,w:Math.min(dw,dh),h:Math.min(dw,dh)}:{x:ox,y:oy,w:dw,h:dh});paint()};
  layout(true);
  let drag=null;const pos=e=>{const r=st.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
  st.addEventListener('pointerdown',e=>{const[px,py]=pos(e),cs=[[box.x,box.y],[box.x+box.w,box.y],[box.x,box.y+box.h],[box.x+box.w,box.y+box.h]];let hit=-1;cs.forEach((c,k)=>{if(hit<0&&Math.hypot(c[0]-px,c[1]-py)<34)hit=k});
@@ -1233,9 +1234,10 @@ async function cropUI(it,after){await loadImg(it);const rot0=it.rot,crop0=it.cro
    box.x=sx<0?drag.fx-w:drag.fx;box.y=sy<0?drag.fy-h:drag.fy;box.w=w;box.h=h}paint()});
  st.addEventListener('pointerup',()=>drag=null);st.addEventListener('pointercancel',()=>drag=null);
  o.querySelectorAll('.crp [data-r]').forEach(b=>b.onclick=()=>{o.querySelectorAll('.crp .on').forEach(x=>x.classList.remove('on'));b.classList.add('on');ratio=+b.dataset.r;if(ratio){let w=Math.min(dw,dh*ratio),h=w/ratio;box={x:ox+(dw-w)/2,y:oy+(dh-h)/2,w,h};paint()}});
- o.querySelector('#crr').onclick=()=>{it.rot=(it.rot+1)%4;it.crop=null;ratio=0;o.querySelectorAll('.crp .on').forEach(x=>x.classList.remove('on'));o.querySelector('[data-r="0"]').classList.add('on');layout(false)};
+ o.querySelector('#crr').onclick=()=>{it.rot=(it.rot+1)%4;it.crop=null;ratio=opt&&opt.avatar?1:0;o.querySelectorAll('.crp .on').forEach(x=>x.classList.remove('on'));o.querySelector('[data-r="0"]').classList.add('on');layout(false)};
  o.querySelector('#crc').onclick=()=>{it.rot=rot0;it.crop=crop0;o.remove()};
  o.querySelector('#cro').onclick=()=>{const f={x:(box.x-ox)/dw,y:(box.y-oy)/dh,w:box.w/dw,h:box.h/dh};it.crop=(f.w>.99&&f.h>.99)?null:f;o.remove();it.th=null;after&&after()}}
+window.cropAvatar=async(file,done)=>{const it={id:'av',file,name:file.name||'p',size:file.size,mime:file.type,rot:0,crop:null,q:720,kind:'p'};await cropUI(it,()=>done(outC(it,512)),{avatar:1})};
 function applyAdj(c,a){const x=c.getContext('2d'),w=c.width,h=c.height,id=x.getImageData(0,0,w,h),d=id.data;
  const br=(a.b||0)/100*60,ct=1+(a.c||0)/100,sa=1+(a.s||0)/100,wm=(a.w||0)/100*30,fd=(a.f||0)/100,hl=(a.h||0)/100,sh=(a.sh||0)/100,sp=(a.sp||0)/100*.8;
  for(let i=0;i<d.length;i+=4){let r=d[i]+br+wm,g=d[i+1]+br,b=d[i+2]+br-wm;
@@ -2801,6 +2803,45 @@ gotoPin=function(){const box=document.getElementById('msgs'),p=pm(cur);if(!box||
 Object.assign(EN,{'ظاهر':'Appearance','تم‌های چت':'Chat Themes','والپیپر چت':'Chat Wallpaper','رنگ شما':'Your Color','حالت شب':'Night Mode','حالت شب خودکار':'Auto-Night Mode','اندازه متن':'Text Size','گوشه‌های پیام':'Message Corners','انیمیشن‌ها':'Animations','استیکر و ایموجی':'Stickers and Emoji','لیکوید گلس':'Liquid Glass','انتخاب تم':'SELECT A THEME','تم خودتان را بسازید':'BUILD YOUR OWN THEME','ویرایش تم فعلی':'Edit Current Theme','ساخت تم جدید':'Create a New Theme','تنظیم رنگ':'Set a Color','انتخاب از گالری':'Choose from Photos','می‌توانید تصویر پس‌زمینه دلخواه تنظیم کنید و با دوستان خود به اشتراک بگذارید.':'You can set a custom background image and share it with your friends.','سیستم':'System','روشن':'On','خاموش':'Off','خودکار':'Auto','تم جدید ساخته شد':'New theme created','سبز کلاسیک':'Classic Green','توت‌فرنگی':'Strawberry','توت‌فرنگی 🍓':'Strawberry 🍓','اقیانوس':'Ocean','بنفشه':'Lilac','غروب':'Sunset','همراه تم':'Follow Theme','سبز':'Green','آبی':'Blue','صورتی':'Pink','خاکستری':'Gray','پیش‌فرض':'Default','دریا':'Sea','نعناعی':'Mint','نقطه‌ای':'Dots','ساده':'Plain','پایه':'Basic','حالت‌ها':'Moods','حیوانات':'Animals','خوراکی':'Food','طبیعت':'Nature','از گالری':'From Photos','حجم تصویر زیاد است':'Image is too large','لیکوید':'Liquid','تاری':'Blur','درخشش لبه‌ها':'Edge Highlight','تنظیمات تاری و درخشش فقط در حالت لیکوید فعال است.':'Blur and highlight settings are available only in Liquid mode.','تم برنامه':'App Theme','تم چت':'Chat Theme','پک‌های استیکر':'Sticker Packs','حالت لیکوید گلس':'Liquid Glass Mode','هیچ پکی فعال نیست. از تنظیمات › ظاهر فعال کنید.':'No packs enabled. Enable them in Settings › Appearance.',
 'در حال اتصال…':'Connecting…','نام و توضیح شما به مخاطبین نمایش داده می‌شود. نام کاربری ۵ تا ۳۲ حرف انگلیسی، عدد یا _ باشد.':'Your name and bio are shown to contacts. Username must be 5–32 letters, digits or _.','نام کاربری (مثلاً ali_123)':'Username (e.g. ali_123)','رمز جدید حداقل ۶ حرف باشد':'New password must be at least 6 characters','اختیاری':'Optional','هنوز تماسی ثبت نشده است':'No calls yet','هنوز پوشه‌ای نساخته‌اید':'No folders created yet'});
 try{runLang()}catch(e){}
+</script>
+
+<style>
+.upf{height:0;overflow:hidden;position:relative;z-index:1}
+.upf.go{transition:height .35s cubic-bezier(.22,.9,.28,1)}
+.upfw{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.upt{position:relative;aspect-ratio:1;overflow:hidden;cursor:pointer;background:#c9d1d9}
+.upt .av{width:100%!important;height:100%!important;border-radius:0!important;margin:0!important}
+.upt b{position:absolute;left:0;right:0;bottom:0;padding:16px 6px 5px;color:#fff;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(transparent,rgba(0,0,0,.55));text-align:start}
+.upfh{grid-column:1/-1;padding:18px 0;text-align:center;font-size:14px;opacity:.6}
+</style>
+<script>
+/* settings tab: own profile is not shown by default; pulling down reveals users' profiles as squares */
+(()=>{const THR=56,vib=n=>{try{navigator.vibrate&&navigator.vibrate(n)}catch(e){}};
+const up=()=>document.getElementById('upf'),wrap=()=>document.getElementById('upfw');
+window.upfRender=()=>{const w=wrap();if(!w)return;
+ const L=C.filter(c=>c.t=='pv'&&!c.saved).sort((a,b)=>a.n.localeCompare(b.n,'fa'));
+ w.innerHTML=L.length?L.map(c=>`<div class="upt press" data-id="${c.id}">${av(c,120)}<b dir="auto">${esc(c.n)}</b></div>`).join(''):'<div class="upfh">پروفایلی برای نمایش نیست</div>';
+ w.querySelectorAll('.upt').forEach(t=>t.onclick=()=>openChat(+t.dataset.id))};
+let y0=null,x0=0,r0=0,on=0;
+window.upfBind=()=>{const s=document.getElementById('ssc');if(!s||s._upfB)return;s._upfB=1;
+ s.addEventListener('touchstart',e=>{y0=null;on=0;if(e.touches.length!=1)return;const t=e.touches[0];y0=t.clientY;x0=t.clientX},{passive:true});
+ s.addEventListener('touchmove',e=>{if(y0==null)return;const t=e.touches[0],dy=t.clientY-y0,dx=t.clientX-x0,u=up();if(!u)return;
+  const open=u.classList.contains('open');
+  if(!on){if(Math.abs(dy)<6&&Math.abs(dx)<6)return;if(Math.abs(dx)>Math.abs(dy)){y0=null;return}
+   if(!open&&dy>0&&s.scrollTop<=1){on=1;upfRender()}else if(open&&dy<0&&s.scrollTop<=1){on=2}else{y0=null;return}}
+  if(e.cancelable)e.preventDefault();
+  if(on==1){r0=Math.min(260,Math.max(0,(dy-6)*.5));u.classList.remove('go');u.style.height=r0+'px'}
+  else{const full=wrap().offsetHeight;u.classList.remove('go');u.style.height=Math.max(0,full+dy*.6)+'px'}
+ },{passive:false});
+ const fin=()=>{if(y0==null||!on){y0=null;on=0;return}y0=null;const u=up(),full=wrap().offsetHeight,cur=parseFloat(u.style.height)||0;
+  const doOpen=on==1?r0>=THR:cur>full*.5;const was=u.classList.contains('open');
+  u.classList.add('go');
+  if(doOpen){u.style.height=full+'px';u.classList.add('open')}else{u.style.height='0px';u.classList.remove('open')}
+  if(doOpen!=was)vib(5);on=0;setTimeout(()=>u.classList.remove('go'),380)};
+ s.addEventListener('touchend',fin,{passive:true});s.addEventListener('touchcancel',fin,{passive:true})};
+{const _dsU=drawSettings;drawSettings=function(){const r=_dsU.apply(this,arguments);try{upfBind()}catch(e){}return r}}
+try{upfBind()}catch(e){}
+})();
 </script>
 </body>
 </html>
