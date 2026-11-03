@@ -337,7 +337,7 @@ function closeChat(){pop('#chat','#main');cur=null;drawList()}
 function updBtn(){const v=$('#ti').value.trim();const b=$('#mic');b.className='cb press '+(v?'sbtn':'gl');b.innerHTML=v?I('send',24):I(mmode=='v'?'video':'mic',24)}
 function addMsg(o){cur.msgs.push(o);const c=cur;c.last=o.type=='al'||o.type=='fl'?_lblMsg(o):o.type=='im'?'عکس':o.type=='vc'?'پیام صوتی':o.type=='st'?'استیکر':o.text;c.out=o.out;c.time=o.time;drawMsgs()}
 const AR=['باشه 👍','جدی؟ 😂','آره دقیقا','بعدا حرف می‌زنیم','عالیه!','😍😍','چه خبر؟','فهمیدم، ممنون ❤️'];
-function send(){const v=$('#ti').value.trim();if(!v)return;const _kb=document.activeElement===$('#ti');if(_kb)window._kbKeep=Date.now()+600;setTimeout(()=>{if(_kb&&document.activeElement!==$('#ti'))$('#ti').focus({preventScroll:true})},0);const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent]}:{});o.st=1;addMsg(o);$('#ti').value='';$('#ti').style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();reply(o)}
+function send(){const v=$('#ti').value.trim();if(!v)return;const _kb=document.activeElement===$('#ti');if(_kb)window._kbKeep=Date.now()+600;setTimeout(()=>{if(_kb&&document.activeElement!==$('#ti'))$('#ti').focus({preventScroll:true})},0);const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent],rid:rep.id}:{});o.st=1;addMsg(o);$('#ti').value='';$('#ti').style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();reply(o)}
 function reply(o){const c=cur;setTimeout(()=>{o.st=2;cur==c&&drawMsgs()},700);
 setTimeout(()=>{if(cur!=c)return;const s=$('#cs');s&&(s.textContent='در حال نوشتن…');$('#msgs').insertAdjacentHTML('beforeend','<div class="b in typ"><i></i><i></i><i></i></div>');$('#msgs').scrollTop=1e5},1100);
 setTimeout(()=>{const t=$('#msgs .typ');t&&t.remove();if(cur!=c)return;addMsg(m(0,AR[Math.random()*AR.length|0],T(),{s:'سامان'}));const s=$('#cs');s&&(s.textContent=c.seen||'آنلاین')},2600)}
@@ -1743,7 +1743,7 @@ ti.addEventListener('focus',()=>closeP(0));$('#cb').addEventListener('click',()=
  b.onpointerup=e=>{clearTimeout(lt);if(lp){lp=0;return}ou&&ou.call(b,e)};
  const oc=b.onpointercancel;b.onpointercancel=e=>{clearTimeout(lt);oc&&oc.call(b,e)}
  function sendMenu(){const r=b.getBoundingClientRect();menu([['ارسال هنگام آنلاین شدن','send',sendOnline],['ارسال زمان‌بندی‌شده','call',schedule]],r.top-130,r.left+r.width/2)}
- function take(){const t=$('#ti'),v=t.value.trim();if(!v)return null;const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent]}:{});t.value='';t.style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();return o}
+ function take(){const t=$('#ti'),v=t.value.trim();if(!v)return null;const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent],rid:rep.id}:{});t.value='';t.style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();return o}
  function deliver(o,c){o.time=T();o.st=1;if(cur===c)drawMsgs();const k=cur;cur=c;reply(o);cur=k}
  function sendOnline(){const c=cur,o=take();if(!o)return;const off=c.t=='pv'&&c.seen&&c.seen!='آنلاین';o.st=0;if(off)o.time='منتظر آنلاین شدن…';addMsg(o);if(!off){deliver(o,c);return}toast('پیام هنگام آنلاین شدن مخاطب ارسال می‌شود');setTimeout(()=>{c.seen='آنلاین';deliver(o,c)},6000)}
  function schedule(){const c=cur;if(!$('#ti').value.trim())return;const d=new Date(Date.now()+3600e3),p=n=>String(n).padStart(2,'0'),v=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
@@ -2644,5 +2644,24 @@ window.pfInit=()=>{const sc=document.getElementById('isc'),info=document.getElem
  info._pfSet=()=>set(p)};
 })();
 </script>
+<script>
+/* tap on a reply quote: scroll to the original message and keep it softly highlighted until the next touch */
+(()=>{const box=document.getElementById('msgs');if(!box)return;
+box.addEventListener('click',e=>{const rp=e.target.closest&&e.target.closest('.rp');if(!rp||!cur)return;const b=rp.closest('.b');if(!b)return;
+ const A=cur.msgs,i=A.findIndex(q=>q.id==b.dataset.id),x=A[i];if(!x||!x.rp)return;
+ let t=x.rid!=null?A.find(q=>q.id==x.rid):null;
+ if(!t)for(let j=i-1;j>=0;j--){const q=A[j];if((q.text||'رسانه')==x.rp[1]&&!!q.out==(x.rp[0]=='شما')){t=q;break}}
+ if(!t)return;const el=box.querySelector('.b[data-id="'+t.id+'"]');if(!el)return;e.stopPropagation();
+ const bt=box.getBoundingClientRect(),r=el.getBoundingClientRect();
+ box.scrollTo({top:box.scrollTop+(r.top-bt.top)-Math.max(12,(box.clientHeight-r.height)/2),behavior:'smooth'});
+ window._hlOff&&window._hlOff();
+ const off=()=>{el.classList.remove('hlp');document.removeEventListener('pointerdown',off,true);document.removeEventListener('touchstart',off,true);if(window._hlOff===off)window._hlOff=null};
+ window._hlOff=off;el.classList.add('hlp');
+ setTimeout(()=>{if(window._hlOff===off){document.addEventListener('pointerdown',off,true);document.addEventListener('touchstart',off,true)}},60)},true)})();
+</script>
+<style>
+#msgs .b{transition:transform .2s,filter .35s,box-shadow .35s}
+#msgs .b.hlp{filter:brightness(1.18) saturate(1.1);box-shadow:0 0 0 1.5px rgba(255,255,255,.35)}
+</style>
 </body>
 </html>
