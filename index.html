@@ -2467,5 +2467,37 @@ window.openAppearance=()=>{const b=openSheet('ظاهر','');
 apply();
 })();
 </script>
+<style>.hxp>.top{background:none!important}</style>
+<script>
+/* Telegram-style profile photo: pull down at the top to expand to a full-width square */
+(()=>{
+const THR=56,Q=s=>document.querySelector(s),E='cubic-bezier(.22,.9,.28,1)';
+const vib=n=>{try{navigator.vibrate&&navigator.vibrate(n)}catch(e){}};
+const heroOf=sc=>{const a=sc.querySelector('.pf .av');return a&&/url\(/.test(a.style.backgroundImage||a.style.background||'')?a:null};
+const TR=['width','height','margin','border-radius','transform'].map(p=>p+' .42s '+E).join(',');
+const expand=(sc,a)=>{const pt=parseFloat(getComputedStyle(sc).paddingTop)||0,w=sc.clientWidth;
+ a._o=a._o||{w:a.style.width,h:a.style.height,m:a.style.margin};
+ a.style.transition=TR;a.style.transform='';a.style.width=w+'px';a.style.height=w+'px';a.style.margin='-'+(pt+6)+'px 0 8px';a.style.borderRadius='0';a.dataset.x=1;
+ sc.parentElement.classList.add('hxp')};
+const collapse=(sc,a)=>{const o=a._o;if(!o)return;a.style.transition=TR;a.style.width=o.w;a.style.height=o.h;a.style.margin=o.m;a.style.borderRadius='';a.style.transform='';delete a.dataset.x;
+ sc.parentElement.classList.remove('hxp');setTimeout(()=>{a.style.transition=''},450)};
+const bind=id=>{const sc=Q(id);if(!sc)return;let y0=null,x0=0,a=null,r=0,crossed=0,on=0,ex=0;
+ sc.addEventListener('touchstart',e=>{y0=null;sc.parentElement.classList.toggle('hxp',!!sc.querySelector('.av[data-x]'));if(e.touches.length!=1)return;a=heroOf(sc);if(!a)return;
+  const t=e.touches[0];y0=t.clientY;x0=t.clientX;r=0;crossed=0;on=0;ex=a.dataset.x?1:0},{passive:true});
+ sc.addEventListener('touchmove',e=>{if(y0==null||!a)return;const t=e.touches[0],dy=t.clientY-y0,dx=t.clientX-x0;
+  if(!on){if(sc.scrollTop>1){y0=null;return}if(Math.abs(dy)<6)return;if(Math.abs(dx)>Math.abs(dy)){y0=null;return}
+   if(ex){if(dy<-24)on=2;else return}else if(dy>0)on=1;else{y0=null;return}}
+  e.preventDefault();if(on==2)return;
+  r=Math.min(130,Math.max(0,(dy-6)*.5));a.style.transition='none';a.style.transformOrigin='top center';a.style.transform='translateY('+(r*.55)+'px) scale('+(1+r/320)+')';
+  if(r>=THR&&!crossed){crossed=1;vib(10)}else if(r<THR-8&&crossed)crossed=0},{passive:false});
+ const fin=()=>{if(y0==null||!a){y0=null;return}const h=a;y0=null;
+  if(on==2){collapse(sc,h);vib(5)}
+  else if(on==1){if(r>=THR){expand(sc,h);setTimeout(()=>vib(5),180)}else{h.style.transition='transform .3s '+E;h.style.transform=''}}
+  on=0};
+ sc.addEventListener('touchend',fin,{passive:true});sc.addEventListener('touchcancel',fin,{passive:true});
+ sc.addEventListener('click',e=>{const h=e.target.closest&&e.target.closest('.pf .av');if(h&&h.dataset.x)collapse(sc,h)})};
+['#isc','#ssc'].forEach(bind);
+})();
+</script>
 </body>
 </html>
