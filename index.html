@@ -384,6 +384,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .dark #ro.fl .tx{color:#555}
 </style>`);
 let MST=null,Z=null;
+window.keepStream=st=>{try{if(!st)return;if(localStorage.getItem('keepmedia')==='0'){st.getTracks().forEach(t=>{try{t.stop()}catch(e){}});return}
+ st.getTracks().forEach(t=>{t.enabled=false});
+ if(MST&&MST.getTracks().length&&MST.getTracks().every(t=>t.readyState=='live')){st.getTracks().forEach(t=>{if(MST.getTracks().some(x=>x.kind==t.kind))t.stop();else MST.addTrack(t)})}else MST=st}catch(e){}};
 const SPK0=svi('<path d="M4 9v6h4l5 4V5L8 9zM17 9l5 6M22 9l-5 6"/>'),SPK1=svi('<path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 010 7M19 6a9 9 0 010 12"/>');
 async function getMS(vid,front=1){const gm=c=>navigator.mediaDevices.getUserMedia(c),a={channelCount:1,sampleRate:{ideal:48000},echoCancellation:true,noiseSuppression:true,autoGainControl:true},z=RC.v.size,fm=front?'user':'environment',vc={width:{ideal:z},height:{ideal:z},aspectRatio:1,facingMode:fm};
 if(!(MST&&MST.getTracks().every(t=>t.readyState=='live'))){try{MST=await gm(vid?{audio:a,video:vc}:{audio:a})}catch(e){if(vid)throw e;MST=await gm({audio:a})}}
@@ -449,7 +452,7 @@ catch(e){try{if(Z===R&&!MST.getVideoTracks().length){const n=await navigator.med
 finally{R.flipping=0}}
 function flashOff(R){if(!R||!R.flash)return;R.flash=0;const o=$('#ro');o&&o.classList.remove('fl');try{const t=MST&&MST.getVideoTracks()[0];t&&t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0)}catch(e){}const b=o&&o.querySelector('[data-a=flash]');b&&(b.style.opacity=.7)}
 async function flashCam(){const R=Z;if(!R||!R.vid||R.st=='pause')return;R.flash=!R.flash;const o=$('#ro');if(R.front)o.classList.toggle('fl',R.flash);else{try{await MST.getVideoTracks()[0].applyConstraints({advanced:[{torch:!!R.flash}]})}catch(e){R.flash=0;toast('فلش دوربین پشت پشتیبانی نمی‌شود')}}o.querySelector('[data-a=flash]').style.opacity=R.flash?1:.7}
-function ui(R){cancelAnimationFrame(R.raf);R.ac&&R.ac.close();R.pa&&R.pa.pause();R.pvv&&R.pvv.remove();{const q=document.querySelector('#ro .snb');q&&q.remove()};R.cv&&R.cv.remove();try{MST&&MST.getVideoTracks().forEach(t=>t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0))}catch(e){}if(MST){MST.getTracks().forEach(t=>t.enabled=false);clearTimeout(window._rel);window._rel=setTimeout(()=>{MST&&MST.getTracks().forEach(t=>t.stop());MST=null},3e5)}const o=$('#ro');o.className='';o.dataset.s='';Z=null}
+function ui(R){cancelAnimationFrame(R.raf);R.ac&&R.ac.close();R.pa&&R.pa.pause();R.pvv&&R.pvv.remove();{const q=document.querySelector('#ro .snb');q&&q.remove()};R.cv&&R.cv.remove();try{MST&&MST.getVideoTracks().forEach(t=>t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0))}catch(e){}if(MST){MST.getTracks().forEach(t=>t.enabled=false);clearTimeout(window._rel);0}const o=$('#ro');o.className='';o.dataset.s='';Z=null}
 function fin(send_){const R=Z;if(!R||R.fin)return;if(!R.mr){R.send=send_;R.abort=1;return}
 const el=R.run?R.acc+performance.now()-R.s0:R.acc;if(send_&&el<500){send_=0;toast('برای ضبط نگه دارید')}
 R.send=send_;R.fin=1;
@@ -904,10 +907,10 @@ try{
 /* 1) camera + microphone */
 if(hasMedia()&&(state.cam!=='granted'||state.mic!=='granted')&&state.cam!=='denied'&&state.mic!=='denied'){
 let ok=false;
-try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});st.getTracks().forEach(t=>{try{t.stop();}catch(e){}});ok=true;try{localStorage.setItem('link-cam-perm','1');localStorage.setItem('link-mic-perm','1');}catch(e){}}catch(e){}
+try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});keepStream(st);ok=true;try{localStorage.setItem('link-cam-perm','1');localStorage.setItem('link-mic-perm','1');}catch(e){}}catch(e){}
 if(!ok){ /* find out which one failed */
-if(state.mic!=='granted'){try{const st=await navigator.mediaDevices.getUserMedia({audio:true});st.getTracks().forEach(t=>t.stop());try{localStorage.setItem('link-mic-perm','1');}catch(e){}}catch(e){}}
-if(state.cam!=='granted'){try{const st=await navigator.mediaDevices.getUserMedia({video:true});st.getTracks().forEach(t=>t.stop());try{localStorage.setItem('link-cam-perm','1');}catch(e){}}catch(e){}}
+if(state.mic!=='granted'){try{const st=await navigator.mediaDevices.getUserMedia({audio:true});keepStream(st);try{localStorage.setItem('link-mic-perm','1');}catch(e){}}catch(e){}}
+if(state.cam!=='granted'){try{const st=await navigator.mediaDevices.getUserMedia({video:true});keepStream(st);try{localStorage.setItem('link-cam-perm','1');}catch(e){}}catch(e){}}
 }
 }
 /* 2) device storage */
@@ -922,7 +925,7 @@ render();busy=false;btn.disabled=false;
 if(allOK()){enter();return;}
 /* Permissions API missing + success could still read "prompt": verify directly once */
 if(!navigator.permissions&&hasMedia()){
-try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});st.getTracks().forEach(t=>t.stop());state.cam=state.mic='granted';permMark(true);permMark(true);render();if(allOK()){enter();return;}}catch(e){state.cam=state.mic='denied';render();}
+try{const st=await navigator.mediaDevices.getUserMedia({video:true,audio:true});keepStream(st);state.cam=state.mic='granted';permMark(true);permMark(true);render();if(allOK()){enter();return;}}catch(e){state.cam=state.mic='denied';render();}
 }
 }
 btn.addEventListener('click',()=>{const denied=['cam','mic'].some(k=>state[k]==='denied');if(denied)recheck();else ask();});
@@ -1328,7 +1331,7 @@ async function granted(){try{const a=await navigator.permissions.query({name:'mi
 async function ask(){if(done||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
  if(await granted()){done=1;return}
  for(const c of [{audio:true,video:{facingMode:'user'}},{audio:true},{video:true}]){
-  try{const st=await navigator.mediaDevices.getUserMedia(c);st.getTracks().forEach(t=>t.stop());sv('permOK','1');done=1;return}catch(e){if(e&&e.name=='NotAllowedError'&&c.video&&c.audio){done=1;return}}}}
+  try{const st=await navigator.mediaDevices.getUserMedia(c);keepStream(st);sv('permOK','1');done=1;return}catch(e){if(e&&e.name=='NotAllowedError'&&c.video&&c.audio){done=1;return}}}}
 const _g=getMS;getMS=async function(v,f){clearTimeout(window._rel);const r=await _g(v,f);sv('permOK','1');return r};
 addEventListener('pagehide',()=>{clearTimeout(window._rel);MST&&MST.getTracks().forEach(t=>t.stop());MST=null});
 })();
