@@ -1034,12 +1034,12 @@ if(window.ResizeObserver)new ResizeObserver(ibh).observe(bar);
    so the input is never hidden and iOS never scrolls/pans the page. Closing shrinks the box back right after blur. */
 const EZ='height 238ms cubic-bezier(.17,.59,.4,.77)',EZS='height 476ms cubic-bezier(.17,.59,.4,.77)';let K=0,isOpen=0,gap=0,raf=0,clT=0,mT=0,H=innerHeight;
 const setH=()=>{if(!isOpen&&document.activeElement!==ti)H=innerHeight};addEventListener('resize',()=>setTimeout(setH,350));addEventListener('orientationchange',()=>setTimeout(setH,450));
-const getK=()=>Math.round(H*.33);
+const getK=()=>Math.round(H*.5);let mOk=0;
 const setK=v=>{try{localStorage.setItem('kbH',v)}catch(e){}};
 const chOn=()=>!ch.classList.contains('r');
 const follow=d=>{cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
 const gp=()=>Math.max(0,ms.scrollHeight-ms.scrollTop-ms.clientHeight);
-const openKb=()=>{clearTimeout(clT);if(isOpen)return;isOpen=1;gap=gp();K=getK();
+const openKb=()=>{clearTimeout(clT);if(isOpen)return;isOpen=1;mOk=0;gap=gp();K=getK();
  ap.style.transition='none';ap.style.minHeight=Math.round(H*.5)+'px';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=H+'px';void ap.offsetHeight;
  ap.style.transition=EZ;ap.style.height=(H-K)+'px';
  bar.classList.add('kbo');if(chOn())ch.classList.add('kbo2');ibh();follow(450)};
@@ -1047,7 +1047,7 @@ const closeKb=()=>{if(!isOpen)return;isOpen=0;gap=gp();
  ap.style.transition=EZ;ap.style.height=H+'px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(450);
  clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height=ap.style.minHeight='';ap.style.transition=''}},340)};
 const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;const k=Math.round(H-vv.height-vv.offsetTop);
- if(k>150&&k<H*.5&&Math.abs(k-K)>3){const sl=1;K=k;setK(k);gap=gp();ap.style.transition=sl?EZS:EZ;ap.style.height=(H-K)+'px';follow(sl?520:350)}};
+ if(k>150&&k<H*.5&&Math.abs(k-K)>3){const sl=0;mOk=1;K=k;setK(k);gap=gp();ap.style.transition=sl?EZS:EZ;ap.style.height=(H-K)+'px';follow(sl?520:350)}};
 {let tx=0,ty=0,tm=0;ch.addEventListener('pointerdown',e=>{tx=e.clientX;ty=e.clientY;tm=1},true);ch.addEventListener('pointermove',e=>{if(tm&&Math.hypot(e.clientX-tx,e.clientY-ty)>10)tm=0},true);ch.addEventListener('pointercancel',()=>tm=0,true);
 ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement===ti&&!(e.target.closest&&e.target.closest('.inb'))){window._kbKeep=0;ti.blur()}},true)}
 /* head start: open the box the moment the finger touches the input, keyboard follows on release */
@@ -1060,7 +1060,7 @@ ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement
  ti.addEventListener('touchend',e=>{if(tp){e.preventDefault();go()}},{passive:false});
  ti.addEventListener('pointerup',e=>{if(e.pointerType=='mouse')go()});
  ti.addEventListener('click',e=>{go()})}
-ti.addEventListener('focus',()=>{if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800)});
+ti.addEventListener('focus',()=>{if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800);setTimeout(()=>{if(isOpen&&!mOk&&document.activeElement===ti){K=Math.round(H*.33);gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';follow(350)}},950)});
 ti.addEventListener('blur',()=>{if(Date.now()<(window._kbKeep||0)){const f=()=>{if(Date.now()<(window._kbKeep||0)+100&&document.activeElement!==ti)ti.focus({preventScroll:true})};f();setTimeout(f,0);setTimeout(f,80)}
  setTimeout(()=>{if(document.activeElement!==ti)closeKb()},130)});
 if(vv){vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,140);if(isOpen&&document.activeElement!==ti&&H-vv.height-vv.offsetTop<80)closeKb()})}
