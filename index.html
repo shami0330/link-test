@@ -488,7 +488,7 @@ $('#ib').onclick=()=>pop('#info','#chat');
 function drawContacts(){$('#clist').innerHTML=C.filter(c=>c.t=='pv'&&!c.saved).sort((a,b)=>a.n.localeCompare(b.n,'fa')).map(c=>`<div class="row" data-id="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'آنلاین'}</div></div></div>`).join('');$$('#clist .row').forEach(r=>r.onclick=()=>openChat(+r.dataset.id))}
 function drawSettings(){try{drawTabs()}catch(e){}let u;try{u=JSON.parse(ld('u'))}catch(e){}u=u||{n:'من',e:'me@link.app'};const me={id:3,n:u.n,ph:ld('myphoto')||''};
 const row=(c,i,t,v,f)=>`<div class="sr press" ${f?`onclick="${f}"`:''}><div class="si" style="background:${c}">${i}</div>${t}${v?`<span class="v">${v}</span>`:'<span>›</span>'}</div>`;
-$('#ssc').innerHTML=`<div class="pf">${av(me,120)}<h2 dir="auto">${esc(u.n)}</h2><small dir="ltr">${esc(u.e)}</small>${u.un?`<small dir="ltr">@${esc(u.un)}</small>`:''}${u.b?`<small dir="auto" style="margin-top:6px;font-size:15px">${esc(u.b)}</small>`:''}</div>
+$('#ssc').innerHTML=`<div class="pfx"><div class="pfa">${av(me,400)}</div><div class="pfg"></div><div class="pfn"><h2 dir="auto">${esc(u.n)}</h2><small dir="ltr">${esc(u.e)}</small></div></div><div class="pf" style="padding-top:0">${u.un?`<small dir="ltr">@${esc(u.un)}</small>`:''}${u.b?`<small dir="auto" style="margin-top:6px;font-size:15px">${esc(u.b)}</small>`:''}</div>
 <div class="card" style="margin-top:20px"><div class="sr press" style="color:var(--ac)" onclick="pickPhoto()">${I('camera',26)} تغییر عکس پروفایل</div></div>
 <div class="card"><div class="sr press">${av(me,34)}${esc(u.n)}</div><div class="sr press" style="color:var(--ac)">${I('plus',26)} افزودن حساب</div></div>
 <div class="card">${row('#ef5b4c',I('user',22),'پروفایل من','', "openMyProfile()")}</div>
@@ -1562,11 +1562,11 @@ function deact(A){A.fl&&flOff(A);if(CUR===A)CUR=null;A.raf&&cancelAnimationFrame
 function next(x){const L=cur?cur.msgs:[];for(let i=L.indexOf(x)+1;i<L.length;i++){const y=L[i];
  if(isDl(y)&&(y.type=='vc'||y.type=='rv')){const b=$(`#msgs .b[data-id="${y.id}"]`);if(!b)return;b.scrollIntoView({block:'nearest',behavior:'smooth'});
   if(y.type=='vc')startA(y,b.querySelector('.vp'));else act(y,b.querySelector('.ph'));return}}}
-function bindPh(A,ph){A.rg&&A.rg.remove();A.ph=ph;ph.style.transition='transform .35s cubic-bezier(.22,.9,.3,1),filter .3s';A.dm=undefined;const mr=$('#msgs').getBoundingClientRect(),r0=ph.getBoundingClientRect(),bo=ph.closest('.b')&&ph.closest('.b').classList.contains('out'),gp=Math.max(3,(bo?mr.right-r0.right:r0.left-mr.left)-7),sc=Math.max(1,(mr.width-2*gp)/(ph.offsetWidth+14)),tx=Math.round(bo?7-7*sc:7*sc-7);ph.style.transform=`translate(${tx}px,0) scale(${sc})`;ph.style.zIndex=5;ph.style.touchAction='none';
- {const bb=ph.closest('.b');if(bb){A.bb=bb;bb.style.marginBottom=(11+Math.round(ph.offsetHeight*(sc-1)/2))+'px'}}
+function bindPh(A,ph){A.rg&&A.rg.remove();A.ph=ph;ph.style.transition='transform .35s cubic-bezier(.22,.9,.3,1),filter .3s';A.dm=undefined;const mr=$('#msgs').getBoundingClientRect(),r0=ph.getBoundingClientRect(),bo=ph.closest('.b')&&ph.closest('.b').classList.contains('out'),gp=Math.max(3,(bo?mr.right-r0.right:r0.left-mr.left)-7),sc=Math.max(1,(mr.width-2*gp)/(ph.offsetWidth+14)),tx=Math.round(bo?7-7*sc:7*sc-7);ph.style.transform=`translate(${tx}px,0) scale(${sc})`;ph.style.zIndex=5;ph.style.touchAction='pan-y';if(!ph._ts){ph._ts=1;ph.addEventListener('touchstart',e=>{const q=ph._A;if(!q||CUR!==q||!e.touches[0])return;const r=ph.getBoundingClientRect(),dx=e.touches[0].clientX-(r.left+r.width/2),dy=e.touches[0].clientY-(r.top+r.height/2);if(Math.hypot(dx,dy)>=r.width/2*.9)e.preventDefault()},{passive:false})}ph._A=A;
+ {const bb=ph.closest('.b');if(bb){A.bb=bb;bb.style.marginBottom=(5+Math.round(ph.offsetHeight*(sc-1)+7*sc+6))+'px'}}
  setTimeout(()=>{try{const ms=$('#msgs'),r=ph.getBoundingClientRect(),bt=document.querySelector('.inb').getBoundingClientRect().top,hb=document.querySelector('.chead').getBoundingClientRect().bottom;if(r.bottom+10>bt)ms.scrollTop+=r.bottom+10-bt;else if(r.top-10<hb)ms.scrollTop-=hb-(r.top-10)}catch(e){}},380);
  const rg=document.createElement('div');rg.style.cssText='position:absolute;inset:-7px;pointer-events:none;z-index:3';rg.innerHTML=RING;ph.appendChild(rg);A.rg=rg;A.c=rg.firstChild.firstChild;A.k=rg.lastChild;
- ph.onpointerdown=e=>{const r=ph.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;if(Math.hypot(e.clientX-cx,e.clientY-cy)<r.width/2*.8||CUR!==A)return;
+ ph.onpointerdown=e=>{const r=ph.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;if(Math.hypot(e.clientX-cx,e.clientY-cy)<r.width/2*.9||CUR!==A)return;
   ph._sk=1;A.sk=1;A.hold=!A.m.paused;A.m.pause();ph.setPointerCapture(e.pointerId);A.k.style.transform='translate(-50%,-50%) scale(1.5)';A.c.setAttribute('stroke-width','1.6');
   const mv=ev=>{const g=Math.atan2(ev.clientX-cx,-(ev.clientY-cy));A.m.currentTime=(((g/(2*Math.PI))+1)%1)*dd(A);upd(A)};mv(e);ph.onpointermove=mv;
   const up=()=>{ph.onpointermove=null;ph.onpointerup=ph.onpointercancel=null;A.sk=0;A.k.style.transform='translate(-50%,-50%) scale(0)';A.c.setAttribute('stroke-width','.32');if(A.hold&&CUR===A)A.m.play();setTimeout(()=>ph._sk=0,60)};ph.onpointerup=ph.onpointercancel=up};
@@ -2653,7 +2653,7 @@ const bind=id=>{const sc=Q(id);if(!sc)return;let y0=null,x0=0,a=null,r=0,crossed
   on=0};
  sc.addEventListener('touchend',fin,{passive:true});sc.addEventListener('touchcancel',fin,{passive:true});
  sc.addEventListener('click',e=>{const h=e.target.closest&&e.target.closest('.pf .av');if(h&&h.dataset.x)collapse(sc,h)})};
-['#ssc'].forEach(bind);
+[].forEach(bind);
 })();
 </script>
 <style>
@@ -2670,10 +2670,10 @@ const bind=id=>{const sc=Q(id);if(!sc)return;let y0=null,x0=0,a=null,r=0,crossed
 <script>
 /* Telegram-style contact header: avatar circle <-> full-width hero, follows the finger, snaps smoothly */
 (()=>{const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),vib=n=>{try{navigator.vibrate&&navigator.vibrate(n)}catch(e){}};
-window.pfInit=()=>{const sc=document.getElementById('isc'),info=document.getElementById('info'),pf=sc.querySelector('.pfx');if(!pf)return;
+window.pfInit=(scId,infoId)=>{const sc=document.getElementById(scId||'isc'),info=document.getElementById(infoId||'info'),pf=sc&&sc.querySelector('.pfx');if(!pf)return;
  const pa=pf.querySelector('.pfa'),pg=pf.querySelector('.pfg'),pn=pf.querySelector('.pfn'),acts=sc.querySelector('.acts');
  let p=0,raf=0,M={};info.classList.remove('pfe');
- const measure=()=>{M.w=sc.clientWidth||innerWidth;M.pt=parseFloat(getComputedStyle(sc).paddingTop)||0;M.ah=acts?acts.offsetHeight:70;M.nw=pn.offsetWidth;M.rtl=getComputedStyle(pn.querySelector('h2')).direction=='rtl'};
+ const measure=()=>{M.w=sc.clientWidth||innerWidth;M.pt=parseFloat(getComputedStyle(sc).paddingTop)||0;M.ah=acts?acts.offsetHeight:-14;M.nw=pn.offsetWidth;M.rtl=getComputedStyle(pn.querySelector('h2')).direction=='rtl'};
  const L=(a,b,t)=>a+(b-a)*t;
  const set=v=>{p=cl(v,0,1);measure();const w=M.w,pfH=L(184,w-14-M.ah,p),size=L(108,w,p);
   pf.style.height=pfH+'px';pf.style.marginTop=(-M.pt*p)+'px';
@@ -2697,7 +2697,7 @@ window.pfInit=()=>{const sc=document.getElementById('isc'),info=document.getElem
  const en=()=>{if(y0==null||!on){y0=null;return}y0=null;const to=vy>.5?1:vy<-.5?0:p>.4?1:0;if(to!=(p0>.5?1:0))vib(8);go(to)};
  if(sc._pfh){sc.removeEventListener('touchstart',sc._pfh[0]);sc.removeEventListener('touchmove',sc._pfh[1]);sc.removeEventListener('touchend',sc._pfh[2]);sc.removeEventListener('touchcancel',sc._pfh[2])}
  sc._pfh=[st,mv,en];sc.addEventListener('touchstart',st,{passive:true});sc.addEventListener('touchmove',mv,{passive:false});sc.addEventListener('touchend',en,{passive:true});sc.addEventListener('touchcancel',en,{passive:true});
- if(!window._pfR){window._pfR=1;addEventListener('resize',()=>{const i=document.getElementById('info');i&&i._pfSet&&i._pfSet()})}
+ if(!window._pfR){window._pfR=1;addEventListener('resize',()=>{['info','t-settings'].forEach(n=>{const i=document.getElementById(n);i&&i._pfSet&&i._pfSet()})})}
  info._pfSet=()=>set(p)};
 })();
 </script>
@@ -2720,5 +2720,29 @@ box.addEventListener('click',e=>{const rp=e.target.closest&&e.target.closest('.r
 #msgs .b{transition:transform .2s,filter .35s,box-shadow .35s}
 #msgs .b.hlp{filter:brightness(1.18) saturate(1.1);box-shadow:0 0 0 1.5px rgba(255,255,255,.35)}
 </style>
+<style>
+#t-settings.pfe .top .tb{background:rgba(0,0,0,.5)!important;color:#fff!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+#t-settings.pfe .top .tb svg{stroke:#fff}#t-settings.pfe .top .ttl{color:#fff;opacity:0;transition:opacity .2s}
+#t-settings .pfx{margin-bottom:0}
+.mt .pni{display:inline-block;vertical-align:-1px;margin-inline-end:3px;opacity:.75}
+</style>
+<script>
+/* own profile uses the same smooth pull-open header as contacts */
+{const _dsP=drawSettings;drawSettings=function(){const r=_dsP.apply(this,arguments);try{pfInit('ssc','t-settings')}catch(e){}return r}}
+/* pinned message: small pin next to the time + tapping the pin bar scrolls to it and highlights it like a reply jump */
+(()=>{const PIN='<svg class="pni" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M15.5 3l5.5 5.5-1.8.9-3.2 3.2.4 4.6-1.6 1.6-3.7-3.7L6 20.5 4.5 19l5.8-5.8-3.7-3.7 1.6-1.6 4.6.4 3.2-3.2z"/></svg>';
+const pm=c=>c&&(c.msgs.find(q=>q.id==c.pm)||(c.pinned&&c.msgs[c.msgs.length-1]))||null;
+const mark=()=>{const box=document.getElementById('msgs');if(!box||!cur)return;box.querySelectorAll('.pni').forEach(e=>e.remove());const p=pm(cur);if(!p)return;const t=box.querySelector('.b[data-id="'+p.id+'"] .mt');t&&t.insertAdjacentHTML('afterbegin',PIN)};
+{const _d=drawMsgs;drawMsgs=function(){const r=_d.apply(this,arguments);mark();return r}}
+{const _p=drawPin;drawPin=function(){const r=_p.apply(this,arguments);mark();return r}}
+gotoPin=function(){const box=document.getElementById('msgs'),p=pm(cur);if(!box||!p)return;const el=box.querySelector('.b[data-id="'+p.id+'"]');if(!el)return;
+ const bt=box.getBoundingClientRect(),r=el.getBoundingClientRect();
+ box.scrollTo({top:box.scrollTop+(r.top-bt.top)-Math.max(12,(box.clientHeight-r.height)/2),behavior:'smooth'});
+ window._hlOff&&window._hlOff();
+ const off=()=>{el.classList.remove('hlp');document.removeEventListener('pointerdown',off,true);document.removeEventListener('touchstart',off,true);if(window._hlOff===off)window._hlOff=null};
+ window._hlOff=off;el.classList.add('hlp');
+ setTimeout(()=>{if(window._hlOff===off){document.addEventListener('pointerdown',off,true);document.addEventListener('touchstart',off,true)}},60)};
+})();
+</script>
 </body>
 </html>
