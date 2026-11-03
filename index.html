@@ -327,7 +327,7 @@ box.ontouchend=()=>{if(!rb)return;rb.style.transition='';rb.style.transform='';c
 box.scrollTop=box.scrollHeight;box.style.scrollBehavior='smooth'}
 function ctxMsg(x,b,e){const y=Math.min(b.getBoundingClientRect().bottom+8,innerHeight-330);
 menu([['پاسخ','reply',()=>setRep(x)],['کپی','copy',()=>{navigator.clipboard&&navigator.clipboard.writeText(x.text||'');toast('کپی شد')}],['سنجاق','pin',()=>{cur.pm=x.id;drawPin()}],['ارسال','fwd',()=>toast('به‌زودی')],0,['حذف','trash',()=>{cur.msgs=cur.msgs.filter(q=>q!=x);drawMsgs()},1]],y,(e&&e.clientX)||innerWidth/2)}
-function setRep(x){rep=x;$('#rpn').textContent=x.out?'شما':cur.n;$('#rpt').textContent=x.text||'رسانه';$('#rpl').classList.remove('hide');$('#ti').focus()}
+function setRep(x){rep=x;$('#rpn').textContent=x.out?'شما':cur.n;$('#rpt').textContent=x.text||'رسانه';$('#rpl').classList.remove('hide');$('#ti').focus({preventScroll:true})}
 function drawPin(){const c=cur,p=c.msgs.find(q=>q.id==c.pm)||(c.pinned&&c.msgs[c.msgs.length-1]);$('#pinb').classList.toggle('hide',!p&&!c.ll);$('#ll').classList.toggle('hide',!c.ll);$('#pinc').classList.toggle('hide',!p);if(p)$('#pint').textContent=p.text||'رسانه'}
 function gotoPin(){const e=$(`#msgs .b[data-id="${cur.pm}"]`);e&&e.scrollIntoView({block:'center'})}
 function openChat(id){cur=C.find(c=>c.id==id);cur.unread=0;cur.at=0;
@@ -1040,7 +1040,7 @@ const setH=()=>{if(!isOpen&&document.activeElement!==ti)H=innerHeight};addEventL
 const getK=()=>Math.round(H*.5);let mOk=0;
 const setK=v=>{try{localStorage.setItem('kbH',v)}catch(e){}};
 const chOn=()=>!ch.classList.contains('r');
-const follow=d=>{cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
+const follow=d=>{if(window._kbOn&&window._kbOn())return;cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
 const gp=()=>Math.max(0,ms.scrollHeight-ms.scrollTop-ms.clientHeight);
 const openKb=()=>{clearTimeout(clT);if(isOpen)return;isOpen=1;mOk=0;gap=gp();K=getK();
  ap.style.transition='none';ap.style.minHeight=Math.round(H*.5)+'px';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=H+'px';void ap.offsetHeight;
@@ -1066,7 +1066,7 @@ ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement
 ti.addEventListener('focus',()=>{if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800);setTimeout(()=>{if(isOpen&&!mOk&&document.activeElement===ti){K=Math.round(H*.33);gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';follow(350)}},950)});
 ti.addEventListener('blur',()=>{if(Date.now()<(window._kbKeep||0)){const f=()=>{if(Date.now()<(window._kbKeep||0)+100&&document.activeElement!==ti)ti.focus({preventScroll:true})};f();setTimeout(f,0);setTimeout(f,80)}
  setTimeout(()=>{if(document.activeElement!==ti)closeKb()},130)});
-if(vv){vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,140);if(isOpen&&document.activeElement!==ti&&H-vv.height-vv.offsetTop<80)closeKb()})}
+if(vv){vv.addEventListener('scroll',()=>{if(isOpen&&vv.offsetTop>0)scrollTo(0,0)});addEventListener('scroll',()=>{if(isOpen&&(scrollY||pageYOffset))scrollTo(0,0)},{passive:true});vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,140);if(isOpen&&document.activeElement!==ti&&H-vv.height-vv.offsetTop<80)closeKb()})}
 })();
 </script>
 <script>
@@ -1075,7 +1075,7 @@ if(vv){vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,
 const near=()=>ms.scrollHeight-ms.scrollTop-ms.clientHeight<90;
 const mark=()=>{ut=Date.now()};['touchstart','touchmove','wheel','pointerdown'].forEach(n=>ms.addEventListener(n,mark,{passive:true}));
 ms.addEventListener('scroll',()=>{if(Date.now()-ut<700)st=near()},{passive:true});
-const pin=()=>{if(!st)return;const sb=ms.style.scrollBehavior;ms.style.scrollBehavior='auto';ms.scrollTop=ms.scrollHeight;ms.style.scrollBehavior=sb};
+const pin=()=>{if(!st||(window._kbOn&&window._kbOn()))return;const sb=ms.style.scrollBehavior;ms.style.scrollBehavior='auto';ms.scrollTop=ms.scrollHeight;ms.style.scrollBehavior=sb};
 if(window.ResizeObserver){const ro=new ResizeObserver(pin);const obs=()=>{for(const c of ms.children)ro.observe(c)};
  new MutationObserver(()=>{obs();pin()}).observe(ms,{childList:true});obs()}
 ms.addEventListener('transitionrun',e=>{if(e.target===ms&&/^padding/.test(e.propertyName)){const t=performance.now(),f=()=>{pin();if(performance.now()-t<380)requestAnimationFrame(f)};f()}});
@@ -1614,7 +1614,7 @@ function delMsg(x){if(window.mediaCur&&mediaCur()&&mediaCur().x===x)stopMedia();
 function delAsk(x,y,px){const it=[['حذف برای من','trash',()=>delMsg(x),1]];
  if(!cur.saved){if(cur.t=='pv')it.push(['حذف برای من و '+cur.n,'trash',()=>delMsg(x),1]);else if(x.out)it.push(['حذف برای همه','trash',()=>delMsg(x),1])}
  setTimeout(()=>menu(it,y,px),60)}
-function startEdit(x){EDIT=x;rep=null;$('#rpn').textContent='ویرایش پیام';$('#rpt').textContent=x.text;$('#rpl').classList.remove('hide');const t=$('#ti');t.value=x.text;t.dispatchEvent(new Event('input'));t.focus()}
+function startEdit(x){EDIT=x;rep=null;$('#rpn').textContent='ویرایش پیام';$('#rpt').textContent=x.text;$('#rpl').classList.remove('hide');const t=$('#ti');t.value=x.text;t.dispatchEvent(new Event('input'));t.focus({preventScroll:true})}
 ctxMsg=function(x,b,e){const y=Math.min(b.getBoundingClientRect().bottom+8,innerHeight-380),px=(e&&e.clientX)||innerWidth/2,it=[['پاسخ','reply',()=>setRep(x)]];
  if(x.out&&!x.type&&x.text)it.push(['ویرایش','pen',()=>startEdit(x)]);
  if(x.text)it.push(['کپی','copy',()=>{navigator.clipboard&&navigator.clipboard.writeText(x.text||'');toast('کپی شد')}]);
@@ -1770,7 +1770,7 @@ P.querySelector('.bk').onclick=()=>{const a=Array.from(ti.value);a.pop();ti.valu
 function ins(e){const s=ti.selectionStart??ti.value.length,t=ti.selectionEnd??s;ti.value=ti.value.slice(0,s)+e+ti.value.slice(t);ti.selectionStart=ti.selectionEnd=s+e.length;ti.dispatchEvent(new Event('input'))}
 function sendSt(e,a){if(!cur)return;const o=m(1,e,T(),{type:'st',emo:e,anim:a||undefined});o.st=1;addMsg(o);reply(o)}
 function openP(){if(!cur||cur.t=='ch'&&P.dataset.ro)return;popen=1;window._kbKeep=0;ti.blur();P.classList.remove('hide');stI.innerHTML=KB;drawP();$('#msgs').style.paddingBottom='400px';setTimeout(()=>{$('#msgs').scrollTop=1e5},60)}
-function closeP(f){if(!popen&&!f)return;popen=0;P.classList.add('hide');stI.innerHTML=SMILE;$('#msgs').style.paddingBottom='';if(f)ti.focus()}
+function closeP(f){if(!popen&&!f)return;popen=0;P.classList.add('hide');stI.innerHTML=SMILE;$('#msgs').style.paddingBottom='';if(f)ti.focus({preventScroll:true})}
 stI.onclick=()=>popen?closeP(1):openP();
 ti.addEventListener('focus',()=>closeP(0));$('#cb').addEventListener('click',()=>closeP(0));
 {const _bb=bub;bub=function(c,x,i,A){let h=_bb(c,x,i,A);if(x.type=='st'&&x.anim)h=h.replace(/(<div class="b st[^"]*"[^>]*>)([\s\S]*?)(<span class="mt">)/,(m0,a,e,t)=>a+`<span class="gfa gf-${x.anim}">${e}</span>`+t);return h}}
@@ -2398,7 +2398,7 @@ const kbegin=(el,dur)=>{const ms=document.getElementById('msgs');if(!ms)return;
  if(!K.on){K.d=Math.max(0,ms.scrollHeight-ms.clientHeight-ms.scrollTop);if(K.d<4)K.d=0;K.on=1;ms.style.scrollBehavior='auto';requestAnimationFrame(kframe)}
  if(el){K.el=el;K.top=el.getBoundingClientRect().top}
  K.until=performance.now()+(dur||600)};
-window._kbT=()=>kbegin(null,520);
+window._kbT=()=>kbegin(null,520);window._kbOn=()=>K.on;
 {const ms=document.getElementById('msgs');['touchstart','wheel'].forEach(ev=>ms.addEventListener(ev,()=>{if(K.on)kstop()},{passive:true}))}
 {const _sr=setRep;setRep=function(x){const b=document.querySelector(`#msgs .b[data-id="${x.id}"]`);kbegin(b,650);return _sr(x)}}
 
