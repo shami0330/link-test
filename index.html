@@ -2505,6 +2505,17 @@ drawMsgs=function(){const box=document.getElementById('msgs'),cid=cur&&cur.id;le
 .ap-ar{width:30px;height:30px;border-radius:9px;border:0;background:rgba(120,120,128,.14);font-size:13px;color:var(--tx)}
 .ap-note{margin:-8px 30px 18px;font-size:13px;color:var(--t2)}
 #stp .ph{padding:8px 12px 2px;font-size:13px;color:var(--t2);font-weight:600}
+.ap2-r{display:flex;align-items:center;gap:10px;padding:13px 18px;font-size:17px;border-top:.5px solid var(--sep)}.ap2-r:first-child{border-top:0}
+.ap2-r>span:first-child{flex:1}.ap2-v{color:var(--t2);font-size:16px}.ap-ch{color:var(--t2);opacity:.6;font-size:20px;transform:scaleX(-1)}
+.ap2-r.dis{opacity:.45;pointer-events:none}.ap2-r .sw{margin-left:0}
+.ap2-dot{width:22px;height:22px;border-radius:50%;display:block}
+.ap2-pv{margin:0 14px 18px;border-radius:26px;padding:16px 12px;display:flex;flex-direction:column;gap:8px;overflow:hidden;background-size:cover}
+.ap2-b{max-width:78%;padding:7px 12px 6px;font-size:16px;line-height:1.4;color:var(--tx);text-align:left}.ap2-b.in{align-self:flex-start}.ap2-b.out{align-self:flex-end}
+.ap2-b i{font-style:normal;font-size:11px;color:var(--t2);float:right;margin:6px 0 0 10px}.ap2-b b{display:block;font-size:15px}
+.ap2-th{display:flex;gap:10px;overflow-x:auto;padding:14px 14px 10px;border-bottom:.5px solid var(--sep)}
+.ap2-t{flex:none;width:84px;border:2px solid transparent;border-radius:14px;padding:5px;text-align:center;font-size:12px;display:flex;flex-direction:column;gap:5px}.ap2-t.on{border-color:var(--ac)}.ap2-t .ap-sw{height:56px}
+.ap2-cs{display:flex;gap:12px;padding:4px 18px 18px;overflow-x:auto}.ap2-cs i{flex:none;width:34px;height:34px;border-radius:50%;display:block;border:3px solid var(--bg2);box-shadow:0 0 0 1px rgba(120,120,128,.3)}.ap2-cs i.on{box-shadow:0 0 0 2.5px var(--ac)}.ap2-cs.big{flex-wrap:wrap}.ap2-cs.big i{width:44px;height:44px}
+.ap2-wg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 14px}.ap2-w{aspect-ratio:3/4;border-radius:14px;position:relative;background-size:cover!important;display:flex;align-items:flex-end;justify-content:flex-end;padding:6px}
 </style>
 <script>
 (()=>{
@@ -2590,37 +2601,78 @@ const pickWp=b=>{const f=D.createElement('input');f.type='file';f.accept='image/
   r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1080/Math.max(im.width,im.height)),c=D.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
    const u=c.toDataURL('image/jpeg',.75);try{localStorage.setItem('ap_wpimg',u)}catch(e){return say('حجم تصویر زیاد است')}
    st.wp='custom';s('ap_wp','custom');apply();draw(b)};im.src=r.result};r.readAsDataURL(file)};f.click()};
-/* ---- ui ---- */
-const grid=(L,cur,key,pv)=>'<div class="ap-grid">'+L.map(i=>'<div class="ap-it press '+(cur==i.id?'on':'')+'" data-a="'+key+'" data-k="'+i.id+'">'+pv(i)+'<span>'+i.n+'</span></div>').join('')+'</div>';
+/* ---- ui (Telegram style) ---- */
+const ex={ts:+(g('ap_ts')||100),rd:g('ap_rd')==null?19:+g('ap_rd'),an:g('ap_an')!='0',ac:g('ap_ac')||'',wc:g('ap_wpcol')||''};
+const exApply=()=>{let e=q('#apx-ex');if(!e){e=D.createElement('style');e.id='apx-ex';D.head.appendChild(e)}
+ let c='';if(ex.ts!=100)c+='#msgs .b{font-size:'+(17*ex.ts/100).toFixed(1)+'px!important}';
+ if(ex.rd!=19)c+='#msgs .b{border-radius:'+ex.rd+'px!important}';
+ if(!ex.an)c+='*,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important}';
+ if(ex.ac)c+='html,html.dark,#app,#app.dark{--ac:'+ex.ac+'!important}';
+ if(ex.wc)c+='html[data-wp="color"] #chat{background:'+ex.wc+'!important}';
+ e.textContent=c};
+const AC=['#2f8cf0','#4cc45d','#f5a53a','#ef5b4c','#e0457b','#8e5be8','#1fb5c9','#f07a1f','#7a869a'];
 const seg=(items,cur,a)=>'<div class="ap-seg">'+items.map(([k,n])=>'<button class="press '+(cur==k?'on':'')+'" data-a="'+a+'" data-k="'+k+'">'+n+'</button>').join('')+'</div>';
-function draw(b){
- const sc=[b.scrollTop,b.parentElement?b.parentElement.scrollTop:0],dk=isDk()?1:0;
- const thPv=t=>'<div class="ap-sw">'+t.sw[dk].map(c=>'<i style="background:'+c+'"></i>').join('')+'</div>';
- const ctPv=t=>'<div class="ap-sw" style="background:var(--bg2);gap:6px;padding:7px"><i style="background:'+t.b[dk][0]+';border-radius:10px 10px 10px 3px"></i><i style="background:'+t.b[dk][1]+';border-radius:10px 10px 3px 10px"></i></div>';
- const wpAll=WP.concat([{id:'custom',n:'از گالری'}]);
- const wpPv=w=>w.id=='custom'?'<div class="ap-wp" style="background-color:var(--bg2);'+(g('ap_wpimg')?'background-image:var(--wpimg)':'')+'">'+(g('ap_wpimg')?'':'＋')+'</div>':'<div class="ap-wp" style="background:'+(dk?w.d:w.l)+'"></div>';
- const P=pk();
- const packs=P.ord.map((id,i)=>{const p=PK.find(x=>x.id==id);return '<div class="sr"><div class="si" style="background:var(--ac)">'+p.e[0]+'</div>'+p.n+'<div class="pe"><button class="ap-ar" data-a="mv" data-k="-1" data-id="'+id+'">▲</button><button class="ap-ar" data-a="mv" data-k="1" data-id="'+id+'">▼</button></div><div class="sw '+(P.off.includes(id)?'':'on')+'" data-a="tg" data-id="'+id+'"></div></div>'}).join('');
- const lq=st.lg=='liquid'?'<div class="card"><div class="ap-rng"><span>تاری</span><input type="range" min="0" max="40" value="'+st.lb+'" data-a="lb"></div><div class="sr">درخشش لبه‌ها<div class="sw '+(st.lh?'on':'')+'" data-a="lh"></div></div></div>':'<div class="ap-note">تنظیمات تاری و درخشش فقط در حالت لیکوید فعال است.</div>';
- b.innerHTML='<div class="ap-h">حالت شب</div>'+seg([['light','روشن'],['dark','تاریک'],['auto','خودکار']],dm(),'dm')
- +'<div class="ap-h">تم برنامه</div>'+grid(TH,st.th,'th',thPv)
- +'<div class="ap-h">تم چت</div>'+grid(CT,st.ct,'ct',ctPv)
- +'<div class="ap-h">والپیپر چت</div>'+grid(wpAll,st.wp,'wp',wpPv)
- +'<div class="ap-h">پک‌های استیکر</div><div class="card ap-pk">'+packs+'</div>'
- +'<div class="ap-h">حالت لیکوید گلس</div>'+seg([['liquid','لیکوید'],['plain','ساده'],['off','خاموش']],st.lg,'lg')+lq;
- b.scrollTop=sc[0];if(b.parentElement)b.parentElement.scrollTop=sc[1]}
-window.openAppearance=()=>{const b=openSheet('ظاهر','');
- b.onclick=e=>{const t=e.target.closest('[data-a]');if(!t||t.dataset.a=='lb')return;const a=t.dataset.a,k=t.dataset.k;
-  if(a=='dm')setDark(k);
+const wpBg=(w,dk)=>w=='color'?(ex.wc||'#7a869a'):w=='custom'?'var(--bg2) center/cover url("'+(g('ap_wpimg')||'')+'")':(()=>{const x=WP.find(i=>i.id==w)||WP[0];return dk?x.d:x.l})();
+const chk='<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#fff" fill-opacity=".25"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const chev='<span class="ap-ch">›</span>';
+const rw=(t,v,a,k)=>'<div class="ap2-r press" data-a="'+a+'"'+(k!=null?' data-k="'+k+'"':'')+'><span>'+t+'</span><span class="ap2-v">'+(v||'')+'</span>'+chev+'</div>';
+const tg=(t,on,a,dis)=>'<div class="ap2-r'+(dis?' dis':'')+'"><span>'+t+'</span><div class="sw '+(on?'on':'')+'" data-a="'+a+'"></div></div>';
+const dmName=()=>({auto:'سیستم',dark:'روشن',light:'خاموش'})[dm()];
+const pv=()=>{const dk=isDk()?1:0,t=TH.find(x=>x.id==st.th)||TH[0],c=CT.find(x=>x.id==st.ct)||CT[0];
+ const ib=c.l?c.b[dk][0]:(t.l?(dk?t.d.inb:t.l.inb):c.b[dk][0]),ob=c.l?c.b[dk][1]:(t.l?(dk?t.d.outb:t.l.outb):c.b[dk][1]);
+ return '<div class="ap2-pv" dir="ltr" style="background:'+wpBg(st.wp,dk)+'"><div class="ap2-b in" style="background:'+ib+';border-radius:'+ex.rd+'px"><b style="color:var(--ac)">Bob Harris</b><div>Good morning! 👋<br>Do you know what time it is?<i>21:50</i></div></div><div class="ap2-b out" style="background:'+ob+';border-radius:'+ex.rd+'px">It\'s morning in Tokyo 😎<i>21:50 ✓✓</i></div></div>'};
+const thumbs=()=>'<div class="ap2-th">'+TH.map(t=>'<div class="ap2-t press'+(st.th==t.id?' on':'')+'" data-a="th" data-k="'+t.id+'"><div class="ap-sw">'+t.sw[isDk()?1:0].map(c=>'<i style="background:'+c+'"></i>').join('')+'</div><span>'+t.n+'</span></div>').join('')+'</div>';
+const hd=t=>'<div class="ap-h">'+t+'</div>';
+let page='main',stack=[];
+const PAGES={
+main:()=>pv()+'<div class="card">'+thumbs()+rw('تم‌های چت','','go','themes')+rw('والپیپر چت','','go','wp')+'<div class="ap2-r press" data-a="go" data-k="color"><span>رنگ شما</span><i class="ap2-dot" style="background:var(--ac)"></i>'+chev+'</div></div>'
+ +'<div class="card">'+tg('حالت شب',isDk(),'nm',dm()=='auto')+rw('حالت شب خودکار',dmName(),'go','auto')+'</div>'
+ +'<div class="card">'+rw('اندازه متن',ex.ts+'%','go','ts')+rw('گوشه‌های پیام',ex.rd,'go','rd')+rw('انیمیشن‌ها','','go','an')+rw('استیکر و ایموجی','','go','stk')+rw('لیکوید گلس','','go','lg')+'</div>',
+themes:()=>hd('انتخاب تم')+'<div class="card">'+thumbs()+'</div>'+hd('تم خودتان را بسازید')+pv()
+ +'<div class="ap-seg" style="margin:0 14px 12px">'+[['','پیش‌فرض']].concat(CT.slice(1).map(c=>[c.id,c.n])).map(([k,n])=>'<button class="press '+(st.ct==k?'on':'')+'" data-a="ct" data-k="'+k+'">'+n+'</button>').join('')+'</div>'
+ +'<div class="ap2-cs">'+AC.map(c=>'<i class="press'+(ex.ac==c?' on':'')+'" data-a="ac" data-k="'+c+'" style="background:'+c+'"></i>').join('')+'</div>'
+ +'<div class="card"><div class="ap2-r press" data-a="go" data-k="color" style="color:var(--ac)"><span>ویرایش تم فعلی</span></div><div class="ap2-r press" data-a="newth" style="color:var(--ac)"><span>ساخت تم جدید</span></div></div>',
+wp:()=>'<div class="card"><div class="ap2-r press" data-a="wc" style="color:var(--ac)"><span>تنظیم رنگ</span></div><div class="ap2-r press" data-a="wpg" style="color:var(--ac)"><span>انتخاب از گالری</span></div></div><div class="ap-note" style="margin:-8px 30px 14px">می‌توانید تصویر پس‌زمینه دلخواه تنظیم کنید و با دوستان خود به اشتراک بگذارید.</div>'
+ +'<div class="ap2-wg">'+WP.map(w=>w.id).concat(ex.wc?['color']:[],g('ap_wpimg')?['custom']:[]).map(id=>'<div class="ap2-w press" data-a="wp" data-k="'+id+'" style="background:'+wpBg(id,isDk()?1:0)+'">'+(st.wp==id?chk:'')+'</div>').join('')+'</div>',
+color:()=>hd('رنگ شما')+'<div class="ap2-cs big">'+AC.map(c=>'<i class="press'+(ex.ac==c||!ex.ac&&c==AC[0]?' on':'')+'" data-a="ac" data-k="'+c+'" style="background:'+c+'"></i>').join('')+'</div>',
+auto:()=>'<div class="card">'+[['auto','سیستم'],['dark','روشن'],['light','خاموش']].map(([k,n])=>'<div class="ap2-r press" data-a="dm" data-k="'+k+'"><span>'+n+'</span>'+(dm()==k?'<span style="color:var(--ac)">✓</span>':'')+'</div>').join('')+'</div>',
+ts:()=>pv()+'<div class="card"><div class="ap-rng"><span>A</span><input type="range" min="80" max="140" step="5" value="'+ex.ts+'" data-a="ts"><span style="font-size:22px">A</span></div></div>',
+rd:()=>pv()+'<div class="card"><div class="ap-rng"><span>0</span><input type="range" min="0" max="24" value="'+ex.rd+'" data-a="rd"><span>24</span></div></div>',
+an:()=>'<div class="card">'+tg('انیمیشن‌ها',ex.an,'an')+'</div>',
+stk:()=>{const P=pk();return '<div class="card ap-pk">'+P.ord.map(id=>{const p=PK.find(x=>x.id==id);return '<div class="sr"><div class="si" style="background:var(--ac)">'+p.e[0]+'</div>'+p.n+'<div class="pe"><button class="ap-ar" data-a="mv" data-k="-1" data-id="'+id+'">▲</button><button class="ap-ar" data-a="mv" data-k="1" data-id="'+id+'">▼</button></div><div class="sw '+(P.off.includes(id)?'':'on')+'" data-a="tg" data-id="'+id+'"></div></div>'}).join('')+'</div>'},
+lg:()=>seg([['liquid','لیکوید'],['plain','ساده'],['off','خاموش']],st.lg,'lg')+(st.lg=='liquid'?'<div class="card"><div class="ap-rng"><span>تاری</span><input type="range" min="0" max="40" value="'+st.lb+'" data-a="lb"></div><div class="sr">درخشش لبه‌ها<div class="sw '+(st.lh?'on':'')+'" data-a="lh"></div></div></div>':'<div class="ap-note">تنظیمات تاری و درخشش فقط در حالت لیکوید فعال است.</div>')
+};
+const TT={main:'ظاهر',themes:'تم‌های چت',wp:'والپیپر چت',color:'رنگ شما',auto:'حالت شب خودکار',ts:'اندازه متن',rd:'گوشه‌های پیام',an:'انیمیشن‌ها',stk:'استیکر و ایموجی',lg:'لیکوید گلس'};
+let B=null;
+function render(keep){if(!B||!B.isConnected)return;const sc=B.scrollTop;
+ if(!keep||B.dataset.p!=page){const t=D.querySelector('#sp .h2>span:nth-child(2)');t&&(t.textContent=TT[page]);B.dataset.p=page;
+  const x=q('#spx');if(page=='main'){x.innerHTML=I('x',22);x.onclick=closeSheet;const sp=q('#sp');sp._back=null}else sheetBack(()=>{page=stack.pop()||'main';render()})}
+ B.innerHTML=PAGES[page]();B.scrollTop=sc}
+function draw(){render(1)}
+const go=k=>{stack.push(page);page=k;B.scrollTop=0;render()};
+window.openAppearance=()=>{page='main';stack=[];B=openSheet('ظاهر','');B.dataset.p='main';
+ B.onclick=e=>{const t=e.target.closest('[data-a]');if(!t||/^(lb|ts|rd)$/.test(t.dataset.a))return;const a=t.dataset.a,k=t.dataset.k;
+  if(a=='go')return go(k);
+  if(a=='dm'){setDark(k)}
+  else if(a=='nm'){setDark(isDk()?'light':'dark')}
   else if(a=='th'||a=='ct'){st[a]=k;s('ap_'+a,k);apply()}
-  else if(a=='wp'){if(k=='custom'){pickWp(b);return}st.wp=k;s('ap_wp',k);apply()}
+  else if(a=='ac'){ex.ac=k==AC[0]?'':k;s('ap_ac',ex.ac);exApply()}
+  else if(a=='newth'){st.th='';st.ct='';st.wp='';ex.ac='';s('ap_th','');s('ap_ct','');s('ap_wp','');s('ap_ac','');apply();exApply();say('تم جدید ساخته شد')}
+  else if(a=='wp'){st.wp=k;s('ap_wp',k);apply()}
+  else if(a=='wpg'){pickWp(B);return}
+  else if(a=='wc'){const i=D.createElement('input');i.type='color';i.value=ex.wc||'#7a869a';i.oninput=()=>{ex.wc=i.value;s('ap_wpcol',ex.wc);st.wp='color';s('ap_wp','color');apply();exApply();render(1)};i.click();return}
+  else if(a=='an'){ex.an=!ex.an;s('ap_an',ex.an?'':'0');exApply()}
   else if(a=='lg'){st.lg=k;s('ap_lg',k);apply()}
   else if(a=='lh'){st.lh=!st.lh;s('ap_lh',st.lh?'1':'');apply()}
   else if(a=='tg'){const p=pk(),id=t.dataset.id,i=p.off.indexOf(id);if(i<0)p.off.push(id);else p.off.splice(i,1);pks(p)}
   else if(a=='mv'){const p=pk(),i=p.ord.indexOf(t.dataset.id),j=i+ +k;if(j>=0&&j<p.ord.length){[p.ord[i],p.ord[j]]=[p.ord[j],p.ord[i]];pks(p)}}
-  draw(b)};
- b.oninput=e=>{if(e.target.dataset.a=='lb'){st.lb=+e.target.value;s('ap_lb',st.lb);lgApply()}};
- draw(b)};
+  render(1)};
+ B.oninput=e=>{const a=e.target.dataset.a,v=+e.target.value;
+  if(a=='lb'){st.lb=v;s('ap_lb',v);lgApply()}
+  else if(a=='ts'){ex.ts=v;s('ap_ts',v==100?'':v);exApply();const r=e.target.closest('.card').previousElementSibling;if(r)r.outerHTML=pv()}
+  else if(a=='rd'){ex.rd=v;s('ap_rd',v==19?'':v);exApply();const r=e.target.closest('.card').previousElementSibling;if(r)r.outerHTML=pv()}};
+ render()};
+exApply();
 apply();
 })();
 </script>
@@ -2743,6 +2795,11 @@ gotoPin=function(){const box=document.getElementById('msgs'),p=pm(cur);if(!box||
  window._hlOff=off;el.classList.add('hlp');
  setTimeout(()=>{if(window._hlOff===off){document.addEventListener('pointerdown',off,true);document.addEventListener('touchstart',off,true)}},60)};
 })();
+</script>
+<script>
+Object.assign(EN,{'ظاهر':'Appearance','تم‌های چت':'Chat Themes','والپیپر چت':'Chat Wallpaper','رنگ شما':'Your Color','حالت شب':'Night Mode','حالت شب خودکار':'Auto-Night Mode','اندازه متن':'Text Size','گوشه‌های پیام':'Message Corners','انیمیشن‌ها':'Animations','استیکر و ایموجی':'Stickers and Emoji','لیکوید گلس':'Liquid Glass','انتخاب تم':'SELECT A THEME','تم خودتان را بسازید':'BUILD YOUR OWN THEME','ویرایش تم فعلی':'Edit Current Theme','ساخت تم جدید':'Create a New Theme','تنظیم رنگ':'Set a Color','انتخاب از گالری':'Choose from Photos','می‌توانید تصویر پس‌زمینه دلخواه تنظیم کنید و با دوستان خود به اشتراک بگذارید.':'You can set a custom background image and share it with your friends.','سیستم':'System','روشن':'On','خاموش':'Off','خودکار':'Auto','تم جدید ساخته شد':'New theme created','سبز کلاسیک':'Classic Green','توت‌فرنگی':'Strawberry','توت‌فرنگی 🍓':'Strawberry 🍓','اقیانوس':'Ocean','بنفشه':'Lilac','غروب':'Sunset','همراه تم':'Follow Theme','سبز':'Green','آبی':'Blue','صورتی':'Pink','خاکستری':'Gray','پیش‌فرض':'Default','دریا':'Sea','نعناعی':'Mint','نقطه‌ای':'Dots','ساده':'Plain','پایه':'Basic','حالت‌ها':'Moods','حیوانات':'Animals','خوراکی':'Food','طبیعت':'Nature','از گالری':'From Photos','حجم تصویر زیاد است':'Image is too large','لیکوید':'Liquid','تاری':'Blur','درخشش لبه‌ها':'Edge Highlight','تنظیمات تاری و درخشش فقط در حالت لیکوید فعال است.':'Blur and highlight settings are available only in Liquid mode.','تم برنامه':'App Theme','تم چت':'Chat Theme','پک‌های استیکر':'Sticker Packs','حالت لیکوید گلس':'Liquid Glass Mode','هیچ پکی فعال نیست. از تنظیمات › ظاهر فعال کنید.':'No packs enabled. Enable them in Settings › Appearance.',
+'در حال اتصال…':'Connecting…','نام و توضیح شما به مخاطبین نمایش داده می‌شود. نام کاربری ۵ تا ۳۲ حرف انگلیسی، عدد یا _ باشد.':'Your name and bio are shown to contacts. Username must be 5–32 letters, digits or _.','نام کاربری (مثلاً ali_123)':'Username (e.g. ali_123)','رمز جدید حداقل ۶ حرف باشد':'New password must be at least 6 characters','اختیاری':'Optional','هنوز تماسی ثبت نشده است':'No calls yet','هنوز پوشه‌ای نساخته‌اید':'No folders created yet'});
+try{runLang()}catch(e){}
 </script>
 </body>
 </html>
