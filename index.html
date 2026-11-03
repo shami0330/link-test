@@ -2284,10 +2284,10 @@ drawMsgs=function(){const box=document.getElementById('msgs'),cid=cur&&cur.id;le
   b.oncontextmenu=e=>{e.preventDefault();ctxMsg(x,b,e)}});
  return r}}
 /* ---- folder chips: highlight pill follows the swipe between folders ---- */
-{const E2='cubic-bezier(.2,.9,.25,1)',ch0=()=>document.getElementById('chips');let ind=null,G=null;
+{const E2='cubic-bezier(.2,.9,.25,1)',ch0=()=>document.getElementById('chips');let ind=null,G=null,LB=null;
  const st=document.createElement('style');st.textContent='.chip{position:relative;z-index:1}.chip.on{background:transparent!important}#hd .chips{position:relative}.cind{position:absolute;z-index:0;border-radius:99px;background:rgba(120,120,128,.2);pointer-events:none;transition:left .4s cubic-bezier(.3,1.3,.5,1),width .4s cubic-bezier(.3,1.3,.5,1),top .4s,height .4s}.cind.nt{transition:none!important}';document.head.appendChild(st);
  const box=c=>{const w=c.offsetWidth,h=c.offsetHeight;return{l:c.offsetLeft-w*.025,w:w*1.05,t:c.offsetTop-h*.025,h:h*1.05,c:c.offsetLeft+w/2}};
- const apply=b=>{ind.style.left=b.l+'px';ind.style.width=b.w+'px';ind.style.top=b.t+'px';ind.style.height=b.h+'px'};
+ const apply=b=>{LB=b;ind.style.left=b.l+'px';ind.style.width=b.w+'px';ind.style.top=b.t+'px';ind.style.height=b.h+'px'};
  const _dc=drawChips;
  drawChips=function(){const ch=ch0(),sl=ch?ch.scrollLeft:0;if(ind&&ind.parentNode)ind.remove();const r=_dc.apply(this,arguments);if(!ch)return r;
   const first=!ind;if(first){ind=document.createElement('i');ind.className='cind nt'}
@@ -2302,7 +2302,33 @@ drawMsgs=function(){const box=document.getElementById('msgs'),cid=cur&&cur.id;le
   if(G.m){ch.style.scrollBehavior='auto';ch.scrollLeft=L(G.s,G.s1)}};
  window._ce=(ok,dur,ni)=>{if(!G||!ind)return;const T=ok?G.B:G.A,s=ok?G.s1:G.s,ch=ch0(),g=G;G=null;ind.classList.remove('nt');
   ind.style.transition=['left','width','top','height'].map(p=>p+' '+dur+'ms '+E2).join(',');apply(T);
-  if(ch&&g.m)ch.scrollTo({left:s,behavior:'smooth'});setTimeout(()=>{if(ind)ind.style.transition=''},dur+60)}}
+  if(ch&&g.m)ch.scrollTo({left:s,behavior:'smooth'});setTimeout(()=>{if(ind)ind.style.transition=''},dur+60)}
+ /* re-measure so the bubble always lands exactly on the active chip */
+ const fixI=()=>{const ch=ch0(),a=ch&&ch.querySelector('.chip.on');if(!ind||!a||G||!ind.parentNode||!LB)return;const b=box(a);
+  if(Math.abs(b.l-LB.l)<.5&&Math.abs(b.w-LB.w)<.5&&Math.abs(b.t-LB.t)<.5&&Math.abs(b.h-LB.h)<.5)return;
+  ind.classList.add('nt');apply(b);void ind.offsetWidth;requestAnimationFrame(()=>{if(ind&&!G)ind.classList.remove('nt')})};
+ let RO=null;try{RO=new ResizeObserver(()=>fixI())}catch(e){}
+ const _dc3=drawChips;drawChips=function(){const r=_dc3.apply(this,arguments);const ch=ch0();
+  if(RO&&ch){RO.disconnect();ch.querySelectorAll('.chip').forEach(c=>RO.observe(c))}[60,250,600,1200].forEach(t=>setTimeout(fixI,t));return r};
+ try{document.fonts&&document.fonts.ready.then(fixI)}catch(e){}
+ addEventListener('resize',fixI);addEventListener('orientationchange',()=>setTimeout(fixI,300));
+ /* long-press the folder bar, then slide left/right to move the bubble between folders */
+ let lpT=null,P0=null,SC=0;
+ const pickC=x=>{const cs=[...ch0().querySelectorAll('.chip')];let bi=-1,bd=1e9;cs.forEach((c,i)=>{const r=c.getBoundingClientRect(),d=x>=r.left&&x<=r.right?0:Math.min(Math.abs(x-r.left),Math.abs(x-r.right));if(d<bd){bd=d;bi=i}});return bi};
+ const scrubTo=i=>{const ch=ch0(),cs=ch.querySelectorAll('.chip'),c=cs[i],id=FI()[i];if(!c||id==fl)return;fl=id;
+  cs.forEach(e=>e.classList.toggle('on',e==c));if(ind){ind.classList.remove('nt');apply(box(c))}
+  try{drawList()}catch(e){}try{navigator.vibrate&&navigator.vibrate(4)}catch(e){}};
+ const endScrub=()=>{clearTimeout(lpT);lpT=null;P0=null;if(SC){SC=0;try{drawChips()}catch(e){}}};
+ {const ch=ch0();if(ch){
+  ch.addEventListener('touchstart',e=>{if(e.touches.length!=1){endScrub();return}const t=e.touches[0];P0={x:t.clientX,y:t.clientY};clearTimeout(lpT);
+   lpT=setTimeout(()=>{if(!P0)return;SC=1;try{navigator.vibrate&&navigator.vibrate(10)}catch(e){}},380)},{passive:true});
+  ch.addEventListener('touchmove',e=>{const t=e.touches[0];
+   if(!SC){if(P0&&(Math.abs(t.clientX-P0.x)>8||Math.abs(t.clientY-P0.y)>8)){clearTimeout(lpT);P0=null}return}
+   e.preventDefault();e.stopPropagation();const r=ch.getBoundingClientRect();
+   if(t.clientX<r.left+36)ch.scrollLeft-=10;else if(t.clientX>r.right-36)ch.scrollLeft+=10;
+   const i=pickC(t.clientX);if(i>=0)scrubTo(i)},{passive:false});
+  ['touchend','touchcancel'].forEach(n=>ch.addEventListener(n,endScrub,{passive:true}))}}
+}
 })();
 
 </script>
