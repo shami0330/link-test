@@ -2808,20 +2808,21 @@ try{runLang()}catch(e){}
 <style>
 .upf{height:0;overflow:hidden;position:relative;z-index:1}
 .upf.go{transition:height .35s cubic-bezier(.22,.9,.28,1)}
-.upfw{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.upfw{display:grid;grid-template-columns:1fr;gap:0}
 .upt{position:relative;aspect-ratio:1;overflow:hidden;cursor:pointer;background:#c9d1d9}
 .upt .av{width:100%!important;height:100%!important;border-radius:0!important;margin:0!important}
 .upt b{position:absolute;left:0;right:0;bottom:0;padding:16px 6px 5px;color:#fff;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:linear-gradient(transparent,rgba(0,0,0,.55));text-align:start}
+.upt b small{display:block;font-size:13px;font-weight:400;opacity:.85;margin-top:2px}
 .upfh{grid-column:1/-1;padding:18px 0;text-align:center;font-size:14px;opacity:.6}
 </style>
 <script>
-/* settings tab: own profile is not shown by default; pulling down reveals users' profiles as squares */
+/* settings tab: pulling down reveals own profile photo (Telegram style) */
 (()=>{const THR=56,vib=n=>{try{navigator.vibrate&&navigator.vibrate(n)}catch(e){}};
 const up=()=>document.getElementById('upf'),wrap=()=>document.getElementById('upfw');
 window.upfRender=()=>{const w=wrap();if(!w)return;
- const L=C.filter(c=>c.t=='pv'&&!c.saved).sort((a,b)=>a.n.localeCompare(b.n,'fa'));
- w.innerHTML=L.length?L.map(c=>`<div class="upt press" data-id="${c.id}">${av(c,120)}<b dir="auto">${esc(c.n)}</b></div>`).join(''):'<div class="upfh">پروفایلی برای نمایش نیست</div>';
- w.querySelectorAll('.upt').forEach(t=>t.onclick=()=>openChat(+t.dataset.id))};
+ let u;try{u=JSON.parse(ld('u'))}catch(e){}u=u||{n:'من',e:'me@link.app'};const me={id:3,n:u.n,ph:ld('myphoto')||''};
+ w.innerHTML=`<div class=\"upt press\">${av(me,400)}<b dir=\"auto\">${esc(u.n)}<small>${esc(u.e||'')}</small></b></div>`;
+ w.querySelector('.upt').onclick=()=>{try{pickPhoto()}catch(e){}}};
 let y0=null,x0=0,r0=0,on=0;
 window.upfBind=()=>{const s=document.getElementById('ssc');if(!s||s._upfB)return;s._upfB=1;
  s.addEventListener('touchstart',e=>{y0=null;on=0;if(e.touches.length!=1)return;const t=e.touches[0];y0=t.clientY;x0=t.clientX},{passive:true});
