@@ -22,6 +22,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Vazirmatn",syst
 #app{position:fixed;inset:0;max-width:520px;margin:auto;background:var(--bg);overflow:hidden;direction:ltr}
 @media (pointer:coarse){#app,#tgv{max-width:none!important}}
 /* fill the whole screen: remove the blank band under the input bar (day: white, night: black) */
+/* raise bottom controls by 10px (change --up to adjust) */
+@media (orientation:portrait){:root{--up:10px}.inb:not(.kbo){padding-bottom:calc(env(safe-area-inset-bottom) + 8px + var(--up))!important}.tabbar{bottom:calc(env(safe-area-inset-bottom) + 12px + var(--up))!important}.eb{bottom:calc(env(safe-area-inset-bottom) + 14px + var(--up))!important}.dn{bottom:calc(env(safe-area-inset-bottom) + 84px + var(--up))!important}}
 @supports (height:100lvh){html,body{height:100lvh}#app{top:0;bottom:auto;margin-top:0;height:calc(100lvh + env(safe-area-inset-bottom,0px))}}
 @media (pointer:coarse){#mc,#cr,#vw,#mp,#sp,#ng{max-width:none!important}}
 @media (pointer:coarse) and (orientation:landscape){
