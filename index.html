@@ -373,7 +373,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #ro .side button,#ro .rb,#ro .pz,#ro .rs{width:48px;height:48px;border-radius:50%;background:rgba(40,40,44,.92)}
 #ro .bar{position:absolute;left:12px;right:92px;bottom:calc(env(safe-area-inset-bottom) + 18px);height:48px;border-radius:24px;background:rgba(32,32,36,.94);display:flex;align-items:center;gap:14px;padding:0 16px;font-size:17px}
 #ro .bar i{width:10px;height:10px;border-radius:50%;background:#ff3b30;animation:tp 1s infinite}
-#ro .tx{margin:0 auto;color:#bbb;pointer-events:none}#ro[data-s=lock] .tx{color:#6cc864;pointer-events:auto}
+#ro .tx{margin:0 auto;color:#bbb;pointer-events:none}#ro[data-s=lock] .tx{color:#6cc864;pointer-events:auto}#ro[data-s=lock] .tx{flex:1;align-self:stretch;display:flex;align-items:center;justify-content:center;margin:0 -8px;cursor:pointer}
 #ro .big{position:absolute;right:12px;bottom:calc(env(safe-area-inset-bottom) + 6px);width:72px;height:72px;border-radius:50%;background:#65c15d;z-index:3;transition:transform .12s}
 #ro .hl{position:absolute;right:-72px;bottom:calc(env(safe-area-inset-bottom) - 78px);width:240px;height:240px;pointer-events:none}
 #ro .lk{position:absolute;right:20px;bottom:calc(env(safe-area-inset-bottom) + 118px)}
@@ -461,7 +461,7 @@ finally{R.flipping=0}}
 {let d0=0,z0=1;const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY),ok=()=>Z&&Z.vid&&Z.st!='pause';
 document.addEventListener('touchstart',e=>{if(ok()&&e.touches.length==2){d0=dist(e.touches);z0=Z.zm||1}},{passive:true});
 document.addEventListener('touchmove',e=>{if(!ok()||e.touches.length!=2||!d0)return;e.preventDefault();Z.zm=Math.min(5,Math.max(1,z0*dist(e.touches)/d0))},{passive:false});
-document.addEventListener('touchend',e=>{if(e.touches.length<2)d0=0},{passive:true})}
+document.addEventListener('touchend',e=>{if(e.touches.length<2){const had=d0;d0=0;const R=Z;if(had&&R&&R.zm>1){cancelAnimationFrame(R.zr);const f=()=>{if(Z!==R)return;R.zm=1+(R.zm-1)*.8;if(R.zm<1.01)R.zm=1;else R.zr=requestAnimationFrame(f)};f()}}},{passive:true});document.addEventListener('touchcancel',()=>{d0=0;if(Z)Z.zm=1},{passive:true})}
 function flashOff(R){if(!R||!R.flash)return;R.flash=0;const o=$('#ro');o&&o.classList.remove('fl');try{const t=MST&&MST.getVideoTracks()[0];t&&t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0)}catch(e){}const b=o&&o.querySelector('[data-a=flash]');b&&(b.style.opacity=.7)}
 async function flashCam(){const R=Z;if(!R||!R.vid||R.st=='pause')return;R.flash=!R.flash;const o=$('#ro');if(R.front)o.classList.toggle('fl',R.flash);else{try{await MST.getVideoTracks()[0].applyConstraints({advanced:[{torch:!!R.flash}]})}catch(e){R.flash=0;toast('فلش دوربین پشت پشتیبانی نمی‌شود')}}o.querySelector('[data-a=flash]').style.opacity=R.flash?1:.7}
 function ui(R){cancelAnimationFrame(R.raf);R.ac&&R.ac.close();R.pa&&R.pa.pause();R.pvv&&R.pvv.remove();{const q=document.querySelector('#ro .snb');q&&q.remove()};R.cv&&R.cv.remove();try{MST&&MST.getVideoTracks().forEach(t=>t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0))}catch(e){}if(MST){MST.getTracks().forEach(t=>{try{t.stop()}catch(e){}});MST=null;clearTimeout(window._rel)}const o=$('#ro');o.className='';o.dataset.s='';$('#app').classList.remove('rcg');Z=null}
