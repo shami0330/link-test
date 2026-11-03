@@ -741,6 +741,26 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=',
 #vw .vbt{display:flex;align-items:center;gap:6px;margin-top:2px}#vw .vbt button{width:44px;height:40px;display:flex;align-items:center;justify-content:center;color:#fff}#vw .vbt button svg{width:24px;height:24px}#vw .vbt .vsp{font-size:15px;font-weight:700;width:48px}
 #vw .vbig{position:absolute;left:50%;top:50%;width:68px;height:68px;margin:-34px 0 0 -34px;border-radius:50%;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:#fff;z-index:4;transition:opacity .2s,transform .2s}#vw .vbig svg{width:32px;height:32px;margin-left:3px}#vw .sl.pl .vbig{opacity:0;transform:scale(.8);pointer-events:none}
 #vw .vsk{position:absolute;top:50%;width:84px;height:84px;margin-top:-42px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;opacity:0;pointer-events:none;z-index:3}#vw .vsk.l{left:8%}#vw .vsk.r{right:8%}#vw .vsk.on{animation:vsk .6s ease-out}@keyframes vsk{0%{opacity:0;transform:scale(.7)}25%{opacity:1}100%{opacity:0;transform:scale(1.1)}}
+/* telegram-style video player */
+#vw .vh{background:none;direction:ltr;padding:calc(env(safe-area-inset-top) + 6px) 14px 8px;pointer-events:none}
+#vw .vh>*{pointer-events:auto}
+#vw .vh button{width:46px;height:46px;border-radius:50%;background:rgba(32,32,34,.92)}
+#vw .vh #vn{background:rgba(32,32,34,.92);border-radius:24px;padding:8px 26px;font-size:16px;font-weight:600}
+#vw .vh #vn:empty{display:none}
+#vw .vcb{background:none;padding:0 14px calc(env(safe-area-inset-bottom) + 14px)}
+#vw .vsb{background:rgba(32,32,34,.92);border-radius:30px;height:58px;padding:0 22px;gap:14px;font-size:15px;color:#fff}
+#vw .vtk::before,#vw .vtk i{height:6px;border-radius:3px}
+#vw .vth{display:none}
+#vw .vbt{justify-content:center;margin-top:12px}
+#vw .vpl{display:flex;align-items:center;justify-content:center;gap:4px;background:rgba(32,32,34,.92);border-radius:30px;height:52px;padding:0 14px}
+#vw .vpl .vpp{display:none}
+#vw .vpl button{width:48px;height:44px}
+#vw .vbig{width:88px;height:88px;margin:-44px 0 0 -44px;background:rgba(10,10,10,.88);border:1px solid rgba(255,255,255,.08)}
+#vw .vbig svg{width:38px;height:38px}
+#vw .sl.pl .vbig{opacity:1;transform:none;pointer-events:auto}
+#vw .sl.pl .vbig svg{margin-left:0}
+#vw.hid .sl .vbig{opacity:0!important;pointer-events:none!important}
+
 #mp .mpb{background:#1c1c1e;border-radius:20px;padding:20px 22px;width:min(300px,86%);text-align:center;display:flex;flex-direction:column;gap:14px}#mp .mpr{height:6px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden}#mp .mpr i{display:block;height:100%;width:0;background:var(--ac);transition:width .2s}#mp #mpc{color:var(--red);font-size:16px}
 
 #sp{position:fixed;inset:0;max-width:520px;margin:auto;z-index:45;background:var(--bg2);display:flex;flex-direction:column;transform:translateX(105%);transition:transform .35s cubic-bezier(.22,.9,.28,1);direction:rtl}
@@ -1271,7 +1291,7 @@ window.dlItem=(id,k)=>{const x=cur.msgs.find(q=>q.id==id);if(!x)return;const it=
 /* ---------- viewer ---------- */
 const VI={play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>',pause:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="5.5" y="4" width="4.5" height="16" rx="1.2"/><rect x="14" y="4" width="4.5" height="16" rx="1.2"/></svg>',vol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>',mute:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>',fs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',fsx:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>'};
 window.openVw=(id,k)=>{const x=cur.msgs.find(q=>q.id==id);if(!x)return;const its=x.items;let o=document.getElementById('vw');if(o&&o._cl)o._cl();o&&o.remove();o=document.createElement('div');o.id='vw';
- o.innerHTML=`<div class="vh"><button id="vx">${I('x',26)}</button><span id="vn"></span><button id="vdl">${I('down',24)}</button></div><div class="vpg">${its.map(it=>`<div class="sl">${it.k=='v'?`<video src="${it.u}" playsinline preload="auto" poster="${it.t||''}"></video><div class="vbig">${VI.play}</div><div class="vsk l"></div><div class="vsk r"></div><div class="vcb"><div class="vsb"><span class="vct">0:00</span><div class="vtk"><i class="vbf"></i><i class="vpr"></i><b class="vth"></b></div><span class="vdu">0:00</span></div><div class="vbt"><button class="vpp">${VI.play}</button><button class="vmu">${VI.vol}</button><button class="vsp">1×</button><span style="flex:1"></span><button class="vfs">${VI.fs}</button></div></div>`:`<img src="${it.u}" draggable="false">`}</div>`).join('')}</div>`;ap.appendChild(o);
+ o.innerHTML=`<div class="vh"><button id="vx"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="vn"></span><button id="vdl">${I('down',24)}</button></div><div class="vpg">${its.map(it=>`<div class="sl">${it.k=='v'?`<video src="${it.u}" playsinline preload="auto" poster="${it.t||''}"></video><div class="vbig">${VI.play}</div><div class="vsk l"></div><div class="vsk r"></div><div class="vcb"><div class="vsb"><span class="vct">0:00</span><div class="vtk"><i class="vbf"></i><i class="vpr"></i><b class="vth"></b></div><span class="vdu">0:00</span></div><div class="vbt"><div class="vpl"><button class="vpp">${VI.play}</button><button class="vmu">${VI.vol}</button><button class="vsp">1×</button><button class="vfs">${VI.fs}</button></div></div></div>`:`<img src="${it.u}" draggable="false">`}</div>`).join('')}</div>`;ap.appendChild(o);
  const pg=o.querySelector('.vpg'),sls=[...o.querySelectorAll('.sl')];let cur2=k,hideT=0;
  const FS=()=>document.fullscreenElement||document.webkitFullscreenElement;
  const showUI=(keep)=>{o.classList.remove('hid');clearTimeout(hideT);const v=curV();if(!keep&&v&&!v.paused)hideT=setTimeout(()=>o.classList.add('hid'),2800)};
@@ -1281,7 +1301,7 @@ window.openVw=(id,k)=>{const x=cur.msgs.find(q=>q.id==id);if(!x)return;const its
   const big=sl.querySelector('.vbig'),pp=sl.querySelector('.vpp'),tk=sl.querySelector('.vtk'),pr=sl.querySelector('.vpr'),bf=sl.querySelector('.vbf'),th=sl.querySelector('.vth'),ct=sl.querySelector('.vct'),du=sl.querySelector('.vdu'),mu=sl.querySelector('.vmu'),sp=sl.querySelector('.vsp'),fs=sl.querySelector('.vfs');
   const D=()=>isFinite(v.duration)&&v.duration>0?v.duration:(its[sls.indexOf(sl)].d||0);
   const paint=()=>{const d=D(),t=v.currentTime||0,f=d?Math.min(1,t/d)*100:0;pr.style.width=f+'%';th.style.left=f+'%';ct.textContent=fmtT(t);du.textContent=fmtT(d);try{const r=v.buffered;bf.style.width=(d&&r.length?r.end(r.length-1)/d*100:0)+'%'}catch(e){}};
-  const icon=()=>{const pl=!v.paused&&!v.ended;pp.innerHTML=pl?VI.pause:VI.play;big.innerHTML=VI.play;sl.classList.toggle('pl',pl)};
+  const icon=()=>{const pl=!v.paused&&!v.ended;pp.innerHTML=pl?VI.pause:VI.play;big.innerHTML=pl?VI.pause:VI.play;sl.classList.toggle('pl',pl)};
   const toggle=()=>{if(v.paused||v.ended){if(v.ended)v.currentTime=0;v.play().catch(()=>0)}else v.pause()};
   v.addEventListener('timeupdate',paint);v.addEventListener('loadedmetadata',paint);v.addEventListener('progress',paint);v.addEventListener('durationchange',paint);
   v.addEventListener('play',()=>{icon();showUI()});v.addEventListener('pause',()=>{icon();showUI(1)});v.addEventListener('ended',()=>{icon();showUI(1)});
