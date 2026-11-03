@@ -642,7 +642,7 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=',
 :root.dark #permGate,:root.dark #auth{--surface:#17212b;--text-main:#eef3f8;--text-muted:#8b98a5;--line:#22303f;--field-bg:#242f3d;--placeholder:#6f7f90}
 :root.dark .px-logo{filter:drop-shadow(0 0 1px rgba(255,236,200,.55))}
 .perm-gate{direction:rtl;font-family:inherit}
-.perm-gate{position:fixed;inset:0;z-index:900;display:flex;flex-direction:column;align-items:center;background:var(--surface);color:var(--text-main);overflow-y:auto;padding:max(28px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom));transition:opacity .28s ease,transform .28s ease}
+.perm-gate{position:fixed;inset:0;z-index:900;display:flex;flex-direction:column;align-items:center;background:var(--surface);color:var(--text-main);overflow:hidden;overscroll-behavior:none;touch-action:none;padding:max(28px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom));transition:opacity .28s ease,transform .28s ease}
 .perm-gate.out{opacity:0;transform:scale(1.02);pointer-events:none}
 .perm-gate[hidden]{display:none}
 .pg-inner{width:100%;max-width:440px;margin:auto 0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
@@ -702,7 +702,7 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=',
 #auth .ln-pw .fld{box-sizing:border-box}#auth #ae{box-sizing:border-box}
 #auth .ln-eye{position:absolute;top:50%;left:6px;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#6f7880;cursor:pointer;background:transparent}
 #auth .ln-eye:active{background:rgba(120,120,128,.18)}
-#auth.kb{padding-bottom:55vh}
+#auth.kb{padding-bottom:24px}
 .b.al{padding:3px;max-width:266px}.b.al .gr{display:flex;flex-direction:column;gap:2px;width:260px;border-radius:16px;overflow:hidden}
 .b.al .ar{display:flex;gap:2px}.b.al .ai{position:relative;flex:1;min-width:0;overflow:hidden;background:#222}.b.al .ai img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
 .b.al .pbd{position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;display:flex;align-items:center;justify-content:center}
@@ -1005,11 +1005,19 @@ PermGate.run();
 const ON='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',OFF='<path d="M17.9 17.9A10.9 10.9 0 0112 20C5 20 1 12 1 12a18.5 18.5 0 015.1-5.9M9.9 4.2A10.9 10.9 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.2 3.2M14.1 14.1a3 3 0 11-4.2-4.2M1 1l22 22"/>';
 ey.addEventListener('click',()=>{const sh=pw.type==='password';pw.type=sh?'text':'password';ic.innerHTML=sh?OFF:ON;ey.setAttribute('aria-label',sh?'پنهان کردن رمز':'نمایش رمز')});
 ey.addEventListener('mousedown',e=>e.preventDefault());
-const first=()=>{const n=document.getElementById('an');return n&&!n.classList.contains('hide')?n:document.getElementById('ae')};
-const go=()=>{const f=first();if(!f)return;const top=f.getBoundingClientRect().top-A.getBoundingClientRect().top+A.scrollTop-28;A.scrollTo({top:Math.max(0,top),behavior:'smooth'})};
-['an','ae','apw'].forEach(id=>{const e=document.getElementById(id);e.addEventListener('focus',()=>{A.classList.add('kb');setTimeout(go,60);setTimeout(go,350)})});
-A.addEventListener('focusout',()=>setTimeout(()=>{if(!A.contains(document.activeElement)){A.classList.remove('kb');A.scrollTo({top:0,behavior:'smooth'})}},120));
-if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(A.contains(document.activeElement))setTimeout(go,50)});
+const kbh=()=>{let v=0;try{v=+localStorage.getItem('kbH')}catch(e){}return v>150&&v<600?v:Math.round(innerHeight*.38)};
+let K=0,lifted=0,ul=0;
+/* login page: the page shrinks by the keyboard height first (same trick as the chat), then scrolls only as much as needed to show the field */
+const go=()=>{const f=document.activeElement;if(!f||!A.contains(f)||!/^(INPUT|TEXTAREA)$/.test(f.tagName))return;const r=f.getBoundingClientRect(),ar=A.getBoundingClientRect(),over=r.bottom+24-ar.bottom;
+ if(over>0)A.scrollBy({top:over,behavior:'smooth'});else if(r.top-ar.top<12)A.scrollBy({top:r.top-ar.top-24,behavior:'smooth'})};
+const lift=()=>{clearTimeout(ul);if(lifted)return;lifted=1;K=kbh();A.style.transition='bottom .28s cubic-bezier(.22,.9,.28,1)';A.style.bottom=K+'px';A.classList.add('kb')};
+const unlift=()=>{if(!lifted)return;lifted=0;A.classList.remove('kb');A.style.bottom='0px';A.scrollTo({top:0,behavior:'smooth'});clearTimeout(ul);ul=setTimeout(()=>{if(!lifted){A.style.bottom='';A.style.transition=''}},340)};
+['an','ae','apw'].forEach(id=>{const e=document.getElementById(id);
+ e.addEventListener('pointerdown',()=>{if(document.activeElement!==e){lift();setTimeout(()=>{if(!A.contains(document.activeElement))unlift()},800)}});
+ e.addEventListener('focus',()=>{lift();setTimeout(go,80);setTimeout(go,360)})});
+A.addEventListener('focusout',()=>setTimeout(()=>{if(!A.contains(document.activeElement))unlift()},120));
+if(window.visualViewport)visualViewport.addEventListener('resize',()=>{const v=visualViewport,k=Math.round(innerHeight-v.height-v.offsetTop);
+ if(lifted&&A.contains(document.activeElement)){if(k>150&&k<600&&Math.abs(k-K)>3){K=k;try{localStorage.setItem('kbH',k)}catch(e){}A.style.bottom=k+'px'}setTimeout(go,50)}});
 })();
 </script>
 <script>
@@ -1045,7 +1053,15 @@ const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;const k=M
 {let tx=0,ty=0,tm=0;ch.addEventListener('pointerdown',e=>{tx=e.clientX;ty=e.clientY;tm=1},true);ch.addEventListener('pointermove',e=>{if(tm&&Math.hypot(e.clientX-tx,e.clientY-ty)>10)tm=0},true);ch.addEventListener('pointercancel',()=>tm=0,true);
 ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement===ti&&!(e.target.closest&&e.target.closest('.inb'))){window._kbKeep=0;ti.blur()}},true)}
 /* head start: open the box the moment the finger touches the input, keyboard follows on release */
-ti.addEventListener('pointerdown',()=>{if(document.activeElement===ti||!chOn())return;openKb();setTimeout(()=>{if(document.activeElement!==ti)closeKb()},700)});
+{let tp=0,px=0,py=0;
+ const go=()=>{if(!tp)return;tp=0;if(document.activeElement!==ti)ti.focus({preventScroll:true})};
+ ti.addEventListener('pointerdown',e=>{if(document.activeElement===ti||!chOn())return;tp=1;px=e.clientX;py=e.clientY;openKb();setTimeout(()=>{tp=0;if(document.activeElement!==ti)closeKb()},900)});
+ ti.addEventListener('pointermove',e=>{if(tp&&Math.hypot(e.clientX-px,e.clientY-py)>10){tp=0;closeKb()}});
+ ti.addEventListener('pointercancel',()=>{if(tp){tp=0;closeKb()}});
+ /* the input slides up under the finger while the box opens, so the native tap is lost: focus it ourselves on release */
+ ti.addEventListener('touchend',e=>{if(tp){e.preventDefault();go()}},{passive:false});
+ ti.addEventListener('pointerup',e=>{if(e.pointerType=='mouse')go()});
+ ti.addEventListener('click',e=>{go()})}
 ti.addEventListener('focus',()=>{if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800)});
 ti.addEventListener('blur',()=>{if(Date.now()<(window._kbKeep||0)){const f=()=>{if(Date.now()<(window._kbKeep||0)+100&&document.activeElement!==ti)ti.focus({preventScroll:true})};f();setTimeout(f,0);setTimeout(f,80)}
  setTimeout(()=>{if(document.activeElement!==ti)closeKb()},130)});
