@@ -1040,14 +1040,14 @@ const chOn=()=>!ch.classList.contains('r');
 const follow=d=>{cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
 const gp=()=>Math.max(0,ms.scrollHeight-ms.scrollTop-ms.clientHeight);
 const openKb=()=>{clearTimeout(clT);if(isOpen)return;isOpen=1;gap=gp();K=getK();
- ap.style.transition='none';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=ap.offsetHeight+'px';void ap.offsetHeight;
+ ap.style.transition='none';ap.style.minHeight=Math.round(H*.5)+'px';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=H+'px';void ap.offsetHeight;
  ap.style.transition=EZ;ap.style.height=(H-K)+'px';
  bar.classList.add('kbo');if(chOn())ch.classList.add('kbo2');ibh();follow(450)};
 const closeKb=()=>{if(!isOpen)return;isOpen=0;gap=gp();
  ap.style.transition=EZ;ap.style.height=H+'px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(450);
- clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height='';ap.style.transition=''}},340)};
+ clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height=ap.style.minHeight='';ap.style.transition=''}},340)};
 const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;const k=Math.round(H-vv.height-vv.offsetTop);
- if(k>150&&k<600&&Math.abs(k-K)>3){const sl=1;K=k;setK(k);gap=gp();ap.style.transition=sl?EZS:EZ;ap.style.height=(H-K)+'px';follow(sl?520:350)}};
+ if(k>150&&k<H*.5&&Math.abs(k-K)>3){const sl=1;K=k;setK(k);gap=gp();ap.style.transition=sl?EZS:EZ;ap.style.height=(H-K)+'px';follow(sl?520:350)}};
 {let tx=0,ty=0,tm=0;ch.addEventListener('pointerdown',e=>{tx=e.clientX;ty=e.clientY;tm=1},true);ch.addEventListener('pointermove',e=>{if(tm&&Math.hypot(e.clientX-tx,e.clientY-ty)>10)tm=0},true);ch.addEventListener('pointercancel',()=>tm=0,true);
 ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement===ti&&!(e.target.closest&&e.target.closest('.inb'))){window._kbKeep=0;ti.blur()}},true)}
 /* head start: open the box the moment the finger touches the input, keyboard follows on release */
@@ -1458,8 +1458,8 @@ addEventListener('pagehide',()=>{clearTimeout(window._rel);MST&&MST.getTracks().
 #msgs{overflow-x:hidden;transition:padding .3s}
 #chat.pb #msgs{padding-top:calc(env(safe-area-inset-top) + 184px)}
 .rv .ph{overflow:visible}
-.b.rv{transition:margin .35s cubic-bezier(.3,1.2,.5,1);margin-top:5px;margin-bottom:5px}.b.rv:has(.ph[style*="scale("]){margin-top:62px;margin-bottom:62px}
-.b.rv.out .ph{transform-origin:right center}.b.rv.in .ph{transform-origin:left center}
+.b.rv{transition:margin .35s cubic-bezier(.22,.9,.3,1);margin-top:5px;margin-bottom:5px}.b.rv:has(.ph[style*="scale("]){margin-top:16px;margin-bottom:100px}
+.b.rv.out .ph{transform-origin:right top}.b.rv.in .ph{transform-origin:left top}
 .dlb{width:58px;height:58px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:#fff;position:relative;z-index:2;transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
 .vp{position:relative}.vp .arc{position:absolute;inset:0;width:100%;height:100%;animation:rot 1.1s linear infinite}
 .dlb:active{transform:scale(.9)}.gr.snd{position:relative}
@@ -1559,7 +1559,8 @@ function deact(A){A.fl&&flOff(A);if(CUR===A)CUR=null;A.raf&&cancelAnimationFrame
 function next(x){const L=cur?cur.msgs:[];for(let i=L.indexOf(x)+1;i<L.length;i++){const y=L[i];
  if(isDl(y)&&(y.type=='vc'||y.type=='rv')){const b=$(`#msgs .b[data-id="${y.id}"]`);if(!b)return;b.scrollIntoView({block:'nearest',behavior:'smooth'});
   if(y.type=='vc')startA(y,b.querySelector('.vp'));else act(y,b.querySelector('.ph'));return}}}
-function bindPh(A,ph){A.rg&&A.rg.remove();A.ph=ph;ph.style.transition='transform .35s cubic-bezier(.3,1.5,.5,1),filter .3s';A.dm=undefined;const sc=Math.min(1.35,($('#msgs').clientWidth-12)/237);ph.style.transform=`scale(${sc})`;ph.style.zIndex=5;ph.style.touchAction='none';
+function bindPh(A,ph){A.rg&&A.rg.remove();A.ph=ph;ph.style.transition='transform .35s cubic-bezier(.22,.9,.3,1),filter .3s';A.dm=undefined;const sc=Math.min(1.35,($('#msgs').clientWidth-12)/237);ph.style.transform=`scale(${sc})`;ph.style.zIndex=5;ph.style.touchAction='none';
+ setTimeout(()=>{try{const ms=$('#msgs'),r=ph.getBoundingClientRect(),bt=document.querySelector('.inb').getBoundingClientRect().top,hb=document.querySelector('.chead').getBoundingClientRect().bottom;if(r.bottom+10>bt)ms.scrollTop+=r.bottom+10-bt;else if(r.top-10<hb)ms.scrollTop-=hb-(r.top-10)}catch(e){}},380);
  const rg=document.createElement('div');rg.style.cssText='position:absolute;inset:-7px;pointer-events:none;z-index:3';rg.innerHTML=RING;ph.appendChild(rg);A.rg=rg;A.c=rg.firstChild.firstChild;A.k=rg.lastChild;
  ph.onpointerdown=e=>{const r=ph.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;if(Math.hypot(e.clientX-cx,e.clientY-cy)<r.width/2*.8||CUR!==A)return;
   ph._sk=1;A.sk=1;A.hold=!A.m.paused;A.m.pause();ph.setPointerCapture(e.pointerId);
