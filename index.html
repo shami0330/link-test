@@ -1032,21 +1032,22 @@ const ibh=()=>ch.style.setProperty('--ibh',Math.max(0,bar.offsetHeight-3)+'px');
 if(window.ResizeObserver)new ResizeObserver(ibh).observe(bar);
 /* keyboard "pre-opened box": the app shrinks to leave an empty box the size of the keyboard BEFORE the keyboard appears,
    so the input is never hidden and iOS never scrolls/pans the page. Closing shrinks the box back right after blur. */
-const EZ='height 238ms cubic-bezier(.17,.59,.4,.77)',EZS='height 476ms cubic-bezier(.17,.59,.4,.77)';let K=0,isOpen=0,gap=0,raf=0,clT=0;
-const getK=()=>Math.round(innerHeight*.3);
+const EZ='height 238ms cubic-bezier(.17,.59,.4,.77)',EZS='height 476ms cubic-bezier(.17,.59,.4,.77)';let K=0,isOpen=0,gap=0,raf=0,clT=0,mT=0,H=innerHeight;
+const setH=()=>{if(!isOpen&&document.activeElement!==ti)H=innerHeight};addEventListener('resize',()=>setTimeout(setH,350));addEventListener('orientationchange',()=>setTimeout(setH,450));
+const getK=()=>Math.round(H*.33);
 const setK=v=>{try{localStorage.setItem('kbH',v)}catch(e){}};
 const chOn=()=>!ch.classList.contains('r');
 const follow=d=>{cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
 const gp=()=>Math.max(0,ms.scrollHeight-ms.scrollTop-ms.clientHeight);
 const openKb=()=>{clearTimeout(clT);if(isOpen)return;isOpen=1;gap=gp();K=getK();
  ap.style.transition='none';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=ap.offsetHeight+'px';void ap.offsetHeight;
- ap.style.transition=EZ;ap.style.height=(innerHeight-K)+'px';
+ ap.style.transition=EZ;ap.style.height=(H-K)+'px';
  bar.classList.add('kbo');if(chOn())ch.classList.add('kbo2');ibh();follow(450)};
 const closeKb=()=>{if(!isOpen)return;isOpen=0;gap=gp();
- ap.style.transition=EZ;ap.style.height=innerHeight+'px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(450);
+ ap.style.transition=EZ;ap.style.height=H+'px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(450);
  clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height='';ap.style.transition=''}},340)};
-const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;const k=Math.round(innerHeight-vv.height-vv.offsetTop);
- if(k>150&&k<600&&Math.abs(k-K)>3){const sl=1;K=k;setK(k);gap=gp();ap.style.transition=sl?EZS:EZ;ap.style.height=(innerHeight-K)+'px';follow(sl?520:350)}};
+const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;const k=Math.round(H-vv.height-vv.offsetTop);
+ if(k>150&&k<600&&Math.abs(k-K)>3){const sl=1;K=k;setK(k);gap=gp();ap.style.transition=sl?EZS:EZ;ap.style.height=(H-K)+'px';follow(sl?520:350)}};
 {let tx=0,ty=0,tm=0;ch.addEventListener('pointerdown',e=>{tx=e.clientX;ty=e.clientY;tm=1},true);ch.addEventListener('pointermove',e=>{if(tm&&Math.hypot(e.clientX-tx,e.clientY-ty)>10)tm=0},true);ch.addEventListener('pointercancel',()=>tm=0,true);
 ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement===ti&&!(e.target.closest&&e.target.closest('.inb'))){window._kbKeep=0;ti.blur()}},true)}
 /* head start: open the box the moment the finger touches the input, keyboard follows on release */
@@ -1062,7 +1063,7 @@ ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement
 ti.addEventListener('focus',()=>{if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800)});
 ti.addEventListener('blur',()=>{if(Date.now()<(window._kbKeep||0)){const f=()=>{if(Date.now()<(window._kbKeep||0)+100&&document.activeElement!==ti)ti.focus({preventScroll:true})};f();setTimeout(f,0);setTimeout(f,80)}
  setTimeout(()=>{if(document.activeElement!==ti)closeKb()},130)});
-if(vv){vv.addEventListener('resize',()=>{measure();if(isOpen&&document.activeElement!==ti&&innerHeight-vv.height-vv.offsetTop<80)closeKb()})}
+if(vv){vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,140);if(isOpen&&document.activeElement!==ti&&H-vv.height-vv.offsetTop<80)closeKb()})}
 })();
 </script>
 <script>
@@ -1857,20 +1858,40 @@ drawSettings();
 #sp .sr.dis{opacity:.4;pointer-events:none}
 </style>
 <style>
-.b.sel2{outline:2.5px solid var(--ac);outline-offset:2px}
-#chat.selm .b::before{content:"";position:absolute;top:-6px;width:20px;height:20px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.28);z-index:7;box-sizing:border-box}
-#chat.selm .b.in::before{left:-6px}#chat.selm .b.out::before{right:-6px}
-#chat.selm .b.sel2::before{background:var(--ac) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E") center/12px no-repeat}
+.b.sel2{outline:none}
+#chat.selm .b::before{content:"";position:absolute;top:50%;margin-top:-11px;width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:transparent;z-index:7;box-sizing:border-box;right:auto}
+#chat.selm .b.in::before{left:-32px}#chat.selm .b.out::before{left:var(--sx,-300px)}
+#chat.selm .b.sel2::before{background:#3390ec url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E") center/14px no-repeat}
+#chat.selm #msgs{padding-left:42px;padding-bottom:calc(env(safe-area-inset-bottom) + 84px)}
+#chat.selm .chead,#chat.selm .inb,#chat.selm #dn{visibility:hidden;pointer-events:none}
+#selT,#selB{position:absolute;left:0;right:0;z-index:9;display:none;direction:ltr;align-items:center;justify-content:space-between;gap:8px}
+#selT{top:0;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px}
+#selB{bottom:0;padding:8px 22px calc(env(safe-area-inset-bottom) + 8px)}
+#chat.selm #selT,#chat.selm #selB{display:flex}
+#selT .ctitle{min-width:0;padding:0 26px;height:44px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;white-space:nowrap}
+#selB .cb{width:52px;height:52px}
 </style>
 <script>
 (()=>{P.chk='<path d="M5 13l4 4L19 7"/>';
 const S=new Set(),ch=$('#chat'),box=$('#msgs');let LP=0;
-const paint=()=>{$$('#msgs .b').forEach(b=>b.classList.toggle('sel2',S.has(b.dataset.id)))};
+const selT=document.createElement('div'),selB=document.createElement('div');selT.id='selT';selB.id='selB';
+selT.innerHTML='<button class="tb gl press" id="selClr">Clear Chat</button><div class="ctitle gl" id="selN"></div><button class="tb gl press" id="selX">Cancel</button>';
+selB.innerHTML='<button class="cb gl press" id="selDel">'+I('trash',24)+'</button><button class="cb gl press" id="selCp">'+I('copy',24)+'</button><button class="cb gl press" id="selFw">'+I('fwd',24)+'</button>';
+ch.appendChild(selT);ch.appendChild(selB);const cnt=selT.querySelector('#selN');
+const paint=()=>{const w=box.clientWidth;$$('#msgs .b').forEach(b=>{b.classList.toggle('sel2',S.has(b.dataset.id));if(b.classList.contains('out'))b.style.setProperty('--sx',(10-(w-10-b.offsetWidth))+'px')});cnt.textContent=S.size+' Selected'};
+const sel=()=>cur?cur.msgs.filter(q=>S.has(String(q.id))):[];
+const delSel=(y,px)=>{const l=sel();if(!l.length)return;const run=()=>{l.forEach(delMsg);off()},it=[['حذف برای من','trash',run,1]];if(!cur.saved)it.push([cur.t=='pv'?'حذف برای من و '+cur.n:'حذف برای همه','trash',run,1]);menu(it,y,px)};
+selT.querySelector('#selX').onclick=()=>off();
+selT.querySelector('#selClr').onclick=()=>delSel(120,90);
+selB.querySelector('#selDel').onclick=()=>delSel(innerHeight-250,90);
+selB.querySelector('#selCp').onclick=()=>{const t=sel().map(q=>q.text).filter(Boolean).join('\n');if(t){try{navigator.clipboard&&navigator.clipboard.writeText(t)}catch(e){}toast('کپی شد')}off()};
+selB.querySelector('#selFw').onclick=()=>toast('به‌زودی');
 const off=()=>{S.clear();ch.classList.remove('selm');paint()};
-const tog=id=>{id=String(id);S.has(id)?S.delete(id):S.add(id);if(!S.size){off();return}ch.classList.add('selm');paint()};
-window.selStart=x=>{S.clear();S.add(String(x.id));ch.classList.add('selm');paint()};
+const enter=()=>{if(!ch.classList.contains('selm')){try{document.activeElement&&document.activeElement.blur()}catch(e){}ch.classList.add('selm');setTimeout(paint,340)}};
+const tog=id=>{id=String(id);S.has(id)?S.delete(id):S.add(id);if(!S.size){off();return}enter();paint()};
+window.selStart=x=>{S.clear();S.add(String(x.id));enter();paint()};
 box.addEventListener('touchstart',()=>{LP=0},true);
-box.addEventListener('click',e=>{if(!S.size)return;const b=e.target.closest('.b');if(!b)return;e.stopPropagation();e.preventDefault();if(LP){LP=0;return}tog(b.dataset.id)},true);
+box.addEventListener('click',e=>{if(!S.size)return;e.stopPropagation();e.preventDefault();if(LP){LP=0;return}const y=e.clientY;let hit=null;for(const b of box.querySelectorAll('.b')){const r=b.getBoundingClientRect();if(y>=r.top-2.5&&y<=r.bottom+2.5){hit=b;break}}if(hit)tog(hit.dataset.id)},true);
 const _cx=ctxMsg;ctxMsg=function(x,b,e){if(S.size){LP=1;tog(x.id);return}_cx(x,b,e)};
 const _sr=setRep;setRep=function(x){if(S.size)return;_sr(x)};
 const _dm2=drawMsgs;drawMsgs=function(){_dm2();if(S.size){const ids=new Set((cur?cur.msgs:[]).map(q=>String(q.id)));[...S].forEach(i=>{if(!ids.has(i))S.delete(i)});if(!S.size)off();else paint()}};
