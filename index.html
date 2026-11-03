@@ -818,14 +818,6 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=',
 #ro img{pointer-events:none}
 html,body,#app{touch-action:manipulation;-webkit-touch-callout:none}
 
-/* Transparent top and bottom device safe areas */
-html,body{background:transparent!important}
-#app{background:transparent!important}
-#app>.pg{
-  clip-path:inset(env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px) 0);
-}
-
-
 
 
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
