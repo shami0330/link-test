@@ -554,7 +554,7 @@ app.addEventListener('touchmove',e=>{if(!S)return;const t=e.touches[0],dx=t.clie
  S.dx=dx;S.sm.push({x:t.clientX,t:now});while(S.sm.length>2&&now-S.sm[0].t>100)S.sm.shift();
  const w=W();
  if(S.kind=='page'){const x=Math.max(0,dx);S.p.style.transform=`translateX(${x}px)`;S.u.style.transform=`translateX(${-.28*w*(1-x/w)}px)`}
- else if(S.kind=='fl'){S.el.style.transform=`translateX(${dx}px)`;S.cl.style.transform=`translateX(${dx-S.d*w}px)`;window._ci&&_ci(dx,S.d,S.ni,w)}
+ else if(S.kind=='fl'){S.el.style.transform=`translateX(${dx}px)`;S.cl.style.transform=`translateX(${dx-S.d*w}px)`}
  else if(S.kind=='rb'){S.cur.style.transform=`translateX(${dx*.28/(1+Math.abs(dx)/w)}px)`}
  else{S.cur.style.transform=`translateX(${dx}px)`;S.tg.style.transform=`translateX(${dx-S.d*w}px)`}
 },{passive:false});
@@ -566,7 +566,7 @@ function end(){const s=S;S=null;if(!s||!s.lock)return;block=1;setTimeout(()=>blo
   if(ok){tick();p.style.transform='translateX(100%)';u.style.transform='translateX(0)'}else{p.style.transform='translateX(0)';u.style.transform='translateX(-28%)'}
   busy=1;setTimeout(()=>{p.style.transition=u.style.transition='none';if(ok){s.ov?ovBack(s.ov):s.pr[0]=='#chat'?closeChat():pop('#info','#chat')}
    requestAnimationFrame(()=>{[p,u].forEach(x=>{x.style.transform=x.style.transition=x.style.willChange=''});busy=0})},dur+20)}
- else if(s.kind=='fl'){const el=s.el,cl=s.cl;el.style.transition=cl.style.transition=tr;busy=1;window._ce&&_ce(ok,dur,s.ni);
+ else if(s.kind=='fl'){const el=s.el,cl=s.cl;el.style.transition=cl.style.transition=tr;busy=1;
   if(ok){tick();el.style.transform=`translateX(${s.d*w}px)`;cl.style.transform='translateX(0)'}else{el.style.transform='translateX(0)';cl.style.transform=`translateX(${-s.d*w}px)`}
   setTimeout(()=>{if(ok){fl=FI()[s.ni];drawChips();drawList()}el.style.transform=el.style.transition=el.style.willChange='';cl.remove();busy=0},dur+20)}
  else if(s.kind=='rb'){const c=s.cur;c.style.transition=`transform .45s cubic-bezier(.3,1.4,.5,1)`;c.style.transform='translateX(0)';busy=1;setTimeout(()=>{c.style.transition=c.style.transform=c.style.willChange='';busy=0},470)}
@@ -2270,26 +2270,6 @@ drawMsgs=function(){const box=document.getElementById('msgs'),cid=cur&&cur.id;le
   b.ontouchend=end;b.ontouchcancel=end;
   b.oncontextmenu=e=>{e.preventDefault();ctxMsg(x,b,e)}});
  return r}}
-/* ---- folder chips: highlight pill follows the swipe between folders ---- */
-{const E2='cubic-bezier(.2,.9,.25,1)',ch0=()=>document.getElementById('chips');let ind=null,G=null;
- const st=document.createElement('style');st.textContent='.chip{position:relative;z-index:1}.chip.on{background:transparent!important}#hd .chips{position:relative}.cind{position:absolute;z-index:0;border-radius:99px;background:rgba(120,120,128,.2);pointer-events:none;transition:left .4s cubic-bezier(.3,1.3,.5,1),width .4s cubic-bezier(.3,1.3,.5,1),top .4s,height .4s}.cind.nt{transition:none!important}';document.head.appendChild(st);
- const box=c=>{const w=c.offsetWidth,h=c.offsetHeight;return{l:c.offsetLeft-w*.025,w:w*1.05,t:c.offsetTop-h*.025,h:h*1.05,c:c.offsetLeft+w/2}};
- const apply=b=>{ind.style.left=b.l+'px';ind.style.width=b.w+'px';ind.style.top=b.t+'px';ind.style.height=b.h+'px'};
- const _dc=drawChips;
- drawChips=function(){const ch=ch0(),sl=ch?ch.scrollLeft:0;if(ind&&ind.parentNode)ind.remove();const r=_dc.apply(this,arguments);if(!ch)return r;
-  const first=!ind;if(first){ind=document.createElement('i');ind.className='cind nt'}
-  ch.insertBefore(ind,ch.firstChild);ch.scrollLeft=sl;const a=ch.querySelector('.chip.on');
-  if(a){const b=box(a);void ind.offsetWidth;apply(b);if(first)requestAnimationFrame(()=>ind.classList.remove('nt'));
-   if(ch.scrollWidth>ch.clientWidth+2&&!G)ch.scrollTo({left:cl(b.c-ch.clientWidth/2,0,ch.scrollWidth-ch.clientWidth),behavior:'smooth'})}
-  return r};
- window._ci=(dx,d,ni,w)=>{const ch=ch0(),a=ch&&ch.querySelector('.chip.on'),b=ch&&ch.querySelectorAll('.chip')[ni];if(!ind||!a||!b)return;
-  if(!G||G.ni!=ni){const m=Math.max(0,ch.scrollWidth-ch.clientWidth),B=box(b);G={ni,A:box(a),B,s:ch.scrollLeft,m,s1:cl(B.c-ch.clientWidth/2,0,m)};ind.classList.add('nt')}
-  const t=cl(dx*d/w,0,1),L=(x,y)=>x+(y-x)*t;
-  apply({l:L(G.A.l,G.B.l),w:L(G.A.w,G.B.w),t:L(G.A.t,G.B.t),h:L(G.A.h,G.B.h)});
-  if(G.m){ch.style.scrollBehavior='auto';ch.scrollLeft=L(G.s,G.s1)}};
- window._ce=(ok,dur,ni)=>{if(!G||!ind)return;const T=ok?G.B:G.A,s=ok?G.s1:G.s,ch=ch0(),g=G;G=null;ind.classList.remove('nt');
-  ind.style.transition=['left','width','top','height'].map(p=>p+' '+dur+'ms '+E2).join(',');apply(T);
-  if(ch&&g.m)ch.scrollTo({left:s,behavior:'smooth'});setTimeout(()=>{if(ind)ind.style.transition=''},dur+60)}}
 })();
 
 </script>
