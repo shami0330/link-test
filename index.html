@@ -400,13 +400,13 @@ function moveBig(dx,dy){const o=$('#ro');$('#bg').style.transform=`translate(${d
 async function startRec(){if(Z)return;try{const a=document.activeElement;a&&a!==$('#ti')&&a.blur&&a.blur()}catch(_){}const vid=mmode=='v',S=RC[mmode],o=ensureRO(),R=Z={mode:mmode,vid,st:'rec',acc:0,s0:0,run:0,pk:[],th:[],lv:0,lp:0,tp:0,ch:[],front:1,flash:0,s:0,e:1};
 o.className='on'+(vid?' v':'');o.dataset.s='rec';$('#app').classList.add('rcg');$('#rt').textContent='0:00,00';$('#rx').textContent='برای لغو بکشید';$('#bg').innerHTML=I(vid?'video':'mic',30);$('#rsb').innerHTML=I(vid?'video':'mic',24);moveBig(0,0);$('#rg').style.strokeDasharray='0 100';
 let st;try{await getMS(vid,1);st=vid?MST:new MediaStream(MST.getAudioTracks());MST.getAudioTracks().forEach(t=>t.enabled=true);MST.getVideoTracks().forEach(t=>t.enabled=vid)}catch(e){ui(R);toast(vid?'دسترسی دوربین/میکروفون ممکن نیست':'دسترسی میکروفون ممکن نیست');return}
-if(R.abort){ui(R);return}
+if(R.abort){ui(R);if(!Z&&MST){MST.getTracks().forEach(t=>{try{t.stop()}catch(e){}});MST=null}return}
 const ac=R.ac=new(window.AudioContext||window.webkitAudioContext)(),an=R.an=ac.createAnalyser();an.fftSize=512;ac.createMediaStreamSource(new MediaStream(MST.getAudioTracks())).connect(an);R.buf=new Uint8Array(an.fftSize);
 let out=st;
 /* voice: boost + limit the level through Web Audio so iPhone voices are loud and clear; falls back to the raw stream if the context cannot start */
 if(!vid){try{await Promise.race([ac.resume(),new Promise(r=>setTimeout(r,400))]);if(ac.state=='running'){const sc=ac.createMediaStreamSource(new MediaStream(MST.getAudioTracks())),gn=ac.createGain(),cp=ac.createDynamicsCompressor(),ds=ac.createMediaStreamDestination();gn.gain.value=2.5;cp.threshold.value=-20;cp.knee.value=20;cp.ratio.value=6;cp.attack.value=.003;cp.release.value=.25;sc.connect(gn);gn.connect(cp);cp.connect(ds);out=ds.stream}}catch(e){}}
 if(vid){const v=R.ve=document.createElement('video');v.muted=true;v.playsInline=true;v.srcObject=new MediaStream(MST.getVideoTracks());await v.play();const cv=R.cv=document.createElement('canvas');cv.width=cv.height=S.size;R.cx=cv.getContext('2d');o.querySelector('.cam').prepend(cv);setTimeout(()=>{R.th0=R.th0||cv.toDataURL('image/jpeg',.8)},300);out=new MediaStream([...cv.captureStream(30).getVideoTracks(),...MST.getAudioTracks()])}
-if(R.abort){ui(R);return}
+if(R.abort){ui(R);try{R.ac&&R.ac.close()}catch(e){}if(!Z&&MST){MST.getTracks().forEach(t=>{try{t.stop()}catch(e){}});MST=null}return}
 const mt=pickMime(S.mimes),mr=R.mr=new MediaRecorder(out,Object.assign(mt?{mimeType:mt}:{},{audioBitsPerSecond:vid?48000:(/opus/.test(mt)?64000:96000)},vid?{videoBitsPerSecond:1500000}:{}));
 mr.ondataavailable=e=>{e.data.size&&R.ch.push(e.data);if(R.want){R.want=0;showPv(R,mr.mimeType||mt)}};
 mr.onstop=async()=>{const R2=R;ui(R2);if(!R2.send)return;const mime=mr.mimeType||mt,d=R2.acc/1000;let blob=new Blob(R2.ch,{type:mime}),s=R2.s*d,e=R2.e*d;const tb=(R2.s>.01||R2.e<.99)?(R2.vid?trimVid(blob,mime,s,e):trimBlob(blob,mime,R2.vid,s,e)).catch(()=>blob):null;
@@ -483,7 +483,9 @@ let done=0;const fn=()=>{if(done)return;done=1;el.pause();mr.state!='inactive'&&
 b.onpointerdown=e=>{held=0;tap=1;x0=e.clientX;y0=e.clientY;if(hasTxt()){tap=0;e.preventDefault();send();return}if(!hasTxt()){try{b.setPointerCapture(e.pointerId)}catch(_){}held=1;t0=performance.now();startRec()}};
 b.onpointermove=e=>{if(!held||!Z||Z.st!='rec')return;const dx=Math.min(0,e.clientX-x0),dy=Math.min(0,e.clientY-y0);moveBig(dx,dy);if(dx<-100){held=0;fin(0)}else if(dy<-80){held=0;lockRec()}};
 b.onpointerup=e=>{const tp=tap;tap=0;clearTimeout(hold);if(held){held=0;if(Z&&Z.st=='rec'){if(performance.now()-t0<300){fin(0);mmode=mmode=='a'?'v':'a';updBtn()}else fin(1)}return}if(Z||!tp)return;if(hasTxt())send();else{mmode=mmode=='a'?'v':'a';updBtn()}};
-b.onpointercancel=e=>{tap=0;clearTimeout(hold);if(held){held=0;fin(0)}}}
+b.onpointercancel=e=>{tap=0;clearTimeout(hold);if(held){held=0;fin(0)}};
+['pointerup','pointercancel'].forEach(n=>window.addEventListener(n,e=>{if(held){const f=b['on'+n];f&&f.call(b,e)}},true));
+['touchend','touchcancel'].forEach(n=>window.addEventListener(n,e=>{if(held&&!e.touches.length){const f=n=='touchend'?b.onpointerup:b.onpointercancel;f&&f.call(b,e)}},true))}
 function bindTi(){$('#ic-st').innerHTML=`<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 14c1 1.5 2.2 2.2 3.5 2.2s2.5-.7 3.5-2.2"/></svg>`;const t=$('#ti');t.oninput=()=>{t.style.height='24px';t.style.height=Math.min(t.scrollHeight,120)+'px';updBtn()};t.onkeydown=e=>{if(e.key=='Enter'&&!e.shiftKey&&innerWidth>700){e.preventDefault();send()}}}
 $('#att').onclick=()=>{menu([['عکس یا ویدیو','img',()=>{const o=m(1,'',T(),{type:'im',emo:['🌄','🏙️','🐶','🍕'][Math.random()*4|0]});o.st=1;addMsg(o);reply(o)}],['فایل','file',()=>toast('به‌زودی')],['موقعیت مکانی','loc',()=>toast('به‌زودی')],['مخاطب','user',()=>toast('به‌زودی')]],innerHeight-330,70)};
 $('#rpx').onclick=()=>{rep=null;$('#rpl').classList.add('hide')};
