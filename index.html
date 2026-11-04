@@ -252,7 +252,7 @@ const sv=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}if(k=='myphoto'&&window
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1800)}
 /* tab bar */
 function drawTabs(){const meIc=()=>{let q;try{q=JSON.parse(ld('u'))}catch(e){}q=q||{n:'من'};return av({id:3,n:q.n||'من',ph:ld('myphoto')||''},28)};const u=C.reduce((a,c)=>a+(c.unread&&!c.mute?1:0),0);$('#tabbar').innerHTML=[['contacts','مخاطبین','user'],['chats','گفتگوها','chat'],['settings','پروفایل','me']].map(([k,l,i])=>`<div class="ti press ${tab==k?'on':''}" data-k="${k}">${i=='me'?meIc():I(i,26)}${l}${k=='chats'&&u?`<span class="bg2">${u}</span>`:''}</div>`).join('');
-$$('.ti').forEach(e=>e.onclick=()=>{tab=e.dataset.k;$$('.tab').forEach(t=>t.classList.add('hide'));$('#t-'+tab).classList.remove('hide');drawTabs()})}
+$$('.ti').forEach(e=>e.onclick=()=>{tab=e.dataset.k;$$('.tab').forEach(t=>t.classList.add('hide'));$('#t-'+tab).classList.remove('hide');drawTabs();if(tab=='chats'){sq='';fl='all';const q=$('#q');if(q){q.value='';q.blur()}const g=$('#gres');if(g&&typeof globalFind=='function')globalFind('',g);drawChips();drawList()}})}
 /* list */
 function drawChips(){$('#chips').innerHTML=CL.map(f=>{const n=C.filter(c=>inF(c,f.id)&&c.unread).length;return`<div class="chip press ${fl==f.id?'on':''}" data-f="${f.id}">${f.n}${n?`<span class="cnt ${f.id=='pv'?'g':''}">${n}</span>`:''}</div>`}).join('');
 $$('.chip').forEach(e=>e.onclick=()=>{fl=e.dataset.f;drawChips();drawList()})}
