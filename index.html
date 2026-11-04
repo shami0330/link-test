@@ -268,7 +268,7 @@ $$('.ti').forEach(e=>e.onclick=()=>{tab=e.dataset.k;$$('.tab').forEach(t=>t.clas
 /* list */
 function drawChips(){$('#chips').innerHTML=CL.map(f=>{const n=C.filter(c=>inF(c,f.id)&&c.unread).length;return`<div class="chip press ${fl==f.id?'on':''}" data-f="${f.id}">${f.n}${n?`<span class="cnt ${f.id=='pv'?'g':''}">${n}</span>`:''}</div>`}).join('');
 $$('.chip').forEach(e=>e.onclick=()=>{fl=e.dataset.f;drawChips();drawList()})}
-function drawList(){const L=C.filter(c=>inF(c,fl)&&(!sq||c.n.includes(sq))).sort((a,b)=>(b.pin||0)-(a.pin||0));
+function drawList(){const L=C.filter(c=>inF(c,fl)&&(c.t!='pv'||c.msgs.length||c.keep||c.saved||!c.uid)&&(!sq||c.n.includes(sq))).sort((a,b)=>(b.pin||0)-(a.pin||0));
 $('#list').className=ed?'edit':'';
 $('#list').innerHTML=L.map(c=>{const l=c.msgs[c.msgs.length-1];return`<div class="row ${c.pin?'p':''}" data-id="${c.id}"><div class="sel ${selS.has(c.id)?'on':''}"></div>${av(c,58)}<div class="rb"><div class="r1"><div class="nm" dir="auto">${c.t=='gp'?`<span style="color:var(--t2)">${I('users',17)}</span>`:c.t=='ch'?`<span style="color:var(--t2)">${I('megaphone',17)}</span>`:''}${esc(c.n)}${c.mute?`<span style="color:var(--t2)">${I('mute',15)}</span>`:''}</div><div class="tm">${c.out&&!c.unread?'<span class="ok">${tkS(2)}</span> ':''}${c.time}</div></div><div class="r2"><div class="lm" dir="auto">${c.sender?`<b>${c.sender}</b>`:''}${esc(c.last)}</div><div style="display:flex;gap:5px;align-items:center">${c.at&&c.unread?'<span class="at">@</span>':''}${c.unread?`<span class="bd ${c.mute?'m':''}">${c.unread}</span>`:c.pin?`<span style="color:var(--t2)">${I('pin',20)}</span>`:''}</div></div></div></div>`}).join('')||'<p style="text-align:center;color:var(--t2);margin-top:60px">گفتگویی پیدا نشد</p>';
 $$('#list .row').forEach(r=>{const id=+r.dataset.id;let tm,mv=0,sx=0,sy=0;
@@ -495,7 +495,7 @@ $('#isc').innerHTML=`<div class="pfx"><div class="pfa">${av(c,400)}</div><div cl
 $$('.acts button').forEach(b=>b.onclick=()=>{const a=b.dataset.a;if(a=='more'){const r=b.getBoundingClientRect();menu([['تغییر والپیپر','pen',()=>toast('به‌زودی')],['شروع چت رمزنگاری‌شده','lock',()=>toast('به‌زودی')],['اشتراک مخاطب','fwd',()=>toast('به‌زودی')],['ارسال هدیه','gift',()=>toast('به‌زودی')],0,['پاک‌کردن پیام‌ها','trash',()=>window.clrAsk(),1],['مسدود کردن','block',()=>toast('مسدود شد'),1]],r.bottom+8,r.right)}else if(a=='bell'){c.mute=!c.mute;toast(c.mute?'بی‌صدا شد':'باصدا شد')}else if(a=='search'){toast('جستجو: به‌زودی')}else toast('تماس: بعد از اتصال به سرور')});
 $('#isc').scrollTop=0;window.pfInit&&pfInit();push('#info','#chat')}
 $('#ib').onclick=()=>pop('#info','#chat');
-function drawContacts(){$('#clist').innerHTML=C.filter(c=>c.t=='pv'&&!c.saved).sort((a,b)=>a.n.localeCompare(b.n,'fa')).map(c=>`<div class="row" data-id="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'آنلاین'}</div></div></div>`).join('');$$('#clist .row').forEach(r=>r.onclick=()=>openChat(+r.dataset.id))}
+function drawContacts(){$('#clist').innerHTML=C.filter(c=>c.t=='pv'&&!c.saved&&(c.msgs.length||c.keep)).sort((a,b)=>a.n.localeCompare(b.n,'fa')).map(c=>`<div class="row" data-id="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'آنلاین'}</div></div></div>`).join('');$$('#clist .row').forEach(r=>r.onclick=()=>openChat(+r.dataset.id))}
 function drawSettings(){try{drawTabs()}catch(e){}let u;try{u=JSON.parse(ld('u'))}catch(e){}u=u||{n:'من',e:'me@link.app'};const me={id:3,n:u.n,ph:ld('myphoto')||''};
 const row=(c,i,t,v,f)=>`<div class="sr press" ${f?`onclick="${f}"`:''}><div class="si" style="background:${c}">${i}</div>${t}${v?`<span class="v">${v}</span>`:'<span>›</span>'}</div>`;
 $('#ssc').innerHTML=`<div class="upf" id="upf"><div class="upfw" id="upfw"></div></div>
@@ -516,7 +516,8 @@ function enter(u){logged=1;drawSettings();$('#auth').classList.add('gone');if(!e
 {const d=ld('dark');if(d||matchMedia('(prefers-color-scheme:dark)').matches&&d==null){document.documentElement.classList.add('dark');$('#app').classList.add('dark')}
 $('#ic-plus').innerHTML=I('plus');$('#ic-pen').innerHTML=I('pen');$('#ic-qr').innerHTML=I('qr');$('#ic-s1').innerHTML=I('search',20);$('#ic-s2').innerHTML=I('search',20);
 $('#rpx').innerHTML=I('x',20);$('#llc').innerHTML=I('loc',20);$('#dn').innerHTML=I('down',24);$('#att').innerHTML=I('clip',24);
-$('#q').oninput=e=>{sq=e.target.value.trim();drawList()};
+$('#q').oninput=e=>{sq=e.target.value.trim();drawList();let g=$('#gres');if(!g){g=document.createElement('div');g.id='gres';$('#list').after(g)}globalFind(sq,g)};
+{const ci=$('#t-contacts .srch input');if(ci){const g=document.createElement('div');g.id='gres2';$('#clist').after(g);ci.oninput=()=>globalFind(ci.value.trim(),g)}}
 {const sc=$('#csc'),H=()=>$('#csc .srch').offsetHeight+16;let st;
 window.hideSrch=()=>{sc.style.scrollBehavior='auto';sc.scrollTop=H();sc.style.scrollBehavior=''};
 const sr=$('#csc .srch'),qi=$('#q');let last=0,cl=0;const set=c=>{cl=c;sr.classList.toggle('cl',!!c);$('#hd').style.transform=c?`translateY(-${sr.offsetHeight+5}px)`:''};
@@ -2897,7 +2898,11 @@ function redraw(x){drawList();const c=x&&C.find(q=>q.msgs&&q.msgs.includes(x));i
 let rdT=0;function soft(){clearTimeout(rdT);rdT=setTimeout(()=>{drawList();keep()},200)}
 /* ---------- کاربران ---------- */
 function addUsers(list){let n=0;list.forEach(u=>{if(u.$id==ME.$id||chatOf(u.$id))return;C.push({id:hid(u.$id),n:u.name||u.uname||'کاربر',t:'pv',uid:u.$id,user:u.uname||'',time:'',last:'شروع گفتگو',seen:'عضو لینک',msgs:[]});n++});return n}
-async function loadUsers(){const r=await api('GET','/databases/'+DB+'/collections/users/documents?'+qs([{method:'limit',values:[100]}]));r.documents.forEach(u=>UN.set(u.$id,u.name||u.uname||'کاربر'));return addUsers(r.documents)}
+async function loadUsers(){const r=await api('GET','/databases/'+DB+'/collections/users/documents?'+qs([{method:'limit',values:[100]}]));r.documents.forEach(u=>{UN.set(u.$id,u.name||u.uname||'کاربر');UD.set(u.$id,u)});return 0}
+const UD=new Map();
+function addKnown(docs){let n=0;docs.forEach(d=>{if(GR.get(d.rcpt))return;const o=d.sender==ME.$id?d.rcpt:d.sender,u=UD.get(o);if(u&&!chatOf(o))n+=addUsers([u])});return n}
+let gT=0,gSeq=0;
+async function globalFind(q,box){const id=++gSeq;q=q.replace(/^@/,'').toLowerCase();box.innerHTML='';if(q.length<2)return;clearTimeout(gT);gT=setTimeout(async()=>{let L=[];try{const r=await api('GET','/databases/'+DB+'/collections/users/documents?'+qs([{method:'startsWith',attribute:'uname',values:[q]},{method:'limit',values:[20]}]));L=r.documents}catch(e){try{await loadUsers()}catch(_){}L=[...UD.values()].filter(u=>(u.uname||'').toLowerCase().startsWith(q)||(u.name||'').toLowerCase().includes(q))}if(id!==gSeq)return;L=L.filter(u=>u.$id!=ME.$id);L.forEach(u=>{UN.set(u.$id,u.name||u.uname||'کاربر');UD.set(u.$id,u)});box.innerHTML=L.length?'<div class="tm" style="padding:8px 16px">نتایج جستجو</div>'+L.map(u=>`<div class="row" data-u="${u.$id}"><div class="rb" style="padding:9px 16px"><div class="nm" dir="auto">${esc(u.name||u.uname||'کاربر')}</div><div class="tm" dir="ltr">@${esc(u.uname||'')}</div></div></div>`).join(''):'<div class="tm" style="padding:12px 16px">کاربری پیدا نشد</div>';box.querySelectorAll('.row').forEach(r=>r.onclick=()=>{const u=UD.get(r.dataset.u);addUsers([u]);const c=chatOf(u.$id);if(c){c.keep=1;drawList();drawContacts();openChat(c.id)}})},300)}
 async function ensureUser(){
  try{await api('GET','/databases/'+DB+'/collections/users/documents/'+ME.$id)}
  catch(e){if(e.code!=404)throw e;
@@ -3038,7 +3043,7 @@ async function pull(mode){
   else docs=await pageDocs([{method:'greaterThanEqual',attribute:'$updatedAt',values:[sy]}],'$updatedAt',40);
   const live=!(mode=='full'||!sy);let ch=0,miss=0;
   docs.forEach(d=>{const k=ingest(d,live);if(k>0)ch=1;if(k==-1)miss=1});
-  if(miss){await loadUsers();try{await loadGroups()}catch(e){}docs.forEach(d=>{if(ingest(d,live)>0)ch=1})}
+  if(miss){await loadUsers();addKnown(docs);try{await loadGroups()}catch(e){}docs.forEach(d=>{if(ingest(d,live)>0)ch=1})}
   let mx=sy||'';docs.forEach(d=>{if(d.$updatedAt>mx)mx=d.$updatedAt});
   if(mx)ls(uk,mx);ls('cn:'+ME.$id,String(IDX.size));
   if(mode=='full'||!sy)C.forEach(c=>c.msgs.forEach(hydrate));
