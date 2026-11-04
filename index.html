@@ -238,23 +238,7 @@ const T=()=>{const d=new Date();return d.getHours()+':'+String(d.getMinutes()).p
 let M=0,uid=100;
 const m=(o,t,tm,x={})=>({id:++M,out:o,text:t,time:tm,st:o?2:0,...x});
 const C=[
-{id:1,n:'طرح درس',t:'gp',pin:1,mute:1,time:'یکشنبه',last:'هیچ مدل، صحنه یا فایل اجرایی تولید نکن. ابتدا این موارد را به من ارائه بده…',msgs:[m(0,'سلام به همه، جلسه بعد درباره طرح درس صحبت می‌کنیم',"10:12",{s:'مریم'})]},
-{id:2,n:'پیام‌های ذخیره‌شده',t:'pv',saved:1,pin:1,time:'22:16',last:'ویدیو پیام',msgs:[m(1,'یادداشت: خرید نان و پنیر 🍞',"22:16")]},
-{id:3,n:'ملیکا',t:'pv',unread:1,time:'22:33',last:'من خسته نمیشم',seen:'اخیراً آنلاین بود',user:'melika_k',phone:'+98 912 000 0003',bd:'۱۲ مهر',bio:'زندگی قشنگه ✨',pinned:1,msgs:[
- m(0,'عشق من باز تولدت مبارک کازین مرسا','01:49'),m(0,'بدیتم بدیه منه','01:49'),
- m(1,'خیلی دوستت دارم واقعا','08:50',{rp:['ملیکا','موفقیت تو موفقیت منم هست']}),
- m(1,'😭😭😭','08:50',{type:'st',emo:'🥹'}),m(0,'',"08:50",{type:'rv',du:'0:35'}),
- m(1,'عزیزدل منممم 😭😭','08:51',{rp:['ملیکا','بدیتم بدیه منه']}),
- m(0,'',"11:10",{type:'vc',du:'0:54'}),m(1,'این عکس رو ببین 😍','11:12'),m(1,'',"11:12",{type:'im',emo:'🌅'}),
- m(0,'باشه فردا حرف میزنیم، شب بخیر 🌙','22:33')]},
-{id:4,n:'سامان',t:'pv',out:1,time:'21:45',last:'گیف',seen:'آخرین بازدید امروز 21:40',user:'saman_v',phone:'+98 912 000 0004',bd:'۴ مرداد',bio:'۳۹',msgs:[m(1,'امشب میای؟','21:40'),m(0,'آره، ساعت ۹ اونجام','21:41')]},
-{id:5,n:'آرتین',t:'pv',out:1,time:'شنبه',last:'پس بشیم',seen:'آخرین بازدید شنبه',user:'artin',phone:'+98 912 000 0005',bd:'۹ اسفند',bio:'',msgs:[m(0,'پس بشیم؟','10:00'),m(1,'باشه حتما','10:03')]},
-{id:6,n:'لطیفه درونی',t:'gp',mute:1,unread:5,at:1,time:'23:11',last:'من بیرونم خفه میشم استین بلند میپوشم',sender:'سامان',msgs:[m(0,'سلام بچه‌ها','23:01',{s:'سامان'}),m(0,'من بیرونم خفه میشم استین بلند میپوشم','23:11',{s:'سامان'}),m(1,'😂😂','23:12')]},
-{id:7,n:'روژ',t:'pv',unread:1,time:'23:01',last:'🌂 استیکر',seen:'آخرین بازدید امروز 23:19',user:'roj',phone:'+98 912 000 0007',bd:'۴ آگوست',bio:'۳۹',ll:1,pinned:1,msgs:[m(1,'',"23:01",{type:'st',emo:'😴'}),m(0,'عاحقتمممم','23:01'),m(1,'بریمممم','23:01',{rp:['روژ','عاحقتمممم']}),m(0,'',"23:01",{type:'im',emo:'🐱'})]},
-{id:8,n:'پروژه X',t:'gp',mute:1,time:'23:01',last:'آقا من فایل رو نصب کردم',sender:'سینا',unread:14,msgs:[m(0,'آقا من فایل رو نصب کردم','23:01',{s:'سینا'})]},
-{id:9,n:'اخبار تکنولوژی',t:'ch',mute:1,unread:9,time:'23:01',last:'🔥 هوش مصنوعی جدید معرفی شد',msgs:[m(0,'🔥 هوش مصنوعی جدید معرفی شد','23:01')]},
-{id:10,n:'فیفی',t:'pv',out:1,time:'سه‌شنبه',last:'☺️ استیکر',seen:'مدتی پیش',msgs:[m(1,'',"10:00",{type:'st',emo:'☺️'})]},
-{id:11,n:'اسمره',t:'pv',time:'۲۱ آبان',last:'😒 استیکر',seen:'مدتی پیش',msgs:[m(0,'',"10:00",{type:'st',emo:'😒'})]}
+{id:2,n:'پیام‌های ذخیره‌شده',t:'pv',saved:1,pin:1,time:'',last:'',msgs:[]}
 ];
 const CL=[{id:'all',n:'همه'},{id:'pv',n:'شخصی'},{id:'gp',n:'گروه'},{id:'ch',n:'کانال'}];let FD=[];try{FD=JSON.parse(localStorage.getItem('folders'))||[]}catch(e){}FD.forEach(f=>CL.push({id:f.id,n:f.n}));
 const inF=(c,id)=>id=='all'||(id[0]=='f'?((FD.find(f=>f.id==id)||{ids:[]}).ids.includes(c.id)):c.t==id);
@@ -345,9 +329,7 @@ function updBtn(){const v=$('#ti').value.trim();const b=$('#mic');b.className='c
 function addMsg(o){cur.msgs.push(o);const c=cur;c.last=o.type=='al'||o.type=='fl'?_lblMsg(o):o.type=='im'?'عکس':o.type=='vc'?'پیام صوتی':o.type=='st'?'استیکر':o.text;c.out=o.out;c.time=o.time;drawMsgs()}
 const AR=['باشه 👍','جدی؟ 😂','آره دقیقا','بعدا حرف می‌زنیم','عالیه!','😍😍','چه خبر؟','فهمیدم، ممنون ❤️'];
 function send(){const v=$('#ti').value.trim();if(!v)return;const _kb=document.activeElement===$('#ti');if(_kb)window._kbKeep=Date.now()+600;setTimeout(()=>{if(_kb&&document.activeElement!==$('#ti'))$('#ti').focus({preventScroll:true})},0);const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent],rid:rep.id}:{});o.st=1;addMsg(o);$('#ti').value='';$('#ti').style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();reply(o)}
-function reply(o){const c=cur;setTimeout(()=>{o.st=2;cur==c&&drawMsgs()},700);
-setTimeout(()=>{if(cur!=c)return;const s=$('#cs');s&&(s.textContent='در حال نوشتن…');$('#msgs').insertAdjacentHTML('beforeend','<div class="b in typ"><i></i><i></i><i></i></div>');$('#msgs').scrollTop=1e5},1100);
-setTimeout(()=>{const t=$('#msgs .typ');t&&t.remove();if(cur!=c)return;addMsg(m(0,AR[Math.random()*AR.length|0],T(),{s:'سامان'}));const s=$('#cs');s&&(s.textContent=c.seen||'آنلاین')},2600)}
+function reply(o){}
 let mmode='a',hold,held=0;
 const hasTxt=()=>{const t=$('#ti');return t&&t.value.trim()};
 const RC={a:{mimes:['audio/ogg;codecs=opus','audio/webm;codecs=opus','audio/mp4;codecs=mp4a.40.2','audio/mp4'],max:0},v:{mimes:['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4;codecs=avc1','video/mp4'],max:60,size:640}};
