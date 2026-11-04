@@ -2482,15 +2482,15 @@ drawMsgs=function(){const box=document.getElementById('msgs'),cid=cur&&cur.id;le
  drawChips=function(){const ch=ch0(),sl=ch?ch.scrollLeft:0;if(ind&&ind.parentNode)ind.remove();const r=_dc.apply(this,arguments);if(!ch)return r;
   const first=!ind;if(first){ind=document.createElement('i');ind.className='cind nt'}
   ch.insertBefore(ind,ch.firstChild);ch.scrollLeft=sl;const a=ch.querySelector('.chip.on');
-  if(a){const b=box(a);void ind.offsetWidth;apply(b);if(first)requestAnimationFrame(()=>ind.classList.remove('nt'));
-   if(ch.scrollWidth>ch.clientWidth+2&&!G)ch.scrollTo({left:cl(b.c-ch.clientWidth/2,0,ch.scrollWidth-ch.clientWidth),behavior:'smooth'})}
+  const sw=Date.now()-(window._swT||0)<900;if(a){const b=box(a);if(sw){ind.classList.add('nt');ind.style.transition=''}void ind.offsetWidth;apply(b);if(first||sw)requestAnimationFrame(()=>ind.classList.remove('nt'));
+   if(ch.scrollWidth>ch.clientWidth+2&&!G&&!sw)ch.scrollTo({left:cl(b.c-ch.clientWidth/2,0,ch.scrollWidth-ch.clientWidth),behavior:'smooth'})}
   return r};
  window._ci=(dx,d,ni,w)=>{const ch=ch0(),a=ch&&ch.querySelector('.chip.on'),b=ch&&ch.querySelectorAll('.chip')[ni];if(!ind||!a||!b)return;
   if(!G||G.ni!=ni){const m=Math.max(0,ch.scrollWidth-ch.clientWidth),B=box(b);G={ni,A:box(a),B,s:ch.scrollLeft,m,s1:cl(B.c-ch.clientWidth/2,0,m)};ind.classList.add('nt')}
   const t=cl(dx*d/w,0,1),L=(x,y)=>x+(y-x)*t;
   apply({l:L(G.A.l,G.B.l),w:L(G.A.w,G.B.w),t:L(G.A.t,G.B.t),h:L(G.A.h,G.B.h)});
   if(G.m){ch.style.scrollBehavior='auto';ch.scrollLeft=L(G.s,G.s1)}};
- window._ce=(ok,dur,ni)=>{if(!G||!ind)return;const T=ok?G.B:G.A,s=ok?G.s1:G.s,ch=ch0(),g=G;G=null;ind.classList.remove('nt');
+ window._ce=(ok,dur,ni)=>{if(!G||!ind)return;const T=ok?G.B:G.A,s=ok?G.s1:G.s,ch=ch0(),g=G;G=null;window._swT=Date.now();ind.classList.remove('nt');if(ok&&ch){const o=ch.querySelector('.chip.on'),n=ch.querySelectorAll('.chip')[ni];o&&o.classList.remove('on');n&&n.classList.add('on')}
   ind.style.transition=['left','width','top','height'].map(p=>p+' '+dur+'ms '+E2).join(',');apply(T);
   if(ch&&g.m)ch.scrollTo({left:s,behavior:'smooth'});setTimeout(()=>{if(ind)ind.style.transition=''},dur+60)}
  /* re-measure so the bubble always lands exactly on the active chip */
