@@ -117,7 +117,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
 .b.t::after{content:"";position:absolute;bottom:0;width:8px;height:12px;background:inherit;clip-path:path("M0 0V12H8C4.5 11.5 1.5 8 0 0Z")}
 .b.out.t::after{right:-7px}.b.in.t::after{left:-7px;transform:scaleX(-1)}
 .b.t.out{border-bottom-right-radius:0}.b.t.in{border-bottom-left-radius:0}
-.b .mt{float:right;margin:8px 0 -2px 10px;font-size:12px;color:var(--t2);display:flex;gap:3px;align-items:center}.b .mt .ok{color:var(--ac);display:inline-flex}.tk{display:block;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;overflow:visible}.tm .ok{display:inline-flex;vertical-align:-1px}
+.b .mt{float:none;clear:both;width:fit-content;direction:ltr;margin:3px 0 -2px auto;font-size:12px;color:var(--t2);display:flex;gap:3px;align-items:center}.b .mt .ok{color:var(--ac);display:inline-flex}.tk{display:block;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;overflow:visible}.tm .ok{display:inline-flex;vertical-align:-1px}
 .sn{font-size:14px;font-weight:700;margin-bottom:1px}
 .rp{border-right:0;border-left:2.5px solid var(--ac);background:rgba(63,156,53,.13);border-radius:6px;padding:3px 8px;margin:0 0 5px;font-size:14px}.rp b{color:var(--ac);display:block}
 .rp span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.8}
@@ -258,7 +258,7 @@ function drawChips(){$('#chips').innerHTML=CL.map(f=>{const n=C.filter(c=>inF(c,
 $$('.chip').forEach(e=>e.onclick=()=>{fl=e.dataset.f;drawChips();drawList()})}
 function drawList(){const L=C.filter(c=>inF(c,fl)&&(c.t!='pv'||c.msgs.length||c.keep||c.saved||!c.uid)&&(!sq||c.n.includes(sq))).sort((a,b)=>(b.pin||0)-(a.pin||0));
 $('#list').className=ed?'edit':'';
-$('#list').innerHTML=L.map(c=>{const l=c.msgs[c.msgs.length-1];return`<div class="row ${c.pin?'p':''}" data-id="${c.id}"><div class="sel ${selS.has(c.id)?'on':''}"></div>${av(c,58)}<div class="rb"><div class="r1"><div class="nm" dir="auto">${c.t=='gp'?`<span style="color:var(--t2)">${I('users',17)}</span>`:c.t=='ch'?`<span style="color:var(--t2)">${I('megaphone',17)}</span>`:''}${esc(c.n)}${c.mute?`<span style="color:var(--t2)">${I('mute',15)}</span>`:''}</div><div class="tm">${c.out&&!c.unread?'<span class="ok">${tkS(2)}</span> ':''}${(l&&l.ts)?stampT(l.ts):c.time}</div></div><div class="r2"><div class="lm" dir="auto">${c.sender?`<b>${c.sender}</b>`:''}${esc(c.last)}</div><div style="display:flex;gap:5px;align-items:center">${c.at&&c.unread?'<span class="at">@</span>':''}${c.unread?`<span class="bd ${c.mute?'m':''}">${c.unread}</span>`:c.pin?`<span style="color:var(--t2)">${I('pin',20)}</span>`:''}</div></div></div></div>`}).join('')||'<p style="text-align:center;color:var(--t2);margin-top:60px">گفتگویی پیدا نشد</p>';
+$('#list').innerHTML=L.map(c=>{const l=c.msgs[c.msgs.length-1];return`<div class="row ${c.pin?'p':''}" data-id="${c.id}"><div class="sel ${selS.has(c.id)?'on':''}"></div>${av(c,58)}<div class="rb"><div class="r1"><div class="nm" dir="auto">${c.t=='gp'?`<span style="color:var(--t2)">${I('users',17)}</span>`:c.t=='ch'?`<span style="color:var(--t2)">${I('megaphone',17)}</span>`:''}${esc(c.n)}${c.mute?`<span style="color:var(--t2)">${I('mute',15)}</span>`:''}</div><div class="tm">${c.out&&!c.unread?`<span class="ok">${tkS(2)}</span> `:''}${(l&&l.ts)?stampT(l.ts):c.time}</div></div><div class="r2"><div class="lm" dir="auto">${c.sender?`<b>${c.sender}</b>`:''}${esc(c.last)}</div><div style="display:flex;gap:5px;align-items:center">${c.at&&c.unread?'<span class="at">@</span>':''}${c.unread?`<span class="bd ${c.mute?'m':''}">${c.unread}</span>`:c.pin?`<span style="color:var(--t2)">${I('pin',20)}</span>`:''}</div></div></div></div>`}).join('')||'<p style="text-align:center;color:var(--t2);margin-top:60px">گفتگویی پیدا نشد</p>';
 $$('#list .row').forEach(r=>{const id=+r.dataset.id;let tm,mv=0,sx=0,sy=0;
 r.onclick=()=>{if(mv)return;if(ed){selS.has(id)?selS.delete(id):selS.add(id);drawList()}else openChat(id)};
 r.ontouchstart=e=>{mv=0;sx=e.touches[0].clientX;sy=e.touches[0].clientY;tm=setTimeout(()=>{mv=1;ctxChat(id,r)},480)};
@@ -349,25 +349,25 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #hd{position:sticky;top:0;z-index:8;transition:transform .25s}
 #hd .srch{position:static;margin:0 14px 5px}#hd .chips{position:static;top:0!important;margin:0 14px 6px;transition:none}
 #ro[data-s=pause] .cam{pointer-events:auto}
-#ro{position:absolute;inset:0;z-index:90;display:none;direction:ltr;color:#fff;font-weight:500;pointer-events:none;transition:background .3s}
-#ro.on{display:block}#ro.v{background:#0a0a0a}#ro.v.fl{background:#fff}
+#ro{--rb:calc(env(safe-area-inset-bottom) + 18px);position:absolute;inset:0;z-index:90;display:none;direction:ltr;color:#fff;font-weight:500;pointer-events:none;transition:background .3s}
+#ro.on{display:block}#ro.v{pointer-events:auto;touch-action:none}#ro .bar,#ro .lk,#ro .side,#ro .pv{pointer-events:auto}#ro.v{background:#0a0a0a}#ro.v.fl{background:#fff}
 #ro button{pointer-events:auto;border:0;color:#fff;display:flex;align-items:center;justify-content:center}
 #ro .cam{position:absolute;left:50%;top:38%;width:min(78vw,360px);aspect-ratio:1;transform:translate(-50%,-50%);display:none}
 #ro.v .cam{display:block}#ro .cam canvas,#ro .cam video{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover}
 #ro .cam svg{position:absolute;inset:-7px;width:calc(100% + 14px);height:calc(100% + 14px);transform:rotate(-90deg);z-index:2}
-#ro .side{position:absolute;left:12px;bottom:calc(env(safe-area-inset-bottom) + 76px);display:none;gap:10px}#ro.v .side{display:flex}
+#ro .side{position:absolute;left:12px;bottom:calc(var(--rb) + 58px);display:none;gap:10px}#ro.v .side{display:flex}
 #ro .side button,#ro .rb,#ro .pz,#ro .rs{width:48px;height:48px;border-radius:50%;background:rgba(40,40,44,.92)}
-#ro .bar{position:absolute;left:12px;right:92px;bottom:calc(env(safe-area-inset-bottom) + 18px);height:48px;border-radius:24px;background:rgba(32,32,36,.94);display:flex;align-items:center;gap:14px;padding:0 16px;font-size:17px}
+#ro .bar{position:absolute;left:12px;right:92px;bottom:var(--rb);height:48px;border-radius:24px;background:rgba(32,32,36,.94);display:flex;align-items:center;gap:14px;padding:0 16px;font-size:17px}
 #ro .bar i{width:10px;height:10px;border-radius:50%;background:#ff3b30;animation:tp 1s infinite}
 #ro .tx{margin:0 auto;color:#bbb;pointer-events:none}#ro[data-s=lock] .tx{color:#6cc864;pointer-events:auto}#ro[data-s=lock] .tx{flex:1;align-self:stretch;display:flex;align-items:center;justify-content:center;margin:0 -8px;cursor:pointer}
-#ro .big{position:absolute;right:12px;bottom:calc(env(safe-area-inset-bottom) + 6px);width:72px;height:72px;border-radius:50%;background:#65c15d;z-index:3;transition:transform .12s}
-#ro .hl{position:absolute;right:-72px;bottom:calc(env(safe-area-inset-bottom) - 78px);width:240px;height:240px;pointer-events:none}
-#ro .lk{position:absolute;right:20px;bottom:calc(env(safe-area-inset-bottom) + 118px)}
+#ro .big{position:absolute;right:12px;bottom:calc(var(--rb) - 12px);width:72px;height:72px;border-radius:50%;background:#65c15d;z-index:3;transition:transform .12s}
+#ro .hl{position:absolute;right:-72px;bottom:calc(var(--rb) - 96px);width:240px;height:240px;pointer-events:none}
+#ro .lk{position:absolute;right:20px;bottom:calc(var(--rb) + 100px)}
 #ro .lkh{width:48px;height:92px;border-radius:24px;background:rgba(40,40,44,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:opacity .15s}
 #ro .pz,#ro .rs,#ro .pv{display:none}
 #ro[data-s=lock] .lkh,#ro[data-s=pause] .lkh{display:none}#ro[data-s=lock] .pz,#ro[data-s=pause] .rs{display:flex}
 #ro[data-s=pause] .bar,#ro[data-s=pause] .big,#ro[data-s=pause] .hl{display:none}#ro[data-s=pause] .pv{display:flex}
-#ro .pv{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 18px);height:48px;gap:10px;align-items:center}
+#ro .pv{position:absolute;left:12px;right:12px;bottom:calc(var(--rb) - 5px);height:48px;gap:10px;align-items:center}
 #ro .pl{flex:1;height:48px;border-radius:24px;background:#7fd877;position:relative;overflow:hidden;display:flex;align-items:center;gap:2px;padding:0 26px;pointer-events:auto;touch-action:none}
 #ro .pl i{flex:1;background:rgba(255,255,255,.85);border-radius:2px;min-height:4px}#ro .pl img{flex:1;min-width:0;height:100%;object-fit:cover}
 #ro .dm{position:absolute;top:0;bottom:0;background:rgba(0,0,0,.4);pointer-events:none}#ro .dm.l{left:0}#ro .dm.r{right:0}
@@ -378,6 +378,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #app .inb{transition:opacity .15s}#app.rcg .inb{opacity:0;pointer-events:none}
 </style>`);
 let MST=null,Z=null;
+function placeRO(){const o=document.getElementById('ro'),ir=document.querySelector('.inb .irow');if(!o||!ir)return;const a=o.getBoundingClientRect(),r=ir.getBoundingClientRect();if(!a.height||!r.height)return;const v=Math.max(0,Math.round(a.bottom-r.bottom))+'px';if(o.style.getPropertyValue('--rb')!==v)o.style.setProperty('--rb',v)}
+(function tickRO(){if(Z)placeRO();requestAnimationFrame(tickRO)})();
 window.keepStream=st=>{try{st&&st.getTracks().forEach(t=>{try{t.stop()}catch(e){}})}catch(e){}};
 const SPK0=svi('<path d="M4 9v6h4l5 4V5L8 9zM17 9l5 6M22 9l-5 6"/>'),SPK1=svi('<path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 010 7M19 6a9 9 0 010 12"/>');
 async function getMS(vid,front=1){const gm=c=>navigator.mediaDevices.getUserMedia(c),a={channelCount:1,sampleRate:{ideal:48000},echoCancellation:!!vid,noiseSuppression:true,autoGainControl:true},z=RC.v.size,fm=front?'user':'environment',vc={width:{ideal:z},height:{ideal:z},aspectRatio:1,facingMode:fm};
@@ -406,7 +408,7 @@ if(!vid){try{await Promise.race([ac.resume(),new Promise(r=>setTimeout(r,400))])
 if(vid){const v=R.ve=document.createElement('video');v.muted=true;v.playsInline=true;v.srcObject=new MediaStream(MST.getVideoTracks());await v.play();const cv=R.cv=document.createElement('canvas');cv.width=cv.height=S.size;R.cx=cv.getContext('2d');o.querySelector('.cam').prepend(cv);setTimeout(()=>{R.th0=R.th0||cv.toDataURL('image/jpeg',.8)},300);out=new MediaStream([...cv.captureStream(30).getVideoTracks(),...MST.getAudioTracks()])}
 const mt=pickMime(S.mimes),mr=R.mr=new MediaRecorder(out,Object.assign(mt?{mimeType:mt}:{},{audioBitsPerSecond:vid?48000:(/opus/.test(mt)?64000:96000)},vid?{videoBitsPerSecond:1500000}:{}));
 mr.ondataavailable=e=>{e.data.size&&R.ch.push(e.data);if(R.want){R.want=0;showPv(R,mr.mimeType||mt)}};
-mr.onstop=async()=>{const R2=R;ui(R2);if(!R2.send)return;const mime=mr.mimeType||mt,d=R2.acc/1000;let blob=new Blob(R2.ch,{type:mime}),s=R2.s*d,e=R2.e*d;const tb=(R2.s>.01||R2.e<.99)?trimBlob(blob,mime,R2.vid,s,e).catch(()=>blob):null;
+mr.onstop=async()=>{const R2=R;ui(R2);if(!R2.send)return;const mime=mr.mimeType||mt,d=R2.acc/1000;let blob=new Blob(R2.ch,{type:mime}),s=R2.s*d,e=R2.e*d;const tb=(R2.s>.01||R2.e<.99)?(R2.vid?trimVid(blob,mime,s,e):trimBlob(blob,mime,R2.vid,s,e)).catch(()=>blob):null;
 const sec=Math.max(1,Math.ceil(Math.min(S.max||1e9,e-s))),L=R2.pk.length,p0=Math.floor(R2.s*L),p1=Math.max(p0+1,Math.ceil(R2.e*L)),pk=R2.pk.slice(p0,p1),mx=Math.max(.05,...pk);
 const wf=Array.from({length:64},(_,i)=>{const a=Math.floor(i*pk.length/64),b=Math.max(a+1,Math.floor((i+1)*pk.length/64));let m=0;for(let k=a;k<b&&k<pk.length;k++)m=Math.max(m,pk[k]);return Math.round(Math.min(1,m/mx)*31)});
 const ob=m(1,'',T(),{type:R2.vid?'rv':'vc',du:fmtD(sec),sec,url:URL.createObjectURL(blob),mime:blob.type,wf,wf5:pack5(wf),th:R2.th0||''});ob.st=1;ob._tb=tb;addMsg(ob);reply(ob);tb&&tb.then(nb=>{if(!nb||nb===blob)return;const sw=()=>{if(typeof CUR!='undefined'&&CUR&&CUR.x===ob)return setTimeout(sw,800);ob.url=URL.createObjectURL(nb);ob._ck=0;ob.mime=nb.type;if(ob._v){ob._v.src=ob.url;ob._v.play().catch(()=>0)}if(ob._a)ob._a.src=ob.url};sw()})};
@@ -456,6 +458,21 @@ const el=R.run?R.acc+performance.now()-R.s0:R.acc;if(send_&&el<500){send_=0;toas
 R.send=send_;R.fin=1;
 const stop=()=>{if(R.run){R.acc+=performance.now()-R.s0;R.run=0}if(R.mr.state!='inactive')R.mr.stop();else ui(R)};
 if(send_&&R.run)setTimeout(stop,250);else stop()}
+async function trimVid(b,mt,s,e){
+ if(!(window.VideoEncoder&&window.VideoDecoder))return trimBlob(b,mt,true,s,e);
+ try{
+  const M=await loadMB(),input=new M.Input({source:new M.BlobSource(b),formats:M.FORMATS});
+  const vt=await input.getPrimaryVideoTrack();if(!vt)throw new Error('novideo');
+  const at=await input.getPrimaryAudioTrack(),D=await input.computeDuration(),ts=Math.max(0,s),te=Math.min(e,D);
+  if(te-ts<.05)throw new Error('short');
+  const W=vt.displayWidth,H=vt.displayHeight,br=2e6;
+  let vc='avc';if(!await M.canEncodeVideo('avc',{width:W,height:H,bitrate:br})){vc=(await M.canEncodeVideo('vp9',{width:W,height:H,bitrate:br}))?'vp9':null;if(!vc)throw new Error('noenc')}
+  let audio={};if(at){const ac=(await M.canEncodeAudio('aac',{bitrate:64e3}))?'aac':(await M.canEncodeAudio('opus',{bitrate:64e3}))?'opus':null;if(!ac)throw new Error('noaenc');audio={codec:ac,bitrate:64e3,forceTranscode:true}}
+  const out=new M.Output({format:new M.Mp4OutputFormat({fastStart:'in-memory'}),target:new M.BufferTarget()});
+  const cv=await M.Conversion.init({input,output:out,video:{width:W,height:H,fit:'fill',bitrate:br,codec:vc,forceTranscode:true},audio,trim:{start:ts,end:te}});
+  if(!cv.isValid)throw new Error('invalid');await cv.execute();
+  const nb=new Blob([out.target.buffer],{type:'video/mp4'});if(nb.size<800)throw new Error('empty');return nb
+ }catch(err){return trimBlob(b,mt,true,s,e)}}
 function trimBlob(b,mt,vid,s,e){return new Promise(res0=>{let fd=0,wd;const res=v=>{if(fd)return;fd=1;clearTimeout(wd);res0(v)};wd=setTimeout(()=>res(b),(e-s)*1000+9000);const el=document.createElement('video');el.playsInline=true;el.src=URL.createObjectURL(b);let go=0;el.onerror=()=>res(b);el.onloadeddata=()=>{if(Math.abs(el.currentTime-s)<.02)el.onseeked();else el.currentTime=s};
 el.onseeked=()=>{if(go)return;go=1;let ac,ds;try{ac=new(window.AudioContext||window.webkitAudioContext)();ds=ac.createMediaStreamDestination();ac.createMediaElementSource(el).connect(ds);ac.resume&&ac.resume()}catch(_){return res(b)}let tr=[...ds.stream.getAudioTracks()],raf,cv;
 if(vid){cv=document.createElement('canvas');cv.width=cv.height=RC.v.size;const cx=cv.getContext('2d'),d=()=>{cx.drawImage(el,0,0,cv.width,cv.height);raf=requestAnimationFrame(d)};d();tr=[...cv.captureStream(30).getVideoTracks(),...tr]}
@@ -484,7 +501,7 @@ $('#ib').onclick=()=>pop('#info','#chat');
 function drawContacts(){$('#clist').innerHTML=C.filter(c=>c.t=='pv'&&!c.saved&&(c.msgs.length||c.keep)).sort((a,b)=>a.n.localeCompare(b.n,'fa')).map(c=>`<div class="row" data-id="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'آنلاین'}</div></div></div>`).join('');$$('#clist .row').forEach(r=>r.onclick=()=>openChat(+r.dataset.id))}
 function drawSettings(){try{drawTabs()}catch(e){}let u;try{u=JSON.parse(ld('u'))}catch(e){}u=u||{n:'من',e:'me@link.app'};const me={id:3,n:u.n,ph:ld('myphoto')||''};
 const row=(c,i,t,v,f)=>`<div class="sr press" ${f?`onclick="${f}"`:''}><div class="si" style="background:${c}">${i}</div>${t}${v?`<span class="v">${v}</span>`:'<span>›</span>'}</div>`;
-$('#ssc').innerHTML=`<div class="upf" id="upf"><div class="upfw" id="upfw"></div></div>
+$('#ssc').innerHTML=`<div class="pfx"><div class="pfa">${av(me,400)}</div><div class="pfg"></div><div class="pfn"><h2 dir="auto">${esc(u.n)}</h2><small dir="auto">${esc([u.e,u.un?'@'+u.un:''].filter(Boolean).join(' • '))}</small></div></div>
 <div class="card" style="margin-top:20px"><div class="sr press" style="color:var(--ac)" onclick="pickPhoto()">${I('camera',26)} تغییر عکس پروفایل</div></div>
 <div class="card"><div class="sr press">${av(me,34)}${esc(u.n)}</div><div class="sr press" style="color:var(--ac)">${I('plus',26)} افزودن حساب</div></div>
 <div class="card">${row('#ef5b4c',I('user',22),'پروفایل من','', "openMyProfile()")}</div>
@@ -1374,12 +1391,11 @@ async function sendMedia(items,asF,cap){const c=cur;
   if(sig.c)continue;
   const z=out.reduce((a,q)=>a+(q.s||0),0);if(window.quotaGate&&!window.quotaGate('up',z)){drop(o);continue}
   /* upload phase: ring fills */
-  o.items=out;sndSet(o,0);let p=0;const tot=Math.max(.6,Math.min(6,z/1048576*.5));const t0=Date.now();
-  while(p<1&&!sig.c){await new Promise(r=>setTimeout(r,60));p=Math.min(1,(Date.now()-t0)/1000/tot);sndSet(o,p)}
+  o.items=out;sndSet(o,0);
   if(sig.c)continue;
   window.quotaAdd&&window.quotaAdd('up',z);
-  o.snd=null;o.prog=1;if(cur===c)drawMsgs();else c.last=lbl(o);
-  reply(o)}}
+  if(cur===c)drawMsgs();else c.last=lbl(o);
+  reply(o);if(!o._pend){o.snd=null;o.prog=1;if(cur===c)drawMsgs()}}}
 const lbl=o=>o.type=='al'?(o.items.length>1?'آلبوم':o.items[0].k=='v'?'ویدیو':'عکس'):'فایل';
 window._lblMsg=lbl;
 /* ---------- bubbles ---------- */
@@ -1508,24 +1524,25 @@ const fmtR=r=>r+'×';
 function bar(){pb.classList.toggle('hide',!CUR);$('#chat').classList.toggle('pb',!!CUR);{const e=$('#psp');e.textContent=fmtR(RATE);e.classList.toggle('on',RATE!==1)}if(CUR){const x=CUR.x;$('#pbn').textContent=x.out?'شما':(x.s||cur.n)}}
 /* render */
 function rvInner(x){const mt=`<span class="mt">${x.time}${x.out?`<span class="ok">${tkS(x.st)}</span>`:''}</span>`;
- const dl=isDl(x)?'':(x.dl==='ing'?`<div class="dlb">${XIC}${ARC(x)}</div>`:`<div class="dlb">${ARW}</div>`);
+ const dl=upg(x)?`<div class="dlb">${ARC(x)}</div>`:isDl(x)?'':(x.dl==='ing'?`<div class="dlb">${XIC}${ARC(x)}</div>`:`<div class="dlb">${ARW}</div>`);
  return`${!isDl(x)&&x.th?`<div class="thc"><i style="background:url(${x.th}) center/cover"></i></div>`:''}${dl}<span class="du">${isDl(x)?x.du:x.du+' · '+(x.size||'1.2 MB')}</span>${mt}`}
 const sleep=t=>new Promise(r=>setTimeout(r,t));
 const arw=n=>`<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M5 12l7 7 7-7"/></svg>`;
 const xic=n=>`<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
-const vpI=x=>isDl(x)?I('play',20):x.dl==='ing'?xic(18)+ARC(x):arw(22);
+const upg=x=>!!(x.out&&x._pend&&(x.type=='vc'||x.type=='rv'));
+const vpI=x=>upg(x)?ARC(x):isDl(x)?I('play',20):x.dl==='ing'?xic(18)+ARC(x):arw(22);
 function setProg(x,p){x.prog=p;$$(`#msgs .b[data-id="${x.id}"] .arc circle`).forEach(c=>c.setAttribute('stroke-dasharray',Math.max(8,p*100)+' 100'))}
 function refreshDl(x){const b=$(`#msgs .b[data-id="${x.id}"]`);if(!b)return;
  if(x.type=='rv'){const q=b.querySelector('.ph');q.classList.toggle('fk',isDl(x)&&!x.url);q.innerHTML=rvInner(x);hyOne(b)}
  else{const v=b.querySelector('.vp');v&&(v.innerHTML=vpI(x));if(x.type=='im'||x.type=='al'||x.type=='fl')drawMsgs()}}
 async function dl(x){if(x.dl==='ing'||isDl(x))return;if(window.quotaGate&&!window.quotaGate('down',0))return;x.dl='ing';x.prog=0;refreshDl(x);
- try{if(x.src){const r=await fetch(x.src);if(!r.ok)throw 0;const tot=+r.headers.get('content-length')||0,rd=r.body.getReader(),ch=[];let got=0;
+ try{if(x.src){const r=await fetch(x.src);if(!r.ok)throw 0;const tot=+r.headers.get('content-length')||x.sz||0,rd=r.body.getReader(),ch=[];let got=0;
    for(;;){const{done,value}=await rd.read();if(done)break;ch.push(value);got+=value.length;setProg(x,tot?got/tot:.3)}
    window.quotaAdd&&window.quotaAdd('down',got);x.url=URL.createObjectURL(new Blob(ch,{type:r.headers.get('content-type')||''}))}
   else{let p=0;while(p<1){await sleep(50+Math.random()*60);p=Math.min(1,p+.03+Math.random()*.07);setProg(x,p)}}}
  catch(e){x.dl=0;x.prog=0;refreshDl(x);toast('دانلود ناموفق بود');return}
  setProg(x,1);await sleep(180);x.dl=1;refreshDl(x)}
-const _bub=bub;bub=function(c,x,i,A){if(x.type=='vc'){const h=_bub(c,x,i,A);return isDl(x)?h:h.replace(/(<div class="vp" onclick="playV\(this\)">)<svg[\s\S]*?<\/svg>(<\/div>)/,'$1'+vpI(x)+'$2')}if(x.type!='rv')return _bub(c,x,i,A);
+const _bub=bub;bub=function(c,x,i,A){if(x.type=='vc'){const h=_bub(c,x,i,A);return isDl(x)&&!upg(x)?h:h.replace(/(<div class="vp" onclick="playV\(this\)">)<svg[\s\S]*?<\/svg>(<\/div>)/,'$1'+vpI(x)+'$2')}if(x.type!='rv')return _bub(c,x,i,A);
  const bg=x.th&&isDl(x)?`background:url(${x.th}) center/cover`:'';
  return`<div class="b rv ${x.out?'out':'in'}" data-id="${x.id}"><div class="ph${isDl(x)&&!x.url?' fk':''}" style="${bg}" onclick="rvT(this)">${rvInner(x)}</div></div>`};
 function mkv(x){const v=document.createElement('video');v.src=x.url;v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('playsinline','');v.className='rvv';
@@ -1611,7 +1628,7 @@ Object.assign(EN,{'ویرایش پیام':'Edit Message','ویرایش‌شده'
 const lastTxt=l=>!l?'':l.type=='im'?'عکس':l.type=='vc'?'پیام صوتی':l.type=='rv'?'ویدیو پیام':l.type=='st'?'استیکر':l.type=='al'||l.type=='fl'?_lblMsg(l):l.text;
 function delMsg(x){if(window.mediaCur&&mediaCur()&&mediaCur().x===x)stopMedia();
  const b=$(`#msgs .b[data-id="${x.id}"]`),c=cur;
- const fin=()=>{if(cur!==c)return;c.msgs=c.msgs.filter(q=>q!==x);const l=c.msgs[c.msgs.length-1];c.last=lastTxt(l);if(l){c.out=l.out;c.time=l.time}if(c.pm===x.id)c.pm=0;drawMsgs();drawPin()};
+ const fin=()=>{if(cur!==c)return;c.msgs=c.msgs.filter(q=>q!==x);const l=c.msgs[c.msgs.length-1];c.last=lastTxt(l);c.sender=(l&&!l.out&&c.t!='pv'&&l.s)||'';if(l){c.out=l.out;c.time=l.time}if(c.pm===x.id)c.pm=0;drawMsgs();drawPin();drawList()};
  if(b){b.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.7)'}],{duration:220,easing:'ease-in',fill:'forwards'}).onfinish=fin}else fin()}
 function delAsk(x,y,px){const it=[['حذف برای من','trash',()=>delMsg(x),1]];
  if(!cur.saved){if(cur.t=='pv')it.push(['حذف برای من و '+cur.n,'trash',()=>delMsg(x),1]);else if(x.out)it.push(['حذف برای همه','trash',()=>delMsg(x),1])}
@@ -1631,7 +1648,7 @@ const _b=bub;bub=function(c,x,i,A){let h=_b(c,x,i,A);if(x.ed)h=h.replace('<span 
 })();
 </script>
 <style>
-#ro .pv{height:58px;bottom:calc(env(safe-area-inset-bottom) + 22px)}
+#ro .pv{height:58px;bottom:calc(var(--rb) - 5px)}
 #ro .pv>button{flex:none;width:50px;height:50px;border-radius:50%}
 #ro .rb{background:rgba(40,40,44,.92);color:#ff453a}
 #ro .pl{height:58px;min-width:0;overflow:visible;border-radius:14px}
@@ -1829,7 +1846,7 @@ function picker(o){const L=C.filter(c=>c.t=='pv'&&!c.saved&&!(o.exclude||[]).inc
    ls.querySelectorAll('.row').forEach(w=>w.onclick=()=>{const id=+w.dataset.i;if(o.single){o.rf([id]);return}o.sel.has(id)?o.sel.delete(id):o.sel.add(id);draw()});
    ch.querySelectorAll('.ngp').forEach(w=>w.onclick=()=>{o.sel.delete(+w.dataset.i);draw()})};
   inp.oninput=()=>{q=inp.value.trim();draw()};draw()}})}
-function pickImg(cb){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(!f)return;const u=URL.createObjectURL(f),im=new Image;im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const s=Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,256,256);URL.revokeObjectURL(u);cb(c.toDataURL('image/jpeg',.85))};im.src=u};i.click()}
+function pickImg(cb){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files&&i.files[0];if(f)window.cropAvatar(f,c=>cb(c.toDataURL('image/jpeg',.85)))};i.click()}
 const avM=mm=>{const k=C.find(x=>x.id==mm.id);return av(k||{id:3,n:mm.n,ph:mm.id=='me'?ld('myphoto')||'':''},40)};
 const memRows=ids=>ids.map(id=>{const c=C.find(x=>x.id==id);return `<div class="sr">${av(c,40)}<span dir="auto" style="flex:1;margin:0 10px">${esc(c.n)}</span></div>`}).join('');
 function mkChat(o){const id=Math.max(100,...C.map(c=>+c.id||0))+1;const c={id,n:o.n,t:o.t,time:T(),last:o.t=='ch'?'کانال ساخته شد':'گروه ساخته شد',msgs:[],ph:o.ph||'',desc:o.desc||'',link:o.link||'',pub:!!o.pub,my:'owner',members:[{id:'me',n:'شما',role:'owner'}].concat(o.ids.map(i=>({id:i,n:C.find(x=>x.id==i).n,role:'member'})))};C.unshift(c);drawList();ngClose();openChat(id);toast(o.t=='ch'?'کانال ساخته شد':'گروه ساخته شد')}
@@ -2452,7 +2469,7 @@ drawMsgs=function(){const box=document.getElementById('msgs'),cid=cur&&cur.id;le
  return r}}
 /* ---- folder chips: highlight pill follows the swipe between folders ---- */
 {const E2='cubic-bezier(.22,.8,.3,1)',ch0=()=>document.getElementById('chips');let ind=null,G=null,LB=null;
- const st=document.createElement('style');st.textContent='.chip{position:relative;z-index:1}.chip.on{background:transparent!important}#hd .chips{position:relative}.cind{position:absolute;z-index:0;border-radius:99px;background:rgba(120,120,128,.2);pointer-events:none;transition:left .32s cubic-bezier(.22,.8,.3,1),width .32s cubic-bezier(.22,.8,.3,1),top .32s,height .32s}.cind.nt{transition:none!important}';document.head.appendChild(st);
+ const st=document.createElement('style');st.textContent='.chip{position:relative;z-index:1}.chip.on{background:transparent!important}#hd .chips{position:relative}.cind{position:absolute;z-index:0;border-radius:99px;background:rgba(120,120,128,.2);pointer-events:none;transition:left .32s cubic-bezier(.22,.8,.3,1),width .32s cubic-bezier(.22,.8,.3,1),top .32s,height .32s}.cind.nt{transition:none!important}.chip.on{animation:none!important}.chip.on:not(:active){transform:none!important}.chip{transition:background .25s,color .25s,transform .18s ease-out!important}';document.head.appendChild(st);
  const box=c=>{const w=c.offsetWidth,h=c.offsetHeight;return{l:c.offsetLeft-w*.025,w:w*1.05,t:c.offsetTop-h*.025,h:h*1.05,c:c.offsetLeft+w/2}};
  const apply=b=>{LB=b;ind.style.left=b.l+'px';ind.style.width=b.w+'px';ind.style.top=b.t+'px';ind.style.height=b.h+'px'};
  const _dc=drawChips;
@@ -2993,7 +3010,8 @@ const Q=[];let qn=0;
 function enq(fn){Q.push(fn);pump()}
 function pump(){while(qn<3&&Q.length){qn++;Q.shift()().catch(()=>{}).then(()=>{qn--;pump()})}}
 const dURL=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
-async function blobOf(fid){const r=await _f(EP+'/storage/buckets/'+BK+'/files/'+fid+'/view',{headers:hdr(),credentials:'include'});if(!r.ok)throw new Error('dl');return r.blob()}
+function xhrGet(url,h,onP,fb){return new Promise((res,rej)=>{const q=new XMLHttpRequest();q.open('GET',url);q.responseType='blob';q.withCredentials=true;Object.keys(h).forEach(k=>q.setRequestHeader(k,h[k]));q.onprogress=e=>{const t=e.lengthComputable?e.total:fb;if(t&&onP)onP(Math.min(.99,e.loaded/t))};q.onload=()=>q.status>=200&&q.status<300?res(q.response):rej(new Error('dl'));q.onerror=()=>rej(new Error('dl'));q.send()})}
+async function blobOf(fid,onP,fb){if(onP)return xhrGet(EP+'/storage/buckets/'+BK+'/files/'+fid+'/view',hdr(),onP,fb);const r=await _f(EP+'/storage/buckets/'+BK+'/files/'+fid+'/view',{headers:hdr(),credentials:'include'});if(!r.ok)throw new Error('dl');return r.blob()}
 const needDl=it=>!!it.fid&&!(it.u&&it.u!==it.t);
 /* فقط تامبنیل‌های کم‌حجم خودکار گرفته می‌شوند */
 function hydrate(x){
@@ -3001,7 +3019,8 @@ function hydrate(x){
   if(it.tf&&!it.t)enq(async()=>{it.t=await dURL(await blobOf(it.tf));if(it.k=='p'&&!it.u)it.u=it.t;soft()});
   else if(it.k=='p'&&!it.u&&it.t)it.u=it.t});
  if(x.type=='rv'&&x.tf&&!x.th)enq(async()=>{x.th=await dURL(await blobOf(x.tf));soft()})}
-async function dlItem2(x,it){it._ing=1;decorate();try{it.u=URL.createObjectURL(await blobOf(it.fid))}catch(e){toast('دانلود ناموفق بود')}it._ing=0;redraw(x)}
+function ringSet(x,it,p){it._p=p;const b=$(`#msgs .b[data-id="${x.id}"]`);if(!b)return;const j=x.items.indexOf(it),c=x.type=='fl'?b.querySelector('.fi .ndo circle'):(b.querySelectorAll('.ai')[j]||b).querySelector('.ndo circle');c&&c.setAttribute('stroke-dasharray',Math.max(8,p*100)+' 100')}
+async function dlItem2(x,it){it._ing=1;it._p=0;decorate();try{it.u=URL.createObjectURL(await blobOf(it.fid,p=>ringSet(x,it,p),it.s))}catch(e){toast('دانلود ناموفق بود')}it._ing=0;redraw(x)}
 async function dlOut(x){toast('در حال دانلود…');try{x.url=URL.createObjectURL(await blobOf(x.fid));x.dl=1;redraw(x);toast('دانلود شد؛ دوباره لمس کنید')}catch(e){toast('دانلود ناموفق بود')}}
 const _ov=window.openVw;
 window.openVw=(id,k)=>{const x=cur&&cur.msgs.find(q=>q.id==id),it=x&&x.items&&x.items[k];if(it&&needDl(it)){if(!it._ing)dlItem2(x,it);return}return _ov(id,k)};
@@ -3012,15 +3031,17 @@ if(_pv)window.playV=function(b){const e=b&&b.closest&&b.closest('[data-id]'),x=e
 const _rt=window.rvT;
 if(_rt)window.rvT=function(p){const e=p&&p.closest&&p.closest('[data-id]'),x=e&&cur&&cur.msgs.find(q=>q.id==e.dataset.id);if(x&&x.out&&x.fid&&!x.url){dlOut(x);return}return _rt.apply(this,arguments)};
 const css=document.createElement('style');
-css.textContent='.ai{position:relative;overflow:hidden}.ai.ndl img{filter:blur(7px);transform:scale(1.1)}.ai.ndl .pbd{display:none}.ndo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}.ndo b{width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.52);display:flex;align-items:center;justify-content:center;color:#fff}.ndo b svg{width:26px;height:26px}.ndo b i{width:24px;height:24px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:ndr .8s linear infinite}@keyframes ndr{to{transform:rotate(360deg)}}';
+css.textContent='.ai{position:relative;overflow:hidden}.ai.ndl img{filter:blur(7px);transform:scale(1.1)}.ai.ndl .pbd{display:none}.ndo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}.ndo b{width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.52);display:flex;align-items:center;justify-content:center;color:#fff}.ndo b svg{width:26px;height:26px}.ndo b{position:relative}.ndo b svg.rg{position:absolute;inset:0;width:100%;height:100%;animation:ndr .9s linear infinite}.b.fl .fi{position:relative}.b.fl .fi .ndo b{width:44px;height:44px;background:rgba(0,0,0,.35)}.ndo b i{width:24px;height:24px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:ndr .8s linear infinite}@keyframes ndr{to{transform:rotate(360deg)}}';
 document.head.appendChild(css);
 const ARR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M5 12l7 7 7-7"/></svg>';
+const RNG=it=>'<svg class="rg" viewBox="0 0 58 58"><circle cx="29" cy="29" r="27" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" pathLength="100" stroke-dasharray="'+Math.max(8,(it._p||0)*100)+' 100"/></svg>';
 function decorate(){
  if(!cur||!cur.msgs)return;
  $$('#msgs .b.al').forEach(b=>{const x=cur.msgs.find(q=>q.id==b.dataset.id);if(!x||!x.items)return;
   b.querySelectorAll('.ai').forEach((cell,j)=>{const it=x.items[j];if(!it||!needDl(it))return;cell.classList.add('ndl');
    const o=cell.querySelector('.ndo');if(o)o.remove();
-   cell.insertAdjacentHTML('beforeend','<div class="ndo"><b>'+(it._ing?'<i></i>':ARR)+'</b></div>')})})}
+   cell.insertAdjacentHTML('beforeend','<div class="ndo"><b>'+(it._ing?RNG(it):ARR)+'</b></div>')})});
+ $$('#msgs .b.fl').forEach(b=>{const x=cur.msgs.find(q=>q.id==b.dataset.id),it=x&&x.items&&x.items[0],f=b.querySelector('.fi');if(!it||!f)return;const o=f.querySelector('.ndo');if(o)o.remove();if(it._ing&&needDl(it))f.insertAdjacentHTML('beforeend','<div class="ndo"><b>'+RNG(it)+'</b></div>')})}
 const _dm=drawMsgs;drawMsgs=function(){const r=_dm.apply(this,arguments);try{decorate()}catch(e){}return r};
 /* جلوگیری از پخش قسمت اضافه‌ی ویس/ویدیو‌پیام بعد از پایان زمان واقعی */
 function limitFor(src){if(!src)return 0;for(const c of C)for(const x of c.msgs)if((x.type=='vc'||x.type=='rv')&&x.url===src&&x.sec)return x.sec;return 0}
@@ -3032,7 +3053,7 @@ function build(d,out,c){
  const x={sid:d.$id,ts:d.$createdAt};
  if(d.kind=='st'){x.type='st';x.emo=d.emo;if(meta.an)x.anim=meta.an}
  else if(d.kind=='al'||d.kind=='fl'){x.type=d.kind;x.items=(meta.items||[]).map(it=>({k:it.k,w:it.w,h:it.h,d:it.d,s:it.s,n:it.n,mime:it.mime,fid:it.fid,tf:it.tf||'',u:'',t:''}))}
- else if(d.kind=='vc'||d.kind=='rv'){x.type=d.kind;x.du=meta.du||'0:10';x.sec=meta.sec;x.wf=meta.wf;x.mime=meta.mime;x.fid=meta.fid;x.tf=meta.tf||'';x.th='';x.src='appwrite:'+meta.fid;x.size=szT(meta.sz);if(!out)x.dl=0}
+ else if(d.kind=='vc'||d.kind=='rv'){x.type=d.kind;x.du=meta.du||'0:10';x.sec=meta.sec;x.wf=meta.wf;x.mime=meta.mime;x.fid=meta.fid;x.tf=meta.tf||'';x.th='';x.src='appwrite:'+meta.fid;x.size=szT(meta.sz);x.sz=meta.sz;if(!out)x.dl=0}
  if(d.rn)x.rp=[d.rn,d.rt||''];
  if(meta.ed)x.ed=1;
  if(c&&c.t!='pv'&&!out)x.s=nameOf(d.sender);
@@ -3085,7 +3106,7 @@ async function reconcile(){
 function loop(){clearTimeout(timer);if(!ME)return;timer=setTimeout(async()=>{await pull('inc');loop()},document.hidden?45000:20000)}
 setInterval(async()=>{if(!ME)return;try{const n=await loadUsers();await loadGroups();if(n)drawContacts()}catch(e){}},60000);
 /* ---------- Realtime ---------- */
-function removeLocal(sid){const x=IDX.get(sid);if(!x)return;IDX.delete(sid);x._gone=1;const c=C.find(q=>q.msgs.includes(x));if(!c)return;c.msgs=c.msgs.filter(q=>q!==x);const l=c.msgs[c.msgs.length-1];c.last=l?lbl(l):'';if(l){c.out=l.out;c.time=l.ts?dayL(l.ts):l.time}drawList();if(cur===c){drawMsgs();try{drawPin()}catch(e){}}}
+function removeLocal(sid){const x=IDX.get(sid);if(!x)return;IDX.delete(sid);x._gone=1;const c=C.find(q=>q.msgs.includes(x));if(!c)return;c.msgs=c.msgs.filter(q=>q!==x);const l=c.msgs[c.msgs.length-1];c.last=l?lbl(l):'';c.sender=(l&&!l.out&&c.t!='pv'&&l.s)||'';if(l){c.out=l.out;c.time=l.ts?dayL(l.ts):l.time}drawList();if(cur===c){drawMsgs();try{drawPin()}catch(e){}}}
 async function refreshLists(){try{await loadUsers();await loadGroups()}catch(e){}}
 function onEv(d){
  const ev=d.events||[],p=d.payload;if(!p||!p.$id||!ME)return;
@@ -3119,14 +3140,15 @@ async function markRead(c){
 const _oc=openChat;openChat=function(id){const r=_oc.apply(this,arguments);const c=cur;if(c&&c.uid)setTimeout(()=>markRead(c),400);return r};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cur&&cur.uid)markRead(cur)});
 /* ---------- آپلود و ارسال ---------- */
-async function upload(blob,name,mime,perm){
+function xhrUp(url,h,fd,onP){return new Promise((res,rej)=>{const q=new XMLHttpRequest();q.open('POST',url);q.withCredentials=true;Object.keys(h).forEach(k=>q.setRequestHeader(k,h[k]));q.upload.onprogress=e=>{if(e.lengthComputable&&onP)onP(e.loaded)};q.onload=()=>res({ok:q.status>=200&&q.status<300,status:q.status,headers:{get:n=>q.getResponseHeader(n)},json:()=>Promise.resolve(JSON.parse(q.responseText||'{}'))});q.onerror=()=>rej(new Error('network'));q.send(fd)})}
+async function upload(blob,name,mime,perm,onP){
  const id=rid(),size=blob.size,CH=5*1024*1024;let s=0;
  while(s<size||size==0){
   const e=Math.min(s+CH,size),fd=new FormData();
   fd.append('fileId',id);perm.forEach(p=>fd.append('permissions[]',p));
   fd.append('file',new File([blob.slice(s,e)],name||'file',{type:mime||blob.type||'application/octet-stream'}));
   const h=hdr();if(size>CH){h['Content-Range']='bytes '+s+'-'+(e-1)+'/'+size;if(s>0)h['x-appwrite-id']=id}
-  const r=await _f(EP+'/storage/buckets/'+BK+'/files',{method:'POST',headers:h,credentials:'include',body:fd});
+  const r=await xhrUp(EP+'/storage/buckets/'+BK+'/files',h,fd,l=>onP&&onP(s+Math.min(l,e-s)));
   const f=r.headers.get('X-Fallback-Cookies');if(f)ls('cookieFallback',f);
   if(!r.ok){let j={};try{j=await r.json()}catch(x){}const er=new Error(j.message||'upload');er.code=r.status;throw er}
   s=e;if(size==0)break}
@@ -3138,10 +3160,10 @@ async function post(c,o){
  o.sid=sid;o.ts=new Date().toISOString();o.st=1;o._st=o.text;o._pend=1;IDX.set(sid,o);
  const fp=['read("user:'+me+'")','delete("user:'+me+'")'];
  try{
-  const kind=o.type||'t';let meta={};
-  if(kind=='al'||kind=='fl'){const its=[];
-   for(const it of o.items){
-    const b=await (await _f(it.u)).blob();it.fid=await upload(b,it.n,it.mime||b.type,fp);
+  const kind=o.type||'t';let meta={};let TOT=1,DONE=0;const pgr=l=>{if(o._pend)sndSet(o,Math.min(.99,(DONE+l)/TOT))},cx=()=>{if(o.snd&&o.snd.c)throw new Error('cancel')};
+  if(kind=='al'||kind=='fl'){const its=[];TOT=Math.max(1,o.items.reduce((a,q)=>a+(q.s||1),0));
+   for(const it of o.items){cx();
+    const b=await (await _f(it.u)).blob();it.fid=await upload(b,it.n,it.mime||b.type,fp,pgr);DONE+=b.size||it.s||1;
     let tb=null;
     try{if(it.k=='p'){const u=URL.createObjectURL(b);tb=await imgThumb(u,320,.6);URL.revokeObjectURL(u)}else if(it.t&&/^(data|blob):/.test(it.t))tb=await imgThumb(it.t,kind=='fl'?160:320,.6)}catch(e){}
     if(tb){try{it.tf=await upload(tb,'t.jpg','image/jpeg',fp)}catch(e){}}
@@ -3150,14 +3172,14 @@ async function post(c,o){
   else if(kind=='vc'||kind=='rv'){
    let b=null;if(o._tb){try{b=await o._tb}catch(e){}}
    if(!b)b=await (await _f(o.url)).blob();
-   o.fid=await upload(b,kind=='rv'?'video.mp4':'voice.ogg',b.type||o.mime,fp);
+   TOT=Math.max(1,b.size);cx();o.fid=await upload(b,kind=='rv'?'video.mp4':'voice.ogg',b.type||o.mime,fp,pgr);DONE=TOT;
    if(kind=='rv'&&o.th&&/^(data|blob):/.test(o.th)){try{const tb=await imgThumb(o.th,120,.5);if(tb)o.tf=await upload(tb,'t.jpg','image/jpeg',fp)}catch(e){}}
    meta={fid:o.fid,tf:o.tf||'',sec:o.sec,du:o.du,wf:o.wf,mime:b.type||o.mime,sz:b.size}}
   else if(kind=='st'&&o.anim)meta={an:o.anim};
   const r=await api('POST','/databases/'+DB+'/collections/messages/documents',{documentId:sid,data:{chat:c.gid||[me,peer].sort().join('_'),sender:me,rcpt:peer,text:o.text||'',kind,emo:o.emo||'',rn:o.rp?o.rp[0]:'',rt:o.rp?String(o.rp[1]).slice(0,200):'',meta:JSON.stringify(meta)},permissions:['read("user:'+me+'")','update("user:'+me+'")','delete("user:'+me+'")']});
-  o.ts=r.$createdAt;o._pend=0;if(o.st!=2)o.st=1;redraw(o);
- }catch(e){o.err=1;o._pend=0;IDX.delete(sid);toast('ارسال نشد: '+em(e));redraw(o)}}
-reply=function(o){if(!ME)return;const c=C.find(q=>q.msgs.includes(o))||cur;if(!c||c.saved||(!c.uid&&!c.gid))return;if(c.gid&&c._pend){toast('گروه هنوز ساخته نشده');return}post(c,o)};
+  o.ts=r.$createdAt;o._pend=0;o.snd=null;o.prog=1;if(o.st!=2)o.st=1;if(kind=='vc'||kind=='rv')refreshDl(o);redraw(o);
+ }catch(e){const cn=o.snd&&o.snd.c;o.err=cn?0:1;o._pend=0;o.snd=null;IDX.delete(sid);if(cn)return;toast('ارسال نشد: '+em(e));if(kind=='vc'||kind=='rv')refreshDl(o);redraw(o)}}
+reply=function(o){if(!ME)return;const c=C.find(q=>q.msgs.includes(o))||cur;if(!c||c.saved||(!c.uid&&!c.gid))return;if(c.gid&&c._pend){toast('گروه هنوز ساخته نشده');return}post(c,o);if((o.type=='vc'||o.type=='rv')&&o._pend)refreshDl(o)};
 /* ---------- ویرایش پیام ---------- */
 setInterval(()=>{if(!ME||!cur||!(cur.uid||cur.gid))return;cur.msgs.forEach(x=>{
  if(!x.out||!x.sid||x.type||x.err||x._pend)return;
