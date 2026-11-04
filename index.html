@@ -1714,23 +1714,24 @@ let dbp;const openDB=()=>dbp||(dbp=new Promise((res,rej)=>{try{const r=indexedDB
 const tx=(s,mode,f)=>openDB().then(d=>new Promise((res,rej)=>{const t=d.transaction(s,mode),q=f(t.objectStore(s));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)}));
 const san=(k,v)=>(k[0]=='_'||k=='url'||k=='u')?undefined:v;
 let last='',ready=0,MT={},MTd=0;
-async function putMedia(x,key,url,setter){try{const b=await (await fetch(url)).blob();await tx('media','readwrite',o=>o.put(b,key));MT[key]=Date.now();MTd=1;setter()}catch(e){}}
+async function putMedia(x,key,url,setter){try{const b=await (await fetch(url)).blob();await tx('media','readwrite',o=>o.put(b,key));MT[key]=Date.now();MTd=1;setter();await saveNow()}catch(e){}}
 async function tick(){if(!ready)return;try{for(const c of C){for(const x of c.msgs){
  if(x.url&&!x._ck){x._ck=1;putMedia(x,c.id+':'+x.id,x.url,()=>{x.hb=1})}
  if(x.items)x.items.forEach((it,k)=>{if(it.u&&!it._ck){it._ck=1;putMedia(it,c.id+':'+x.id+':'+k,it.u,()=>{it.hb=1})}})}}
- const s=JSON.stringify(C,san);if(s!==last){last=s;await tx('kv','readwrite',o=>o.put(s,'chats'))}if(MTd){MTd=0;await tx('kv','readwrite',o=>o.put(JSON.stringify(MT),'mts'))}}catch(e){}}
+ await saveNow()}catch(e){}}
+async function saveNow(){const s=JSON.stringify(C,san);if(s!==last){last=s;await tx('kv','readwrite',o=>o.put(s,'chats'))}if(MTd){MTd=0;await tx('kv','readwrite',o=>o.put(JSON.stringify(MT),'mts'))}}
 async function restore(){ready=0;restore.done=0;const jobs=[];
  try{const s=await tx('kv','readonly',o=>o.get('chats'));
   try{const m=await tx('kv','readonly',o=>o.get('mts'));MT=m?JSON.parse(m):{}}catch(e){MT={}}
   if(s){const a=JSON.parse(s);
    for(const sc of a){let c=C.find(q=>q.id==sc.id);if(c)Object.assign(c,sc);else{C.push(sc);c=sc}
-    for(const x of c.msgs){M=Math.max(M,x.id|0);if(x.dl==='ing')x.dl=0;if(x.hb||x.items)jobs.push([c,x])}}
+    for(const x of c.msgs){M=Math.max(M,x.id|0);if(x.dl==='ing')x.dl=0;if(x.hb||x.items||x.dl||(!x.out&&/^(rv|vc|al|fl|im)$/.test(x.type)))jobs.push([c,x])}}
    last=JSON.stringify(C,san);drawList();if(typeof drawContacts=='function')drawContacts()}}catch(e){}
  ready=1;restore.done=1;
  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
  (async()=>{for(const [c,x] of jobs){try{
-   if(x.hb){const b=await tx('media','readonly',o=>o.get(c.id+':'+x.id));if(b){x.url=URL.createObjectURL(b);x._ck=1}else{x.hb=0;if(!x.out)x.dl=0}}
-   if(x.items){let miss=0;for(let k=0;k<x.items.length;k++){const it=x.items[k];let b=null;if(it.hb)b=await tx('media','readonly',o=>o.get(c.id+':'+x.id+':'+k));if(b){it.u=URL.createObjectURL(b);it._ck=1}else{it.u=it.t||'';it.hb=0;miss=1}}if(miss&&!x.out)x.dl=0}
+   if(!x.items){const b=await tx('media','readonly',o=>o.get(c.id+':'+x.id));if(b){x.url=URL.createObjectURL(b);x._ck=1;x.hb=1}else{x.hb=0;if(!x.out&&x.dl)x.dl=0}}
+   if(x.items){let miss=0;for(let k=0;k<x.items.length;k++){const it=x.items[k];let b=null;b=await tx('media','readonly',o=>o.get(c.id+':'+x.id+':'+k));if(b){it.u=URL.createObjectURL(b);it._ck=1;it.hb=1}else{it.u=it.t||'';it.hb=0;miss=1}}if(miss&&!x.out)x.dl=0}
   }catch(e){}}
   if(jobs.length&&cur)try{drawMsgs()}catch(e){}
   try{await purgeOld()}catch(e){}})()}
@@ -1742,7 +1743,7 @@ async function purgeOld(){const d=+ld('keepDays')||0;if(!d)return;const now=Date
   else{x.hb=0;if(!x.out){if(x.url){try{URL.revokeObjectURL(x.url)}catch(e){}x.url=null;x._v=x._a=null}x.dl=0}}});
  MTd=1;last='';await tick();if(cur)drawMsgs()}
 window.cacheRestore=restore;window.cacheWipe=async()=>{ready=0;restore.done=0;MT={};MTd=0;try{await tx('kv','readwrite',o=>o.clear());await tx('media','readwrite',o=>o.clear())}catch(e){}last=''};
-setInterval(tick,3000);addEventListener('pagehide',tick);
+setInterval(tick,3000);addEventListener('pagehide',tick);document.addEventListener('visibilitychange',()=>{if(document.hidden)tick()});
 const fmtB=n=>n<1024?fa(n)+' بایت':n<1048576?fa(Math.round(n/1024))+' کیلوبایت':fa((n/1048576).toFixed(1))+' مگابایت';
 async function usage(){let media=0;try{const d=await openDB();await new Promise(r=>{const q=d.transaction('media').objectStore('media').openCursor();q.onsuccess=()=>{const c=q.result;if(c){media+=c.value.size||0;c.continue()}else r()};q.onerror=()=>r()})}catch(e){}return{media,chats:last.length}}
 window.openCache=async()=>{const u=await usage();const b=openSheet('حافظه و کش',`<div class="card"><div class="sr"><span style="flex:1">رسانه‌های دانلودشده</span><span class="v">${fmtB(u.media)}</span></div><div class="sr"><span style="flex:1">گفتگوهای ذخیره‌شده</span><span class="v">${fmtB(u.chats)}</span></div></div><div class="cap">عکس، ویدیو و پیام‌های صوتی دانلودشده روی همین دستگاه می‌مانند تا دوباره دانلود نشوند. بعد از پاک‌کردن کش، رسانه‌های دریافتی را باید دوباره دستی دانلود کنید.</div><div class="card"><div class="sr press" id="cc1" style="color:var(--red)">پاک‌کردن رسانه‌های دانلودشده</div><div class="sr press" id="cc2" style="color:var(--red)">پاک‌کردن گفتگوهای ذخیره‌شده</div></div>`);
