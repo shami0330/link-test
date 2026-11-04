@@ -406,6 +406,7 @@ let out=st;
 /* voice: boost + limit the level through Web Audio so iPhone voices are loud and clear; falls back to the raw stream if the context cannot start */
 if(!vid){try{await Promise.race([ac.resume(),new Promise(r=>setTimeout(r,400))]);if(ac.state=='running'){const sc=ac.createMediaStreamSource(new MediaStream(MST.getAudioTracks())),gn=ac.createGain(),cp=ac.createDynamicsCompressor(),ds=ac.createMediaStreamDestination();gn.gain.value=2.5;cp.threshold.value=-20;cp.knee.value=20;cp.ratio.value=6;cp.attack.value=.003;cp.release.value=.25;sc.connect(gn);gn.connect(cp);cp.connect(ds);out=ds.stream}}catch(e){}}
 if(vid){const v=R.ve=document.createElement('video');v.muted=true;v.playsInline=true;v.srcObject=new MediaStream(MST.getVideoTracks());await v.play();const cv=R.cv=document.createElement('canvas');cv.width=cv.height=S.size;R.cx=cv.getContext('2d');o.querySelector('.cam').prepend(cv);setTimeout(()=>{R.th0=R.th0||cv.toDataURL('image/jpeg',.8)},300);out=new MediaStream([...cv.captureStream(30).getVideoTracks(),...MST.getAudioTracks()])}
+if(R.abort){ui(R);return}
 const mt=pickMime(S.mimes),mr=R.mr=new MediaRecorder(out,Object.assign(mt?{mimeType:mt}:{},{audioBitsPerSecond:vid?48000:(/opus/.test(mt)?64000:96000)},vid?{videoBitsPerSecond:1500000}:{}));
 mr.ondataavailable=e=>{e.data.size&&R.ch.push(e.data);if(R.want){R.want=0;showPv(R,mr.mimeType||mt)}};
 mr.onstop=async()=>{const R2=R;ui(R2);if(!R2.send)return;const mime=mr.mimeType||mt,d=R2.acc/1000;let blob=new Blob(R2.ch,{type:mime}),s=R2.s*d,e=R2.e*d;const tb=(R2.s>.01||R2.e<.99)?(R2.vid?trimVid(blob,mime,s,e):trimBlob(blob,mime,R2.vid,s,e)).catch(()=>blob):null;
@@ -452,10 +453,10 @@ document.addEventListener('touchmove',e=>{if(!ok()||e.touches.length!=2||!d0)ret
 document.addEventListener('touchend',e=>{if(e.touches.length<2){const had=d0;d0=0;const R=Z;if(had&&R&&R.zm>1){cancelAnimationFrame(R.zr);const f=()=>{if(Z!==R)return;R.zm=1+(R.zm-1)*.8;if(R.zm<1.01)R.zm=1;else R.zr=requestAnimationFrame(f)};f()}}},{passive:true});document.addEventListener('touchcancel',()=>{d0=0;if(Z)Z.zm=1},{passive:true})}
 function flashOff(R){if(!R||!R.flash)return;R.flash=0;const o=$('#ro');o&&o.classList.remove('fl');try{const t=MST&&MST.getVideoTracks()[0];t&&t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0)}catch(e){}const b=o&&o.querySelector('[data-a=flash]');b&&(b.style.opacity=.7)}
 async function flashCam(){const R=Z;if(!R||!R.vid||R.st=='pause')return;R.flash=!R.flash;const o=$('#ro');if(R.front)o.classList.toggle('fl',R.flash);else{try{await MST.getVideoTracks()[0].applyConstraints({advanced:[{torch:!!R.flash}]})}catch(e){R.flash=0;toast('فلش دوربین پشت پشتیبانی نمی‌شود')}}o.querySelector('[data-a=flash]').style.opacity=R.flash?1:.7}
-function ui(R){cancelAnimationFrame(R.raf);R.ac&&R.ac.close();R.pa&&R.pa.pause();R.pvv&&R.pvv.remove();{const q=document.querySelector('#ro .snb');q&&q.remove()};R.cv&&R.cv.remove();try{MST&&MST.getVideoTracks().forEach(t=>t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0))}catch(e){}if(MST){MST.getTracks().forEach(t=>{try{t.stop()}catch(e){}});MST=null;clearTimeout(window._rel)}const o=$('#ro');o.className='';o.dataset.s='';$('#app').classList.remove('rcg');Z=null}
-function fin(send_){const R=Z;if(!R||R.fin)return;if(!R.mr){R.send=send_;R.abort=1;return}
+function ui(R){if(R._ui)return;R._ui=1;cancelAnimationFrame(R.raf);R.ac&&R.ac.close();R.pa&&R.pa.pause();R.pvv&&R.pvv.remove();{const q=document.querySelector('#ro .snb');q&&q.remove()};R.cv&&R.cv.remove();try{MST&&MST.getVideoTracks().forEach(t=>t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0))}catch(e){}if(MST){MST.getTracks().forEach(t=>{try{t.stop()}catch(e){}});MST=null;clearTimeout(window._rel)}const o=$('#ro');o.className='';o.dataset.s='';$('#app').classList.remove('rcg');Z=null}
+function fin(send_){const R=Z;if(!R||R.fin)return;if(!R.mr){R.send=send_;R.abort=1;ui(R);return}
 const el=R.run?R.acc+performance.now()-R.s0:R.acc;if(send_&&el<500){send_=0;toast('برای ضبط نگه دارید')}
-R.send=send_;R.fin=1;
+R.send=send_;R.fin=1;if(!send_)ui(R);
 const stop=()=>{if(R.run){R.acc+=performance.now()-R.s0;R.run=0}if(R.mr.state!='inactive')R.mr.stop();else ui(R)};
 if(send_&&R.run)setTimeout(stop,250);else stop()}
 async function trimVid(b,mt,s,e){
@@ -1358,7 +1359,7 @@ function pick(media,cb){const i=document.createElement('input');i.type='file';i.
 /* ---------- send ---------- */
 const SXIC='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 const SARC=x=>`<svg class="arc" viewBox="0 0 58 58"><circle cx="29" cy="29" r="27" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" pathLength="100" stroke-dasharray="${Math.max(8,(x.prog||0)*100)} 100"/></svg>`;
-function sndSet(x,p){x.prog=p;$$(`#msgs .b[data-id="${x.id}"] .arc circle`).forEach(c=>c.setAttribute('stroke-dasharray',Math.max(8,p*100)+' 100'))}
+window.sndSet=sndSet;function sndSet(x,p){x.prog=p;$$(`#msgs .b[data-id="${x.id}"] .arc circle`).forEach(c=>c.setAttribute('stroke-dasharray',Math.max(8,p*100)+' 100'))}
 window.sndCancel=id=>{const x=cur&&cur.msgs.find(q=>q.id==id);if(!x||!x.snd)return;x.snd.c=1;cur.msgs=cur.msgs.filter(q=>q!==x);drawMsgs()};
 async function sendMedia(items,asF,cap){const c=cur;
  /* build placeholder messages immediately: ring spins while compressing, then fills while uploading */
@@ -1535,6 +1536,7 @@ function setProg(x,p){x.prog=p;$$(`#msgs .b[data-id="${x.id}"] .arc circle`).for
 function refreshDl(x){const b=$(`#msgs .b[data-id="${x.id}"]`);if(!b)return;
  if(x.type=='rv'){const q=b.querySelector('.ph');q.classList.toggle('fk',isDl(x)&&!x.url);q.innerHTML=rvInner(x);hyOne(b)}
  else{const v=b.querySelector('.vp');v&&(v.innerHTML=vpI(x));if(x.type=='im'||x.type=='al'||x.type=='fl')drawMsgs()}}
+window.refreshDl=refreshDl;
 async function dl(x){if(x.dl==='ing'||isDl(x))return;if(window.quotaGate&&!window.quotaGate('down',0))return;x.dl='ing';x.prog=0;refreshDl(x);
  try{if(x.src){const r=await fetch(x.src);if(!r.ok)throw 0;const tot=+r.headers.get('content-length')||x.sz||0,rd=r.body.getReader(),ch=[];let got=0;
    for(;;){const{done,value}=await rd.read();if(done)break;ch.push(value);got+=value.length;setProg(x,tot?got/tot:.3)}
@@ -3182,7 +3184,7 @@ async function post(c,o){
   else if(kind=='st'&&o.anim)meta={an:o.anim};
   const r=await api('POST','/databases/'+DB+'/collections/messages/documents',{documentId:sid,data:{chat:c.gid||[me,peer].sort().join('_'),sender:me,rcpt:peer,text:o.text||'',kind,emo:o.emo||'',rn:o.rp?o.rp[0]:'',rt:o.rp?String(o.rp[1]).slice(0,200):'',meta:JSON.stringify(meta)},permissions:['read("user:'+me+'")','update("user:'+me+'")','delete("user:'+me+'")']});
   o.ts=r.$createdAt;o._pend=0;o.snd=null;o.prog=1;if(o.st!=2)o.st=1;if(kind=='vc'||kind=='rv')refreshDl(o);redraw(o);
- }catch(e){const cn=o.snd&&o.snd.c;o.err=cn?0:1;o._pend=0;o.snd=null;IDX.delete(sid);if(cn)return;toast('ارسال نشد: '+em(e));if(kind=='vc'||kind=='rv')refreshDl(o);redraw(o)}}
+ }catch(e){const cn=o.snd&&o.snd.c;o.err=cn?0:1;o._pend=0;o.snd=null;IDX.delete(sid);if(cn)return;toast('ارسال نشد: '+em(e));if(o.type=='vc'||o.type=='rv')refreshDl(o);redraw(o)}}
 reply=function(o){if(!ME)return;const c=C.find(q=>q.msgs.includes(o))||cur;if(!c||c.saved||(!c.uid&&!c.gid))return;if(c.gid&&c._pend){toast('گروه هنوز ساخته نشده');return}post(c,o);if((o.type=='vc'||o.type=='rv')&&o._pend)refreshDl(o)};
 /* ---------- ویرایش پیام ---------- */
 setInterval(()=>{if(!ME||!cur||!(cur.uid||cur.gid))return;cur.msgs.forEach(x=>{
