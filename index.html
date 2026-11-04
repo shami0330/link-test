@@ -195,7 +195,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
   <div class="ln-anim" aria-hidden="true"><canvas class="px-logo" data-px="logo" data-w="150"></canvas><canvas class="px-word" data-px="word" data-w="92"></canvas></div>
   <h1>ورود به لینک</h1><p id="ap">برای ادامه وارد شوید</p>
   <input id="an" class="fld hide" placeholder="نام" dir="rtl">
-  <input id="ae" class="fld" placeholder="ایمیل" type="email" dir="ltr" style="text-align:right">
+  <input id="ae" class="fld" placeholder="ایمیل یا نام کاربری" type="text" inputmode="email" autocapitalize="off" autocorrect="off" autocomplete="username" dir="ltr" style="text-align:right">
   <div class="ln-pw"><input id="apw" class="fld" placeholder="رمز عبور" type="password" dir="ltr" style="text-align:right;padding-left:48px;margin-bottom:0"><button id="aeye" class="ln-eye" type="button" aria-label="نمایش رمز"><svg id="aeyeic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
   <button id="ab" class="btn press">ورود</button>
   <button id="as" class="lnk">حساب ندارید؟ ثبت‌نام</button>
@@ -505,7 +505,7 @@ $('#ib').onclick=()=>pop('#info','#chat');
 function drawContacts(){$('#clist').innerHTML=C.filter(c=>c.t=='pv'&&!c.saved&&(c.msgs.length||c.keep)).sort((a,b)=>a.n.localeCompare(b.n,'fa')).map(c=>`<div class="row" data-id="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'آنلاین'}</div></div></div>`).join('');$$('#clist .row').forEach(r=>r.onclick=()=>openChat(+r.dataset.id))}
 function drawSettings(){try{drawTabs()}catch(e){}let u;try{u=JSON.parse(ld('u'))}catch(e){}u=u||{n:'من',e:'me@link.app'};const me={id:3,n:u.n,ph:ld('myphoto')||''};
 const row=(c,i,t,v,f)=>`<div class="sr press" ${f?`onclick="${f}"`:''}><div class="si" style="background:${c}">${i}</div>${t}${v?`<span class="v">${v}</span>`:'<span>›</span>'}</div>`;
-$('#ssc').innerHTML=`<div class="pfx" style="margin-bottom:30px"><div class="pfa">${av(me,400)}</div><div class="pfg"></div><div class="pfn" style="text-align:center"><h2 dir="auto">${esc(u.n)}</h2>${u.un?`<small dir="ltr">@${esc(u.un)}</small>`:''}${u.e?`<small dir="ltr">${esc(u.e)}</small>`:''}</div></div>
+$('#ssc').innerHTML=`<div class="pfx" style="margin-bottom:30px"><div class="pfa">${av(me,400)}</div><div class="pfg"></div><div class="pfn"><h2 dir="auto">${esc(u.n)}</h2><small dir="ltr" class="pr">${u.un?`<span>@${esc(u.un)}</span>`:''}${u.e?`<span>${esc(u.e)}</span>`:''}</small></div></div>
 <div class="card" style="margin-top:20px"><div class="sr press" style="color:var(--ac)" onclick="pickPhoto()">${I('camera',26)} تغییر عکس پروفایل</div></div>
 <div class="card"><div class="sr press">${av(me,34)}${esc(u.n)}</div><div class="sr press" style="color:var(--ac)">${I('plus',26)} افزودن حساب</div></div>
 <div class="card">${row('#ef5b4c',I('user',22),'پروفایل من','', "openMyProfile()")}</div>
@@ -803,9 +803,11 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=',
 #vw .vmid button{width:48px;height:42px;display:flex;align-items:center;justify-content:center}
 #vw[data-k=i] .vmid #vpn{width:42px;border-radius:50%;background:rgba(28,28,30,.92)}
 #vw[data-k=i] .vsb,#vw[data-k=i] .vctr,#vw[data-k=i] #vpip,#vw[data-k=i] #vgr,#vw[data-k=v] #vpn{display:none}
-#vw.hid .vh,#vw.hid .vft,#vw.hid .vctr{opacity:0;pointer-events:none}#vw.hid .vctr button{pointer-events:none}
+#vw.hid .vh,#vw.hid .vft,#vw.hid .vctr{opacity:0;pointer-events:none}
+body:has(#vw) .top:not(.vmn){background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important}
+#vw .vh{top:-40px;background:none!important;box-shadow:none!important}#vw .vh::before,#vw .vh::after{display:none!important}#vw.hid .vctr button{pointer-events:none}
 #vw .vmn{position:absolute;z-index:9;background:rgba(44,44,46,.97);border-radius:16px;min-width:190px;overflow:hidden;direction:rtl}
-#vw .vmn.top{right:14px;top:calc(env(safe-area-inset-top) + 64px)}
+#vw .vmn.top{right:14px;top:calc(env(safe-area-inset-top) + 24px)}
 #vw .vmn.mid{left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 150px)}
 #vw .vmn.bot{left:14px;right:14px;bottom:calc(env(safe-area-inset-bottom) + 80px)}
 #vw .vmn button{display:block;width:100%;padding:13px 18px;text-align:right;font-size:17px;border-bottom:.5px solid rgba(255,255,255,.14)}#vw .vmn button:last-child{border:0}#vw .vmn .red{color:#ff453a}
@@ -2856,7 +2858,9 @@ window.pfInit=(scId,infoId)=>{const sc=document.getElementById(scId||'isc'),info
  if(sc._pfh){sc.removeEventListener('touchstart',sc._pfh[0]);sc.removeEventListener('touchmove',sc._pfh[1]);sc.removeEventListener('touchend',sc._pfh[2]);sc.removeEventListener('touchcancel',sc._pfh[2])}
  sc._pfh=[st,mv,en];sc.addEventListener('touchstart',st,{passive:true});sc.addEventListener('touchmove',mv,{passive:false});sc.addEventListener('touchend',en,{passive:true});sc.addEventListener('touchcancel',en,{passive:true});
  if(!window._pfR){window._pfR=1;addEventListener('resize',()=>{['info','t-settings'].forEach(n=>{const i=document.getElementById(n);i&&i._pfSet&&i._pfSet()})})}
- info._pfSet=()=>set(p)};
+ info._pfSet=()=>set(p);
+ pa.addEventListener('click',()=>go(p<.5?1:0));
+ if(window.ResizeObserver){try{info._pfRO&&info._pfRO.disconnect();info._pfRO=new ResizeObserver(()=>{if(sc.clientWidth&&pn.offsetWidth)set(p)});info._pfRO.observe(sc);info._pfRO.observe(pn)}catch(e){}}};
 })();
 </script>
 <script>
@@ -2882,6 +2886,8 @@ box.addEventListener('click',e=>{const rp=e.target.closest&&e.target.closest('.r
 #t-settings.pfe .top .tb{background:rgba(0,0,0,.5)!important;color:#fff!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 #t-settings.pfe .top .tb svg{stroke:#fff}#t-settings.pfe .top .ttl{color:#fff;opacity:0;transition:opacity .2s}
 #t-settings .pfx{margin-bottom:0}
+#t-settings .pfn{text-align:center}#t-settings .pfn .pr{display:flex;flex-wrap:wrap;gap:0 10px;justify-content:center}
+#t-settings.pfe .pfn{text-align:left}#t-settings.pfe .pfn .pr{justify-content:flex-start}
 .mt .pni{display:inline-block;vertical-align:-1px;margin-inline-end:3px;opacity:.75}
 </style>
 <script>
@@ -2962,7 +2968,7 @@ const BLs=()=>{try{return new Set(JSON.parse(lg('bl:'+(ME&&ME.$id))||'[]'))}catc
 const isBl=c=>!!(c&&c.uid&&c.t=='pv'&&BLs().has(c.uid));
 function updBar(){let b=$('#blkbtn');const r=$('.inb .irow');if(!b){b=document.createElement('button');b.id='blkbtn';b.className='gl press hide';b.style.cssText='width:100%;padding:15px;font-size:17px;color:var(--ac);text-align:center';b.textContent='رفع بلاک';b.onclick=()=>{const c=cur;if(!c)return;menu([['رفع بلاک','block',()=>toggleBl(c)],['لغو','back',()=>{}]],innerHeight/2-60,innerWidth/2)};r.after(b)}const k=isBl(cur);r.style.display=k?'none':'';b.classList.toggle('hide',!k)}
 function toggleBl(c){if(!c||!c.uid)return;const S=BLs();if(S.has(c.uid)){S.delete(c.uid);toast('بلاک برداشته شد')}else{S.add(c.uid);toast('مسدود شد')}ls('bl:'+ME.$id,JSON.stringify([...S]));updBar()}
-Object.assign(EN,{'جستجوی سراسری':'Global search','در حال جستجو…':'Searching…','کاربری پیدا نشد':'No users found','رفع بلاک':'Unblock','لغو':'Cancel','مسدود شد':'User blocked','بلاک برداشته شد':'User unblocked','ذخیره روی سرور انجام نشد':'Could not save to the server','این نام کاربری گرفته شده است':'This username is taken'});
+Object.assign(EN,{'ایمیل یا نام کاربری':'Email or username','برای ثبت‌نام ایمیل را وارد کنید':'Enter your email to sign up','ایمیل (یا نام کاربری) و رمز را وارد کنید':'Enter your email (or username) and password','جستجوی سراسری':'Global search','در حال جستجو…':'Searching…','کاربری پیدا نشد':'No users found','رفع بلاک':'Unblock','لغو':'Cancel','مسدود شد':'User blocked','بلاک برداشته شد':'User unblocked','ذخیره روی سرور انجام نشد':'Could not save to the server','این نام کاربری گرفته شده است':'This username is taken'});
 window.globalFind=globalFind;window.isBl=isBl;window.toggleBl=toggleBl;window.updBar=updBar;
 window.LK={api:(...a)=>api(...a),qs:(...a)=>qs(...a),get DB(){return DB},get ME(){return ME},allUsers:f=>allUsers(f),get UD(){return UD}};
 const hid=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0)%1073741824+1000};
@@ -3314,10 +3320,12 @@ async function boot(){
   await pull(IDX.size<cn*0.8?'full':'inc');
   if(Date.now()-(+lg('rc:'+ME.$id)||0)>18e5)reconcile().catch(()=>{});
  },4000)}
-async function signIn(email,pw){try{await api('DELETE','/account/sessions/current')}catch(e){}await api('POST','/account/sessions/email',{email,password:pw})}
+async function resolveEmail(u){u=u.replace(/^@/,'').toLowerCase();try{await api('DELETE','/account/sessions/current')}catch(e){}let r='';try{await api('POST','/account/sessions/anonymous');let after='';for(let i=0;i<5&&!r;i++){const q=[{method:'limit',values:[100]}];if(after)q.push({method:'cursorAfter',values:[after]});const j=await api('GET','/databases/'+DB+'/collections/users/documents?'+qs(q)),d=j.documents||[],f=d.find(x=>(x.uname||'').toLowerCase()==u);if(f)r=f.email||'';if(d.length<100)break;after=d[d.length-1].$id}}catch(e){}try{await api('DELETE','/account/sessions/current')}catch(e){}return r}
+async function signIn(email,pw){if(!email.includes('@')){const r=await resolveEmail(email);if(!r){const x=new Error('not found');x.code=401;throw x}email=r}try{await api('DELETE','/account/sessions/current')}catch(e){}await api('POST','/account/sessions/email',{email,password:pw})}
 $('#ab').onclick=async()=>{
  const b=$('#ab'),e=$('#ae').value.trim(),p=$('#apw').value,n=$('#an').value.trim(),su=!$('#an').classList.contains('hide');
- if(!e||!p){toast('ایمیل و رمز را وارد کنید');return}
+ if(!e||!p){toast('ایمیل (یا نام کاربری) و رمز را وارد کنید');return}
+ if(su&&!e.includes('@')){toast('برای ثبت‌نام ایمیل را وارد کنید');return}
  if(p.length<8){toast('رمز باید حداقل ۸ کاراکتر باشد');return}
  b.disabled=true;
  try{if(su)await api('POST','/account',{userId:'unique()',email:e,password:p,name:n||e.split('@')[0]});await signIn(e,p);await boot()}catch(x){toast(em(x))}
