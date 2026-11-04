@@ -28,7 +28,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Vazirmatn",syst
 @media (pointer:coarse){#mc,#cr,#vw,#mp,#sp,#ng{max-width:none!important}}
 @media (pointer:coarse) and (orientation:landscape){
 #app,#mc,#cr,#vw,#mp,#sp,#ng{left:env(safe-area-inset-left,0px)!important;right:env(safe-area-inset-right,0px)!important;margin:0!important}
-.tabbar{height:54px;padding:4px;bottom:calc(env(safe-area-inset-bottom) + 6px);border-radius:27px}
+.tabbar{height:47px;padding:4px;bottom:calc(env(safe-area-inset-bottom) + 6px);border-radius:27px}
 .ti{border-radius:23px;gap:0}
 .sc{padding-bottom:84px}
 .eb{bottom:calc(env(safe-area-inset-bottom) + 8px)}
@@ -78,7 +78,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
 .sel{width:0;height:26px;border-radius:50%;border:2px solid #c4c4c8;flex:none;opacity:0;transition:all .3s;margin-left:-12px}
 .edit .sel{width:26px;opacity:1;margin-left:0}.sel.on{background:var(--ac);border-color:var(--ac);box-shadow:inset 0 0 0 4px var(--bg)}
 .av{border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
-.rb{flex:1;min-width:0;padding:8.5px 0;border-bottom:.5px solid var(--sep)}
+.rb{flex:1;min-width:0;padding:6px 0;border-bottom:.5px solid var(--sep)}
 .r1{display:flex;justify-content:space-between;align-items:center;gap:6px}
 .nm{font-weight:700;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px}
 .tm{color:var(--t2);font-size:14px;white-space:nowrap}.tm .ok{color:var(--ac)}
@@ -91,7 +91,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
 .eb.h{transform:translateY(120px);opacity:0}.eb button{height:48px;padding:0 24px;border-radius:99px;font-size:17px;font-weight:500}
 .fab{position:absolute}
 /* tab bar */
-.tabbar{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 12px);left:14px;right:14px;height:68px;border-radius:34px;display:flex;padding:6px;z-index:7;transition:transform .35s}
+.tabbar{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 12px);left:14px;right:14px;height:61px;border-radius:31px;display:flex;padding:6px;z-index:7;transition:transform .35s}
 .tabbar.h{transform:translateY(110px)}
 .ti{flex:1;border-radius:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:500;gap:2px;position:relative;color:var(--tx);transition:background .3s,color .3s}
 .ti.on{background:rgba(120,120,128,.16);color:var(--ac)}
@@ -2902,7 +2902,7 @@ async function allUsers(force){if(!force&&UAll&&Date.now()-UAll<60000)return;let
 function lev(a,b){const m=a.length,n=b.length;if(!m)return n;let p=[...Array(n+1).keys()];for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]==b[j-1]?0:1));p=c}return p[n]}
 function scoreU(u,q){const un=(u.uname||'').toLowerCase(),nm=(u.name||'').toLowerCase(),em=(u.email||'').toLowerCase();let s=0;if(em&&q.length>=3){if(em==q)return 100;if(em.startsWith(q))return 90}if(un==q)s=100;else if(un.startsWith(q))s=85;else if(nm.startsWith(q))s=75;else if(un.includes(q))s=60;else if(nm.includes(q))s=50;else{const d=Math.min(lev(q,un.slice(0,q.length+1)),lev(q,nm.slice(0,q.length+1)));if(d<=Math.max(1,Math.floor(q.length/3)))s=30-d*5}return s}
 let gT=0,gSeq=0;
-function globalFind(q,box){const id=++gSeq;clearTimeout(gT);q=q.trim().toLowerCase();q=q.replace(/^@/,'');box.innerHTML='';if(q.length<2)return;box.innerHTML='<div class="tm" style="padding:12px 16px">در حال جستجو…</div>';gT=setTimeout(async()=>{let er='';try{await allUsers()}catch(e){er=(e&&e.message)||'خطا'}if(id!==gSeq)return;if(er&&!UD.size){box.innerHTML='<div class="tm" style="padding:12px 16px">دریافت کاربران ناموفق بود: '+esc(er)+'</div>';return}const L=[...UD.values()].filter(u=>u.$id!=ME.$id).map(u=>[Math.max(scoreU(u,q),q.indexOf('@')>0?scoreU(u,q.split('@')[0])-10:0),u]).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1]);box.innerHTML=L.length?'<div class="tm" style="padding:6px 16px;background:rgba(120,120,128,.12);font-size:13px">جستجوی سراسری</div>'+L.map(u=>`<div class="row" data-u="${u.$id}">${av({id:hid(u.$id),n:u.name||u.uname||'کاربر',ph:u.photo||''},50)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(u.name||u.uname||'کاربر')}</div><div class="tm" dir="ltr" style="text-align:right">@${esc(u.uname||'')}</div></div></div>`).join(''):'<div class="tm" style="padding:12px 16px">کاربری پیدا نشد</div>';box.querySelectorAll('.row').forEach(r=>r.onclick=()=>{const u=UD.get(r.dataset.u);addUsers([u]);const c=chatOf(u.$id);if(c){c.keep=1;drawList();drawContacts();openChat(c.id)}})},250)}
+function globalFind(q,box){const id=++gSeq;clearTimeout(gT);q=q.trim().toLowerCase();q=q.replace(/^@/,'');box.innerHTML='';if(q.length<2)return;box.innerHTML='<div class="tm" style="padding:12px 16px">در حال جستجو…</div>';gT=setTimeout(async()=>{let er='';try{await allUsers()}catch(e){er=(e&&e.message)||'خطا'}if(id!==gSeq)return;if(er&&!UD.size){box.innerHTML='<div class="tm" style="padding:12px 16px">دریافت کاربران ناموفق بود: '+esc(er)+'</div>';return}const L=[...UD.values()].filter(u=>u.$id!=ME.$id).map(u=>[Math.max(scoreU(u,q),q.indexOf('@')>0?scoreU(u,q.split('@')[0])-10:0),u]).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1]);box.innerHTML=L.length?'<div class="tm" style="padding:6px 16px;background:rgba(120,120,128,.12);font-size:13px">جستجوی سراسری</div>'+L.map(u=>`<div class="row" data-u="${u.$id}">${av({id:hid(u.$id),n:u.name||u.uname||'کاربر',ph:u.photo||''},50)}<div class="rb" style="padding:9px 0;direction:ltr;text-align:left"><div class="nm" dir="ltr" style="justify-content:flex-start;text-align:left">${esc(u.name||u.uname||'کاربر')}</div><div class="tm" dir="ltr" style="text-align:left">@${esc(u.uname||'')}</div></div></div>`).join(''):'<div class="tm" style="padding:12px 16px">کاربری پیدا نشد</div>';box.querySelectorAll('.row').forEach(r=>r.onclick=()=>{const u=UD.get(r.dataset.u);addUsers([u]);const c=chatOf(u.$id);if(c){c.keep=1;drawList();drawContacts();openChat(c.id)}})},250)}
 let MYU=null;
 async function ensureUser(){
  const url='/databases/'+DB+'/collections/users/documents',pre=ME.email.split('@')[0].toLowerCase(),em=ME.email.toLowerCase();
