@@ -23,7 +23,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Vazirmatn",syst
 @media (pointer:coarse){#app,#tgv{max-width:none!important}}
 /* fill the whole screen: remove the blank band under the input bar (day: white, night: black) */
 /* raise bottom controls by 20px (change --up to adjust) */
-@media (orientation:portrait){:root{--up:10px}.inb:not(.kbo){padding-bottom:calc(env(safe-area-inset-bottom) + 8px + var(--up))!important}.tabbar{bottom:calc(env(safe-area-inset-bottom) + 12px + var(--up))!important}.eb{bottom:calc(env(safe-area-inset-bottom) + 14px + var(--up))!important}.dn{bottom:calc(env(safe-area-inset-bottom) + 84px + var(--up))!important}}
+@media (orientation:portrait){:root{--up:10px}.inb:not(.kbo){padding-bottom:calc(env(safe-area-inset-bottom) + 13px + var(--up))!important}.tabbar{bottom:calc(env(safe-area-inset-bottom) + 12px + var(--up))!important}.eb{bottom:calc(env(safe-area-inset-bottom) + 14px + var(--up))!important}.dn{bottom:calc(env(safe-area-inset-bottom) + 84px + var(--up))!important}}
 @supports (height:100lvh){html,body{height:100lvh}#app{top:0;bottom:auto;margin-top:0;height:calc(100lvh + env(safe-area-inset-bottom,0px))}}
 @media (pointer:coarse){#mc,#cr,#vw,#mp,#sp,#ng{max-width:none!important}}
 @media (pointer:coarse) and (orientation:landscape){
@@ -71,7 +71,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
 .cnt{background:#a8a8ad;color:#fff;border-radius:99px;font-size:12px;min-width:21px;padding:2px 6px;text-align:center;font-weight:700}.cnt.g{background:var(--ac)}
 .srch{margin:6px 14px 10px;background:rgba(120,120,128,.12);border-radius:12px;display:flex;align-items:center;gap:8px;padding:9px 12px;color:var(--t2)}
 #csc .srch{position:sticky;top:calc(env(safe-area-inset-top) + 57px);z-index:8;margin:6px 14px 5px;transform-origin:top;transition:transform .25s,opacity .25s;background-color:var(--bg);background-image:linear-gradient(rgba(120,120,128,.12),rgba(120,120,128,.12))}#csc .srch.cl{transform:scaleY(0);opacity:0;pointer-events:none}
-.srch input{flex:1;direction:rtl;-webkit-user-select:text;user-select:text}
+.srch input{flex:1;direction:rtl;-webkit-user-select:text;user-select:text}.qx{display:flex;flex:none;cursor:pointer}.srch input:placeholder-shown+.qx{display:none}
 .row{display:flex;align-items:center;padding:0 14px;gap:12px;position:relative;transition:transform .3s,opacity .3s,max-height .3s,background .2s;max-height:96px;overflow:hidden}
 .row.p{background:var(--pin)}.row:active{background:rgba(120,120,128,.14)}
 .row.del{max-height:0;opacity:0}
@@ -137,7 +137,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
 .dts{align-self:center;background:rgba(0,0,0,.3);color:#fff;border-radius:99px;font-size:14px;font-weight:500;padding:3px 12px;margin:8px 0}
 .typ{align-self:flex-start;display:flex;gap:4px;padding:12px 14px}.typ i{width:7px;height:7px;border-radius:50%;background:var(--t2);animation:tp 1s infinite}.typ i:nth-child(2){animation-delay:.15s}.typ i:nth-child(3){animation-delay:.3s}
 @keyframes tp{50%{transform:translateY(-5px);opacity:.4}}
-.inb{position:absolute;left:0;right:0;bottom:0;padding:8px 12px calc(env(safe-area-inset-bottom) + 8px);z-index:6}
+.inb{position:absolute;left:0;right:0;bottom:0;padding:8px 12px calc(env(safe-area-inset-bottom) + 13px);z-index:6}
 .rpl{margin:0 8px 6px;border-radius:18px;padding:8px 14px;display:flex;align-items:center;gap:10px;font-size:14px}
 .rpl .bar{width:2.5px;align-self:stretch;background:var(--ac);border-radius:2px}.rpl div{flex:1;min-width:0}.rpl span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t2)}
 .irow{display:flex;gap:8px;align-items:flex-end}
@@ -204,7 +204,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
  <div id="main" class="pg">
   <div id="t-contacts" class="tab hide"><div class="top"><span class="tb gl press" onclick="toast('به‌زودی')">ویرایش</span><div class="ttl">مخاطبین</div><span class="tb gl press" onclick="toast('به‌زودی')" id="ic-plus"></span></div><div class="sc"><div class="srch"><span id="ic-s1"></span><input placeholder="جستجوی مخاطبین"></div><div id="clist"></div></div></div>
   <div id="t-chats" class="tab"><div class="top"><button class="tb gl press" id="edt">ویرایش</button><div class="ttl" id="ctt"><div class="spin"></div>در حال اتصال…</div><div style="display:flex;gap:8px"><span class="tb gl press" id="ic-pen"></span></div></div>
-   <div class="sc" id="csc"><div id="hd"><div class="srch"><span id="ic-s2"></span><input id="q" placeholder="جستجو"></div><div class="chips gl" id="chips"></div></div><div id="list"></div></div></div>
+   <div class="sc" id="csc"><div id="hd"><div class="srch"><span id="ic-s2"></span><input id="q" placeholder="جستجو"><span class="qx" id="qx"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".5"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span></div><div class="chips gl" id="chips"></div></div><div id="list"></div></div></div>
   <div id="t-settings" class="tab hide"><div class="top"><span class="tb gl press" onclick="toast('به‌زودی')" id="ic-qr"></span><div class="ttl">تنظیمات</div><span class="tb gl press" onclick="openMyProfile()">ویرایش</span></div><div class="sc" id="ssc"></div></div>
   <div class="eb gl h hide" id="eb" style="background:none;box-shadow:none"><button class="gl press" onclick="bulk('read')">خواندن</button><button class="gl press" style="color:var(--red)" onclick="bulk('del')">حذف</button></div>
   <div class="tabbar gl" id="tabbar"></div>
@@ -504,6 +504,7 @@ $('#ic-plus').innerHTML=I('plus');$('#ic-pen').innerHTML=I('pen');$('#ic-qr').in
 $('#rpx').innerHTML=I('x',20);$('#llc').innerHTML=I('loc',20);$('#dn').innerHTML=I('down',24);$('#att').innerHTML=I('clip',24);
 $('#q').oninput=e=>{sq=e.target.value.trim();drawList();let g=$('#gres');if(!g){g=document.createElement('div');g.id='gres';$('#list').before(g)}globalFind(sq,g)};
 {const ci=$('#t-contacts .srch input');if(ci){const g=document.createElement('div');g.id='gres2';$('#clist').before(g);ci.oninput=()=>globalFind(ci.value.trim(),g)}}
+{const x=$('#qx'),q=$('#q');if(x&&q){x.onmousedown=e=>e.preventDefault();x.onclick=()=>{q.value='';q.dispatchEvent(new Event('input',{bubbles:true}));q.focus()}}}
 {const sc=$('#csc'),H=()=>$('#csc .srch').offsetHeight+16;let st;
 window.hideSrch=()=>{sc.style.scrollBehavior='auto';sc.scrollTop=H();sc.style.scrollBehavior=''};
 const sr=$('#csc .srch'),qi=$('#q');let last=0,cl=0;const set=c=>{cl=c;sr.classList.toggle('cl',!!c);$('#hd').style.transform=c?`translateY(-${sr.offsetHeight+5}px)`:''};
@@ -807,7 +808,7 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=',
 #cp .bt button{font-size:18px;padding:10px 14px;color:#fff}#cp .bt .ok{color:#4cd964;font-weight:700}
 #cp .pvw{display:flex;justify-content:center;padding:8px 0 0;background:#000;font-size:13px;color:#aaa}
 
-.inb{transition:bottom .12s}.inb.kbo{padding-bottom:2px}
+.inb{transition:bottom .12s}.inb.kbo{padding-bottom:7px}
 #chat.kbo2 #msgs{padding-bottom:calc(var(--ibh,56px) + 5px)}
 #ro,#ro *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 #ro .pv,#ro .pl,#ro .hd,#ro .pv *{touch-action:none}
@@ -1683,19 +1684,36 @@ const fa=n=>Number(n).toLocaleString('fa');
 let dbp;const openDB=()=>dbp||(dbp=new Promise((res,rej)=>{try{const r=indexedDB.open('link-cache',1);r.onupgradeneeded=()=>{r.result.createObjectStore('kv');r.result.createObjectStore('media')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}));
 const tx=(s,mode,f)=>openDB().then(d=>new Promise((res,rej)=>{const t=d.transaction(s,mode),q=f(t.objectStore(s));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)}));
 const san=(k,v)=>(k[0]=='_'||k=='url'||k=='u')?undefined:v;
-let last='',ready=0;
-async function putMedia(x,key,url,setter){try{const b=await (await fetch(url)).blob();await tx('media','readwrite',o=>o.put(b,key));setter()}catch(e){}}
+let last='',ready=0,MT={},MTd=0;
+async function putMedia(x,key,url,setter){try{const b=await (await fetch(url)).blob();await tx('media','readwrite',o=>o.put(b,key));MT[key]=Date.now();MTd=1;setter()}catch(e){}}
 async function tick(){if(!ready)return;try{for(const c of C){for(const x of c.msgs){
  if(x.url&&!x._ck){x._ck=1;putMedia(x,c.id+':'+x.id,x.url,()=>{x.hb=1})}
  if(x.items)x.items.forEach((it,k)=>{if(it.u&&!it._ck){it._ck=1;putMedia(it,c.id+':'+x.id+':'+k,it.u,()=>{it.hb=1})}})}}
- const s=JSON.stringify(C,san);if(s!==last){last=s;await tx('kv','readwrite',o=>o.put(s,'chats'))}}catch(e){}}
-async function restore(){try{const s=await tx('kv','readonly',o=>o.get('chats'));if(s){const a=JSON.parse(s);
- for(const sc of a){let c=C.find(q=>q.id==sc.id);if(c)Object.assign(c,sc);else{C.push(sc);c=sc}
-  for(const x of c.msgs){M=Math.max(M,x.id|0);if(x.dl==='ing')x.dl=0;
+ const s=JSON.stringify(C,san);if(s!==last){last=s;await tx('kv','readwrite',o=>o.put(s,'chats'))}if(MTd){MTd=0;await tx('kv','readwrite',o=>o.put(JSON.stringify(MT),'mts'))}}catch(e){}}
+async function restore(){ready=0;restore.done=0;const jobs=[];
+ try{const s=await tx('kv','readonly',o=>o.get('chats'));
+  try{const m=await tx('kv','readonly',o=>o.get('mts'));MT=m?JSON.parse(m):{}}catch(e){MT={}}
+  if(s){const a=JSON.parse(s);
+   for(const sc of a){let c=C.find(q=>q.id==sc.id);if(c)Object.assign(c,sc);else{C.push(sc);c=sc}
+    for(const x of c.msgs){M=Math.max(M,x.id|0);if(x.dl==='ing')x.dl=0;if(x.hb||x.items)jobs.push([c,x])}}
+   last=JSON.stringify(C,san);drawList();if(typeof drawContacts=='function')drawContacts()}}catch(e){}
+ ready=1;restore.done=1;
+ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+ (async()=>{for(const [c,x] of jobs){try{
    if(x.hb){const b=await tx('media','readonly',o=>o.get(c.id+':'+x.id));if(b){x.url=URL.createObjectURL(b);x._ck=1}else{x.hb=0;if(!x.out)x.dl=0}}
-   if(x.items){let miss=0;for(let k=0;k<x.items.length;k++){const it=x.items[k];let b=null;if(it.hb)b=await tx('media','readonly',o=>o.get(c.id+':'+x.id+':'+k));if(b){it.u=URL.createObjectURL(b);it._ck=1}else{it.u=it.t||'';it.hb=0;miss=1}}if(miss&&!x.out)x.dl=0}}}
- last=JSON.stringify(C,san);drawList();if(typeof drawContacts=='function')drawContacts()}}catch(e){}ready=1}
-restore();setInterval(tick,3000);addEventListener('pagehide',tick);
+   if(x.items){let miss=0;for(let k=0;k<x.items.length;k++){const it=x.items[k];let b=null;if(it.hb)b=await tx('media','readonly',o=>o.get(c.id+':'+x.id+':'+k));if(b){it.u=URL.createObjectURL(b);it._ck=1}else{it.u=it.t||'';it.hb=0;miss=1}}if(miss&&!x.out)x.dl=0}
+  }catch(e){}}
+  if(jobs.length&&cur)try{drawMsgs()}catch(e){}
+  try{await purgeOld()}catch(e){}})()}
+async function purgeOld(){const d=+ld('keepDays')||0;if(!d)return;const now=Date.now(),cut=now-d*864e5;let ks=[];try{ks=await tx('media','readonly',o=>o.getAllKeys())||[]}catch(e){return}
+ const old=[];ks.forEach(k=>{if(!MT[k]){MT[k]=now;MTd=1}else if(MT[k]<cut)old.push(k)});if(!old.length)return;
+ try{await tx('media','readwrite',o=>{old.forEach(k=>o.delete(k))})}catch(e){return}
+ old.forEach(k=>{delete MT[k];const [cid,xid,ix]=String(k).split(':');const c=C.find(q=>String(q.id)==cid),x=c&&c.msgs.find(q=>String(q.id)==xid);if(!x)return;x._ck=1;
+  if(ix!==undefined&&x.items&&x.items[+ix]){const it=x.items[+ix];it._ck=1;it.hb=0;it.u=it.t||'';if(!x.out)x.dl=0}
+  else{x.hb=0;if(!x.out){if(x.url){try{URL.revokeObjectURL(x.url)}catch(e){}x.url=null;x._v=x._a=null}x.dl=0}}});
+ MTd=1;last='';await tick();if(cur)drawMsgs()}
+window.cacheRestore=restore;window.cacheWipe=async()=>{ready=0;restore.done=0;MT={};MTd=0;try{await tx('kv','readwrite',o=>o.clear());await tx('media','readwrite',o=>o.clear())}catch(e){}last=''};
+setInterval(tick,3000);addEventListener('pagehide',tick);
 const fmtB=n=>n<1024?fa(n)+' بایت':n<1048576?fa(Math.round(n/1024))+' کیلوبایت':fa((n/1048576).toFixed(1))+' مگابایت';
 async function usage(){let media=0;try{const d=await openDB();await new Promise(r=>{const q=d.transaction('media').objectStore('media').openCursor();q.onsuccess=()=>{const c=q.result;if(c){media+=c.value.size||0;c.continue()}else r()};q.onerror=()=>r()})}catch(e){}return{media,chats:last.length}}
 window.openCache=async()=>{const u=await usage();const b=openSheet('حافظه و کش',`<div class="card"><div class="sr"><span style="flex:1">رسانه‌های دانلودشده</span><span class="v">${fmtB(u.media)}</span></div><div class="sr"><span style="flex:1">گفتگوهای ذخیره‌شده</span><span class="v">${fmtB(u.chats)}</span></div></div><div class="cap">عکس، ویدیو و پیام‌های صوتی دانلودشده روی همین دستگاه می‌مانند تا دوباره دانلود نشوند. بعد از پاک‌کردن کش، رسانه‌های دریافتی را باید دوباره دستی دانلود کنید.</div><div class="card"><div class="sr press" id="cc1" style="color:var(--red)">پاک‌کردن رسانه‌های دانلودشده</div><div class="sr press" id="cc2" style="color:var(--red)">پاک‌کردن گفتگوهای ذخیره‌شده</div></div>`);
@@ -1725,10 +1743,12 @@ window.openCache=async()=>{const R=await scanMedia(),tot={im:0,vd:0,au:0,fl:0,ot
  const bar=tot.t?`<div class="stk">${CATS.filter(k=>tot[k[0]]>0).map(k=>`<i style="flex:${tot[k[0]]};background:${k[2]}"></i>`).join('')}</div>`:'';
  const b=openSheet('ذخیره‌سازی و اطلاعات',`<div class="card"><div class="sr"><span style="flex:1">رسانه‌های دانلودشده</span><span class="v">${fmtB(tot.t)}</span></div>${bar?`<div style="padding:0 16px 12px">${bar}</div>`:''}${CATS.filter(k=>tot[k[0]]>0).map(k=>`<div class="sr"><i class="dt" style="background:${k[2]}"></i><span style="flex:1;margin-right:10px">${k[1]}</span><span class="v">${fmtB(tot[k[0]])}</span></div>`).join('')}</div>
  <div class="card"><div class="sr press" id="q1"><span style="flex:1">مشاهده لیمیت روزانه</span><span>›</span></div></div>
+<div class="card"><div class="sr press" id="kd"><span style="flex:1">نگهداری رسانه‌ها روی دستگاه</span><span class="v" id="kdv"></span></div></div><div class="cap">گفتگوها و پیام‌های متنی همیشه ذخیره می‌مانند؛ رسانه‌ها طبق این مدت.</div>
  <div class="cap">گفتگوها</div><div class="card">${list.length?list.map(c=>`<div class="sr press" data-c="${c.id}">${av(c,36)}<span style="flex:1;margin-right:10px" dir="auto">${esc(c.n)}</span><span class="v">${fmtB(R[String(c.id)].t)}</span></div>`).join(''):'<div class="em" style="padding:20px">رسانه‌ای ذخیره نشده است</div>'}</div>
  <div class="cap">با پاک‌کردن کش، رسانه‌های دریافتی را باید دوباره دستی دانلود کنید.</div>
  <div class="card"><div class="sr press" id="cc1" style="color:var(--red)">پاک‌کردن همهٔ رسانه‌های دانلودشده</div><div class="sr press" id="cc2" style="color:var(--red)">پاک‌کردن گفتگوهای ذخیره‌شده</div></div>`);
  b.querySelector('#q1').onclick=()=>openQuota();
+ {const O=[[0,'همیشه'],[30,'۳۰ روز'],[7,'۷ روز'],[1,'۱ روز']],cv=()=>{const d=+ld('keepDays')||0;return Math.max(0,O.findIndex(o=>o[0]==d))};b.querySelector('#kdv').textContent=O[cv()][1];b.querySelector('#kd').onclick=()=>{const n=O[(cv()+1)%O.length];sv('keepDays',String(n[0]));b.querySelector('#kdv').textContent=n[1];if(n[0])purgeOld().catch(()=>{})}}
  b.querySelectorAll('[data-c]').forEach(e=>e.onclick=()=>openChatStorage(e.dataset.c,R));
  b.querySelector('#cc1').onclick=async()=>{try{await tx('media','readwrite',o=>o.clear())}catch(e){}
   C.forEach(c=>c.msgs.forEach(x=>{x._ck=1;x.hb=0;if(x.items)x.items.forEach(it=>{it._ck=1;it.hb=0});if(!x.out&&(x.type=='rv'||x.type=='vc'||x.type=='al'||x.type=='fl'||x.type=='im')){if(x.url){try{URL.revokeObjectURL(x.url)}catch(e){}x.url=null;x._v=x._a=null}x.dl=0}}));
@@ -2902,7 +2922,7 @@ async function allUsers(force){if(!force&&UAll&&Date.now()-UAll<60000)return;let
 function lev(a,b){const m=a.length,n=b.length;if(!m)return n;let p=[...Array(n+1).keys()];for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]==b[j-1]?0:1));p=c}return p[n]}
 function scoreU(u,q){const un=(u.uname||'').toLowerCase(),nm=(u.name||'').toLowerCase(),em=(u.email||'').toLowerCase();let s=0;if(em&&q.length>=3){if(em==q)return 100;if(em.startsWith(q))return 90}if(un==q)s=100;else if(un.startsWith(q))s=85;else if(nm.startsWith(q))s=75;else if(un.includes(q))s=60;else if(nm.includes(q))s=50;else{const d=Math.min(lev(q,un.slice(0,q.length+1)),lev(q,nm.slice(0,q.length+1)));if(d<=Math.max(1,Math.floor(q.length/3)))s=30-d*5}return s}
 let gT=0,gSeq=0;
-function globalFind(q,box){const id=++gSeq;clearTimeout(gT);q=q.trim().toLowerCase();q=q.replace(/^@/,'');box.innerHTML='';if(q.length<2)return;box.innerHTML='<div class="tm" style="padding:12px 16px">در حال جستجو…</div>';gT=setTimeout(async()=>{let er='';try{await allUsers()}catch(e){er=(e&&e.message)||'خطا'}if(id!==gSeq)return;if(er&&!UD.size){box.innerHTML='<div class="tm" style="padding:12px 16px">دریافت کاربران ناموفق بود: '+esc(er)+'</div>';return}const L=[...UD.values()].filter(u=>u.$id!=ME.$id).map(u=>[Math.max(scoreU(u,q),q.indexOf('@')>0?scoreU(u,q.split('@')[0])-10:0),u]).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1]);box.innerHTML=L.length?'<div class="tm" style="padding:6px 16px;background:rgba(120,120,128,.12);font-size:13px">جستجوی سراسری</div>'+L.map(u=>`<div class="row" data-u="${u.$id}">${av({id:hid(u.$id),n:u.name||u.uname||'کاربر',ph:u.photo||''},50)}<div class="rb" style="padding:9px 0;direction:ltr;text-align:left"><div class="nm" dir="ltr" style="justify-content:flex-start;text-align:left">${esc(u.name||u.uname||'کاربر')}</div><div class="tm" dir="ltr" style="text-align:left">@${esc(u.uname||'')}</div></div></div>`).join(''):'<div class="tm" style="padding:12px 16px">کاربری پیدا نشد</div>';box.querySelectorAll('.row').forEach(r=>r.onclick=()=>{const u=UD.get(r.dataset.u);addUsers([u]);const c=chatOf(u.$id);if(c){c.keep=1;drawList();drawContacts();openChat(c.id)}})},250)}
+function globalFind(q,box){const id=++gSeq;clearTimeout(gT);q=q.trim().toLowerCase();q=q.replace(/^@/,'');box.innerHTML='';if(q.length<2)return;box.innerHTML='<div class="tm" style="padding:12px 16px">در حال جستجو…</div>';gT=setTimeout(async()=>{let er='';try{await allUsers()}catch(e){er=(e&&e.message)||'خطا'}if(id!==gSeq)return;if(er&&!UD.size){box.innerHTML='<div class="tm" style="padding:12px 16px">دریافت کاربران ناموفق بود: '+esc(er)+'</div>';return}const L=[...UD.values()].filter(u=>u.$id!=ME.$id).map(u=>[Math.max(scoreU(u,q),q.indexOf('@')>0?scoreU(u,q.split('@')[0])-10:0),u]).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1]);box.innerHTML=L.length?'<div class="tm" style="padding:6px 16px;background:rgba(120,120,128,.12);font-size:13px">جستجوی سراسری</div>'+L.map(u=>`<div class="row" data-u="${u.$id}">${av({id:hid(u.$id),n:u.name||u.uname||'کاربر',ph:u.photo||''},50)}<div class="rb" style="padding:9px 0;direction:ltr;text-align:left;display:flex;flex-direction:column;align-items:flex-start"><div class="nm" style="unicode-bidi:isolate;max-width:100%">${esc(u.name||u.uname||'کاربر')}</div><div class="tm" style="unicode-bidi:isolate;direction:ltr">@${esc(u.uname||'')}</div></div></div>`).join(''):'<div class="tm" style="padding:12px 16px">کاربری پیدا نشد</div>';box.querySelectorAll('.row').forEach(r=>r.onclick=()=>{const u=UD.get(r.dataset.u);addUsers([u]);const c=chatOf(u.$id);if(c){c.keep=1;drawList();drawContacts();openChat(c.id)}})},250)}
 let MYU=null;
 async function ensureUser(){
  const url='/databases/'+DB+'/collections/users/documents',pre=ME.email.split('@')[0].toLowerCase(),em=ME.email.toLowerCase();
@@ -3167,14 +3187,14 @@ function wipeCache(){try{const r=indexedDB.open('link-cache',1);r.onsuccess=()=>
 function wipeSync(){['sy:','cn:','rc:'].forEach(k=>{if(ME)ls(k+ME.$id,'')})}
 async function boot(){
  ME=await api('GET','/account');await ensureUser();
- if(lg('uid')!==ME.$id){wipeCache();wipeSync();C.length=0;C.push(SAVED())}
- ls('uid',ME.$id);
+ if(lg('uid')!==ME.$id){await cacheWipe();wipeSync();C.length=0;C.push(SAVED())}
+ ls('uid',ME.$id);if(!cacheRestore.done)await cacheRestore();
  const u={n:ME.name||ME.email.split('@')[0],e:ME.email,un:(MYU&&MYU.uname)||ME.email.split('@')[0].toLowerCase()};try{const o=JSON.parse(lg('u')||'{}');if(o.b)u.b=o.b}catch(_){}ls('u',JSON.stringify(u));
  HID.clear();loadHG();await loadHides();
  await loadUsers();C.forEach(c=>{if(c.gid)GR.set(c.gid,c)});
  try{await loadGroups()}catch(e){}
  sweep();enter(u);drawList();drawContacts();drawTabs();
- await pull(lg('sy:'+ME.$id)?'inc':'full');
+ await pull(lg('sy:'+ME.$id)&&C.some(c=>c.msgs.length)?'inc':'full');
  connectWS();loop();
  setTimeout(async()=>{
   if(!ME)return;sweep();reindex();
@@ -3200,7 +3220,8 @@ logout=function(){
 drawList();drawContacts();
 (async()=>{
  if(!lg('cookieFallback')&&!lg('u'))return;
- try{await boot()}catch(e){
+ try{if(lg('uid'))await cacheRestore()}catch(_){}
+  try{await boot()}catch(e){
   if(e.code==401||e.code==404){ME=null;ls('u','');C.length=0;C.push(SAVED());$('#auth').classList.remove('gone');drawList();drawContacts()}}
 })();
 })();
