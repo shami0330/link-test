@@ -498,8 +498,8 @@ function enter(u){logged=1;sq='';['#q','#t-contacts .srch input'].forEach(k=>{co
 {const d=ld('dark');if(d||matchMedia('(prefers-color-scheme:dark)').matches&&d==null){document.documentElement.classList.add('dark');$('#app').classList.add('dark')}
 $('#ic-plus').innerHTML=I('plus');$('#ic-pen').innerHTML=I('pen');$('#ic-qr').innerHTML=I('qr');$('#ic-s1').innerHTML=I('search',20);$('#ic-s2').innerHTML=I('search',20);
 $('#rpx').innerHTML=I('x',20);$('#llc').innerHTML=I('loc',20);$('#dn').innerHTML=I('down',24);$('#att').innerHTML=I('clip',24);
-$('#q').oninput=e=>{sq=e.target.value.trim();drawList();let g=$('#gres');if(!g){g=document.createElement('div');g.id='gres';$('#list').after(g)}globalFind(sq,g)};
-{const ci=$('#t-contacts .srch input');if(ci){const g=document.createElement('div');g.id='gres2';$('#clist').after(g);ci.oninput=()=>globalFind(ci.value.trim(),g)}}
+$('#q').oninput=e=>{sq=e.target.value.trim();drawList();let g=$('#gres');if(!g){g=document.createElement('div');g.id='gres';$('#list').before(g)}globalFind(sq,g)};
+{const ci=$('#t-contacts .srch input');if(ci){const g=document.createElement('div');g.id='gres2';$('#clist').before(g);ci.oninput=()=>globalFind(ci.value.trim(),g)}}
 {const sc=$('#csc'),H=()=>$('#csc .srch').offsetHeight+16;let st;
 window.hideSrch=()=>{sc.style.scrollBehavior='auto';sc.scrollTop=H();sc.style.scrollBehavior=''};
 const sr=$('#csc .srch'),qi=$('#q');let last=0,cl=0;const set=c=>{cl=c;sr.classList.toggle('cl',!!c);$('#hd').style.transform=c?`translateY(-${sr.offsetHeight+5}px)`:''};
