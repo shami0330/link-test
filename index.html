@@ -423,7 +423,7 @@ mr.ondataavailable=e=>{e.data.size&&R.ch.push(e.data);if(R.want){R.want=0;showPv
 mr.onstop=async()=>{const R2=R;ui(R2);if(!R2.send)return;const mime=mr.mimeType||mt,d=R2.acc/1000;let blob=new Blob(R2.ch,{type:mime}),s=R2.s*d,e=R2.e*d;const tb=(R2.s>.01||R2.e<.99)?trimBlob(blob,mime,R2.vid,s,e).catch(()=>blob):null;
 const sec=Math.max(1,Math.ceil(Math.min(S.max||1e9,e-s))),L=R2.pk.length,p0=Math.floor(R2.s*L),p1=Math.max(p0+1,Math.ceil(R2.e*L)),pk=R2.pk.slice(p0,p1),mx=Math.max(.05,...pk);
 const wf=Array.from({length:64},(_,i)=>{const a=Math.floor(i*pk.length/64),b=Math.max(a+1,Math.floor((i+1)*pk.length/64));let m=0;for(let k=a;k<b&&k<pk.length;k++)m=Math.max(m,pk[k]);return Math.round(Math.min(1,m/mx)*31)});
-const ob=m(1,'',T(),{type:R2.vid?'rv':'vc',du:fmtD(sec),sec,url:URL.createObjectURL(blob),mime:blob.type,wf,wf5:pack5(wf),th:R2.th0||''});ob.st=1;addMsg(ob);reply(ob);tb&&tb.then(nb=>{if(!nb||nb===blob)return;const sw=()=>{if(typeof CUR!='undefined'&&CUR&&CUR.x===ob)return setTimeout(sw,800);ob.url=URL.createObjectURL(nb);ob._ck=0;ob.mime=nb.type;if(ob._v){ob._v.src=ob.url;ob._v.play().catch(()=>0)}if(ob._a)ob._a.src=ob.url};sw()})};
+const ob=m(1,'',T(),{type:R2.vid?'rv':'vc',du:fmtD(sec),sec,url:URL.createObjectURL(blob),mime:blob.type,wf,wf5:pack5(wf),th:R2.th0||''});ob.st=1;ob._tb=tb;addMsg(ob);reply(ob);tb&&tb.then(nb=>{if(!nb||nb===blob)return;const sw=()=>{if(typeof CUR!='undefined'&&CUR&&CUR.x===ob)return setTimeout(sw,800);ob.url=URL.createObjectURL(nb);ob._ck=0;ob.mime=nb.type;if(ob._v){ob._v.src=ob.url;ob._v.play().catch(()=>0)}if(ob._a)ob._a.src=ob.url};sw()})};
 mr.start();R.s0=performance.now();R.run=1;tick(R)}
 function tick(R){if(Z!==R)return;R.raf=requestAnimationFrame(()=>tick(R));const now=performance.now(),el=R.el=R.acc+(R.run?now-R.s0:0),S=RC[R.mode];
 R.an.getByteTimeDomainData(R.buf);let q=0;for(const x of R.buf)q+=(x-128)*(x-128);R.lv=R.lv*.72+Math.min(1,Math.sqrt(q/R.buf.length)/128*4)*.28;
@@ -2851,6 +2851,346 @@ window.upfBind=()=>{const s=document.getElementById('ssc');if(!s||s._upfB)return
  s.addEventListener('touchend',fin,{passive:true});s.addEventListener('touchcancel',fin,{passive:true})};
 {const _dsU=drawSettings;drawSettings=function(){const r=_dsU.apply(this,arguments);try{upfBind()}catch(e){}return r}}
 try{upfBind()}catch(e){}
+})();
+</script>
+<script>
+(()=>{
+const EP='https://fra.cloud.appwrite.io/v1',PJ='6ad968ee002c73c4ca9a',DB='link',BK='media';
+const _f=window.fetch.bind(window);
+const lg=k=>{try{return localStorage.getItem(k)}catch(e){}},ls=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+let ME=null,timer=0,busy=0,ws=null,pingT=0,wsRetry=0,MODE=0,MODET=0;
+const IDX=new Map(),HID=new Set(),GR=new Map(),UN=new Map(),UNK=new Map();
+let HIDDEN=new Set();
+const SAVED=()=>({id:2,n:'پیام‌های ذخیره‌شده',t:'pv',saved:1,pin:1,time:'',last:'',msgs:[]});
+C.length=0;C.push(SAVED());
+const hid=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0)%1073741824+1000};
+const rid=()=>'m'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const hdr=()=>{const h={'X-Appwrite-Project':PJ};const fc=lg('cookieFallback');if(fc)h['X-Fallback-Cookies']=fc;return h};
+async function api(method,path,body){
+ const h=hdr();h['Content-Type']='application/json';
+ const r=await _f(EP+path,{method,headers:h,credentials:'include',body:body?JSON.stringify(body):undefined});
+ const f=r.headers.get('X-Fallback-Cookies');if(f)ls('cookieFallback',f);
+ let j={};try{j=await r.json()}catch(e){}
+ if(!r.ok){const e=new Error(j.message||('HTTP '+r.status));e.code=r.status;throw e}
+ return j}
+async function hub(a,p){
+ const r=await api('POST','/functions/hub/executions',{body:JSON.stringify(Object.assign({a},p||{})),async:false,path:'/',method:'POST',headers:{'content-type':'application/json'}});
+ let j={};try{j=JSON.parse(r.responseBody||'{}')}catch(e){}
+ if(!j.ok)throw new Error(j.err||(r.status=='failed'?'تابع سرور اجرا نشد (اسکریپت ساخت اجرا شده؟)':'خطای سرور'));
+ return j}
+window.fetch=function(u,o){if(typeof u=='string'&&u.startsWith('appwrite:'))return _f(EP+'/storage/buckets/'+BK+'/files/'+u.slice(9)+'/view',{headers:hdr(),credentials:'include'});return _f(u,o)};
+const qs=a=>a.map((q,i)=>'queries['+i+']='+encodeURIComponent(JSON.stringify(q))).join('&');
+const em=e=>e.code===401?'ایمیل یا رمز اشتباه است':e.code===409?'این ایمیل قبلاً ثبت شده':e.code===429?'تلاش زیاد؛ کمی صبر کنید':e.code===404?'ساختار سرور آماده نیست (اسکریپت ساخت را اجرا کنید)':e.name==='TypeError'?'اتصال برقرار نشد (آدرس سایت در Appwrite ثبت شده؟)':(e.message||'خطا');
+const pad=n=>String(n).padStart(2,'0');
+const fmt=s=>{const d=new Date(s);return d.getHours()+':'+pad(d.getMinutes())};
+const dayL=s=>{const d=new Date(s),n=new Date();return d.toDateString()==n.toDateString()?fmt(s):d.toLocaleDateString('fa',{month:'short',day:'numeric'})};
+const szT=n=>{n=n||0;return n<1048576?Math.max(1,Math.round(n/1024)).toLocaleString('fa')+' KB':(n/1048576).toFixed(1).replace('.','٫')+' MB'};
+const lbl=o=>o.type=='st'?'استیکر':o.type=='vc'?'پیام صوتی':o.type=='rv'?'ویدیو پیام':(o.type=='al'||o.type=='fl')?(window._lblMsg?window._lblMsg(o):'رسانه'):o.text;
+const isGrp=c=>c&&(c.t=='gp'||c.t=='ch');
+const nameOf=u=>(ME&&u==ME.$id)?'شما':(UN.get(u)||'کاربر');
+const chatOf=u=>C.find(c=>c.uid==u);
+function reindex(){IDX.clear();C.forEach(c=>c.msgs.forEach(x=>{if(x.sid)IDX.set(x.sid,x)}))}
+function sweep(){for(let i=C.length-1;i>=0;i--){const c=C[i];if(!c.uid&&!c.gid&&!c.saved&&!isGrp(c))C.splice(i,1)}}
+/* ---------- نمایش ---------- */
+function keep(){if(!cur)return;const b=$('#msgs'),st=b.scrollTop,h=b.scrollHeight,near=h-st-b.clientHeight<90;drawMsgs();b.style.scrollBehavior='auto';b.scrollTop=near?b.scrollHeight:st;setTimeout(()=>{b.style.scrollBehavior='smooth'},30)}
+function redraw(x){drawList();const c=x&&C.find(q=>q.msgs&&q.msgs.includes(x));if(c&&cur===c)keep()}
+let rdT=0;function soft(){clearTimeout(rdT);rdT=setTimeout(()=>{drawList();keep()},200)}
+/* ---------- کاربران ---------- */
+function addUsers(list){let n=0;list.forEach(u=>{if(u.$id==ME.$id||chatOf(u.$id))return;C.push({id:hid(u.$id),n:u.name||u.uname||'کاربر',t:'pv',uid:u.$id,user:u.uname||'',time:'',last:'شروع گفتگو',seen:'عضو لینک',msgs:[]});n++});return n}
+async function loadUsers(){const r=await api('GET','/databases/'+DB+'/collections/users/documents?'+qs([{method:'limit',values:[100]}]));r.documents.forEach(u=>UN.set(u.$id,u.name||u.uname||'کاربر'));return addUsers(r.documents)}
+async function ensureUser(){
+ try{await api('GET','/databases/'+DB+'/collections/users/documents/'+ME.$id)}
+ catch(e){if(e.code!=404)throw e;
+  await api('POST','/databases/'+DB+'/collections/users/documents',{documentId:ME.$id,data:{name:ME.name||ME.email.split('@')[0],uname:ME.email.split('@')[0]},permissions:['read("users")','update("user:'+ME.$id+'")','delete("user:'+ME.$id+'")']})}}
+async function loadHides(){let after='';for(let i=0;i<50;i++){const q=[{method:'limit',values:[100]}];if(after)q.push({method:'cursorAfter',values:[after]});const r=await api('GET','/databases/'+DB+'/collections/hides/documents?'+qs(q));r.documents.forEach(d=>HID.add(d.mid));if(r.documents.length<100)break;after=r.documents[r.documents.length-1].$id}}
+const loadHG=()=>{try{HIDDEN=new Set(JSON.parse(lg('hg:'+ME.$id)||'[]'))}catch(e){HIDDEN=new Set()}};
+const saveHG=()=>ls('hg:'+ME.$id,JSON.stringify([...HIDDEN]));
+/* ---------- گروه و کانال ---------- */
+const memOf=g=>{try{return JSON.parse(g.mem||'[]')}catch(e){return []}};
+const pk=p=>Object.keys(p||{}).filter(k=>p[k]).sort().join(',');
+const uidOfM=m=>m.id=='me'?ME.$id:(m.uid||(C.find(x=>x.id==m.id)||{}).uid);
+const memNorm=c=>(c.members||[]).map(m=>({uid:uidOfM(m),role:m.role,perms:m.perms})).filter(m=>m.uid);
+const snapOf=c=>JSON.stringify({n:c.n,d:c.desc||'',p:c.ph||'',m:memNorm(c).map(m=>[m.uid,m.role,m.role=='admin'?pk(m.perms):'']).sort()});
+const memLocal=mem=>mem.map(x=>({id:x.uid==ME.$id?'me':hid(x.uid),uid:x.uid,n:nameOf(x.uid),role:x.role,perms:x.perms||undefined}));
+function dropLocal(c){GR.delete(c.gid);const i=C.indexOf(c);if(i>=0)C.splice(i,1);if(cur===c){try{closeChat()}catch(e){}}drawList()}
+function applyGroup(g){
+ if(HIDDEN.has(g.$id))return;
+ const mem=memOf(g),mine=mem.find(x=>x.uid==ME.$id);let c=GR.get(g.$id);
+ if(!mine){if(c)dropLocal(c);return}
+ if(!c){c={id:hid(g.$id),gid:g.$id,time:'',last:g.kind=='ch'?'کانال ساخته شد':'گروه ساخته شد',msgs:[],seen:''};C.splice(1,0,c);GR.set(g.$id,c)}
+ c.t=g.kind;c.n=g.name;c.desc=g.desc||'';c.ph=g.ph||'';c.link=g.link||'';c.pub=!!g.pub;c.my=mine.role;c.members=memLocal(mem);c._s=snapOf(c)}
+async function loadGroups(){
+ const docs=[];let after='';
+ for(let p=0;p<20;p++){const q=[{method:'limit',values:[100]}];if(after)q.push({method:'cursorAfter',values:[after]});const r=await api('GET','/databases/'+DB+'/collections/groups/documents?'+qs(q));r.documents.forEach(d=>docs.push(d));if(r.documents.length<100)break;after=r.documents[r.documents.length-1].$id}
+ const ids=new Set(docs.map(d=>d.$id));
+ docs.forEach(applyGroup);
+ GR.forEach((c,id)=>{if(!ids.has(id)&&!c._pend)dropLocal(c)});
+ drawList();drawContacts()}
+let sgT=0;const syncGroups=()=>{clearTimeout(sgT);sgT=setTimeout(runSync,350)};
+const memObj=(c,u)=>(c.members||[]).find(m=>uidOfM(m)==u);
+async function runSync(){
+ if(!ME)return;
+ for(const c of C.slice()){
+  if(!isGrp(c)||c._busy||!c.members)continue;
+  if(!c.gid){
+   c._busy=1;c.gid=rid();c._pend=1;GR.set(c.gid,c);
+   try{await hub('gcreate',{gid:c.gid,name:c.n,kind:c.t,desc:c.desc||'',link:c.link||'',pub:!!c.pub,ph:c.ph||'',uids:memNorm(c).map(m=>m.uid).filter(u=>u!=ME.$id)});c._s=snapOf(c);c._pend=0}
+   catch(e){toast(em(e));GR.delete(c.gid);const i=C.indexOf(c);if(i>=0)C.splice(i,1);if(cur===c){try{closeChat()}catch(x){}}drawList()}
+   c._busy=0;continue}
+  if(c._s===undefined||c._pend)continue;
+  const now=snapOf(c);if(now===c._s)continue;
+  c._busy=1;
+  try{
+   const o=JSON.parse(c._s),n=JSON.parse(now),gid=c.gid;
+   if(o.n!=n.n||o.d!=n.d||o.p!=n.p)await hub('gedit',{gid,name:c.n,desc:c.desc||'',ph:c.ph||''});
+   const om=new Map(o.m.map(x=>[x[0],x])),nm=new Map(n.m.map(x=>[x[0],x]));
+   const add=[...nm.keys()].filter(u=>!om.has(u));if(add.length)await hub('gadd',{gid,uids:add});
+   for(const u of om.keys())if(!nm.has(u))await hub('grm',{gid,uid:u});
+   for(const [u,x] of nm){const old=om.get(u);if(old&&(old[1]!=x[1]||old[2]!=x[2])){const mo=memObj(c,u);await hub('grole',{gid,uid:u,role:x[1],perms:(mo&&mo.perms)||{}})}}
+   c._s=now;
+  }catch(e){toast(em(e));try{await loadGroups()}catch(x){}}
+  c._busy=0}}
+function dropGroup(c,both){
+ if(!c||!c.gid)return;GR.delete(c.gid);const own=c.my=='owner';
+ if(own&&both)hub('gdel',{gid:c.gid}).catch(e=>toast(em(e)));
+ else if(!own)hub('gleave',{gid:c.gid}).catch(e=>toast(em(e)));
+ else{HIDDEN.add(c.gid);saveHG()}}
+const _dl0=drawList;drawList=function(){const r=_dl0.apply(this,arguments);syncGroups();return r};
+const _cc=closeChat;closeChat=function(){const r=_cc.apply(this,arguments);GR.forEach((c,id)=>{if(!C.includes(c)&&!c._drop){c._drop=1;dropGroup(c,c.my=='owner')}});return r};
+/* ---------- دانلود ---------- */
+const Q=[];let qn=0;
+function enq(fn){Q.push(fn);pump()}
+function pump(){while(qn<3&&Q.length){qn++;Q.shift()().catch(()=>{}).then(()=>{qn--;pump()})}}
+const dURL=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+async function blobOf(fid){const r=await _f(EP+'/storage/buckets/'+BK+'/files/'+fid+'/view',{headers:hdr(),credentials:'include'});if(!r.ok)throw new Error('dl');return r.blob()}
+const needDl=it=>!!it.fid&&!(it.u&&it.u!==it.t);
+/* فقط تامبنیل‌های کم‌حجم خودکار گرفته می‌شوند */
+function hydrate(x){
+ if(x.items)x.items.forEach(it=>{
+  if(it.tf&&!it.t)enq(async()=>{it.t=await dURL(await blobOf(it.tf));if(it.k=='p'&&!it.u)it.u=it.t;soft()});
+  else if(it.k=='p'&&!it.u&&it.t)it.u=it.t});
+ if(x.type=='rv'&&x.tf&&!x.th)enq(async()=>{x.th=await dURL(await blobOf(x.tf));soft()})}
+async function dlItem2(x,it){it._ing=1;decorate();try{it.u=URL.createObjectURL(await blobOf(it.fid))}catch(e){toast('دانلود ناموفق بود')}it._ing=0;redraw(x)}
+async function dlOut(x){toast('در حال دانلود…');try{x.url=URL.createObjectURL(await blobOf(x.fid));x.dl=1;redraw(x);toast('دانلود شد؛ دوباره لمس کنید')}catch(e){toast('دانلود ناموفق بود')}}
+const _ov=window.openVw;
+window.openVw=(id,k)=>{const x=cur&&cur.msgs.find(q=>q.id==id),it=x&&x.items&&x.items[k];if(it&&needDl(it)){if(!it._ing)dlItem2(x,it);return}return _ov(id,k)};
+const _di=window.dlItem;
+window.dlItem=async(id,k)=>{const x=cur&&cur.msgs.find(q=>q.id==id),it=x&&x.items&&x.items[k];if(it&&needDl(it)){if(it._ing)return;await dlItem2(x,it);if(needDl(it))return}return _di(id,k)};
+const _pv=window.playV;
+if(_pv)window.playV=function(b){const e=b&&b.closest&&b.closest('[data-id]'),x=e&&cur&&cur.msgs.find(q=>q.id==e.dataset.id);if(x&&x.out&&x.fid&&!x.url){dlOut(x);return}return _pv.apply(this,arguments)};
+const _rt=window.rvT;
+if(_rt)window.rvT=function(p){const e=p&&p.closest&&p.closest('[data-id]'),x=e&&cur&&cur.msgs.find(q=>q.id==e.dataset.id);if(x&&x.out&&x.fid&&!x.url){dlOut(x);return}return _rt.apply(this,arguments)};
+const css=document.createElement('style');
+css.textContent='.ai{position:relative;overflow:hidden}.ai.ndl img{filter:blur(7px);transform:scale(1.1)}.ai.ndl .pbd{display:none}.ndo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}.ndo b{width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.52);display:flex;align-items:center;justify-content:center;color:#fff}.ndo b svg{width:26px;height:26px}.ndo b i{width:24px;height:24px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:ndr .8s linear infinite}@keyframes ndr{to{transform:rotate(360deg)}}';
+document.head.appendChild(css);
+const ARR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M5 12l7 7 7-7"/></svg>';
+function decorate(){
+ if(!cur||!cur.msgs)return;
+ $$('#msgs .b.al').forEach(b=>{const x=cur.msgs.find(q=>q.id==b.dataset.id);if(!x||!x.items)return;
+  b.querySelectorAll('.ai').forEach((cell,j)=>{const it=x.items[j];if(!it||!needDl(it))return;cell.classList.add('ndl');
+   const o=cell.querySelector('.ndo');if(o)o.remove();
+   cell.insertAdjacentHTML('beforeend','<div class="ndo"><b>'+(it._ing?'<i></i>':ARR)+'</b></div>')})})}
+const _dm=drawMsgs;drawMsgs=function(){const r=_dm.apply(this,arguments);try{decorate()}catch(e){}return r};
+/* جلوگیری از پخش قسمت اضافه‌ی ویس/ویدیو‌پیام بعد از پایان زمان واقعی */
+function limitFor(src){if(!src)return 0;for(const c of C)for(const x of c.msgs)if((x.type=='vc'||x.type=='rv')&&x.url===src&&x.sec)return x.sec;return 0}
+const _pl=HTMLMediaElement.prototype.play;
+HTMLMediaElement.prototype.play=function(){if(!this._g){this._g=1;this.addEventListener('timeupdate',()=>{const s=limitFor(this.currentSrc||this.src);if(s&&this.currentTime>s+.3){try{this.pause()}catch(e){}this.dispatchEvent(new Event('ended'))}})}return _pl.apply(this,arguments)};
+/* ---------- پیام‌ها ---------- */
+function build(d,out,c){
+ let meta={};try{meta=JSON.parse(d.meta||'{}')}catch(e){}
+ const x={sid:d.$id,ts:d.$createdAt};
+ if(d.kind=='st'){x.type='st';x.emo=d.emo;if(meta.an)x.anim=meta.an}
+ else if(d.kind=='al'||d.kind=='fl'){x.type=d.kind;x.items=(meta.items||[]).map(it=>({k:it.k,w:it.w,h:it.h,d:it.d,s:it.s,n:it.n,mime:it.mime,fid:it.fid,tf:it.tf||'',u:'',t:''}))}
+ else if(d.kind=='vc'||d.kind=='rv'){x.type=d.kind;x.du=meta.du||'0:10';x.sec=meta.sec;x.wf=meta.wf;x.mime=meta.mime;x.fid=meta.fid;x.tf=meta.tf||'';x.th='';x.src='appwrite:'+meta.fid;x.size=szT(meta.sz);if(!out)x.dl=0}
+ if(d.rn)x.rp=[d.rn,d.rt||''];
+ if(meta.ed)x.ed=1;
+ if(c&&c.t!='pv'&&!out)x.s=nameOf(d.sender);
+ const o=m(out?1:0,d.text||'',fmt(d.$createdAt),x);o.id=hid(d.$id);return o}
+function applyRd(d){
+ if(d.sender==ME.$id)return false;
+ let meta={};try{meta=JSON.parse(d.meta||'{}')}catch(e){}
+ const c=chatOf(d.sender);if(!c||!meta.upto)return false;
+ let ch=false;c.msgs.forEach(x=>{if(x.out&&x.ts&&x.ts<=meta.upto&&x.st!=2){x.st=2;ch=true}});return ch}
+function ingest(d,live){
+ if(d.kind=='rd')return applyRd(d)?3:0;
+ if(HID.has(d.$id)||HIDDEN.has(d.rcpt))return 0;
+ const ex=IDX.get(d.$id);
+ if(ex){if(!ex.type&&d.text!==ex.text&&d.kind=='t'){ex.text=d.text;ex._st=d.text;ex.ed=1;return 4}return 0}
+ const out=d.sender==ME.$id,c=GR.get(d.rcpt)||chatOf(out?d.rcpt:d.sender);
+ if(!c){const k=d.rcpt+d.sender;if((UNK.get(k)||0)>Date.now()-60000)return 0;UNK.set(k,Date.now());return -1}
+ const x=build(d,out,c);x._st=x.text;
+ let i=c.msgs.length;while(i>0&&c.msgs[i-1].ts&&c.msgs[i-1].ts>x.ts)i--;
+ c.msgs.splice(i,0,x);IDX.set(d.$id,x);
+ if(i==c.msgs.length-1){c.last=lbl(x);c.time=dayL(d.$createdAt);c.out=out?1:0;c.sender=(!out&&c.t!='pv')?x.s:'';
+  if(live){if(!out&&cur!==c)c.unread=(c.unread||0)+1;const k=C.indexOf(c);if(k>1){C.splice(k,1);C.splice(1,0,c)}}}
+ hydrate(x);return 1}
+async function pageDocs(base,order,cap){
+ let out=[],after='';
+ for(let p=0;p<cap;p++){const q=[...base,{method:'orderAsc',attribute:order},{method:'limit',values:[100]}];if(after)q.push({method:'cursorAfter',values:[after]});
+  const r=await api('GET','/databases/'+DB+'/collections/messages/documents?'+qs(q));out=out.concat(r.documents);if(r.documents.length<100)break;after=r.documents[r.documents.length-1].$id}
+ return out}
+async function pull(mode){
+ if(busy||!ME)return;busy=1;
+ try{
+  const uk='sy:'+ME.$id,sy=lg(uk);reindex();
+  let docs;
+  if(mode=='full'||!sy)docs=await pageDocs([],'$createdAt',80);
+  else docs=await pageDocs([{method:'greaterThanEqual',attribute:'$updatedAt',values:[sy]}],'$updatedAt',40);
+  const live=!(mode=='full'||!sy);let ch=0,miss=0;
+  docs.forEach(d=>{const k=ingest(d,live);if(k>0)ch=1;if(k==-1)miss=1});
+  if(miss){await loadUsers();try{await loadGroups()}catch(e){}docs.forEach(d=>{if(ingest(d,live)>0)ch=1})}
+  let mx=sy||'';docs.forEach(d=>{if(d.$updatedAt>mx)mx=d.$updatedAt});
+  if(mx)ls(uk,mx);ls('cn:'+ME.$id,String(IDX.size));
+  if(mode=='full'||!sy)C.forEach(c=>c.msgs.forEach(hydrate));
+  if(ch||mode=='full'){drawList();drawContacts();drawTabs();if(cur)keep()}
+ }catch(e){}finally{busy=0}}
+async function reconcile(){
+ const ids=new Set();let after='';
+ for(let p=0;p<80;p++){const q=[{method:'select',values:['$id']},{method:'orderAsc',attribute:'$createdAt'},{method:'limit',values:[100]}];if(after)q.push({method:'cursorAfter',values:[after]});
+  const r=await api('GET','/databases/'+DB+'/collections/messages/documents?'+qs(q));r.documents.forEach(d=>ids.add(d.$id));if(r.documents.length<100)break;after=r.documents[r.documents.length-1].$id}
+ reindex();IDX.forEach((x,sid)=>{if(!ids.has(sid)&&!x._pend)removeLocal(sid)});
+ ls('rc:'+ME.$id,String(Date.now()))}
+function loop(){clearTimeout(timer);if(!ME)return;timer=setTimeout(async()=>{await pull('inc');loop()},document.hidden?45000:20000)}
+setInterval(async()=>{if(!ME)return;try{const n=await loadUsers();await loadGroups();if(n)drawContacts()}catch(e){}},60000);
+/* ---------- Realtime ---------- */
+function removeLocal(sid){const x=IDX.get(sid);if(!x)return;IDX.delete(sid);x._gone=1;const c=C.find(q=>q.msgs.includes(x));if(!c)return;c.msgs=c.msgs.filter(q=>q!==x);const l=c.msgs[c.msgs.length-1];c.last=l?lbl(l):'';if(l){c.out=l.out;c.time=l.ts?dayL(l.ts):l.time}drawList();if(cur===c){drawMsgs();try{drawPin()}catch(e){}}}
+async function refreshLists(){try{await loadUsers();await loadGroups()}catch(e){}}
+function onEv(d){
+ const ev=d.events||[],p=d.payload;if(!p||!p.$id||!ME)return;
+ const del=ev.some(e=>/\.delete$/.test(e));
+ if(ev.some(e=>e.includes('.collections.groups.'))){
+  if(del){const c=GR.get(p.$id);c&&dropLocal(c)}else{applyGroup(p);drawList();drawTabs();if(cur&&cur.gid==p.$id)try{openInfo&&0}catch(e){}}
+  return}
+ if(del){removeLocal(p.$id);return}
+ if(p.kind=='rd'){if(applyRd(p)){drawList();if(cur&&cur.uid==p.sender)keep()}return}
+ const k=ingest(p,1);
+ if(k==-1){refreshLists().then(()=>{ingest(p,1);drawList();drawContacts();drawTabs()});return}
+ if(k>0){drawList();drawTabs();const x=IDX.get(p.$id),c=x&&C.find(q=>q.msgs.includes(x));
+  if(c&&cur===c){keep();if(k==1&&!x.out&&!document.hidden)markRead(c)}}}
+function connectWS(){
+ if(!ME)return;try{ws&&(ws.onclose=null,ws.close())}catch(e){}
+ const chs=['messages','groups'].map(n=>'channels[]=databases.'+DB+'.collections.'+n+'.documents').join('&');
+ const w=ws=new WebSocket('wss://'+EP.replace('https://','')+'/realtime?project='+PJ+'&'+chs);
+ w.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
+  if(m.type=='connected'){let s;try{s=JSON.parse(lg('cookieFallback')||'{}')['a_session_'+PJ]}catch(x){}if(s&&!(m.data&&m.data.user))w.send(JSON.stringify({type:'authentication',data:{session:s}}));wsRetry=0;pull('inc')}
+  else if(m.type=='event')onEv(m.data)};
+ w.onopen=()=>{clearInterval(pingT);pingT=setInterval(()=>{try{w.send('{"type":"ping"}')}catch(x){}},20000)};
+ w.onclose=()=>{clearInterval(pingT);if(ME&&ws===w)setTimeout(connectWS,Math.min(15000,1500*(++wsRetry)))}}
+/* ---------- تیک دوم (خوانده‌شدن) ---------- */
+const rcId=(a,b)=>'r'+hid(a+'>'+b).toString(36)+hid(b+'<'+a+'x').toString(36);
+async function markRead(c){
+ if(!ME||!c||!c.uid)return;
+ const l=[...c.msgs].reverse().find(x=>!x.out&&x.ts);if(!l||c._rd===l.ts)return;c._rd=l.ts;
+ const id=rcId(ME.$id,c.uid),meta=JSON.stringify({upto:l.ts});
+ try{await api('POST','/databases/'+DB+'/collections/messages/documents',{documentId:id,data:{chat:[ME.$id,c.uid].sort().join('_'),sender:ME.$id,rcpt:c.uid,text:'',kind:'rd',emo:'',rn:'',rt:'',meta},permissions:['read("user:'+ME.$id+'")','update("user:'+ME.$id+'")','delete("user:'+ME.$id+'")']})}
+ catch(e){if(e.code==409){try{await api('PATCH','/databases/'+DB+'/collections/messages/documents/'+id,{data:{meta}})}catch(x){c._rd=''}}else c._rd=''}}
+const _oc=openChat;openChat=function(id){const r=_oc.apply(this,arguments);const c=cur;if(c&&c.uid)setTimeout(()=>markRead(c),400);return r};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cur&&cur.uid)markRead(cur)});
+/* ---------- آپلود و ارسال ---------- */
+async function upload(blob,name,mime,perm){
+ const id=rid(),size=blob.size,CH=5*1024*1024;let s=0;
+ while(s<size||size==0){
+  const e=Math.min(s+CH,size),fd=new FormData();
+  fd.append('fileId',id);perm.forEach(p=>fd.append('permissions[]',p));
+  fd.append('file',new File([blob.slice(s,e)],name||'file',{type:mime||blob.type||'application/octet-stream'}));
+  const h=hdr();if(size>CH){h['Content-Range']='bytes '+s+'-'+(e-1)+'/'+size;if(s>0)h['x-appwrite-id']=id}
+  const r=await _f(EP+'/storage/buckets/'+BK+'/files',{method:'POST',headers:h,credentials:'include',body:fd});
+  const f=r.headers.get('X-Fallback-Cookies');if(f)ls('cookieFallback',f);
+  if(!r.ok){let j={};try{j=await r.json()}catch(x){}const er=new Error(j.message||'upload');er.code=r.status;throw er}
+  s=e;if(size==0)break}
+ return id}
+function imgThumb(src,max,q){return new Promise(res=>{const im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*s)),h=Math.max(1,Math.round(im.height*s)),cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);cv.toBlob(b=>res(b),'image/jpeg',q)};im.onerror=()=>res(null);im.src=src})}
+const fidsOf=x=>{const a=[];if(x.items)x.items.forEach(it=>{it.fid&&a.push(it.fid);it.tf&&a.push(it.tf)});x.fid&&a.push(x.fid);x.tf&&a.push(x.tf);return a};
+async function post(c,o){
+ const me=ME.$id,peer=c.uid||c.gid,sid=rid();
+ o.sid=sid;o.ts=new Date().toISOString();o.st=1;o._st=o.text;o._pend=1;IDX.set(sid,o);
+ const fp=['read("user:'+me+'")','delete("user:'+me+'")'];
+ try{
+  const kind=o.type||'t';let meta={};
+  if(kind=='al'||kind=='fl'){const its=[];
+   for(const it of o.items){
+    const b=await (await _f(it.u)).blob();it.fid=await upload(b,it.n,it.mime||b.type,fp);
+    let tb=null;
+    try{if(it.k=='p'){const u=URL.createObjectURL(b);tb=await imgThumb(u,320,.6);URL.revokeObjectURL(u)}else if(it.t&&/^(data|blob):/.test(it.t))tb=await imgThumb(it.t,kind=='fl'?160:320,.6)}catch(e){}
+    if(tb){try{it.tf=await upload(tb,'t.jpg','image/jpeg',fp)}catch(e){}}
+    its.push({fid:it.fid,tf:it.tf||'',k:it.k,w:it.w,h:it.h,d:it.d,s:b.size||it.s,n:it.n,mime:it.mime||b.type})}
+   meta={items:its}}
+  else if(kind=='vc'||kind=='rv'){
+   let b=null;if(o._tb){try{b=await o._tb}catch(e){}}
+   if(!b)b=await (await _f(o.url)).blob();
+   o.fid=await upload(b,kind=='rv'?'video.mp4':'voice.ogg',b.type||o.mime,fp);
+   if(kind=='rv'&&o.th&&/^(data|blob):/.test(o.th)){try{const tb=await imgThumb(o.th,120,.5);if(tb)o.tf=await upload(tb,'t.jpg','image/jpeg',fp)}catch(e){}}
+   meta={fid:o.fid,tf:o.tf||'',sec:o.sec,du:o.du,wf:o.wf,mime:b.type||o.mime,sz:b.size}}
+  else if(kind=='st'&&o.anim)meta={an:o.anim};
+  const r=await api('POST','/databases/'+DB+'/collections/messages/documents',{documentId:sid,data:{chat:c.gid||[me,peer].sort().join('_'),sender:me,rcpt:peer,text:o.text||'',kind,emo:o.emo||'',rn:o.rp?o.rp[0]:'',rt:o.rp?String(o.rp[1]).slice(0,200):'',meta:JSON.stringify(meta)},permissions:['read("user:'+me+'")','update("user:'+me+'")','delete("user:'+me+'")']});
+  o.ts=r.$createdAt;o._pend=0;if(o.st!=2)o.st=1;redraw(o);
+ }catch(e){o.err=1;o._pend=0;IDX.delete(sid);toast('ارسال نشد: '+em(e));redraw(o)}}
+reply=function(o){if(!ME)return;const c=C.find(q=>q.msgs.includes(o))||cur;if(!c||c.saved||(!c.uid&&!c.gid))return;if(c.gid&&c._pend){toast('گروه هنوز ساخته نشده');return}post(c,o)};
+/* ---------- ویرایش پیام ---------- */
+setInterval(()=>{if(!ME||!cur||!(cur.uid||cur.gid))return;cur.msgs.forEach(x=>{
+ if(!x.out||!x.sid||x.type||x.err||x._pend)return;
+ if(x._st===undefined){x._st=x.text;return}
+ if(x.text!==x._st){const t=x.text;x._st=t;api('PATCH','/databases/'+DB+'/collections/messages/documents/'+x.sid,{data:{text:t,meta:JSON.stringify({ed:1})}}).catch(()=>{x._st=undefined})}})},1500);
+/* ---------- حذف ---------- */
+const DQ=[];let dqT=0;
+function queueDel(sid){DQ.push(sid);clearTimeout(dqT);dqT=setTimeout(async()=>{const a=DQ.splice(0);for(let i=0;i<a.length;i+=50){try{await hub('del',{sids:a.slice(i,i+50)})}catch(e){toast(em(e))}}},250)}
+async function hideMe(x){
+ if(!x.sid)return;HID.add(x.sid);IDX.delete(x.sid);
+ try{await api('POST','/databases/'+DB+'/collections/hides/documents',{documentId:'h'+x.sid,data:{mid:x.sid},permissions:['read("user:'+ME.$id+'")','delete("user:'+ME.$id+'")']})}catch(e){}}
+function proc(x,both){if(x._gone||!x.sid||x._pend)return;x._gone=1;if(both){IDX.delete(x.sid);queueDel(x.sid)}else hideMe(x)}
+function arm(both){const snap=[];C.forEach(c=>c.msgs.forEach(x=>{if(x.sid)snap.push(x)}));
+ [700,1700,3500].forEach(t=>setTimeout(()=>{const now=new Set();C.forEach(c=>c.msgs.forEach(x=>now.add(x.sid)));snap.forEach(x=>{if(!now.has(x.sid))proc(x,both)})},t))}
+const _menu=menu;
+menu=function(items,y,x){
+ items=items.map(it=>{if(!it||typeof it[2]!='function')return it;const lb=String(it[0]);
+  if(!/^حذف برای/.test(lb))return it;const both=/^حذف برای (من و |همه)/.test(lb),f=it[2];
+  return [it[0],it[1],()=>{MODE=both?2:1;clearTimeout(MODET);MODET=setTimeout(()=>{MODE=0},1500);arm(both);f()},it[3]]});
+ return _menu(items,y,x)};
+const _dc=delChat;
+delChat=function(id){const c=C.find(q=>q.id==id);
+ if(c&&ME){if(isGrp(c)){if(c.gid&&!c._drop){c._drop=1;dropGroup(c,MODE==2)}}else if(c.uid){const both=MODE==2;c.msgs.slice().forEach(x=>proc(x,both))}}
+ return _dc(id)};
+/* ---------- ورود و خروج ---------- */
+function wipeCache(){try{const r=indexedDB.open('link-cache',1);r.onsuccess=()=>{const d=r.result;try{const t=d.transaction(['kv','media'],'readwrite');t.objectStore('kv').clear();t.objectStore('media').clear();t.oncomplete=()=>d.close()}catch(e){d.close()}}}catch(e){}}
+function wipeSync(){['sy:','cn:','rc:'].forEach(k=>{if(ME)ls(k+ME.$id,'')})}
+async function boot(){
+ ME=await api('GET','/account');await ensureUser();
+ if(lg('uid')!==ME.$id){wipeCache();wipeSync();C.length=0;C.push(SAVED())}
+ ls('uid',ME.$id);
+ const u={n:ME.name||ME.email.split('@')[0],e:ME.email};ls('u',JSON.stringify(u));
+ HID.clear();loadHG();await loadHides();
+ await loadUsers();C.forEach(c=>{if(c.gid)GR.set(c.gid,c)});
+ try{await loadGroups()}catch(e){}
+ sweep();enter(u);drawList();drawContacts();drawTabs();
+ await pull(lg('sy:'+ME.$id)?'inc':'full');
+ connectWS();loop();
+ setTimeout(async()=>{
+  if(!ME)return;sweep();reindex();
+  try{await loadGroups()}catch(e){}
+  const cn=+lg('cn:'+ME.$id)||0;
+  await pull(IDX.size<cn*0.8?'full':'inc');
+  if(Date.now()-(+lg('rc:'+ME.$id)||0)>18e5)reconcile().catch(()=>{});
+ },4000)}
+async function signIn(email,pw){try{await api('DELETE','/account/sessions/current')}catch(e){}await api('POST','/account/sessions/email',{email,password:pw})}
+$('#ab').onclick=async()=>{
+ const b=$('#ab'),e=$('#ae').value.trim(),p=$('#apw').value,n=$('#an').value.trim(),su=!$('#an').classList.contains('hide');
+ if(!e||!p){toast('ایمیل و رمز را وارد کنید');return}
+ if(p.length<8){toast('رمز باید حداقل ۸ کاراکتر باشد');return}
+ b.disabled=true;
+ try{if(su)await api('POST','/account',{userId:'unique()',email:e,password:p,name:n||e.split('@')[0]});await signIn(e,p);await boot()}catch(x){toast(em(x))}
+ b.disabled=false};
+logout=function(){
+ api('DELETE','/account/sessions/current').catch(()=>{});
+ try{ws&&(ws.onclose=null,ws.close())}catch(e){}clearInterval(pingT);
+ ls('u','');ls('uid','');ls('cookieFallback','');clearTimeout(timer);ME=null;IDX.clear();HID.clear();GR.clear();UN.clear();UNK.clear();wipeCache();
+ C.length=0;C.push(SAVED());cur=null;logged=0;
+ $('#auth').classList.remove('gone');drawList();drawContacts()};
+drawList();drawContacts();
+(async()=>{
+ if(!lg('cookieFallback')&&!lg('u'))return;
+ try{await boot()}catch(e){
+  if(e.code==401||e.code==404){ME=null;ls('u','');C.length=0;C.push(SAVED());$('#auth').classList.remove('gone');drawList();drawContacts()}}
+})();
 })();
 </script>
 </body>
