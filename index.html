@@ -248,7 +248,7 @@ const CL=[{id:'all',n:'همه'},{id:'pv',n:'شخصی'},{id:'gp',n:'گروه'},{i
 const inF=(c,id)=>id=='all'||(id[0]=='f'?((FD.find(f=>f.id==id)||{ids:[]}).ids.includes(c.id)):c.t==id);
 let lang='fa';try{lang=localStorage.getItem('lang')||'fa'}catch(e){}
 let fl='all',ed=0,selS=new Set(),cur=null,tab='chats',rep=null,rec=0,recT=0,logged=0,sq='';
-const sv=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},ld=k=>{try{return localStorage.getItem(k)}catch(e){}};
+const sv=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}if(k=='myphoto'&&window.pushMyAvatar)window.pushMyAvatar(v)},ld=k=>{try{return localStorage.getItem(k)}catch(e){}};
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1800)}
 /* tab bar */
 function drawTabs(){const meIc=()=>{let q;try{q=JSON.parse(ld('u'))}catch(e){}q=q||{n:'من'};return av({id:3,n:q.n||'من',ph:ld('myphoto')||''},28)};const u=C.reduce((a,c)=>a+(c.unread&&!c.mute?1:0),0);$('#tabbar').innerHTML=[['contacts','مخاطبین','user'],['chats','گفتگوها','chat'],['settings','پروفایل','me']].map(([k,l,i])=>`<div class="ti press ${tab==k?'on':''}" data-k="${k}">${i=='me'?meIc():I(i,26)}${l}${k=='chats'&&u?`<span class="bg2">${u}</span>`:''}</div>`).join('');
@@ -1107,7 +1107,7 @@ window.openSheet=(title,html,done)=>{onc=done||null;sp._back=null;sp.innerHTML=`
 window.closeSheet=()=>{sp.classList.remove('on');const f=onc;onc=null;f&&f()};
 const getU=()=>{let u;try{u=JSON.parse(ld('u'))}catch(e){}return u||{n:'من',e:'me@link.app'}};
 /* ---- profile photo with square crop, circular preview ---- */
-window.pickPhoto=()=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files&&i.files[0];if(f)window.cropAvatar(f,c=>{sv('myphoto',c.toDataURL('image/jpeg',.88));drawSettings();toast('عکس پروفایل تغییر کرد')})};i.click()};
+window.pickPhoto=()=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.style.display='none';document.body.appendChild(i);i.onchange=()=>{const f=i.files&&i.files[0];setTimeout(()=>i.remove(),60000);if(f)window.cropAvatar(f,c=>{sv('myphoto',c.toDataURL('image/jpeg',.88));drawSettings();toast('عکس پروفایل تغییر کرد')})};i.click()};
 function cropPhoto(file){const url=URL.createObjectURL(file),img=new Image;img.onload=()=>{
  const o=document.createElement('div');o.id='cp';o.innerHTML='<div class="st"></div><div class="pvw">با دو انگشت بزرگ/کوچک کنید و بکشید</div><div class="bt"><button id="cpc">'+I('x',24)+'</button><button id="cpr" style="opacity:.8">بازنشانی</button><button class="ok" id="cpo">تأیید</button></div>';ap.appendChild(o);
  const st=o.querySelector('.st'),W=st.clientWidth,H=st.clientHeight,D=Math.min(W,H)-48,cx=W/2,cy=H/2,iw=img.naturalWidth,ih=img.naturalHeight,min=D/Math.min(iw,ih),max=min*8;
@@ -1253,7 +1253,7 @@ async function cropUI(it,after,opt){await loadImg(it);const rot0=it.rot,crop0=it
  o.querySelector('#crr').onclick=()=>{it.rot=(it.rot+1)%4;it.crop=null;ratio=opt&&opt.avatar?1:0;o.querySelectorAll('.crp .on').forEach(x=>x.classList.remove('on'));o.querySelector('[data-r="0"]').classList.add('on');layout(false)};
  o.querySelector('#crc').onclick=()=>{it.rot=rot0;it.crop=crop0;o.remove()};
  o.querySelector('#cro').onclick=()=>{const f={x:(box.x-ox)/dw,y:(box.y-oy)/dh,w:box.w/dw,h:box.h/dh};it.crop=(f.w>.99&&f.h>.99)?null:f;o.remove();it.th=null;after&&after()}}
-window.cropAvatar=async(file,done)=>{const it={id:'av',file,name:file.name||'p',size:file.size,mime:file.type,rot:0,crop:null,q:720,kind:'p'};await cropUI(it,()=>done(outC(it,512)),{avatar:1})};
+window.cropAvatar=async(file,done)=>{const it={id:'av',file,name:file.name||'p',size:file.size,mime:file.type,rot:0,crop:null,q:720,kind:'p'};try{await cropUI(it,()=>done(outC(it,512)),{avatar:1})}catch(e){toast('این عکس باز نشد؛ فرمت دیگری امتحان کن')}};
 function applyAdj(c,a){const x=c.getContext('2d'),w=c.width,h=c.height,id=x.getImageData(0,0,w,h),d=id.data;
  const br=(a.b||0)/100*60,ct=1+(a.c||0)/100,sa=1+(a.s||0)/100,wm=(a.w||0)/100*30,fd=(a.f||0)/100,hl=(a.h||0)/100,sh=(a.sh||0)/100,sp=(a.sp||0)/100*.8;
  for(let i=0;i<d.length;i+=4){let r=d[i]+br+wm,g=d[i+1]+br,b=d[i+2]+br-wm;
@@ -1812,10 +1812,14 @@ function closeP(f){if(!popen&&!f)return;popen=0;P.classList.add('hide');stI.inne
 stI.onclick=()=>popen?closeP(1):openP();
 ti.addEventListener('focus',()=>closeP(0));$('#cb').addEventListener('click',()=>closeP(0));
 {const _bb=bub;bub=function(c,x,i,A){let h=_bb(c,x,i,A);if(x.type=='st'&&x.anim)h=h.replace(/(<div class="b st[^"]*"[^>]*>)([\s\S]*?)(<span class="mt">)/,(m0,a,e,t)=>a+`<span class="gfa gf-${x.anim}">${e}</span>`+t);return h}}
+/* ============ reply on media: quote label + quote box for st/im/rv/vc ============ */
+{const _bb=bub;bub=function(c,x,i,A){let h=_bb(c,x,i,A);if(x.rp&&(x.type=='st'||x.type=='im'||x.type=='rv'||x.type=='vc')&&h.indexOf('class="rp"')<0)h=h.replace(/^(<div [^>]*>)/,'$1'+`<div class="rp" dir="auto"><b>${esc(x.rp[0])}</b><span>${esc(x.rp[1])}</span></div>`);return h}
+ const _sr2=setRep;setRep=function(x){_sr2(x);if(x.text)return;const L={im:'🖼 عکس',al:'🖼 عکس / ویدیو',fl:'📎 فایل',rv:'🎥 ویدیو مسیج',vc:'🎤 ویس',st:x.emo||'استیکر'};if(L[x.type])$('#rpt').textContent=L[x.type]}}
 /* ============ 3) long-press on send: when online / scheduled ============ */
 {const b=$('#mic'),od=b.onpointerdown,ou=b.onpointerup;let lt=0,lp=0;const has=()=>$('#ti').value.trim()&&!(typeof EDIT!='undefined'&&EDIT);
- b.onpointerdown=e=>{lp=0;od&&od.call(b,e)};
- b.onpointerup=e=>{clearTimeout(lt);if(lp){lp=0;return}ou&&ou.call(b,e)};
+ let pt=0;
+ b.onpointerdown=e=>{lp=0;pt=0;clearTimeout(lt);if(has()){pt=1;e.preventDefault();lt=setTimeout(()=>{lp=1;pt=0;sendMenu()},450);return}od&&od.call(b,e)};
+ b.onpointerup=e=>{clearTimeout(lt);if(lp){lp=0;return}if(pt){pt=0;send();return}ou&&ou.call(b,e)};
  const oc=b.onpointercancel;b.onpointercancel=e=>{clearTimeout(lt);oc&&oc.call(b,e)}
  function sendMenu(){const r=b.getBoundingClientRect();menu([['ارسال هنگام آنلاین شدن','send',sendOnline],['ارسال زمان‌بندی‌شده','call',schedule]],r.top-130,r.left+r.width/2)}
  function take(){const t=$('#ti'),v=t.value.trim();if(!v)return null;const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent],rid:rep.id}:{});t.value='';t.style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();return o}
@@ -1846,7 +1850,7 @@ function picker(o){const L=C.filter(c=>c.t=='pv'&&!c.saved&&!(o.exclude||[]).inc
    ls.querySelectorAll('.row').forEach(w=>w.onclick=()=>{const id=+w.dataset.i;if(o.single){o.rf([id]);return}o.sel.has(id)?o.sel.delete(id):o.sel.add(id);draw()});
    ch.querySelectorAll('.ngp').forEach(w=>w.onclick=()=>{o.sel.delete(+w.dataset.i);draw()})};
   inp.oninput=()=>{q=inp.value.trim();draw()};draw()}})}
-function pickImg(cb){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files&&i.files[0];if(f)window.cropAvatar(f,c=>cb(c.toDataURL('image/jpeg',.85)))};i.click()}
+function pickImg(cb){const i=document.createElement('input');i.type='file';i.accept='image/*';i.style.display='none';document.body.appendChild(i);i.onchange=()=>{const f=i.files&&i.files[0];setTimeout(()=>i.remove(),60000);if(f)window.cropAvatar(f,c=>cb(c.toDataURL('image/jpeg',.85)))};i.click()}
 const avM=mm=>{const k=C.find(x=>x.id==mm.id);return av(k||{id:3,n:mm.n,ph:mm.id=='me'?ld('myphoto')||'':''},40)};
 const memRows=ids=>ids.map(id=>{const c=C.find(x=>x.id==id);return `<div class="sr">${av(c,40)}<span dir="auto" style="flex:1;margin:0 10px">${esc(c.n)}</span></div>`}).join('');
 function mkChat(o){const id=Math.max(100,...C.map(c=>+c.id||0))+1;const c={id,n:o.n,t:o.t,time:T(),last:o.t=='ch'?'کانال ساخته شد':'گروه ساخته شد',msgs:[],ph:o.ph||'',desc:o.desc||'',link:o.link||'',pub:!!o.pub,my:'owner',members:[{id:'me',n:'شما',role:'owner'}].concat(o.ids.map(i=>({id:i,n:C.find(x=>x.id==i).n,role:'member'})))};C.unshift(c);drawList();ngClose();openChat(id);toast(o.t=='ch'?'کانال ساخته شد':'گروه ساخته شد')}
@@ -3141,8 +3145,8 @@ const _oc=openChat;openChat=function(id){const r=_oc.apply(this,arguments);const
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cur&&cur.uid)markRead(cur)});
 /* ---------- آپلود و ارسال ---------- */
 function xhrUp(url,h,fd,onP){return new Promise((res,rej)=>{const q=new XMLHttpRequest();q.open('POST',url);q.withCredentials=true;Object.keys(h).forEach(k=>q.setRequestHeader(k,h[k]));q.upload.onprogress=e=>{if(e.lengthComputable&&onP)onP(e.loaded)};q.onload=()=>res({ok:q.status>=200&&q.status<300,status:q.status,headers:{get:n=>q.getResponseHeader(n)},json:()=>Promise.resolve(JSON.parse(q.responseText||'{}'))});q.onerror=()=>rej(new Error('network'));q.send(fd)})}
-async function upload(blob,name,mime,perm,onP){
- const id=rid(),size=blob.size,CH=5*1024*1024;let s=0;
+async function upload(blob,name,mime,perm,onP,fid){
+ const id=fid||rid(),size=blob.size,CH=5*1024*1024;let s=0;
  while(s<size||size==0){
   const e=Math.min(s+CH,size),fd=new FormData();
   fd.append('fileId',id);perm.forEach(p=>fd.append('permissions[]',p));
@@ -3207,6 +3211,14 @@ delChat=function(id){const c=C.find(q=>q.id==id);
 /* ---------- ورود و خروج ---------- */
 function wipeCache(){try{const r=indexedDB.open('link-cache',1);r.onsuccess=()=>{const d=r.result;try{const t=d.transaction(['kv','media'],'readwrite');t.objectStore('kv').clear();t.objectStore('media').clear();t.oncomplete=()=>d.close()}catch(e){d.close()}}}catch(e){}}
 function wipeSync(){['sy:','cn:','rc:'].forEach(k=>{if(ME)ls(k+ME.$id,'')})}
+/* ===== profile photo visible to others: bucket file 'av'+uid ===== */
+const AVID=u=>'av'+u;
+window.pushMyAvatar=async d=>{if(!ME)return;const id=AVID(ME.$id);try{await api('DELETE','/storage/buckets/'+BK+'/files/'+id)}catch(e){}
+ if(!d)return;try{const b=await (await fetch(d)).blob();await upload(b,'avatar.jpg','image/jpeg',['read(\"users\")','update(\"user:'+ME.$id+'\")','delete(\"user:'+ME.$id+'\")'],null,id);ls('avup:'+ME.$id,'1')}catch(e){}};
+async function pullAvatars(){if(!ME)return;let ch=0;const rd=b=>new Promise(r=>{const f=new FileReader;f.onload=()=>r(f.result);f.onerror=()=>r('');f.readAsDataURL(b)});
+ await Promise.all(C.filter(c=>c.t=='pv'&&c.uid).map(async c=>{try{const r=await fetch('appwrite:'+AVID(c.uid));if(r.ok){const u=await rd(await r.blob());if(u&&c.ph!==u){c.ph=u;ch=1}}else if(r.status==404&&c.ph){c.ph='';ch=1}}catch(e){}}));
+ if(ch){try{drawList();drawContacts()}catch(e){}}}
+setInterval(()=>{pullAvatars()},120000);
 async function boot(){
  ME=await api('GET','/account');await ensureUser();
  if(lg('uid')!==ME.$id){await cacheWipe();wipeSync();C.length=0;C.push(SAVED())}
@@ -3216,6 +3228,7 @@ async function boot(){
  await loadUsers();C.forEach(c=>{if(c.gid)GR.set(c.gid,c)});
  try{await loadGroups()}catch(e){}
  sweep();enter(u);drawList();drawContacts();drawTabs();
+ pullAvatars();if(ld('myphoto')&&!lg('avup:'+ME.$id))window.pushMyAvatar(ld('myphoto'));
  await pull(lg('sy:'+ME.$id)&&C.some(c=>c.msgs.length)?'inc':'full');
  connectWS();loop();
  setTimeout(async()=>{
