@@ -2854,7 +2854,7 @@ const isBl=c=>!!(c&&c.uid&&c.t=='pv'&&BLs().has(c.uid));
 function updBar(){let b=$('#blkbtn');const r=$('.inb .irow');if(!b){b=document.createElement('button');b.id='blkbtn';b.className='gl press hide';b.style.cssText='width:100%;padding:15px;font-size:17px;color:var(--ac);text-align:center';b.textContent='رفع بلاک';b.onclick=()=>{const c=cur;if(!c)return;menu([['رفع بلاک','block',()=>toggleBl(c)],['لغو','back',()=>{}]],innerHeight/2-60,innerWidth/2)};r.after(b)}const k=isBl(cur);r.style.display=k?'none':'';b.classList.toggle('hide',!k)}
 function toggleBl(c){if(!c||!c.uid)return;const S=BLs();if(S.has(c.uid)){S.delete(c.uid);toast('بلاک برداشته شد')}else{S.add(c.uid);toast('مسدود شد')}ls('bl:'+ME.$id,JSON.stringify([...S]));updBar()}
 window.globalFind=globalFind;window.isBl=isBl;window.toggleBl=toggleBl;window.updBar=updBar;
-window.LK={api:(...a)=>api(...a),qs:(...a)=>qs(...a),get DB(){return DB},get ME(){return ME},allUsers:f=>allUsers(f),UD};
+window.LK={api:(...a)=>api(...a),qs:(...a)=>qs(...a),get DB(){return DB},get ME(){return ME},allUsers:f=>allUsers(f),get UD(){return UD}};
 const hid=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0)%1073741824+1000};
 const rid=()=>'m'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const hdr=()=>{const h={'X-Appwrite-Project':PJ};const fc=lg('cookieFallback');if(fc)h['X-Fallback-Cookies']=fc;return h};
