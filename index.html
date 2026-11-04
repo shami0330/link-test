@@ -413,7 +413,7 @@ mr.onstop=async()=>{const R2=R;ui(R2);if(!R2.send)return;const mime=mr.mimeType|
 const sec=Math.max(1,Math.ceil(Math.min(S.max||1e9,e-s))),L=R2.pk.length,p0=Math.floor(R2.s*L),p1=Math.max(p0+1,Math.ceil(R2.e*L)),pk=R2.pk.slice(p0,p1),mx=Math.max(.05,...pk);
 const wf=Array.from({length:64},(_,i)=>{const a=Math.floor(i*pk.length/64),b=Math.max(a+1,Math.floor((i+1)*pk.length/64));let m=0;for(let k=a;k<b&&k<pk.length;k++)m=Math.max(m,pk[k]);return Math.round(Math.min(1,m/mx)*31)});
 const ob=m(1,'',T(),{type:R2.vid?'rv':'vc',du:fmtD(sec),sec,url:URL.createObjectURL(blob),mime:blob.type,wf,wf5:pack5(wf),th:R2.th0||''});ob.st=1;ob._tb=tb;addMsg(ob);reply(ob);tb&&tb.then(nb=>{if(!nb||nb===blob)return;const sw=()=>{if(typeof CUR!='undefined'&&CUR&&CUR.x===ob)return setTimeout(sw,800);ob.url=URL.createObjectURL(nb);ob._ck=0;ob.mime=nb.type;if(ob._v){ob._v.src=ob.url;ob._v.play().catch(()=>0)}if(ob._a)ob._a.src=ob.url};sw()})};
-mr.start();R.s0=performance.now();R.run=1;tick(R)}
+mr.start();R.s0=performance.now();R.run=1;tick(R);if(R.pend){R.pend=0;setTimeout(()=>{if(Z===R)fin(1)},320)}}
 function tick(R){if(Z!==R)return;R.raf=requestAnimationFrame(()=>tick(R));const now=performance.now(),el=R.el=R.acc+(R.run?now-R.s0:0),S=RC[R.mode];
 R.an.getByteTimeDomainData(R.buf);let q=0;for(const x of R.buf)q+=(x-128)*(x-128);R.lv=R.lv*.72+Math.min(1,Math.sqrt(q/R.buf.length)/128*4)*.28;
 if(R.run&&now-R.lp>50){R.pk.push(R.lv);R.lp=now}
@@ -454,11 +454,11 @@ document.addEventListener('touchend',e=>{if(e.touches.length<2){const had=d0;d0=
 function flashOff(R){if(!R||!R.flash)return;R.flash=0;const o=$('#ro');o&&o.classList.remove('fl');try{const t=MST&&MST.getVideoTracks()[0];t&&t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0)}catch(e){}const b=o&&o.querySelector('[data-a=flash]');b&&(b.style.opacity=.7)}
 async function flashCam(){const R=Z;if(!R||!R.vid||R.st=='pause')return;R.flash=!R.flash;const o=$('#ro');if(R.front)o.classList.toggle('fl',R.flash);else{try{await MST.getVideoTracks()[0].applyConstraints({advanced:[{torch:!!R.flash}]})}catch(e){R.flash=0;toast('فلش دوربین پشت پشتیبانی نمی‌شود')}}o.querySelector('[data-a=flash]').style.opacity=R.flash?1:.7}
 function ui(R){if(R._ui)return;R._ui=1;cancelAnimationFrame(R.raf);R.ac&&R.ac.close();R.pa&&R.pa.pause();R.pvv&&R.pvv.remove();{const q=document.querySelector('#ro .snb');q&&q.remove()};R.cv&&R.cv.remove();try{MST&&MST.getVideoTracks().forEach(t=>t.applyConstraints({advanced:[{torch:false}]}).catch(()=>0))}catch(e){}if(MST){MST.getTracks().forEach(t=>{try{t.stop()}catch(e){}});MST=null;clearTimeout(window._rel)}const o=$('#ro');o.className='';o.dataset.s='';$('#app').classList.remove('rcg');Z=null}
-function fin(send_){const R=Z;if(!R||R.fin)return;if(!R.mr){R.send=send_;R.abort=1;ui(R);return}
-const el=R.run?R.acc+performance.now()-R.s0:R.acc;if(send_&&el<500){send_=0;toast('برای ضبط نگه دارید')}
+function fin(send_){const R=Z;if(!R||R.fin)return;if(!R.mr){if(send_){R.pend=1;return}R.send=0;R.abort=1;ui(R);return}
+const el=R.run?R.acc+performance.now()-R.s0:R.acc;if(send_&&el<300){send_=0;toast(R.vid?'ویدیو مسیج کوتاه است':'ویس کوتاه است')}
 R.send=send_;R.fin=1;if(!send_)ui(R);
 const stop=()=>{if(R.run){R.acc+=performance.now()-R.s0;R.run=0}if(R.mr.state!='inactive')R.mr.stop();else ui(R)};
-if(send_&&R.run)setTimeout(stop,250);else stop()}
+stop()}
 async function trimVid(b,mt,s,e){
  if(!(window.VideoEncoder&&window.VideoDecoder))return trimBlob(b,mt,true,s,e);
  try{
@@ -479,10 +479,10 @@ el.onseeked=()=>{if(go)return;go=1;let ac,ds;try{ac=new(window.AudioContext||win
 if(vid){cv=document.createElement('canvas');cv.width=cv.height=RC.v.size;const cx=cv.getContext('2d'),d=()=>{cx.drawImage(el,0,0,cv.width,cv.height);raf=requestAnimationFrame(d)};d();tr=[...cv.captureStream(30).getVideoTracks(),...tr]}
 const mr=new MediaRecorder(new MediaStream(tr),Object.assign(mt?{mimeType:mt}:{},{audioBitsPerSecond:vid?48000:64000},vid?{videoBitsPerSecond:1500000}:{})),ch=[];mr.ondataavailable=x=>x.data.size&&ch.push(x.data);mr.onstop=()=>{cancelAnimationFrame(raf);ac.close();{const nb=new Blob(ch,{type:mr.mimeType||mt});res(nb.size>800?nb:b)}};
 let done=0;const fn=()=>{if(done)return;done=1;el.pause();mr.state!='inactive'&&mr.stop()};el.ontimeupdate=()=>{el.currentTime>=e&&fn()};el.onended=fn;setTimeout(fn,(e-s)*1000+1500);try{mr.start();el.play().catch(()=>res(b))}catch(_){res(b)}}})}
-{const b=$('#mic');b.style.touchAction='none';b.addEventListener('mousedown',e=>e.preventDefault());b.addEventListener('touchstart',e=>{if(document.activeElement===$('#ti'))e.preventDefault()},{passive:false});b.addEventListener('touchend',e=>{if(document.activeElement===$('#ti')||Date.now()<(window._kbKeep||0))e.preventDefault()},{passive:false});b.addEventListener('click',e=>{if(Date.now()<(window._kbKeep||0))e.preventDefault()});b.oncontextmenu=e=>e.preventDefault();let x0=0,y0=0,tap=0;
-b.onpointerdown=e=>{held=0;tap=1;x0=e.clientX;y0=e.clientY;if(hasTxt()){tap=0;e.preventDefault();send();return}if(!hasTxt()){try{b.setPointerCapture(e.pointerId)}catch(_){}hold=setTimeout(()=>{held=1;tap=0;startRec()},350)}};
+{const b=$('#mic');b.style.touchAction='none';b.addEventListener('mousedown',e=>e.preventDefault());b.addEventListener('touchstart',e=>{if(document.activeElement===$('#ti'))e.preventDefault()},{passive:false});b.addEventListener('touchend',e=>{if(document.activeElement===$('#ti')||Date.now()<(window._kbKeep||0))e.preventDefault()},{passive:false});b.addEventListener('click',e=>{if(Date.now()<(window._kbKeep||0))e.preventDefault()});b.oncontextmenu=e=>e.preventDefault();let x0=0,y0=0,tap=0,t0=0;
+b.onpointerdown=e=>{held=0;tap=1;x0=e.clientX;y0=e.clientY;if(hasTxt()){tap=0;e.preventDefault();send();return}if(!hasTxt()){try{b.setPointerCapture(e.pointerId)}catch(_){}held=1;t0=performance.now();startRec()}};
 b.onpointermove=e=>{if(!held||!Z||Z.st!='rec')return;const dx=Math.min(0,e.clientX-x0),dy=Math.min(0,e.clientY-y0);moveBig(dx,dy);if(dx<-100){held=0;fin(0)}else if(dy<-80){held=0;lockRec()}};
-b.onpointerup=e=>{const tp=tap;tap=0;clearTimeout(hold);if(held){held=0;if(Z&&Z.st=='rec')fin(1);return}if(Z||!tp)return;if(hasTxt())send();else{mmode=mmode=='a'?'v':'a';updBtn()}};
+b.onpointerup=e=>{const tp=tap;tap=0;clearTimeout(hold);if(held){held=0;if(Z&&Z.st=='rec'){if(performance.now()-t0<300){fin(0);mmode=mmode=='a'?'v':'a';updBtn()}else fin(1)}return}if(Z||!tp)return;if(hasTxt())send();else{mmode=mmode=='a'?'v':'a';updBtn()}};
 b.onpointercancel=e=>{tap=0;clearTimeout(hold);if(held){held=0;fin(0)}}}
 function bindTi(){$('#ic-st').innerHTML=`<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 14c1 1.5 2.2 2.2 3.5 2.2s2.5-.7 3.5-2.2"/></svg>`;const t=$('#ti');t.oninput=()=>{t.style.height='24px';t.style.height=Math.min(t.scrollHeight,120)+'px';updBtn()};t.onkeydown=e=>{if(e.key=='Enter'&&!e.shiftKey&&innerWidth>700){e.preventDefault();send()}}}
 $('#att').onclick=()=>{menu([['عکس یا ویدیو','img',()=>{const o=m(1,'',T(),{type:'im',emo:['🌄','🏙️','🐶','🍕'][Math.random()*4|0]});o.st=1;addMsg(o);reply(o)}],['فایل','file',()=>toast('به‌زودی')],['موقعیت مکانی','loc',()=>toast('به‌زودی')],['مخاطب','user',()=>toast('به‌زودی')]],innerHeight-330,70)};
