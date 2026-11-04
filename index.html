@@ -24,7 +24,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Vazirmatn",syst
 /* fill the whole screen: remove the blank band under the input bar (day: white, night: black) */
 /* raise bottom controls by 20px (change --up to adjust) */
 @media (orientation:portrait){:root{--up:10px}.inb:not(.kbo){padding-bottom:calc(env(safe-area-inset-bottom) + 13px + var(--up))!important}.tabbar{bottom:calc(env(safe-area-inset-bottom) + 12px + var(--up))!important}.eb{bottom:calc(env(safe-area-inset-bottom) + 14px + var(--up))!important}.dn{bottom:calc(env(safe-area-inset-bottom) + 84px + var(--up))!important}}
-@supports (height:100lvh){html,body{height:100lvh}#app{top:0;bottom:auto;margin-top:0;height:calc(100lvh + env(safe-area-inset-bottom,0px))}}
+@supports (height:100lvh){html,body{height:100lvh}#app{top:0;bottom:auto;margin-top:0;height:calc(100lvh + env(safe-area-inset-bottom,0px) + 5px)}}
 @media (pointer:coarse){#mc,#cr,#vw,#mp,#sp,#ng{max-width:none!important}}
 @media (pointer:coarse) and (orientation:landscape){
 #app,#mc,#cr,#vw,#mp,#sp,#ng{left:env(safe-area-inset-left,0px)!important;right:env(safe-area-inset-right,0px)!important;margin:0!important}
@@ -410,6 +410,7 @@ if(R.abort){ui(R);try{R.ac&&R.ac.close()}catch(e){}if(!Z&&MST){MST.getTracks().f
 const mt=pickMime(S.mimes),mr=R.mr=new MediaRecorder(out,Object.assign(mt?{mimeType:mt}:{},{audioBitsPerSecond:vid?96000:(/opus/.test(mt)?64000:96000)},vid?{videoBitsPerSecond:1000000}:{}));
 mr.ondataavailable=e=>{e.data.size&&R.ch.push(e.data);if(R.want){R.want=0;showPv(R,mr.mimeType||mt)}};
 mr.onstop=async()=>{const R2=R;ui(R2);if(!R2.send)return;const mime=mr.mimeType||mt,d=R2.acc/1000;let blob=new Blob(R2.ch,{type:mime}),s=R2.s*d,e=R2.e*d;const tb=(R2.s>.01||R2.e<.99)?(R2.vid?trimVid(blob,mime,s,e):trimBlob(blob,mime,R2.vid,s,e)).catch(()=>blob):null;
+if(tb){try{const nb=await tb;if(nb&&nb.size>800)blob=nb}catch(_){}}
 const sec=Math.max(1,Math.ceil(Math.min(S.max||1e9,e-s))),L=R2.pk.length,p0=Math.floor(R2.s*L),p1=Math.max(p0+1,Math.ceil(R2.e*L)),pk=R2.pk.slice(p0,p1),mx=Math.max(.05,...pk);
 const wf=Array.from({length:64},(_,i)=>{const a=Math.floor(i*pk.length/64),b=Math.max(a+1,Math.floor((i+1)*pk.length/64));let m=0;for(let k=a;k<b&&k<pk.length;k++)m=Math.max(m,pk[k]);return Math.round(Math.min(1,m/mx)*31)});
 const ob=m(1,'',T(),{type:R2.vid?'rv':'vc',du:fmtD(sec),sec,url:URL.createObjectURL(blob),mime:blob.type,wf,wf5:pack5(wf),th:R2.th0||''});ob.st=1;ob._tb=tb;addMsg(ob);reply(ob);tb&&tb.then(nb=>{if(!nb||nb===blob)return;const sw=()=>{if(typeof CUR!='undefined'&&CUR&&CUR.x===ob)return setTimeout(sw,800);ob.url=URL.createObjectURL(nb);ob._ck=0;ob.mime=nb.type;if(ob._v){ob._v.src=ob.url;ob._v.play().catch(()=>0)}if(ob._a)ob._a.src=ob.url};sw()})};
@@ -1138,10 +1139,13 @@ window.openMyProfile=()=>{const u=getU();const b=openSheet('پروفایل من'
  const d=b.querySelector('#pfd');d&&(d.onclick=()=>{sv('myphoto','');drawSettings();closeSheet()})};
 /* ---- change password ---- */
 const hpw=async t=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return'x'+btoa(unescape(encodeURIComponent(t)))}};
-window.openPw=()=>{const u=getU(),has=!!u.pw;const b=openSheet('تغییر رمز ورود',`${has?'<input id="pwo" class="fld" type="password" dir="ltr" style="text-align:left" placeholder="رمز فعلی">':''}<input id="pwn" class="fld" type="password" dir="ltr" style="text-align:left" placeholder="رمز جدید"><input id="pwc" class="fld" type="password" dir="ltr" style="text-align:left" placeholder="تکرار رمز جدید"><div class="cap">رمز جدید حداقل ۶ حرف باشد.</div><div class="card" style="margin-top:14px"><div class="sr press" style="color:var(--ac);justify-content:center" id="pws">ذخیره رمز</div></div>`);
+window.openPw=()=>{const u=getU(),has=!!u.pw||!!(window.LK&&LK.ME);const b=openSheet('تغییر رمز ورود',`${has?'<input id="pwo" class="fld" type="password" dir="ltr" style="text-align:left" placeholder="رمز فعلی">':''}<input id="pwn" class="fld" type="password" dir="ltr" style="text-align:left" placeholder="رمز جدید"><input id="pwc" class="fld" type="password" dir="ltr" style="text-align:left" placeholder="تکرار رمز جدید"><div class="cap">رمز جدید حداقل ۶ حرف باشد.</div><div class="card" style="margin-top:14px"><div class="sr press" style="color:var(--ac);justify-content:center" id="pws">ذخیره رمز</div></div>`);
  b.querySelector('#pws').onclick=async()=>{const n=b.querySelector('#pwn').value,c=b.querySelector('#pwc').value,u2=getU();
-  if(u2.pw){const o=b.querySelector('#pwo').value;if(await hpw(o)!==u2.pw)return toast('رمز فعلی درست نیست')}
+  const srv=!!(window.LK&&LK.ME),oe=b.querySelector('#pwo'),o=oe?oe.value:'';
+  if(u2.pw&&!srv){if(await hpw(o)!==u2.pw)return toast('رمز فعلی درست نیست')}
+  if(srv&&!o)return toast('رمز فعلی را وارد کنید');
   if(n.length<6)return toast('رمز جدید خیلی کوتاه است');if(n!==c)return toast('تکرار رمز یکسان نیست');
+  if(srv){try{await LK.api('PATCH','/account/password',{password:n,oldPassword:o})}catch(e){return toast(e.code===401?'رمز فعلی درست نیست':(e.message||'تغییر رمز در سرور انجام نشد'))}}
   u2.pw=await hpw(n);sv('u',JSON.stringify(u2));closeSheet();toast('رمز ورود تغییر کرد')}};
 /* ---- proxy ---- */
 window.openProxy=()=>{let p={on:0,host:'',port:'',secret:''};try{p=Object.assign(p,JSON.parse(ld('proxy')))}catch(e){}
