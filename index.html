@@ -1360,7 +1360,7 @@ function pick(media,cb){const i=document.createElement('input');i.type='file';i.
 const SXIC='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 const SARC=x=>`<svg class="arc" viewBox="0 0 58 58"><circle cx="29" cy="29" r="27" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" pathLength="100" stroke-dasharray="${Math.max(8,(x.prog||0)*100)} 100"/></svg>`;
 window.sndSet=sndSet;function sndSet(x,p){x.prog=p;$$(`#msgs .b[data-id="${x.id}"] .arc circle`).forEach(c=>c.setAttribute('stroke-dasharray',Math.max(8,p*100)+' 100'))}
-window.sndCancel=id=>{const x=cur&&cur.msgs.find(q=>q.id==id);if(!x||!x.snd)return;x.snd.c=1;cur.msgs=cur.msgs.filter(q=>q!==x);drawMsgs()};
+window.sndCancel=id=>{const x=cur&&cur.msgs.find(q=>q.id==id);if(!x||!x.snd)return;x.snd.c=1;try{x.snd.x&&x.snd.x.abort()}catch(e){}cur.msgs=cur.msgs.filter(q=>q!==x);drawMsgs()};
 async function sendMedia(items,asF,cap){const c=cur;
  /* build placeholder messages immediately: ring spins while compressing, then fills while uploading */
  const media=[],files=[];items.forEach(it=>{if(asF||it.kind=='f')files.push(it);else media.push(it)});
@@ -1525,13 +1525,13 @@ const fmtR=r=>r+'×';
 function bar(){pb.classList.toggle('hide',!CUR);$('#chat').classList.toggle('pb',!!CUR);{const e=$('#psp');e.textContent=fmtR(RATE);e.classList.toggle('on',RATE!==1)}if(CUR){const x=CUR.x;$('#pbn').textContent=x.out?'شما':(x.s||cur.n)}}
 /* render */
 function rvInner(x){const mt=`<span class="mt">${x.time}${x.out?`<span class="ok">${tkS(x.st)}</span>`:''}</span>`;
- const dl=upg(x)?`<div class="dlb">${ARC(x)}</div>`:isDl(x)?'':(x.dl==='ing'?`<div class="dlb">${XIC}${ARC(x)}</div>`:`<div class="dlb">${ARW}</div>`);
+ const dl=upg(x)?`<div class="dlb" onclick="event.stopPropagation();sndCancel(${x.id})">${XIC}${ARC(x)}</div>`:isDl(x)?'':(x.dl==='ing'?`<div class="dlb">${XIC}${ARC(x)}</div>`:`<div class="dlb">${ARW}</div>`);
  return`${!isDl(x)&&x.th?`<div class="thc"><i style="background:url(${x.th}) center/cover"></i></div>`:''}${dl}<span class="du">${isDl(x)?x.du:x.du+' · '+(x.size||'1.2 MB')}</span>${mt}`}
 const sleep=t=>new Promise(r=>setTimeout(r,t));
 const arw=n=>`<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M5 12l7 7 7-7"/></svg>`;
 const xic=n=>`<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
 const upg=x=>!!(x.out&&x._pend&&(x.type=='vc'||x.type=='rv'));
-const vpI=x=>upg(x)?ARC(x):isDl(x)?I('play',20):x.dl==='ing'?xic(18)+ARC(x):arw(22);
+const vpI=x=>upg(x)?`<span onclick="event.stopPropagation();sndCancel(${x.id})" style="display:contents">${xic(18)}${ARC(x)}</span>`:isDl(x)?I('play',20):x.dl==='ing'?xic(18)+ARC(x):arw(22);
 function setProg(x,p){x.prog=p;$$(`#msgs .b[data-id="${x.id}"] .arc circle`).forEach(c=>c.setAttribute('stroke-dasharray',Math.max(8,p*100)+' 100'))}
 function refreshDl(x){const b=$(`#msgs .b[data-id="${x.id}"]`);if(!b)return;
  if(x.type=='rv'){const q=b.querySelector('.ph');q.classList.toggle('fk',isDl(x)&&!x.url);q.innerHTML=rvInner(x);hyOne(b)}
@@ -3146,15 +3146,15 @@ async function markRead(c){
 const _oc=openChat;openChat=function(id){const r=_oc.apply(this,arguments);const c=cur;if(c&&c.uid)setTimeout(()=>markRead(c),400);return r};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cur&&cur.uid)markRead(cur)});
 /* ---------- آپلود و ارسال ---------- */
-function xhrUp(url,h,fd,onP){return new Promise((res,rej)=>{const q=new XMLHttpRequest();q.open('POST',url);q.withCredentials=true;Object.keys(h).forEach(k=>q.setRequestHeader(k,h[k]));q.upload.onprogress=e=>{if(e.lengthComputable&&onP)onP(e.loaded)};q.onload=()=>res({ok:q.status>=200&&q.status<300,status:q.status,headers:{get:n=>q.getResponseHeader(n)},json:()=>Promise.resolve(JSON.parse(q.responseText||'{}'))});q.onerror=()=>rej(new Error('network'));q.send(fd)})}
-async function upload(blob,name,mime,perm,onP,fid){
+function xhrUp(url,h,fd,onP,snd){return new Promise((res,rej)=>{const q=new XMLHttpRequest();q.open('POST',url);if(snd){if(snd.c)return rej(new Error('cancel'));snd.x=q}q.onabort=()=>rej(new Error('cancel'));q.withCredentials=true;Object.keys(h).forEach(k=>q.setRequestHeader(k,h[k]));q.upload.onprogress=e=>{if(e.lengthComputable&&onP)onP(e.loaded)};q.onload=()=>res({ok:q.status>=200&&q.status<300,status:q.status,headers:{get:n=>q.getResponseHeader(n)},json:()=>Promise.resolve(JSON.parse(q.responseText||'{}'))});q.onerror=()=>rej(new Error('network'));q.send(fd)})}
+async function upload(blob,name,mime,perm,onP,fid,snd){
  const id=fid||rid(),size=blob.size,CH=5*1024*1024;let s=0;
  while(s<size||size==0){
   const e=Math.min(s+CH,size),fd=new FormData();
   fd.append('fileId',id);perm.forEach(p=>fd.append('permissions[]',p));
   fd.append('file',new File([blob.slice(s,e)],name||'file',{type:mime||blob.type||'application/octet-stream'}));
   const h=hdr();if(size>CH){h['Content-Range']='bytes '+s+'-'+(e-1)+'/'+size;if(s>0)h['x-appwrite-id']=id}
-  const r=await xhrUp(EP+'/storage/buckets/'+BK+'/files',h,fd,l=>onP&&onP(s+Math.min(l,e-s)));
+  const r=await xhrUp(EP+'/storage/buckets/'+BK+'/files',h,fd,l=>onP&&onP(s+Math.min(l,e-s)),snd);
   const f=r.headers.get('X-Fallback-Cookies');if(f)ls('cookieFallback',f);
   if(!r.ok){let j={};try{j=await r.json()}catch(x){}const er=new Error(j.message||'upload');er.code=r.status;throw er}
   s=e;if(size==0)break}
@@ -3163,13 +3163,13 @@ function imgThumb(src,max,q){return new Promise(res=>{const im=new Image();im.on
 const fidsOf=x=>{const a=[];if(x.items)x.items.forEach(it=>{it.fid&&a.push(it.fid);it.tf&&a.push(it.tf)});x.fid&&a.push(x.fid);x.tf&&a.push(x.tf);return a};
 async function post(c,o){
  const me=ME.$id,peer=c.uid||c.gid,sid=rid();
- o.sid=sid;o.ts=new Date().toISOString();o.st=1;o._st=o.text;o._pend=1;IDX.set(sid,o);
+ o.sid=sid;o.ts=new Date().toISOString();o.st=1;o._st=o.text;o._pend=1;IDX.set(sid,o);if((o.type=='vc'||o.type=='rv')&&!o.snd)o.snd={c:0};
  const fp=['read("user:'+me+'")','delete("user:'+me+'")'];
  try{
   const kind=o.type||'t';let meta={};let TOT=1,DONE=0;const pgr=l=>{if(o._pend)sndSet(o,Math.min(.99,(DONE+l)/TOT))},cx=()=>{if(o.snd&&o.snd.c)throw new Error('cancel')};
   if(kind=='al'||kind=='fl'){const its=[];TOT=Math.max(1,o.items.reduce((a,q)=>a+(q.s||1),0));
    for(const it of o.items){cx();
-    const b=await (await _f(it.u)).blob();it.fid=await upload(b,it.n,it.mime||b.type,fp,pgr);DONE+=b.size||it.s||1;
+    const b=await (await _f(it.u)).blob();it.fid=await upload(b,it.n,it.mime||b.type,fp,pgr,null,o.snd);DONE+=b.size||it.s||1;
     let tb=null;
     try{if(it.k=='p'){const u=URL.createObjectURL(b);tb=await imgThumb(u,320,.6);URL.revokeObjectURL(u)}else if(it.t&&/^(data|blob):/.test(it.t))tb=await imgThumb(it.t,kind=='fl'?160:320,.6)}catch(e){}
     if(tb){try{it.tf=await upload(tb,'t.jpg','image/jpeg',fp)}catch(e){}}
@@ -3178,11 +3178,11 @@ async function post(c,o){
   else if(kind=='vc'||kind=='rv'){
    let b=null;if(o._tb){try{b=await o._tb}catch(e){}}
    if(!b)b=await (await _f(o.url)).blob();
-   TOT=Math.max(1,b.size);cx();o.fid=await upload(b,kind=='rv'?'video.mp4':'voice.ogg',b.type||o.mime,fp,pgr);DONE=TOT;
+   TOT=Math.max(1,b.size);cx();o.fid=await upload(b,kind=='rv'?'video.mp4':'voice.ogg',b.type||o.mime,fp,pgr,null,o.snd);DONE=TOT;
    if(kind=='rv'&&o.th&&/^(data|blob):/.test(o.th)){try{const tb=await imgThumb(o.th,120,.5);if(tb)o.tf=await upload(tb,'t.jpg','image/jpeg',fp)}catch(e){}}
    meta={fid:o.fid,tf:o.tf||'',sec:o.sec,du:o.du,wf:o.wf,mime:b.type||o.mime,sz:b.size}}
   else if(kind=='st'&&o.anim)meta={an:o.anim};
-  const r=await api('POST','/databases/'+DB+'/collections/messages/documents',{documentId:sid,data:{chat:c.gid||[me,peer].sort().join('_'),sender:me,rcpt:peer,text:o.text||'',kind,emo:o.emo||'',rn:o.rp?o.rp[0]:'',rt:o.rp?String(o.rp[1]).slice(0,200):'',meta:JSON.stringify(meta)},permissions:['read("user:'+me+'")','update("user:'+me+'")','delete("user:'+me+'")']});
+  cx();const r=await api('POST','/databases/'+DB+'/collections/messages/documents',{documentId:sid,data:{chat:c.gid||[me,peer].sort().join('_'),sender:me,rcpt:peer,text:o.text||'',kind,emo:o.emo||'',rn:o.rp?o.rp[0]:'',rt:o.rp?String(o.rp[1]).slice(0,200):'',meta:JSON.stringify(meta)},permissions:['read("user:'+me+'")','update("user:'+me+'")','delete("user:'+me+'")']});
   o.ts=r.$createdAt;o._pend=0;o.snd=null;o.prog=1;if(o.st!=2)o.st=1;if(kind=='vc'||kind=='rv')refreshDl(o);redraw(o);
  }catch(e){const cn=o.snd&&o.snd.c;o.err=cn?0:1;o._pend=0;o.snd=null;IDX.delete(sid);if(cn)return;toast('ارسال نشد: '+em(e));if(o.type=='vc'||o.type=='rv')refreshDl(o);redraw(o)}}
 reply=function(o){if(!ME)return;const c=C.find(q=>q.msgs.includes(o))||cur;if(!c||c.saved||(!c.uid&&!c.gid))return;if(c.gid&&c._pend){toast('گروه هنوز ساخته نشده');return}post(c,o);if((o.type=='vc'||o.type=='rv')&&o._pend)refreshDl(o)};
