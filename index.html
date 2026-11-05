@@ -331,7 +331,7 @@ box.ontouchmove=e=>{if(!rb)return;rd=e.touches[0].clientX-rx;const dy=e.touches[
 box.ontouchend=()=>{if(!rb)return;rb.style.transition='';rb.style.transform='';const x=cur.msgs.find(q=>q.id==rb.dataset.id);if(rd<-55&&x)setRep(x);rb=null}}
 box.scrollTop=box.scrollHeight;box.style.scrollBehavior='smooth'}
 function ctxMsg(x,b,e){const y=Math.min(b.getBoundingClientRect().bottom+8,innerHeight-330);
-menu([['پاسخ','reply',()=>setRep(x)],['کپی','copy',()=>{navigator.clipboard&&navigator.clipboard.writeText(x.text||'');toast('کپی شد')}],['سنجاق','pin',()=>{cur.pm=x.id;drawPin()}],['ارسال','fwd',()=>fwPick([x])],0,['حذف','trash',()=>{cur.msgs=cur.msgs.filter(q=>q!=x);drawMsgs()},1]],y,(e&&e.clientX)||innerWidth/2)}
+menu([['پاسخ','reply',()=>setRep(x)],['کپی','copy',()=>{navigator.clipboard&&navigator.clipboard.writeText(x.text||'');toast('کپی شد')}],[cur.pm==x.id?'برداشتن سنجاق':'سنجاق','pin',()=>{if(cur.pm==x.id){cur.pm=null;cur.pinned=0}else cur.pm=x.id;drawPin()}],['ارسال','fwd',()=>fwPick([x])],0,['حذف','trash',()=>{cur.msgs=cur.msgs.filter(q=>q!=x);drawMsgs()},1]],y,(e&&e.clientX)||innerWidth/2)}
 function setRep(x){rep=x;$('#rpn').textContent=x.out&&cur.t!='ch'?'شما':cur.n;$('#rpt').textContent=x.text||'رسانه';$('#rpl').classList.remove('hide');$('#ti').focus({preventScroll:true})}
 function drawPin(){const c=cur,p=c.msgs.find(q=>q.id==c.pm)||(c.pinned&&c.msgs[c.msgs.length-1]);$('#pinb').classList.toggle('hide',!p&&!c.ll);$('#ll').classList.toggle('hide',!c.ll);$('#pinc').classList.toggle('hide',!p);if(p)$('#pint').textContent=p.text||'رسانه'}
 function gotoPin(){const e=$(`#msgs .b[data-id="${cur.pm}"]`);e&&e.scrollIntoView({block:'center'})}
@@ -1745,7 +1745,7 @@ function startEdit(x){EDIT=x;rep=null;$('#rpn').textContent='ویرایش پیا
 ctxMsg=function(x,b,e){const y=Math.min(b.getBoundingClientRect().bottom+8,innerHeight-380),px=(e&&e.clientX)||innerWidth/2,it=[['پاسخ','reply',()=>setRep(x)]];
  if(x.out&&!x.type&&x.text)it.push(['ویرایش','pen',()=>startEdit(x)]);
  if(x.text)it.push(['کپی','copy',()=>{navigator.clipboard&&navigator.clipboard.writeText(x.text||'');toast('کپی شد')}]);
- it.push(['سنجاق','pin',()=>{cur.pm=x.id;drawPin()}],['انتخاب','chk',()=>window.selStart(x)],['ارسال','fwd',()=>fwPick([x])],0,['حذف','trash',()=>delAsk(x,y,px),1]);
+ it.push([cur.pm==x.id?'برداشتن سنجاق':'سنجاق','pin',()=>{if(cur.pm==x.id){cur.pm=null;cur.pinned=0}else cur.pm=x.id;drawPin()}],['انتخاب','chk',()=>window.selStart(x)],['ارسال','fwd',()=>fwPick([x])],0,['حذف','trash',()=>delAsk(x,y,px),1]);
  menu(it,y,px)};
 const _s=send;send=function(){if(!EDIT)return _s();const v=$('#ti').value.trim();if(!v)return;const x=EDIT;EDIT=null;
  if(v!==x.text){x.text=v;x.ed=1;if(cur.msgs[cur.msgs.length-1]===x)cur.last=v}
