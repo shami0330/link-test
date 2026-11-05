@@ -509,7 +509,7 @@ $('#cb').onclick=closeChat;
 function openInfo(){const c=cur;if(!c||c.saved)return;if(c.uid&&window.LK&&!c._ft){c._ft=1;try{const d0=LK.UD.get(c.uid);if(d0){c.user=d0.uname||c.user;c.email=d0.email||c.email}}catch(_){}LK.api('GET','/databases/'+LK.DB+'/collections/users/documents/'+c.uid).then(d=>{c._ft=0;if(!d)return;const ch=(d.uname||'')!=(c.user||'')||(d.email||'')!=(c.email||'');c.user=d.uname||c.user;c.email=d.email||c.email;if(ch&&cur===c)openInfo()}).catch(()=>{c._ft=0})}$('#ib').innerHTML=I('back',22);
 $('#isc').innerHTML=`<div class="pfx"><div class="pfa">${av(c,400)}</div><div class="pfg"></div><div class="pfn"><h2 dir="auto">${esc(c.n)}</h2><small>${c.t=='pv'?(c.seen||'آنلاین'):c.t=='gp'?'۳ عضو':'۱۲۰۰ مشترک'}</small></div></div>
 <div class="acts">${[['call','تماس'],['video','ویدیو'],['bell','بی‌صدا'],['search','جستجو'],['more','بیشتر']].map(([i,l])=>`<button class="gl press" data-a="${i}">${I(i,26)}${l}</button>`).join('')}</div>
-<div class="card">${c.phone?`<div class="ir"><small>موبایل</small><div class="g" dir="ltr" style="text-align:right">${c.phone}</div></div>`:''}${c.user?`<div class="ir"><small>نام کاربری</small><div class="g" dir="ltr" style="text-align:right">@${c.user}</div></div>`:''}${c.email?`<div class="ir"><small>ایمیل</small><div class="g" dir="ltr" style="text-align:right">${esc(c.email)}</div></div>`:''}${c.bd?`<div class="ir"><small>تولد</small><div>${c.bd}</div></div>`:''}${c.bio?`<div class="ir"><small>بیوگرافی</small><div dir="auto">${esc(c.bio)}</div></div>`:''}${!c.phone&&!c.bio?`<div class="ir"><small>توضیحات</small><div>—</div></div>`:''}</div>
+<div class="card">${c.phone?`<div class="ir"><small>موبایل</small><div class="g" dir="ltr" style="text-align:right">${c.phone}</div></div>`:''}${c.user?`<div class="ir"><small>نام کاربری</small><div class="g" dir="ltr" style="text-align:right">@${c.user}</div></div>`:''}${(c.dem||c.email)?`<div class="ir"><small>ایمیل</small><div class="g" dir="ltr" style="text-align:right">${esc(c.dem||c.email)}</div></div>`:''}${c.bd?`<div class="ir"><small>تولد</small><div>${c.bd}</div></div>`:''}${c.bio?`<div class="ir"><small>بیوگرافی</small><div dir="auto">${esc(c.bio)}</div></div>`:''}${!c.phone&&!c.bio?`<div class="ir"><small>توضیحات</small><div>—</div></div>`:''}</div>
 <div class="mtabs gl">${['رسانه','ذخیره‌شده','فایل‌ها','موسیقی','صدا','پیوندها'].map((t,k)=>`<div class="chip ${k?'':'on'}">${t}</div>`).join('')}</div>
 <div class="grid">${Array.from({length:16},(_,k)=>`<div style="background:linear-gradient(${G[(k+c.id)%7]})">${I('img',30)}</div>`).join('')}</div>`;
 $$('.acts button').forEach(b=>b.onclick=()=>{const a=b.dataset.a;if(a=='more'){const r=b.getBoundingClientRect();menu([['تغییر والپیپر','pen',()=>toast('به‌زودی')],['شروع چت رمزنگاری‌شده','lock',()=>toast('به‌زودی')],['اشتراک مخاطب','fwd',()=>toast('به‌زودی')],['ارسال هدیه','gift',()=>toast('به‌زودی')],0,['پاک‌کردن پیام‌ها','trash',()=>window.clrAsk(),1],[isBl(c)?'رفع بلاک':'مسدود کردن','block',()=>toggleBl(c),1]],r.bottom+8,r.right)}else if(a=='bell'){c.mute=!c.mute;toast(c.mute?'بی‌صدا شد':'باصدا شد')}else if(a=='search'){toast('جستجو: به‌زودی')}else toast('تماس: بعد از اتصال به سرور')});
@@ -551,7 +551,7 @@ if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.
 let u=null;try{u=JSON.parse(ld('u'))}catch(e){}if(u){$('#auth').classList.add('gone');enter(u)}}
 /* language */
 const EN={'ذخیره‌سازی و اطلاعات':'Storage and Data','لیمیت روزانه':'Daily Limit','مشاهده لیمیت روزانه':'View Daily Limit','تغییر رمز ورود':'Change Password','پروفایل':'Profile','تنظیمات':'Settings','مخاطبین':'Contacts','گفتگوها':'Chats','ویرایش':'Edit','تمام':'Done','همه':'All','شخصی':'Private','گروه':'Groups','کانال':'Channels','جستجو':'Search','لغو':'Cancel','جستجوی مخاطبین':'Search contacts','در حال اتصال…':'Connecting…','خواندن':'Read','حذف':'Delete','ورود':'Log In','ثبت‌نام':'Sign Up','حساب ندارید؟ ثبت‌نام':"Don't have an account? Sign up",'حساب دارید؟ ورود':'Have an account? Log in','برای ادامه وارد شوید':'Log in to continue','یک حساب جدید بسازید':'Create a new account','ایمیل':'Email','رمز عبور':'Password','نام':'Name','پیام':'Message','تغییر عکس پروفایل':'Change Profile Photo','افزودن حساب':'Add Account','پروفایل من':'My Profile','پروکسی':'Proxy','غیرفعال':'Disabled','پیام‌های ذخیره‌شده':'Saved Messages','تماس‌های اخیر':'Recent Calls','دستگاه‌ها':'Devices','اسکن QR':'Scan QR','پوشه‌های گفتگو':'Chat Folders','حالت تاریک':'Dark Mode','خروج':'Log Out','زبان':'Language','به‌زودی':'Coming soon','گفتگویی پیدا نشد':'No chats found','سنجاق':'Pin','برداشتن سنجاق':'Unpin','علامت‌گذاری خوانده':'Mark as Read','علامت‌گذاری ناخوانده':'Mark as Unread','بی‌صدا':'Mute','باصدا':'Unmute','پاسخ':'Reply','کپی':'Copy','کپی شد':'Copied','ارسال':'Forward','پیام سنجاق‌شده':'Pinned Message','موقعیت زنده · ۲ عضو':'Live Location · 2 members','امروز':'Today','شما':'You','تماس':'Call','ویدیو':'Video','بیشتر':'More','موبایل':'mobile','نام کاربری':'username','تولد':'birthday','بیوگرافی':'bio','توضیحات':'info','رسانه':'Media','ذخیره‌شده':'Saved','فایل‌ها':'Files','موسیقی':'Music','صدا':'Voice','پیوندها':'Links','تغییر والپیپر':'Change Wallpaper','شروع چت رمزنگاری‌شده':'Start Secret Chat','اشتراک مخاطب':'Share Contact','ارسال هدیه':'Send a Gift','پاک‌کردن پیام‌ها':'Clear Messages','مسدود کردن':'Block User','عکس یا ویدیو':'Photo or Video','فایل':'File','موقعیت مکانی':'Location','مخاطب':'Contact','برای ضبط نگه دارید':'Hold to record','در حال نوشتن…':'typing…','آنلاین':'online','اخیراً آنلاین بود':'last seen recently','مدتی پیش':'last seen a while ago','۳ عضو':'3 members','۱۲۰۰ مشترک':'1,200 subscribers','پاک شد':'Cleared','مسدود شد':'Blocked','بی‌صدا شد':'Muted','باصدا شد':'Unmuted','جستجو: به‌زودی':'Search: coming soon','تماس: بعد از اتصال به سرور':'Calls: after server connection','گفتگوی جدید: به‌زودی':'New chat: coming soon','یکشنبه':'Sun','شنبه':'Sat','سه‌شنبه':'Tue','۲۱ آبان':'Nov 12','عکس':'Photo','پیام صوتی':'Voice Message','استیکر':'Sticker','ویدیو پیام':'Video Message','گیف':'GIF','حذف':'Delete','برای ارسال بزنید':'Tap to send'};
-const EP=[['برای لغو بکشید','Slide to cancel'],['ضبط ویدیو','Recording video'],['ضبط صدا','Recording voice'],['رها کنید تا ارسال شود','release to send'],['آخرین بازدید امروز','last seen today at'],['آخرین بازدید شنبه','last seen Saturday']];
+const EP=[['برای لغو بکشید','Slide to cancel'],['ضبط ویدیو','Recording video'],['ضبط صدا','Recording voice'],['رها کنید تا ارسال شود','release to send'],['آخرین بازدید امروز','last seen today at'],['آخرین بازدید شنبه','last seen Saturday'],['آخرین بازدید دیروز ساعت','last seen yesterday at'],['آخرین بازدید ساعت','last seen at'],['در حال تایپ…','typing…'],['در حال ضبط پیام صوتی…','recording voice message…'],['در حال ضبط ویدیو…','recording video…'],['در حال ارسال عکس…','sending photo…'],['در حال ارسال ویدیو…','sending video…'],['در حال ارسال فایل…','sending file…'],['آخرین بازدید ','last seen ']];
 
 function fwh(x){return`<div class="fwh" dir="auto"><span>فوروارد شده از</span> <b>${esc(x.fw)}</b></div>`}
 function fwPick(list,done){
@@ -3104,7 +3104,7 @@ let rdT=0;function soft(){clearTimeout(rdT);rdT=setTimeout(()=>{drawList();keep(
 function addUsers(list){let n=0;list.forEach(u=>{if(u.$id==ME.$id||chatOf(u.$id))return;C.push({id:hid(u.$id),n:u.name||u.uname||'کاربر',t:'pv',uid:u.$id,user:u.uname||'',time:'',last:'شروع گفتگو',seen:'عضو لینک',msgs:[]});n++});return n}
 async function loadUsers(){const r=await api('GET','/databases/'+DB+'/collections/users/documents?'+qs([{method:'limit',values:[100]}]));let ch=false;r.documents.forEach(u=>{if(nameSync(u))ch=true});if(ch)namesRedraw();return 0}
 const UD=new Map();
-function addKnown(docs){let n=0;docs.forEach(d=>{if(GR.get(d.rcpt))return;const o=d.sender==ME.$id?d.rcpt:d.sender,u=UD.get(o);if(u&&!chatOf(o))n+=addUsers([u])});return n}
+function addKnown(docs){let n=0;docs.forEach(d=>{if(GR.get(d.rcpt)||rtK(d))return;const o=d.sender==ME.$id?d.rcpt:d.sender,u=UD.get(o);if(u&&!chatOf(o))n+=addUsers([u])});return n}
 let UAll=0;
 async function allUsers(force){if(!force&&UAll&&Date.now()-UAll<60000)return;let after='';for(let i=0;i<5;i++){const m=[{method:'limit',values:[100]}];if(after)m.push({method:'cursorAfter',values:[after]});const r=await api('GET','/databases/'+DB+'/collections/users/documents?'+qs(m));r.documents.forEach(u=>{UN.set(u.$id,u.name||u.uname||'کاربر');UD.set(u.$id,u)});if(r.documents.length<100)break;after=r.documents[r.documents.length-1].$id}UAll=Date.now()}
 function lev(a,b){const m=a.length,n=b.length;if(!m)return n;let p=[...Array(n+1).keys()];for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]==b[j-1]?0:1));p=c}return p[n]}
@@ -3299,6 +3299,7 @@ function onEv(d){
   if(del){const c=GR.get(p.$id);c&&dropLocal(c)}else{applyGroup(p);drawList();drawTabs();if(cur&&cur.gid==p.$id)refreshHead(cur)}
   return}
  if(del){removeLocal(p.$id);return}
+ if(p.kind=='rd'&&rtEv(p))return;
  if(p.kind=='rd'){if(isVw(p)){applyVw(p);return}if(applyRd(p)){drawList();if(cur&&cur.uid==p.sender)keep()}return}
  const k=ingest(p,1);
  if(k==-1){refreshLists().then(()=>{ingest(p,1);drawList();drawContacts();drawTabs()});return}
@@ -3364,6 +3365,143 @@ function nameSync(u){
  if(old!==nm)C.forEach(g=>{if(g.t=='pv'||!g.msgs)return;g.msgs.forEach(x=>{if(!x.out&&x.su==u.$id&&x.s!=nm){x.s=nm;ch=true}})});
  return ch}
 function namesRedraw(){drawList();try{drawContacts();drawTabs()}catch(e){}if(cur)refreshHead(cur)}
+/* ---------- realtime: آنلاین/آخرین بازدید، تایپ/ضبط/ارسال، تغییر پروفایل ---------- */
+const rtPR=new Map(),rtTY=new Map(),rtPF=new Map(),rtTS=new Map(),rtEx=new Set(),rtUF=new Map(),rtUN=new Map();
+let rtSK=0,rtHB=0,rtPFS='',rtRS={c:null,k:''};
+const rtD=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+const rtHM=d=>rtD(pad(d.getHours())+':'+pad(d.getMinutes()));
+function rtShamsi(d){try{const p=new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn',{year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d),g=t=>p.find(x=>x.type==t).value;return rtD(g('year')+'/'+g('month')+'/'+g('day'))}catch(e){return d.toLocaleDateString('fa')}}
+/* کمتر از ۲۴ ساعت: ساعت دقیق | دیروز: «دیروز ساعت» | بیشتر: تاریخ شمسی سال/ماه/روز */
+function rtLast(ms){const d=new Date(ms),n=Date.now(),y=new Date(n);y.setDate(y.getDate()-1);
+ if(n-ms<864e5)return 'آخرین بازدید ساعت '+rtHM(d);
+ if(d.toDateString()==y.toDateString())return 'آخرین بازدید دیروز ساعت '+rtHM(d);
+ return 'آخرین بازدید '+rtShamsi(d)}
+const rtOn=p=>!!(p&&p.on&&Date.now()-(p.sv+rtSK)<75000);
+const rtPres=u=>{const p=rtPR.get(u);return p?(rtOn(p)?'آنلاین':rtLast(p.sv+rtSK)):''};
+const rtTYT={t:'در حال تایپ…',rc:'در حال ضبط پیام صوتی…',rv:'در حال ضبط ویدیو…',sp:'در حال ارسال عکس…',sv:'در حال ارسال ویدیو…',sf:'در حال ارسال فایل…'};
+const rtM=d=>{try{return JSON.parse(d.meta||'{}')}catch(e){return {}}};
+const rtK=d=>{const x=d&&d.kind=='rd'&&typeof d.meta=='string'&&/^\{"(pr|ty|pf)"/.exec(d.meta);return x?x[1]:''};
+const rtCk=k=>{const i=k.indexOf('|');return GR.get(k.slice(i+1))||chatOf(k.slice(0,i))};
+function rtTyp(c){
+ if(!c||!ME)return '';
+ if(c.t=='pv'&&c.uid){const v=rtTY.get(c.uid+'|'+ME.$id);return v?rtTYT[v.k]:''}
+ if(c.t=='gp'&&c.gid){const a=[];rtTY.forEach((v,k)=>{const i=k.indexOf('|');if(k.slice(i+1)==c.gid)a.push([k.slice(0,i),v.k])});
+  if(!a.length)return '';
+  if(a.length==1)return nameOf(a[0][0])+' '+rtTYT[a[0][1]];
+  return rtD(a.length)+' نفر '+rtTYT.t}
+ return ''}
+/* ارسال سند سبک (یک سند برای هر کاربر/جفت) با صفِ آخرین‌مقدار */
+const rtUP=new Set(),rtUQ=new Map();
+async function rtRun(id,rcpt,meta){
+ const url='/databases/'+DB+'/collections/messages/documents',me=ME.$id,m=JSON.stringify(meta);
+ if(rtEx.has(id)){try{await api('PATCH',url+'/'+id,{data:{meta:m}});return}catch(e){if(e.code!=404)throw e;rtEx.delete(id)}}
+ try{await api('POST',url,{documentId:id,data:{chat:'rt',sender:me,rcpt,text:'',kind:'rd',emo:'',rn:'',rt:'',meta:m},permissions:['read("user:'+me+'")','update("user:'+me+'")','delete("user:'+me+'")']});rtEx.add(id)}
+ catch(e){if(e.code==409){rtEx.add(id);await api('PATCH',url+'/'+id,{data:{meta:m}})}else throw e}}
+function rtUp(id,rcpt,meta){
+ if(!ME)return;
+ if(rtUP.has(id)){rtUQ.set(id,[rcpt,meta]);return}
+ rtUP.add(id);
+ rtRun(id,rcpt,meta).catch(()=>{}).then(()=>{rtUP.delete(id);const n=rtUQ.get(id);if(n){rtUQ.delete(id);rtUp(id,n[0],n[1])}})}
+/* ---- حضور ---- */
+function rtBeat(on){if(ME)rtUp('p'+ME.$id,ME.$id,{pr:1,on:on?1:0,t:Date.now()})}
+function rtOff(){if(!ME)return;try{_f(EP+'/databases/'+DB+'/collections/messages/documents/p'+ME.$id,{method:'PATCH',keepalive:true,credentials:'include',headers:Object.assign(hdr(),{'Content-Type':'application/json'}),body:JSON.stringify({data:{meta:JSON.stringify({pr:1,on:0,t:Date.now()})}})}).catch(()=>{})}catch(e){}}
+function rtReset(){[rtPR,rtTY,rtPF,rtTS,rtUF,rtUN].forEach(m=>m.clear());rtEx.clear();rtUP.clear();rtPFS='';clearInterval(rtHB)}
+function rtStart(){rtBeat(document.hidden?0:1);clearInterval(rtHB);rtHB=setInterval(()=>{if(ME&&!document.hidden)rtBeat(1)},30000);rtPub(1)}
+document.addEventListener('visibilitychange',()=>{if(!ME)return;if(document.hidden)rtOff();else rtBeat(1)});
+window.addEventListener('pagehide',()=>rtOff());
+/* ---- پروفایل (بیو، ایمیل نمایشی، نسخهٔ عکس) ---- */
+function rtPub(force){
+ if(!ME)return;let u={};try{u=JSON.parse(lg('u')||'{}')}catch(e){}
+ const m={pf:1,b:String(u.b||'').slice(0,160),e:String(u.e||'').slice(0,120),v:+lg('avv:'+ME.$id)||0},k=m.b+'\u0001'+m.e+'\u0001'+m.v;
+ if(!force&&k===rtPFS)return;rtPFS=k;rtUp('f'+ME.$id,ME.$id,m)}
+setInterval(()=>{try{rtPub(0)}catch(e){}},3000);
+/* ---- نمایش ---- */
+function rtSync(c){
+ if(!c||c.t!='pv'||!c.uid)return 0;let ch=0;
+ const pt=rtPres(c.uid);if(pt&&c.seen!==pt)c.seen=pt;
+ const f=rtPF.get(c.uid);
+ if(f){if((c.bio||'')!==(f.b||'')){c.bio=f.b||'';ch=1}if((c.dem||'')!==(f.e||'')){c.dem=f.e||'';ch=1}}
+ return ch}
+function rtHead(){
+ const c=cur;if(!c||c.saved||!ME)return;
+ const ty=rtTyp(c),pt=(c.t=='pv'&&c.uid)?rtPres(c.uid):'',t=ty||pt,s=$('#cs');
+ if(s){
+  if(t){if(s.dataset.o===undefined)s.dataset.o=s.textContent;if(s.textContent!==t)s.textContent=t}
+  else if(s.dataset.o!==undefined){s.textContent=s.dataset.o;delete s.dataset.o}
+  s.classList.toggle('tyg',!!ty)}
+ const i=document.querySelector('#isc .pfn small'),inf=$('#info');
+ if(i&&inf&&inf.classList.contains('top1')&&!inf.classList.contains('r')&&c.t=='pv'){const x=t||c.seen;if(x&&i.textContent!==x)i.textContent=x}}
+function rtRow(c){
+ if(!c)return;const r=document.querySelector('#list .row[data-id="'+c.id+'"] .lm');if(!r)return;const t=rtTyp(c);
+ if(t){if(r.dataset.o===undefined)r.dataset.o=r.innerHTML;const h='<span class="tyg">'+esc(t)+'</span>';if(r.innerHTML!==h)r.innerHTML=h}
+ else if(r.dataset.o!==undefined){r.innerHTML=r.dataset.o;delete r.dataset.o}}
+function rtInfo(c){const inf=$('#info');if(cur===c&&inf&&inf.classList.contains('top1')&&!inf.classList.contains('r')){const b=$('#isc'),st=b.scrollTop;try{openInfo()}catch(e){}b.scrollTop=st}}
+async function rtAv(c){
+ if(!c||!c.uid)return;let u='';
+ try{const r=await _f(EP+'/storage/buckets/'+BK+'/files/'+AVID(c.uid)+'/view?r='+Date.now(),{headers:hdr(),credentials:'include',cache:'no-store'});
+  if(r.ok){const b=await r.blob();u=await new Promise(x=>{const f=new FileReader;f.onload=()=>x(f.result);f.onerror=()=>x('');f.readAsDataURL(b)})}else if(r.status!=404)return}catch(e){return}
+ if((c.ph||'')===u)return;c.ph=u;
+ try{drawList();drawContacts()}catch(e){}
+ if(cur===c){const a=$('#cav');if(a)a.innerHTML=`<div style="border:3px solid var(--gl);border-radius:50%">${av(c,52)}</div>`;rtInfo(c)}}
+/* ---- دریافت رویدادها ---- */
+function rtApplyPr(d,live){
+ if(!ME||!d||d.sender==ME.$id)return;
+ const m=rtM(d),n=Date.now(),sv=Date.parse(d.$updatedAt)||n;
+ if(live)rtSK=n-sv;
+ rtPR.set(d.sender,{on:m.on?1:0,sv});
+ const c=chatOf(d.sender);if(c){rtSync(c);if(cur===c)rtHead()}}
+function rtApplyPf(d,live){
+ if(!ME||!d||d.sender==ME.$id)return;
+ const m=rtM(d),old=rtPF.get(d.sender);rtPF.set(d.sender,m);
+ const c=chatOf(d.sender);if(!c||c.t!='pv')return;
+ const ch=rtSync(c),avc=old?old.v!==m.v:!!live;
+ if(avc)rtAv(c);
+ if(ch)rtInfo(c)}
+function rtApplyTy(d){
+ if(!ME||!d||d.sender==ME.$id)return;
+ const m=rtM(d),g=GR.get(d.rcpt);
+ if(!g&&d.rcpt!=ME.$id)return;
+ try{if(BLs().has(d.sender))return}catch(e){}
+ const key=d.sender+'|'+d.rcpt,n=Date.now();
+ rtSK=n-(Date.parse(d.$updatedAt)||n);
+ if(m.ty&&rtTYT[m.ty])rtTY.set(key,{k:m.ty,ex:n+7000});else rtTY.delete(key);
+ rtRow(g||chatOf(d.sender));rtHead()}
+function rtEv(p){const k=rtK(p);if(!k)return false;if(k=='pr')rtApplyPr(p,1);else if(k=='ty')rtApplyTy(p);else rtApplyPf(p,1);return true}
+{const _ig=ingest;ingest=function(d,live){
+ const k=rtK(d);if(k){if(k=='pr')rtApplyPr(d,0);else if(k=='pf')rtApplyPf(d,0);return 0}
+ const r=_ig.apply(this,arguments);
+ if(live&&r>0&&d&&d.sender&&d.kind!='rd'){const key=d.sender+'|'+d.rcpt;if(rtTY.delete(key))rtRow(rtCk(key))}
+ return r}}
+/* ---- ارسال تایپ/ضبط/ارسال فایل ---- */
+function rtSend(c,k,force){
+ if(!ME||!c||c.saved||c.t=='ch'||(!c.uid&&!c.gid)||(c.gid&&c._pend))return;
+ const peer=c.uid||c.gid,o=rtTS.get(peer)||{k:'',at:0},n=Date.now();
+ if(k===''&&!o.k)return;
+ if(!force&&o.k===k&&n-o.at<4000)return;
+ try{if(c.uid&&BLs().has(c.uid))return}catch(e){}
+ rtTS.set(peer,{k,at:n});
+ rtUp('y'+hid(ME.$id+'>'+peer).toString(36)+hid(peer+'<'+ME.$id+'y').toString(36),peer,{ty:k,t:n})}
+{const ti=$('#ti');ti&&ti.addEventListener('input',()=>{const c=cur;if(c)rtSend(c,ti.value.trim()?'t':'')})}
+{const _po=post;post=function(c,o){
+ const peer=c&&(c.uid||c.gid);if(peer)rtTS.delete(peer);
+ const r=_po.apply(this,arguments);
+ try{const t=o&&o.type;if(c&&(t=='al'||t=='fl')){
+  const its=o.items||[],k=t=='fl'?'sf':its.some(i=>i.k=='v')?'sv':its.some(i=>i.k=='p')?'sp':'sf';
+  rtSend(c,k,1);const iv=setInterval(()=>rtSend(c,k,1),4000);
+  Promise.resolve(r).finally(()=>{clearInterval(iv);rtSend(c,'',1)})}}catch(e){}
+ return r}}
+{const _dl=drawList;drawList=function(){const r=_dl.apply(this,arguments);try{if(rtTY.size)C.forEach(c=>rtRow(c))}catch(e){}return r}}
+{const _oc2=openChat;openChat=function(){const r=_oc2.apply(this,arguments);setTimeout(()=>{try{rtSync(cur);rtHead()}catch(e){}},30);return r}}
+function rtTick(){
+ if(!ME)return;const n=Date.now(),gone=[];
+ rtTY.forEach((v,k)=>{if(v.ex<n)gone.push(k)});
+ gone.forEach(k=>{rtTY.delete(k);rtRow(rtCk(k))});
+ C.forEach(c=>{if(c.t=='pv')rtSync(c)});
+ rtHead();
+ const o=$('#ro'),s=(o&&o.classList.contains('on')&&(o.dataset.s=='rec'||o.dataset.s=='lock'))?(o.classList.contains('v')?'rv':'rc'):'';
+ if(s){if(!rtRS.c)rtRS.c=cur;rtRS.k=s;rtSend(rtRS.c,s)}
+ else if(rtRS.k){rtSend(rtRS.c,'',1);rtRS={c:null,k:''}}}
+setInterval(rtTick,1000);
 /* ---------- آپلود و ارسال ---------- */
 function xhrUp(url,h,fd,onP,snd){return new Promise((res,rej)=>{const q=new XMLHttpRequest();q.open('POST',url);if(snd){if(snd.c)return rej(new Error('cancel'));snd.x=q}q.onabort=()=>rej(new Error('cancel'));q.withCredentials=true;Object.keys(h).forEach(k=>q.setRequestHeader(k,h[k]));q.upload.onprogress=e=>{if(e.lengthComputable&&onP)onP(e.loaded)};q.onload=()=>res({ok:q.status>=200&&q.status<300,status:q.status,headers:{get:n=>q.getResponseHeader(n)},json:()=>Promise.resolve(JSON.parse(q.responseText||'{}'))});q.onerror=()=>rej(new Error('network'));q.send(fd)})}
 async function upload(blob,name,mime,perm,onP,fid,snd){
@@ -3444,19 +3582,20 @@ window.pushMyAvatar=async d=>{if(!ME)return;const id=AVID(ME.$id);try{await api(
 async function pullAvatars(){if(!ME)return;let ch=0;const rd=b=>new Promise(r=>{const f=new FileReader;f.onload=()=>r(f.result);f.onerror=()=>r('');f.readAsDataURL(b)});
  await Promise.all(C.filter(c=>c.t=='pv'&&c.uid).map(async c=>{try{const r=await fetch('appwrite:'+AVID(c.uid));if(r.ok){const u=await rd(await r.blob());if(u&&c.ph!==u){c.ph=u;ch=1}}else if(r.status==404&&c.ph){c.ph='';ch=1}}catch(e){}}));
  if(ch){try{drawList();drawContacts()}catch(e){}}}
+{const _pa=window.pushMyAvatar;window.pushMyAvatar=async function(d){const r=await _pa.apply(this,arguments);if(ME){ls('avv:'+ME.$id,String(Date.now()));rtPub(1)}return r}}
 setInterval(()=>{pullAvatars()},120000);
 async function boot(){
  ME=await api('GET','/account');await ensureUser();
  if(lg('uid')!==ME.$id){await cacheWipe();wipeSync();C.length=0;C.push(SAVED())}
  ls('uid',ME.$id);if(!cacheRestore.done)await cacheRestore();
- const u={n:ME.name||ME.email.split('@')[0],e:ME.email,un:(MYU&&MYU.uname)||ME.email.split('@')[0].toLowerCase()};try{const o=JSON.parse(lg('u')||'{}');if(o.b)u.b=o.b}catch(_){}ls('u',JSON.stringify(u));
+ const u={n:ME.name||ME.email.split('@')[0],e:ME.email,un:(MYU&&MYU.uname)||ME.email.split('@')[0].toLowerCase()};try{const o=JSON.parse(lg('u')||'{}');if(o.b)u.b=o.b;if(o.e)u.e=o.e}catch(_){}ls('u',JSON.stringify(u));
  HID.clear();loadHG();await loadHides();
  await loadUsers();C.forEach(c=>{if(c.gid)GR.set(c.gid,c)});
  try{await loadGroups()}catch(e){}
  sweep();enter(u);drawList();drawContacts();drawTabs();
  pullAvatars();if(ld('myphoto')&&!lg('avup:'+ME.$id))window.pushMyAvatar(ld('myphoto'));
  await pull(lg('sy:'+ME.$id)&&C.some(c=>c.msgs.length)?'inc':'full');
- connectWS();loop();
+ connectWS();loop();try{rtStart()}catch(e){}
  setTimeout(async()=>{
   if(!ME)return;sweep();reindex();
   try{await loadGroups()}catch(e){}
@@ -3475,6 +3614,7 @@ $('#ab').onclick=async()=>{
  try{if(su)await api('POST','/account',{userId:'unique()',email:e,password:p,name:n||e.split('@')[0]});await signIn(e,p);await boot()}catch(x){toast(em(x))}
  ld.classList.remove('on');b.disabled=false};
 logout=function(){
+ try{rtOff();rtReset()}catch(e){}
  api('DELETE','/account/sessions/current').catch(()=>{});
  try{ws&&(ws.onclose=null,ws.close())}catch(e){}clearInterval(pingT);
  ls('u','');ls('uid','');ls('cookieFallback','');clearTimeout(timer);ME=null;IDX.clear();HID.clear();GR.clear();UN.clear();UNK.clear();wipeCache();
@@ -3495,6 +3635,6 @@ $('#auth').classList.add('rdy');
 /* forwarded-from header on every message type (text/file already render it themselves) */
 bub=(function(o){return function(c,x,i,A){let h=o(c,x,i,A);if(x&&x.fw&&typeof h=='string'&&h.indexOf('class="fwh"')<0){const k=x.type=='st'||x.type=='rv';h=h.replace(/^(\s*<div[^>]*>)/,(a,t)=>t+fwh(x).replace('class="fwh"','class="fwh'+(k?' fwa':'')+'"'))}return h}})(bub);
 </script>
-<style>.fwa{position:absolute;bottom:100%;left:0;right:0;white-space:nowrap;margin:0 0 2px}.b:has(>.fwa){margin-top:22px;position:relative}.b.im .fwh,.b.al .fwh{padding:6px 10px 0}</style>
+<style>.fwa{position:absolute;bottom:100%;left:0;right:0;white-space:nowrap;margin:0 0 2px}.b:has(>.fwa){margin-top:22px;position:relative}.b.im .fwh,.b.al .fwh{padding:6px 10px 0}.tyg{color:var(--ac)!important}</style>
 </body>
 </html>
