@@ -2843,6 +2843,7 @@ let page='main',stack=[];
 const PAGES={
 main:()=>pv()+'<div class="card">'+thumbs()+rw('Chat Themes','','go','themes')+rw('والپیپر چت','','go','wp')+'<div class="ap2-r press" data-a="go" data-k="color"><span>رنگ شما</span><i class="ap2-dot" style="background:var(--ac)"></i>'+chev+'</div></div>'
  +'<div class="card">'+tg('حالت شب',isDk(),'nm',dm()=='auto')+rw('حالت شب خودکار',dmName(),'go','auto')+'</div>'
+ +'<div class="card">'+tg('کیبورد لینک',window._lkOn&&window._lkOn(),'lk')+'</div><div class="ap-note">با روشن بودن این گزینه، کیبورد اصلی گوشی داخل برنامه باز نمی‌شود و فقط کیبورد لینک (فارسی و انگلیسی) نمایش داده می‌شود.</div>'
  +'<div class="card">'+rw('اندازه متن',ex.ts+'%','go','ts')+rw('گوشه‌های پیام',ex.rd,'go','rd')+rw('انیمیشن‌ها','','go','an')+rw('استیکر و ایموجی','','go','stk')+rw('لیکوید گلس','','go','lg')+'</div>',
 themes:()=>hd('SELECT A THEME')+'<div class="card">'+thumbs()+'</div>'+hd('BUILD YOUR OWN THEME')+pv()
  +'<div class="ap-seg" style="margin:0 14px 12px">'+[['','Default']].concat(CT.slice(1).map(c=>[c.id,c.n])).map(([k,n])=>'<button class="press '+(st.ct==k?'on':'')+'" data-a="ct" data-k="'+k+'">'+n+'</button>').join('')+'</div>'
