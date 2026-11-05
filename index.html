@@ -339,7 +339,7 @@ function openChat(id){cur=C.find(c=>c.id==id);cur.unread=0;cur.at=0;
 {const n=C.reduce((a,c)=>a+(c.unread&&!c.mute?1:0),0);$('#cb').innerHTML=I('back',22)+(n?`<i class="cbn">${n}</i>`:'')}
 $('#ct').innerHTML=`<b dir="auto">${esc(cur.n)}</b><small id="cs">${cur.t=='pv'?(cur.saved?'':'در حال اتصال…'):cur.t=='gp'?'۳ عضو':'۱۲۰۰ مشترک'}</small>`;
 $('#cav').innerHTML=`<div style="border:3px solid var(--gl);border-radius:50%">${av(cur,52)}</div>`;
-if(cur.t=='pv'&&!cur.saved)setTimeout(()=>{const s=$('#cs');if(s&&cur)s.textContent=cur.seen||'آنلاین'},1500);
+if(cur.t=='pv'&&!cur.saved)setTimeout(()=>{const s=$('#cs');if(s&&cur)s.textContent=cur.seen||'online'},1500);
 drawPin();rep=null;$('#rpl').classList.add('hide');$('#ti').value='';updBtn();updBar();drawMsgs();push('#chat','#main');drawList();drawChips();drawTabs()}
 function closeChat(){pop('#chat','#main');cur=null;drawList()}
 function updBtn(){const v=$('#ti').value.trim();const b=$('#mic');b.className='cb press '+(v?'sbtn':'gl');b.innerHTML=v?I('send',24):I(mmode=='v'?'video':'mic',24)}
@@ -508,7 +508,7 @@ $('#dn').onclick=()=>{$('#msgs').scrollTop=1e5};
 $('#cb').onclick=closeChat;
 {const ct=$('#ct'),h=document.querySelector('#chat .ch1'),fit=()=>{const H=ct.offsetHeight;H>0&&h.style.setProperty('--chh',H+'px')};fit();window.ResizeObserver&&new ResizeObserver(fit).observe(ct)}
 function openInfo(){const c=cur;if(!c||c.saved)return;if(c.uid&&window.LK&&!c._ft){c._ft=1;try{const d0=LK.UD.get(c.uid);if(d0){c.user=d0.uname||c.user;c.email=d0.email||c.email}}catch(_){}LK.api('GET','/databases/'+LK.DB+'/collections/users/documents/'+c.uid).then(d=>{c._ft=0;if(!d)return;const ch=(d.uname||'')!=(c.user||'')||(d.email||'')!=(c.email||'');c.user=d.uname||c.user;c.email=d.email||c.email;if(ch&&cur===c)openInfo()}).catch(()=>{c._ft=0})}$('#ib').innerHTML=I('back',22);
-$('#isc').innerHTML=`<div class="pfx"><div class="pfa">${av(c,400)}</div><div class="pfg"></div><div class="pfn"><h2 dir="auto">${esc(c.n)}</h2><small>${c.t=='pv'?(c.seen||'آنلاین'):c.t=='gp'?'۳ عضو':'۱۲۰۰ مشترک'}</small></div></div>
+$('#isc').innerHTML=`<div class="pfx"><div class="pfa">${av(c,400)}</div><div class="pfg"></div><div class="pfn"><h2 dir="auto">${esc(c.n)}</h2><small>${c.t=='pv'?(c.seen||'online'):c.t=='gp'?'۳ عضو':'۱۲۰۰ مشترک'}</small></div></div>
 <div class="acts">${[['call','تماس'],['video','ویدیو'],['bell','بی‌صدا'],['search','جستجو'],['more','بیشتر']].map(([i,l])=>`<button class="gl press" data-a="${i}">${I(i,26)}${l}</button>`).join('')}</div>
 <div class="card">${c.phone?`<div class="ir"><small>موبایل</small><div class="g" dir="ltr" style="text-align:right">${c.phone}</div></div>`:''}${c.user?`<div class="ir"><small>نام کاربری</small><div class="g" dir="ltr" style="text-align:right">@${c.user}</div></div>`:''}${(c.dem||c.email)?`<div class="ir"><small>ایمیل</small><div class="g" dir="ltr" style="text-align:right">${esc(c.dem||c.email)}</div></div>`:''}${c.bd?`<div class="ir"><small>تولد</small><div>${c.bd}</div></div>`:''}${c.bio?`<div class="ir"><small>بیوگرافی</small><div dir="auto">${esc(c.bio)}</div></div>`:''}${!c.phone&&!c.bio?`<div class="ir"><small>توضیحات</small><div>—</div></div>`:''}</div>
 <div class="mtabs gl">${['رسانه','ذخیره‌شده','فایل‌ها','موسیقی','صدا','پیوندها'].map((t,k)=>`<div class="chip ${k?'':'on'}">${t}</div>`).join('')}</div>
@@ -516,7 +516,7 @@ $('#isc').innerHTML=`<div class="pfx"><div class="pfa">${av(c,400)}</div><div cl
 $$('.acts button').forEach(b=>b.onclick=()=>{const a=b.dataset.a;if(a=='more'){const r=b.getBoundingClientRect();menu([['تغییر والپیپر','pen',()=>toast('به‌زودی')],['شروع چت رمزنگاری‌شده','lock',()=>toast('به‌زودی')],['اشتراک مخاطب','fwd',()=>toast('به‌زودی')],['ارسال هدیه','gift',()=>toast('به‌زودی')],0,['پاک‌کردن پیام‌ها','trash',()=>window.clrAsk(),1],[isBl(c)?'رفع بلاک':'مسدود کردن','block',()=>toggleBl(c),1]],r.bottom+8,r.right)}else if(a=='bell'){c.mute=!c.mute;toast(c.mute?'بی‌صدا شد':'باصدا شد')}else if(a=='search'){toast('جستجو: به‌زودی')}else toast('تماس: بعد از اتصال به سرور')});
 $('#isc').scrollTop=0;window.pfInit&&pfInit();push('#info','#chat')}
 $('#ib').onclick=()=>pop('#info','#chat');
-function drawContacts(){$('#clist').innerHTML=C.filter(c=>c.t=='pv'&&!c.saved&&(c.msgs.length||c.keep)).sort((a,b)=>a.n.localeCompare(b.n,'fa')).map(c=>`<div class="row" data-id="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'آنلاین'}</div></div></div>`).join('');$$('#clist .row').forEach(r=>r.onclick=()=>openChat(+r.dataset.id))}
+function drawContacts(){$('#clist').innerHTML=C.filter(c=>c.t=='pv'&&!c.saved&&(c.msgs.length||c.keep)).sort((a,b)=>a.n.localeCompare(b.n,'fa')).map(c=>`<div class="row" data-id="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'online'}</div></div></div>`).join('');$$('#clist .row').forEach(r=>r.onclick=()=>openChat(+r.dataset.id))}
 function drawSettings(){try{drawTabs()}catch(e){}let u;try{u=JSON.parse(ld('u'))}catch(e){}u=u||{n:'من',e:'me@link.app'};const me={id:3,n:u.n,ph:ld('myphoto')||''};
 const row=(c,i,t,v,f)=>`<div class="sr press" ${f?`onclick="${f}"`:''}><div class="si" style="background:${c}">${i}</div>${t}${v?`<span class="v">${v}</span>`:'<span>›</span>'}</div>`;
 $('#ssc').innerHTML=`<div class="pfx" style="margin-bottom:30px"><div class="pfa">${av(me,400)}</div><div class="pfg"></div><div class="pfn"><h2 dir="auto">${esc(u.n)}</h2><small dir="ltr" class="pr">${u.un?`<span>@${esc(u.un)}</span>`:''}${u.e?`<span>${esc(u.e)}</span>`:''}</small></div></div>
@@ -1382,7 +1382,7 @@ window.openMc=async(fs,asFile)=>{if(S)return;S={items:[],i:0,file:!!asFile};try{
   $q('#mn2').textContent=S.items.length>1?`${S.i+1} از ${S.items.length}`:(S.file?'فایل':it.kind=='v'?'ویدیو':'عکس');
   const st=$q('#mst');st.innerHTML='';zs=1;const tt=$q('#mtot'),nn=S.items.filter(q=>!q.off).length;tt.textContent=nn;tt.style.display=S.items.length>1?'flex':'none';const sc=$q('#mcn');sc.style.display='flex';sc.classList.toggle('off',!!it.off);sc.textContent=it.off?'':S.items.filter(q=>!q.off).indexOf(it)+1;$q('#mdl').style.display='none';
   if(it.kind=='p'){const c=outC(it,1100);c.className='pv';st.appendChild(c)}
-  else if(it.kind=='v'){if(!it.url)it.url=URL.createObjectURL(it.file);const v=document.createElement('video');v.src=it.url;v.controls=false;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.disablePictureInPicture=true;v.muted=!!it.mute;v.preload='auto';v.className='pv';
+  else if(it.kind=='v'){if(!it.url)it.url=URL.createObjectURL(it.file);const v=document.createElement('video');v.src=it.url;v.controls=false;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.disablePictureInPicture=true;v.muted=!!it.mute;v.preload='auto';v.className='pv';if(it.vcrop&&it.px&&it.px.img){try{v.poster=it.px.img.toDataURL('image/jpeg',.8)}catch(e){}}
   if(it.vcrop){const cr=it.vcrop,wr=document.createElement('div');wr.className='pv';wr.style.cssText='position:relative;overflow:hidden;flex:none';v.className='';v.style.cssText=`position:absolute;max-width:none;max-height:none;object-fit:fill;width:${100/cr.w}%;height:${100/cr.h}%;left:${-cr.x/cr.w*100}%;top:${-cr.y/cr.h*100}%`;wr.appendChild(v);
    const fitC=()=>{const vw=v.videoWidth||it.w,vh=v.videoHeight||it.h;if(!vw||!vh)return;const cs=getComputedStyle(st),aw=st.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),ah=st.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom),ar=vw*cr.w/(vh*cr.h),s=Math.min(aw,ah*ar);wr.style.width=s+'px';wr.style.height=s/ar+'px'};
    v.addEventListener('loadedmetadata',fitC);fitC();st.appendChild(wr)}else st.appendChild(v);
@@ -1458,30 +1458,30 @@ window.sndCancel=id=>{const x=cur&&cur.msgs.find(q=>q.id==id);if(!x||!x.snd)retu
 async function sendMedia(items,asF,cap){const c=cur;
  /* build placeholder messages immediately: ring spins while compressing, then fills while uploading */
  const media=[],files=[];items.forEach(it=>{if(asF||it.kind=='f')files.push(it);else media.push(it)});
- const ph=it=>asF||it.kind=='f'?{k:'f',u:URL.createObjectURL(it.file),n:it.name,s:it.size,t:it.kind!='f'?it.th:'',mime:it.mime}:it.kind=='p'?{k:'p',u:URL.createObjectURL(it.file),w:it.w,h:it.h,s:it.size,n:it.name}:{k:'v',u:'',w:(it.w||640)*(it.vcrop?it.vcrop.w:1),h:(it.h||360)*(it.vcrop?it.vcrop.h:1),d:it.d||0,t:it.th,s:it.size,n:it.name};
+ const ph=it=>asF||it.kind=='f'?{k:'f',u:URL.createObjectURL(it.file),n:it.name,s:it.size,t:it.kind!='f'?it.th:'',mime:it.mime}:it.kind=='p'?((it.crop||it.rot||it.adj||(it.ov&&it.ov.length))?(cv=>({k:'p',u:cv.toDataURL('image/jpeg',.85),w:cv.width,h:cv.height,s:it.size,n:it.name}))(outC(it,640)):{k:'p',u:URL.createObjectURL(it.file),w:it.w,h:it.h,s:it.size,n:it.name}):{k:'v',u:'',w:(it.w||640)*(it.vcrop?it.vcrop.w:1),h:(it.h||360)*(it.vcrop?it.vcrop.h:1),d:it.d||0,t:it.th,s:it.size,n:it.name};
  const groups=[];let used=0;
  for(let i=0;i<media.length;i+=10){groups.push({src:media.slice(i,i+10),cap:used?'':cap});used=1}
  files.forEach(f=>{groups.push({src:[f],cap:used?'':cap});used=1});
  const post=o=>{o.st=1;if(cur===c)addMsg(o);else{c.msgs.push(o);c.last=lbl(o);c.time=o.time}};
- const ms=groups.map(g=>{const o=m(1,g.cap,T(),{type:g.src[0].kind=='f'||asF?'fl':'al',items:g.src.map(ph)});if(asF&&g.src[0].kind!='f')o.type='fl';o.snd={c:0};o.prog=0;g.o=o;post(o);return o});
+ const ms=groups.map(g=>{const o=m(1,g.cap,T(),{type:g.src[0].kind=='f'||asF?'fl':'al',items:g.src.map(ph)});if(asF&&g.src[0].kind!='f')o.type='fl';o.snd={c:0};o.prog=0;g.o=o;g.ph=o.items.slice();post(o);return o});
  const drop=o=>{o.snd.c=1;c.msgs=c.msgs.filter(q=>q!==o);if(cur===c)drawMsgs()};
  for(let gi=0;gi<groups.length;gi++){const g=groups[gi],o=g.o,sig=o.snd;if(sig.c)continue;
   const out=[];
-  try{for(let i=0;i<g.src.length;i++){if(sig.c)throw new Error('cancel');const it=g.src[i];
-   if(asF||it.kind=='f'){stopJob(it);out.push(o.items[i]);continue}
+  try{for(let i=0;i<g.src.length;i++){if(sig.c)throw new Error('cancel');const it=g.src[i],pl=g.ph[i];if(pl._x)continue;const isg2={get c(){return sig.c||pl._x}};try{
+   if(asF||it.kind=='f'){stopJob(it);out.push(pl);continue}
    if(it.kind=='p'){const MS=it.hd?2560:1280,QQ=it.hd?.92:.82;let b=null;if(!it.hd&&it.preP&&it.preK==pKey(it))b=await it.preP;
     const cv=b?null:outC(it,MS);if(!b)b=await new Promise(r=>cv.toBlob(r,'image/jpeg',QQ));
     const cw=cv?cv.width:null,chh=cv?cv.height:null,od=outC(it,MS);
-    if(!it.rot&&!it.crop&&!it.adj&&Math.max(it.w,it.h)<=MS&&it.file.size<=b.size&&/^image\/(jpeg|png|webp)$/.test(it.mime)){out.push({k:'p',u:o.items[i].u,w:it.w,h:it.h,s:it.file.size,n:it.name});continue}
+    if(!it.rot&&!it.crop&&!it.adj&&Math.max(it.w,it.h)<=MS&&it.file.size<=b.size&&/^image\/(jpeg|png|webp)$/.test(it.mime)){out.push({k:'p',u:pl.u,w:it.w,h:it.h,s:it.file.size,n:it.name});continue}
     out.push({k:'p',u:URL.createObjectURL(b),w:od.width,h:od.height,s:b.size,n:(it.name.replace(/\.[^.]+$/,'')||'photo')+'.jpg'});continue}
-   let r=null;const set=()=>{};
-   try{r=await viaFast(it,i,sig,set)}catch(e){if(sig.c)throw e;r=null}
+   let r=null;const set=(k,p)=>itSet(o,pl,p);
+   try{r=await viaFast(it,i,isg2,set)}catch(e){if(sig.c||pl._x)throw e;r=null}
    if(!r){const isg={c:0};let last=Date.now(),iv;
-    try{r=await Promise.race([transcode(it,()=>{last=Date.now()},isg),new Promise((_,j)=>{iv=setInterval(()=>{if(sig.c){isg.c=1;clearInterval(iv);j(new Error('cancel'))}else if(Date.now()-last>20000){isg.c=1;clearInterval(iv);j(new Error('stall'))}},500)})])}catch(e){if(sig.c)throw e;r=null}
+    try{r=await Promise.race([transcode(it,()=>{last=Date.now()},isg),new Promise((_,j)=>{iv=setInterval(()=>{if(sig.c||pl._x){isg.c=1;clearInterval(iv);j(new Error('cancel'))}else if(Date.now()-last>20000){isg.c=1;clearInterval(iv);j(new Error('stall'))}},500)})])}catch(e){if(sig.c||pl._x)throw e;r=null}
     clearInterval(iv)}
    if(!r){toast('ویدیو بدون فشرده‌سازی ارسال شد');out.push({k:'v',u:URL.createObjectURL(it.file),w:it.w||640,h:it.h||360,d:it.d||0,t:it.th,s:it.size,n:it.name});continue}
    const ext=r.ext||(/webm/.test(r.blob.type)?'webm':'mp4');if(ext=='webm')toast('MP4 در این مرورگر پشتیبانی نمی‌شود؛ WebM ارسال شد');
-   out.push({k:'v',u:URL.createObjectURL(r.blob),w:r.w,h:r.h,d:r.d,t:r.poster,s:r.blob.size,n:(it.name.replace(/\.[^.]+$/,'')||'video')+'.'+ext})}}
+   out.push({k:'v',u:URL.createObjectURL(r.blob),w:r.w,h:r.h,d:r.d,t:r.poster,s:r.blob.size,n:(it.name.replace(/\.[^.]+$/,'')||'video')+'.'+ext})}catch(e){if(pl._x&&!sig.c)continue;throw e}}}
   catch(e){if(!sig.c){toast('آماده‌سازی انجام نشد');drop(o)}continue}
   if(sig.c)continue;
   const z=out.reduce((a,q)=>a+(q.s||0),0);if(window.quotaGate&&!window.quotaGate('up',z)){drop(o);continue}
@@ -1495,7 +1495,7 @@ const lbl=o=>o.type=='al'?(o.items.length>1?'آلبوم':o.items[0].k=='v'?'وی
 window._lblMsg=lbl;
 /* ---------- bubbles ---------- */
 const LAY={1:[1],2:[2],3:[1,2],4:[2,2],5:[2,3],6:[3,3],7:[2,2,3],8:[2,3,3],9:[3,3,3],10:[2,2,3,3]};
-const _bA=bub;bub=function(c,x,i,A){if(x.type!='al'&&x.type!='fl')return _bA(c,x,i,A);const SN=!!x.snd,PI=SN&&x._upl&&x.type=='al',SO=SN&&!PI?`<div class="dlb dlo" onclick="event.stopPropagation();sndCancel(${x.id})">${SXIC}${SARC(x)}</div>`:'';
+const _bA=bub;bub=function(c,x,i,A){if(x.type!='al'&&x.type!='fl')return _bA(c,x,i,A);const SN=!!x.snd,PI=SN&&x.type=='al',SO=SN&&!PI?`<div class="dlb dlo" onclick="event.stopPropagation();sndCancel(${x.id})">${SXIC}${SARC(x)}</div>`:'';
  const nx=A[i+1],tail=!nx||nx.out!=x.out||nx.type=='dts',cl=`b ${x.out?'out':'in'} ${tail?'t':''}`,mt=`<span class="mt">${x.time}${x.out?`<span class="ok">${tkS(x.st)}</span>`:''}</span>`,rp=(x.fw?fwh(x):'')+(x.rp?`<div class="rp" dir="auto">${x.rp[2]?`<img class="rpi" src="${x.rp[2]}">`:''}<div class="rpt2"><b>${esc(x.rp[0])}</b><span>${esc(x.rp[1])}</span></div></div>`:'');
  if(x.type=='fl'){const f=x.items[0],ex=(f.n.split('.').pop()||'').slice(0,4).toUpperCase();return`<div class="${cl} fl" data-id="${x.id}">${rp}<div class="fr" ${SN?'':`onclick="dlItem(${x.id},0)"`}><div class="fi ${SN?'dlf':''}">${SN?`<div class="dlb">${SXIC}${SARC(x)}</div>`:f.t?`<img src="${f.t}" draggable="false">`:esc(ex)}</div><div class="ft"><b dir="auto">${esc(f.n)}</b><span>${fmtS(f.s)}</span></div></div>${x.text?`<span dir="auto">${esc(x.text)}</span>`:''}${mt}</div>`}
  const its=x.items,n=its.length,rows=LAY[n]||[3,3,3,3];let k=0;
@@ -1952,7 +1952,7 @@ return h.replace('<span class="mt">','<span class="mt"><svg class="eye" width="1
  function sendMenu(){const r=b.getBoundingClientRect();menu([['ارسال هنگام آنلاین شدن','send',sendOnline],['ارسال زمان‌بندی‌شده','call',schedule]],r.top-130,r.left+r.width/2)}
  function take(){const t=$('#ti'),v=t.value.trim();if(!v)return null;const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent,window.rpTh||''],rid:rep.id}:{});t.value='';t.style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();return o}
  function deliver(o,c){o.time=T();o.st=1;if(cur===c)drawMsgs();const k=cur;cur=c;reply(o);cur=k}
- function sendOnline(){const c=cur,o=take();if(!o)return;const off=c.t=='pv'&&c.seen&&c.seen!='آنلاین';o.st=0;if(off)o.time='منتظر آنلاین شدن…';addMsg(o);if(!off){deliver(o,c);return}toast('پیام هنگام آنلاین شدن مخاطب ارسال می‌شود');setTimeout(()=>{c.seen='آنلاین';deliver(o,c)},6000)}
+ function sendOnline(){const c=cur,o=take();if(!o)return;const off=c.t=='pv'&&c.seen&&c.seen!='online';o.st=0;if(off)o.time='منتظر آنلاین شدن…';addMsg(o);if(!off){deliver(o,c);return}toast('پیام هنگام آنلاین شدن مخاطب ارسال می‌شود');setTimeout(()=>{c.seen='online';deliver(o,c)},6000)}
  function schedule(){const c=cur;if(!$('#ti').value.trim())return;const d=new Date(Date.now()+3600e3),p=n=>String(n).padStart(2,'0'),v=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
   const sb=openSheet('ارسال زمان‌بندی‌شده',`<div class="cap">زمان ارسال پیام را انتخاب کنید</div><input id="sch" class="fld" type="datetime-local" dir="ltr" value="${v}" style="text-align:center"><button class="btn" id="schb" style="display:block;margin:16px auto">زمان‌بندی</button>`);
   sb.querySelector('#schb').onclick=()=>{const t=new Date(sb.querySelector('#sch').value).getTime();if(!t||t<Date.now()+10e3)return toast('زمان باید در آینده باشد');const o=take();if(!o)return closeSheet();const dd=new Date(t),same=dd.toDateString()==new Date().toDateString();o.st=0;o.time='زمان‌بندی‌شده '+(same?'':fa(dd.getMonth()+1)+'/'+fa(dd.getDate())+' ')+dd.getHours()+':'+p(dd.getMinutes());closeSheet();addMsg(o);toast('پیام زمان‌بندی شد');setTimeout(()=>deliver(o,c),Math.min(t-Date.now(),2147e6))}}}
@@ -1973,7 +1973,7 @@ function picker(o){const L=C.filter(c=>c.t=='pv'&&!c.saved&&!(o.exclude||[]).inc
  page({title:o.title,lt:o.lt,lf:o.lf,rt:o.rt,rd:o.sel.size<(o.min||0),rf:()=>o.rf([...o.sel]),html:'<div class="ngc"></div><input class="fld ngq" placeholder="جستجو" dir="auto"><div class="ngl2"></div>',bind:(b,r)=>{
   const ch=b.querySelector('.ngc'),ls=b.querySelector('.ngl2'),inp=b.querySelector('.ngq');
   const draw=()=>{ch.innerHTML=[...o.sel].map(id=>{const c=L.find(x=>x.id==id);return c?`<span class="ngp" data-i="${id}">${esc(c.n)} ✕</span>`:''}).join('');
-   ls.innerHTML=L.filter(c=>!q||c.n.includes(q)).map(c=>`<div class="row" data-i="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'آنلاین'}</div></div>${o.single?'':`<span class="ngk ${o.sel.has(c.id)?'on':''}">✓</span>`}</div>`).join('')||'<div class="em">موردی یافت نشد</div>';
+   ls.innerHTML=L.filter(c=>!q||c.n.includes(q)).map(c=>`<div class="row" data-i="${c.id}">${av(c,46)}<div class="rb" style="padding:9px 0"><div class="nm" dir="auto">${esc(c.n)}</div><div class="tm">${c.seen||'online'}</div></div>${o.single?'':`<span class="ngk ${o.sel.has(c.id)?'on':''}">✓</span>`}</div>`).join('')||'<div class="em">موردی یافت نشد</div>';
    r.classList.toggle('dis',o.sel.size<(o.min||0));
    ls.querySelectorAll('.row').forEach(w=>w.onclick=()=>{const id=+w.dataset.i;if(o.single){o.rf([id]);return}o.sel.has(id)?o.sel.delete(id):o.sel.add(id);draw()});
    ch.querySelectorAll('.ngp').forEach(w=>w.onclick=()=>{o.sel.delete(+w.dataset.i);draw()})};
@@ -2288,7 +2288,7 @@ function delAsk(c,y,x){const it=[];
  menu(it,y,x)}
 function pvOpen(c,n){const ap=$('#app'),el=document.createElement('div');el.id='cpv';
  let wp='none';try{wp=getComputedStyle($('#chat'),'::before').backgroundImage}catch(e){}el.style.setProperty('--wp',wp);
- const st=c.saved?'':c.t=='pv'?(c.seen||'آنلاین'):c.members?fa(c.members.length)+(c.t=='ch'?' مشترک':' عضو'):c.t=='gp'?'۳ عضو':'۱۲۰۰ مشترک';
+ const st=c.saved?'':c.t=='pv'?(c.seen||'online'):c.members?fa(c.members.length)+(c.t=='ch'?' مشترک':' عضو'):c.t=='gp'?'۳ عضو':'۱۲۰۰ مشترک';
  const L=c.msgs.slice(-60);
  el.innerHTML=`<div class="ph1"><button class="cx gl press" id="cpx">${I('x',22)}</button><div class="ctitle gl"><b dir="auto">${esc(c.n)}</b>${st?`<small>${st}</small>`:''}</div><div style="border:3px solid var(--gl);border-radius:50%">${av(c,52)}</div></div><div class="pvc"><div class="pvm"><div class="dts">امروز</div>${L.map((x,i,A)=>bub(c,x,i,A)).join('')}</div></div>`;
  ap.appendChild(el);
@@ -3121,7 +3121,7 @@ function keep(){if(!cur)return;const b=$('#msgs'),st=b.scrollTop,h=b.scrollHeigh
 function redraw(x){drawList();const c=x&&C.find(q=>q.msgs&&q.msgs.includes(x));if(c&&cur===c)keep()}
 let rdT=0;function soft(){clearTimeout(rdT);rdT=setTimeout(()=>{drawList();keep()},200)}
 /* ---------- کاربران ---------- */
-function addUsers(list){let n=0;list.forEach(u=>{if(u.$id==ME.$id||chatOf(u.$id))return;C.push({id:hid(u.$id),n:u.name||u.uname||'کاربر',t:'pv',uid:u.$id,user:u.uname||'',time:'',last:'شروع گفتگو',seen:'عضو لینک',msgs:[]});n++});return n}
+function addUsers(list){let n=0;list.forEach(u=>{if(u.$id==ME.$id||chatOf(u.$id))return;C.push({id:hid(u.$id),n:u.name||u.uname||'کاربر',t:'pv',uid:u.$id,user:u.uname||'',time:'',last:'شروع گفتگو',seen:'offline',msgs:[]});n++});return n}
 async function loadUsers(){const r=await api('GET','/databases/'+DB+'/collections/users/documents?'+qs([{method:'limit',values:[100]}]));let ch=false;r.documents.forEach(u=>{if(nameSync(u))ch=true});if(ch)namesRedraw();return 0}
 const UD=new Map();
 function addKnown(docs){let n=0;docs.forEach(d=>{if(GR.get(d.rcpt)||rtK(d))return;const o=d.sender==ME.$id?d.rcpt:d.sender,u=UD.get(o);if(u&&!chatOf(o))n+=addUsers([u])});return n}
@@ -3397,7 +3397,7 @@ function rtLast(ms){const d=new Date(ms),n=Date.now(),y=new Date(n);y.setDate(y.
  if(d.toDateString()==y.toDateString())return 'آخرین بازدید دیروز ساعت '+rtHM(d);
  return 'آخرین بازدید '+rtShamsi(d)}
 const rtOn=p=>!!(p&&p.on&&Date.now()-(p.sv+rtSK)<75000);
-const rtPres=u=>{const p=rtPR.get(u);return p?(rtOn(p)?'آنلاین':rtLast(p.sv+rtSK)):''};
+const rtPres=u=>{const p=rtPR.get(u);return p?(rtOn(p)?'online':rtLast(p.sv+rtSK)):'offline'};
 const rtTYT={t:'در حال تایپ…',rc:'در حال ضبط پیام صوتی…',rv:'در حال ضبط ویدیو…',sp:'در حال ارسال عکس…',sv:'در حال ارسال ویدیو…',sf:'در حال ارسال فایل…'};
 const rtM=d=>{try{return JSON.parse(d.meta||'{}')}catch(e){return {}}};
 const rtK=d=>{const x=d&&d.kind=='rd'&&typeof d.meta=='string'&&/^\{"(pr|ty|pf)"/.exec(d.meta);return x?x[1]:''};
