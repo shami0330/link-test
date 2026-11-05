@@ -1175,7 +1175,7 @@ function cropPhoto(file){const url=URL.createObjectURL(file),img=new Image;img.o
 window.openMyProfile=()=>{const u=getU();const b=openSheet('پروفایل من',`<div class="pf" style="margin-bottom:18px">${av({id:3,n:u.n,ph:ld('myphoto')||''},110)}<div class="sr press" style="color:var(--ac);justify-content:center" onclick="pickPhoto()">تغییر عکس</div></div><input id="pfn" class="fld" placeholder="نام" dir="auto" maxlength="40" value="${esc(u.n)}"><input id="pfb" class="fld" placeholder="درباره من" dir="auto" maxlength="120" value="${esc(u.b||'')}"><input id="pfu" class="fld" dir="ltr" style="text-align:left" autocapitalize="off" autocomplete="off" placeholder="نام کاربری (مثلاً ali_123)" maxlength="32" value="${esc(u.un||'')}"><input id="pfe" class="fld" dir="ltr" style="text-align:left" type="email" placeholder="ایمیل" value="${esc(u.e||'')}"><div class="cap">نام و توضیح شما به مخاطبین نمایش داده می‌شود. نام کاربری ۵ تا ۳۲ حرف انگلیسی، عدد یا _ باشد.</div><div class="card"><div class="sr press" dir="ltr" onclick="openPw()">تغییر رمز ورود<span>›</span></div></div><div class="card" style="margin-top:14px"><div class="sr press" style="color:var(--ac);justify-content:center" id="pfs">ذخیره</div></div>${ld('myphoto')?'<div class="card"><div class="sr press" style="color:var(--red);justify-content:center" id="pfd">حذف عکس</div></div>':''}`);
  b.querySelector('#pfs').onclick=async()=>{const n=b.querySelector('#pfn').value.trim();if(!n)return toast('نام را وارد کنید');const un=b.querySelector('#pfu').value.trim().replace(/^@/,''),em=b.querySelector('#pfe').value.trim();if(un&&!/^[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(un))return toast('نام کاربری معتبر نیست');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em))return toast('ایمیل معتبر نیست');const unl=un.toLowerCase();if(unl){try{const r=await LK.api('GET','/databases/'+LK.DB+'/collections/users/documents?'+LK.qs([{method:'equal',attribute:'uname',values:[unl]},{method:'limit',values:[2]}]));if(r.documents.some(d=>d.$id!=LK.ME.$id))return toast('این نام کاربری گرفته شده است')}catch(e){try{await LK.allUsers(1);if([...LK.UD.values()].some(d=>d.$id!=LK.ME.$id&&(d.uname||'').toLowerCase()==unl))return toast('این نام کاربری گرفته شده است')}catch(e2){return toast('بررسی نام کاربری انجام نشد: '+((e2&&e2.message)||''))}}}
   const pd={name:n};if(unl)pd.uname=unl;const url='/databases/'+LK.DB+'/collections/users/documents/'+LK.ME.$id;try{try{await LK.api('PATCH',url,{data:{...pd,email:em.toLowerCase()}})}catch(e1){await LK.api('PATCH',url,{data:pd})}}catch(e){return toast('ذخیره روی سرور انجام نشد')}
-  const u2=getU();u2.n=n;u2.b=b.querySelector('#pfb').value.trim();u2.un=unl;u2.e=em;sv('u',JSON.stringify(u2));drawSettings();closeSheet();toast('ذخیره شد')};
+  const u2=getU();u2.n=n;u2.b=b.querySelector('#pfb').value.trim();u2.un=unl;u2.e=em;sv('u',JSON.stringify(u2));try{const d0=LK.UD.get(LK.ME.$id);d0&&(d0.name=n)}catch(e){}drawSettings();try{drawTabs()}catch(e){}closeSheet();toast('ذخیره شد')};
  const d=b.querySelector('#pfd');d&&(d.onclick=()=>{sv('myphoto','');drawSettings();closeSheet()})};
 /* ---- change password ---- */
 const hpw=async t=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return'x'+btoa(unescape(encodeURIComponent(t)))}};
@@ -1988,7 +1988,7 @@ function permSheet(c,mm){const keys=c.t=='ch'?['info','post','delete','ban','inv
  b.querySelector('#pSave').onclick=()=>{if(role(c)!='owner')return toast(NOPE);const np={};b.querySelectorAll('.sw').forEach(s=>np[s.dataset.p]=s.classList.contains('on'));mm.role='admin';mm.perms=np;closeSheet();refresh(c);toast('دسترسی‌ها ذخیره شد')}}
 function editInfo(c){if(!can(c,'info'))return toast(NOPE);const b=openSheet('ویرایش',`<div class="pf" style="margin-bottom:12px"><div id="eav">${av(c,100)}</div><div class="sr press" id="ePh" style="color:var(--ac);justify-content:center">تغییر عکس</div></div><input id="eN" class="fld" dir="auto" maxlength="128" value="${esc(c.n)}" placeholder="نام"><textarea id="eD" class="fld" rows="3" dir="auto" maxlength="255" placeholder="توضیحات">${esc(c.desc||'')}</textarea><button class="btn" id="eS" style="display:block;margin:16px auto">ذخیره</button>`);
  let ph=c.ph;b.querySelector('#ePh').onclick=()=>pickImg(u=>{ph=u;b.querySelector('#eav').innerHTML=av({id:c.id,n:c.n,ph:u},100)});
- b.querySelector('#eS').onclick=()=>{if(!can(c,'info'))return toast(NOPE);const n=b.querySelector('#eN').value.trim();if(!n)return toast('نام را وارد کنید');c.n=n;c.desc=b.querySelector('#eD').value.trim();c.ph=ph;closeSheet();drawList();if(cur===c){$('#ct').querySelector('b').textContent=n;$('#cav').innerHTML=`<div style="border:3px solid var(--gl);border-radius:50%">${av(c,52)}</div>`;openInfo()}toast('ذخیره شد')}}
+ b.querySelector('#eS').onclick=()=>{if(!can(c,'info'))return toast(NOPE);const n=b.querySelector('#eN').value.trim();if(!n)return toast('نام را وارد کنید');c.n=n;c.desc=b.querySelector('#eD').value.trim();c.ph=ph;closeSheet();drawList();if(cur===c){$('#ct').querySelector('b').textContent=n;$('#cav').innerHTML=`<div style="border:3px solid var(--gl);border-radius:50%">${av(c,52)}</div>`;openInfo();window.keepMsgs&&keepMsgs()}toast('ذخیره شد')}}
 function extendInfo(c){const box=$('#isc'),acts=box.querySelector('.acts');if(!acts)return;const isCh=c.t=='ch',R=role(c),eb=$('#info .top .tb:last-child');
  eb.onclick=()=>{if(!c.members||!can(c,'info'))return toast(NOPE);editInfo(c)};
  let h='';if(c.desc||c.link)h+=`<div class="card">${c.desc?`<div class="ir"><small>توضیحات</small><div dir="auto">${esc(c.desc)}</div></div>`:''}${c.link?`<div class="ir"><small>پیوند</small><div class="g" dir="ltr" style="text-align:right">${esc(c.link)}</div></div>`:''}</div>`;
@@ -3102,7 +3102,7 @@ function redraw(x){drawList();const c=x&&C.find(q=>q.msgs&&q.msgs.includes(x));i
 let rdT=0;function soft(){clearTimeout(rdT);rdT=setTimeout(()=>{drawList();keep()},200)}
 /* ---------- کاربران ---------- */
 function addUsers(list){let n=0;list.forEach(u=>{if(u.$id==ME.$id||chatOf(u.$id))return;C.push({id:hid(u.$id),n:u.name||u.uname||'کاربر',t:'pv',uid:u.$id,user:u.uname||'',time:'',last:'شروع گفتگو',seen:'عضو لینک',msgs:[]});n++});return n}
-async function loadUsers(){const r=await api('GET','/databases/'+DB+'/collections/users/documents?'+qs([{method:'limit',values:[100]}]));r.documents.forEach(u=>{UN.set(u.$id,u.name||u.uname||'کاربر');UD.set(u.$id,u)});return 0}
+async function loadUsers(){const r=await api('GET','/databases/'+DB+'/collections/users/documents?'+qs([{method:'limit',values:[100]}]));let ch=false;r.documents.forEach(u=>{if(nameSync(u))ch=true});if(ch)namesRedraw();return 0}
 const UD=new Map();
 function addKnown(docs){let n=0;docs.forEach(d=>{if(GR.get(d.rcpt))return;const o=d.sender==ME.$id?d.rcpt:d.sender,u=UD.get(o);if(u&&!chatOf(o))n+=addUsers([u])});return n}
 let UAll=0;
@@ -3238,7 +3238,7 @@ function build(d,out,c){
  else if(d.kind=='vc'||d.kind=='rv'){x.type=d.kind;x.du=meta.du||'0:10';x.sec=meta.sec;x.wf=meta.wf;x.mime=meta.mime;x.fid=meta.fid;x.tf=meta.tf||'';x.th='';x.src='appwrite:'+meta.fid;x.size=szT(meta.sz);x.sz=meta.sz;if(!out)x.dl=0}
  if(d.rn)x.rp=[d.rn,d.rt||''];
  if(meta.ed)x.ed=1;if(meta.fw)x.fw=meta.fw;
- if(c&&c.t!='pv'&&!out)x.s=nameOf(d.sender);
+ if(c&&c.t!='pv'&&!out){x.s=nameOf(d.sender);x.su=d.sender}
  const o=m(out?1:0,d.text||'',fmt(d.$createdAt),x);o.id=hid(d.$id);return o}
 function applyRd(d){
  if(d.sender==ME.$id)return false;
@@ -3294,8 +3294,9 @@ async function refreshLists(){try{await loadUsers();await loadGroups()}catch(e){
 function onEv(d){
  const ev=d.events||[],p=d.payload;if(!p||!p.$id||!ME)return;
  const del=ev.some(e=>/\.delete$/.test(e));
+  if(ev.some(e=>e.includes('.collections.users.'))){if(!del&&nameSync(p))namesRedraw();return}
  if(ev.some(e=>e.includes('.collections.groups.'))){
-  if(del){const c=GR.get(p.$id);c&&dropLocal(c)}else{applyGroup(p);drawList();drawTabs();if(cur&&cur.gid==p.$id)try{openInfo&&0}catch(e){}}
+  if(del){const c=GR.get(p.$id);c&&dropLocal(c)}else{applyGroup(p);drawList();drawTabs();if(cur&&cur.gid==p.$id)refreshHead(cur)}
   return}
  if(del){removeLocal(p.$id);return}
  if(p.kind=='rd'){if(isVw(p)){applyVw(p);return}if(applyRd(p)){drawList();if(cur&&cur.uid==p.sender)keep()}return}
@@ -3305,7 +3306,7 @@ function onEv(d){
   if(c&&cur===c){keep();if(k==1&&!x.out&&!document.hidden)markRead(c)}}}
 function connectWS(){
  if(!ME)return;try{ws&&(ws.onclose=null,ws.close())}catch(e){}
- const chs=['messages','groups'].map(n=>'channels[]=databases.'+DB+'.collections.'+n+'.documents').join('&');
+ const chs=['messages','groups','users'].map(n=>'channels[]=databases.'+DB+'.collections.'+n+'.documents').join('&');
  const w=ws=new WebSocket('wss://'+EP.replace('https://','')+'/realtime?project='+PJ+'&'+chs);
  w.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
   if(m.type=='connected'){let s;try{s=JSON.parse(lg('cookieFallback')||'{}')['a_session_'+PJ]}catch(x){}if(s&&!(m.data&&m.data.user))w.send(JSON.stringify({type:'authentication',data:{session:s}}));wsRetry=0;pull('inc')}
@@ -3347,6 +3348,22 @@ function watchViews(){
 {const _dmv=drawMsgs;drawMsgs=function(){const r=_dmv.apply(this,arguments);try{watchViews()}catch(e){}return r}}
 {const _ocv=openChat;openChat=function(id){const r=_ocv.apply(this,arguments);setTimeout(()=>{try{watchViews()}catch(e){}},500);return r}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)try{watchViews()}catch(e){}});
+/* ---------- تغییر نام زنده (کاربر / گروه / کانال) ---------- */
+function refreshHead(c){
+ if(!c||cur!==c)return;
+ const b=$('#ct b');if(b&&b.textContent!==c.n)b.textContent=c.n;
+ const a=$('#cav');if(a)a.innerHTML=`<div style="border:3px solid var(--gl);border-radius:50%">${av(c,52)}</div>`;
+ keep()}
+window.keepMsgs=()=>{if(cur)keep()};
+function nameSync(u){
+ if(!u||!u.$id)return false;
+ const nm=u.name||u.uname||'کاربر',old=UN.get(u.$id);UN.set(u.$id,nm);UD.set(u.$id,u);
+ if(ME&&u.$id==ME.$id)return false;
+ let ch=false;const c=chatOf(u.$id);
+ if(c&&c.t=='pv'){if(c.n!=nm){c.n=nm;ch=true}if(u.uname&&c.user!=u.uname)c.user=u.uname}
+ if(old!==nm)C.forEach(g=>{if(g.t=='pv'||!g.msgs)return;g.msgs.forEach(x=>{if(!x.out&&x.su==u.$id&&x.s!=nm){x.s=nm;ch=true}})});
+ return ch}
+function namesRedraw(){drawList();try{drawContacts();drawTabs()}catch(e){}if(cur)refreshHead(cur)}
 /* ---------- آپلود و ارسال ---------- */
 function xhrUp(url,h,fd,onP,snd){return new Promise((res,rej)=>{const q=new XMLHttpRequest();q.open('POST',url);if(snd){if(snd.c)return rej(new Error('cancel'));snd.x=q}q.onabort=()=>rej(new Error('cancel'));q.withCredentials=true;Object.keys(h).forEach(k=>q.setRequestHeader(k,h[k]));q.upload.onprogress=e=>{if(e.lengthComputable&&onP)onP(e.loaded)};q.onload=()=>res({ok:q.status>=200&&q.status<300,status:q.status,headers:{get:n=>q.getResponseHeader(n)},json:()=>Promise.resolve(JSON.parse(q.responseText||'{}'))});q.onerror=()=>rej(new Error('network'));q.send(fd)})}
 async function upload(blob,name,mime,perm,onP,fid,snd){
