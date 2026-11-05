@@ -1937,7 +1937,7 @@ ti.addEventListener('focus',()=>closeP(0));$('#cb').addEventListener('click',()=
 ;{const _bch=bub;bub=function(c,x,i,A){let h=_bch(c,x,i,A);if(!c||c.t!='ch'||!x||x.type=='dts')return h;
 const v=window.VWN?VWN(x.sid):0,vs=window.VWF?VWF(v):''+v;
 h=h.replace(/^(<div class="[^"]*?)\bout\b/,'$1in').replace(/<span class="ok">[\s\S]*?<\/span>/,'').replace(/<div class="sn"[^>]*>[\s\S]*?<\/div>/,'');
-return h.replace('<span class="mt">','<span class="mt"><svg class="eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><span class="vwn" data-s="'+(x.sid||'')+'">'+vs+'</span><span class="cn" dir="auto">'+esc(c.n||'')+'</span><span>,</span>')}}
+return h.replace('<span class="mt">','<span class="mt"><svg class="eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><span class="vwn" data-s="'+(x.sid||'')+'">'+vs+'</span><span class="cn" dir="auto">'+esc(window.LK&&LK.who?LK.who(x.su||(x.out&&LK.ME?LK.ME.$id:''),c.n):(c.n||''))+'</span><span>,</span>')}}
  const _sr2=setRep;setRep=function(x){_sr2(x);const it=x.items&&x.items[0],P=x.items?x.items.filter(q=>q.k=='p').length:0,V=x.items?x.items.filter(q=>q.k=='v').length:0;
   const L={im:'🖼 عکس',al:P&&V?'🖼 عکس و ویدیو':V?'🎥 ویدیو':'🖼 عکس',fl:'📎 '+((it&&it.n)||'فایل'),rv:'🎥 ویدیو مسیج',vc:'🎤 ویس'+(x.du?' ('+x.du+')':''),st:x.emo||'استیکر'};
   if(!x.text&&L[x.type])$('#rpt').textContent=L[x.type];
@@ -3087,7 +3087,7 @@ function updBar(){let b=$('#blkbtn');const r=$('.inb .irow');if(!b){b=document.c
 function toggleBl(c){if(!c||!c.uid)return;const S=BLs();if(S.has(c.uid)){S.delete(c.uid);toast('بلاک برداشته شد')}else{S.add(c.uid);toast('مسدود شد')}ls('bl:'+ME.$id,JSON.stringify([...S]));updBar()}
 Object.assign(EN,{'ایمیل یا نام کاربری':'Email or username','برای ثبت‌نام ایمیل را وارد کنید':'Enter your email to sign up','ایمیل (یا نام کاربری) و رمز را وارد کنید':'Enter your email (or username) and password','جستجوی سراسری':'Global search','در حال جستجو…':'Searching…','کاربری پیدا نشد':'No users found','رفع بلاک':'Unblock','لغو':'Cancel','مسدود شد':'User blocked','بلاک برداشته شد':'User unblocked','ذخیره روی سرور انجام نشد':'Could not save to the server','این نام کاربری گرفته شده است':'This username is taken'});
 window.globalFind=globalFind;window.isBl=isBl;window.toggleBl=toggleBl;window.updBar=updBar;
-window.LK={api:(...a)=>api(...a),qs:(...a)=>qs(...a),get DB(){return DB},get ME(){return ME},allUsers:f=>allUsers(f),get UD(){return UD}};
+window.LK={api:(...a)=>api(...a),qs:(...a)=>qs(...a),get DB(){return DB},get ME(){return ME},allUsers:f=>allUsers(f),get UD(){return UD},who:(u,fb)=>{if(ME&&u==ME.$id){try{const o=JSON.parse(lg('u')||'{}');if(o.n)return o.n}catch(e){}return ME.name||fb||''}return u?(UN.get(u)||fb||'کاربر'):(fb||'')}};
 const hid=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0)%1073741824+1000};
 const rid=()=>'m'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const hdr=()=>{const h={'X-Appwrite-Project':PJ};const fc=lg('cookieFallback');if(fc)h['X-Fallback-Cookies']=fc;return h};
@@ -3258,7 +3258,7 @@ function build(d,out,c){
  else if(d.kind=='vc'||d.kind=='rv'){x.type=d.kind;x.du=meta.du||'0:10';x.sec=meta.sec;x.wf=meta.wf;x.mime=meta.mime;x.fid=meta.fid;x.tf=meta.tf||'';x.th='';x.src='appwrite:'+meta.fid;x.size=szT(meta.sz);x.sz=meta.sz;if(!out)x.dl=0}
  if(d.rn)x.rp=[d.rn,d.rt||''];
  if(meta.ed)x.ed=1;if(meta.fw)x.fw=meta.fw;
- if(c&&c.t!='pv'&&!out){x.s=nameOf(d.sender);x.su=d.sender}
+ if(c&&c.t!='pv'&&!out){x.s=nameOf(d.sender);x.su=d.sender}else if(c&&c.t=='ch'&&out)x.su=d.sender;
  const o=m(out?1:0,d.text||'',fmt(d.$createdAt),x);o.id=hid(d.$id);return o}
 function applyRd(d){
  if(d.sender==ME.$id)return false;
@@ -3379,12 +3379,12 @@ window.keepMsgs=()=>{if(cur)keep()};
 function nameSync(u){
  if(!u||!u.$id)return false;
  const nm=u.name||u.uname||'کاربر',old=UN.get(u.$id);UN.set(u.$id,nm);UD.set(u.$id,u);
- if(ME&&u.$id==ME.$id)return false;
+ if(ME&&u.$id==ME.$id){MYU=u;let r=false;if(u.name&&u.name!==ME.name){ME.name=u.name;r=true}try{const o=JSON.parse(lg('u')||'{}');if(u.name&&o.n!==u.name){o.n=u.name;ls('u',JSON.stringify(o));r=true;try{drawSettings()}catch(e){}}}catch(e){}return r}
  let ch=false;const c=chatOf(u.$id);
  if(c&&c.t=='pv'){if(c.n!=nm){c.n=nm;ch=true}if(u.uname&&c.user!=u.uname)c.user=u.uname}
  if(old!==nm)C.forEach(g=>{if(g.t=='pv'||!g.msgs)return;g.msgs.forEach(x=>{if(!x.out&&x.su==u.$id&&x.s!=nm){x.s=nm;ch=true}})});
  return ch}
-function namesRedraw(){drawList();try{drawContacts();drawTabs()}catch(e){}if(cur)refreshHead(cur)}
+function namesRedraw(){drawList();try{drawContacts();drawTabs()}catch(e){}if(cur){refreshHead(cur);if(cur.t=='ch')try{drawMsgs()}catch(e){}}}
 /* ---------- realtime: آنلاین/آخرین بازدید، تایپ/ضبط/ارسال، تغییر پروفایل ---------- */
 const rtPR=new Map(),rtTY=new Map(),rtPF=new Map(),rtTS=new Map(),rtEx=new Set(),rtUF=new Map(),rtUN=new Map();
 let rtSK=0,rtHB=0,rtPFS='',rtRS={c:null,k:''};
@@ -3542,7 +3542,7 @@ function imgThumb(src,max,q){return new Promise(res=>{const im=new Image();im.on
 const fidsOf=x=>{const a=[];if(x.items)x.items.forEach(it=>{it.fid&&a.push(it.fid);it.tf&&a.push(it.tf)});x.fid&&a.push(x.fid);x.tf&&a.push(x.tf);return a};
 async function post(c,o){
  const me=ME.$id,peer=c.uid||c.gid,sid=rid();
- o.sid=sid;o.ts=new Date().toISOString();o.st=1;o._st=o.text;o._pend=1;IDX.set(sid,o);if((o.type=='vc'||o.type=='rv')&&!o.snd)o.snd={c:0};
+ o.sid=sid;if(c.t=='ch')o.su=me;o.ts=new Date().toISOString();o.st=1;o._st=o.text;o._pend=1;IDX.set(sid,o);if((o.type=='vc'||o.type=='rv')&&!o.snd)o.snd={c:0};
  const fp=['read("user:'+me+'")','delete("user:'+me+'")'];
  try{
   const kind=o.type||'t';let meta={};let TOT=1,DONE=0;const pgr=l=>{if(o._pend)sndSet(o,Math.min(.99,(DONE+l)/TOT))},cx=()=>{if(o.snd&&o.snd.c)throw new Error('cancel')};
@@ -3608,7 +3608,8 @@ async function boot(){
  ME=await api('GET','/account');await ensureUser();
  if(lg('uid')!==ME.$id){await cacheWipe();wipeSync();C.length=0;C.push(SAVED())}
  ls('uid',ME.$id);if(!cacheRestore.done)await cacheRestore();
- const u={n:ME.name||ME.email.split('@')[0],e:ME.email,un:(MYU&&MYU.uname)||ME.email.split('@')[0].toLowerCase()};try{const o=JSON.parse(lg('u')||'{}');if(o.b)u.b=o.b;if(o.e)u.e=o.e}catch(_){}ls('u',JSON.stringify(u));
+ if(MYU&&MYU.name&&MYU.name!==ME.name){const _nm=MYU.name;api('PATCH','/account/name',{name:_nm}).then(()=>{ME.name=_nm}).catch(()=>{})}
+ const u={n:(MYU&&MYU.name)||ME.name||ME.email.split('@')[0],e:ME.email,un:(MYU&&MYU.uname)||ME.email.split('@')[0].toLowerCase()};try{const o=JSON.parse(lg('u')||'{}');if(o.b)u.b=o.b;if(o.e)u.e=o.e}catch(_){}ls('u',JSON.stringify(u));
  HID.clear();loadHG();await loadHides();
  await loadUsers();C.forEach(c=>{if(c.gid)GR.set(c.gid,c)});
  try{await loadGroups()}catch(e){}
