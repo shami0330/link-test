@@ -1111,11 +1111,12 @@ const setK=v=>{try{localStorage.setItem('kbH',v)}catch(e){}};
 const chOn=()=>!ch.classList.contains('r');
 const follow=d=>{if(window._kbOn&&window._kbOn())return;cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
 const gp=()=>Math.max(0,ms.scrollHeight-ms.scrollTop-ms.clientHeight);
-const openKb=()=>{clearTimeout(clT);if(isOpen)return;isOpen=1;mOk=0;gap=gp();K=getK();
+const KD=90,dl={t:0};/* KD = delay (ms) between touching the input bar and the box starting to open, so it lines up with the keyboard rising */
+const openKb=()=>{clearTimeout(clT);clearTimeout(dl.t);if(isOpen)return;isOpen=1;mOk=0;gap=gp();K=getK();
  ap.style.transition='none';ap.style.minHeight=Math.round(H*.5)+'px';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=H+'px';void ap.offsetHeight;
  ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';
  bar.classList.add('kbo');if(chOn())ch.classList.add('kbo2');ibh();follow(260)};
-const closeKb=()=>{if(!isOpen)return;isOpen=0;gap=gp();
+const closeKb=()=>{clearTimeout(dl.t);if(!isOpen)return;isOpen=0;gap=gp();
  ap.style.transition=EZ;ap.style.height=H+'px';bx.style.height='0px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(260);
  clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height=ap.style.minHeight='';ap.style.transition=''}},270)};
 const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;const k=Math.round(H-vv.height-vv.offsetTop);
@@ -1125,7 +1126,7 @@ ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement
 /* head start: open the box the moment the finger touches the input, keyboard follows on release */
 {let tp=0,px=0,py=0;
  const go=()=>{if(!tp)return;tp=0;if(document.activeElement!==ti)ti.focus({preventScroll:true})};
- ti.addEventListener('pointerdown',e=>{if(document.activeElement===ti||!chOn())return;tp=1;px=e.clientX;py=e.clientY;openKb();setTimeout(()=>{tp=0;if(document.activeElement!==ti)closeKb()},900)});
+ ti.addEventListener('pointerdown',e=>{if(document.activeElement===ti||!chOn())return;tp=1;px=e.clientX;py=e.clientY;clearTimeout(dl.t);dl.t=setTimeout(openKb,KD);setTimeout(()=>{tp=0;if(document.activeElement!==ti)closeKb()},900)});
  ti.addEventListener('pointermove',e=>{if(tp&&Math.hypot(e.clientX-px,e.clientY-py)>10){tp=0;closeKb()}});
  ti.addEventListener('pointercancel',()=>{if(tp){tp=0;closeKb()}});
  /* the input slides up under the finger while the box opens, so the native tap is lost: focus it ourselves on release */
