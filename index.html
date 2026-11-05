@@ -1111,15 +1111,15 @@ const setK=v=>{try{localStorage.setItem('kbH',v)}catch(e){}};
 const chOn=()=>!ch.classList.contains('r');
 const follow=d=>{if(window._kbOn&&window._kbOn())return;cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
 const gp=()=>Math.max(0,ms.scrollHeight-ms.scrollTop-ms.clientHeight);
-const KD=90,dl={t:0};let tO=0,mW=0;/* KD = delay (ms) between touching the input bar and the box starting to open, so it lines up with the keyboard rising */
-const openKb=()=>{clearTimeout(clT);clearTimeout(dl.t);if(isOpen)return;isOpen=1;mOk=0;gap=gp();K=getK();tO=performance.now();
+const KD=90,dl={t:0};let tO=0,mW=0,kSeen=0;/* KD = delay (ms) between touching the input bar and the box starting to open, so it lines up with the keyboard rising */
+const openKb=()=>{clearTimeout(clT);clearTimeout(dl.t);if(isOpen)return;isOpen=1;mOk=0;gap=gp();K=getK();tO=performance.now();kSeen=0;
  ap.style.transition='none';ap.style.minHeight=Math.round(H*.5)+'px';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=H+'px';void ap.offsetHeight;
  ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';
  bar.classList.add('kbo');if(chOn())ch.classList.add('kbo2');ibh();follow(260)};
-const closeKb=()=>{clearTimeout(dl.t);if(!isOpen)return;isOpen=0;gap=gp();
+const closeKb=()=>{clearTimeout(dl.t);clearTimeout(mW);if(!isOpen)return;isOpen=0;gap=gp();
  ap.style.transition=EZ;ap.style.height=H+'px';bx.style.height='0px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(260);
  clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height=ap.style.minHeight='';ap.style.transition=''}},270)};
-/* the box first opens to 35% with the normal animation; the sync to the real keyboard height happens only in the last ~30ms of it, as a tiny quick correction (no visible jump) */
+/* the box first opens to 35% with the normal animation; the sync to the real keyboard height happens only in the last ~70ms of it, as a tiny quick correction (no visible jump) */
 const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;
  const w=tO+250-70-performance.now();if(w>0){clearTimeout(mW);mW=setTimeout(measure,w);return}
  const k=Math.round(H-vv.height-vv.offsetTop);
@@ -1139,7 +1139,7 @@ ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement
 ti.addEventListener('focus',()=>{if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800);setTimeout(()=>{if(isOpen&&!mOk&&document.activeElement===ti){K=getK();gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(350)}},950)});
 ti.addEventListener('blur',()=>{if(Date.now()<(window._kbKeep||0)){const f=()=>{if(Date.now()<(window._kbKeep||0)+100&&document.activeElement!==ti)ti.focus({preventScroll:true})};f();setTimeout(f,0);setTimeout(f,80)}
  setTimeout(()=>{if(document.activeElement!==ti)closeKb()},Date.now()<(window._kbKeep||0)+100?130:0)});
-if(vv){vv.addEventListener('scroll',()=>{if(isOpen&&vv.offsetTop>0)scrollTo(0,0)});addEventListener('scroll',()=>{if(isOpen&&(scrollY||pageYOffset))scrollTo(0,0)},{passive:true});vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,140);if(isOpen&&H-vv.height-vv.offsetTop<80&&(document.activeElement!==ti||mOk)){window._kbKeep=0;if(document.activeElement===ti)ti.blur();closeKb()}})}
+if(vv){vv.addEventListener('scroll',()=>{if(isOpen&&vv.offsetTop>0)scrollTo(0,0)});addEventListener('scroll',()=>{if(isOpen&&(scrollY||pageYOffset))scrollTo(0,0)},{passive:true});vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,140);const kk=H-vv.height-vv.offsetTop;if(kk>150)kSeen=1;if(isOpen&&kk<80&&(document.activeElement!==ti||kSeen)){window._kbKeep=0;if(document.activeElement===ti)ti.blur();closeKb()}})}
 })();
 </script>
 <script>
