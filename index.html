@@ -1111,16 +1111,19 @@ const setK=v=>{try{localStorage.setItem('kbH',v)}catch(e){}};
 const chOn=()=>!ch.classList.contains('r');
 const follow=d=>{if(window._kbOn&&window._kbOn())return;cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
 const gp=()=>Math.max(0,ms.scrollHeight-ms.scrollTop-ms.clientHeight);
-const KD=90,dl={t:0};/* KD = delay (ms) between touching the input bar and the box starting to open, so it lines up with the keyboard rising */
-const openKb=()=>{clearTimeout(clT);clearTimeout(dl.t);if(isOpen)return;isOpen=1;mOk=0;gap=gp();K=getK();
+const KD=90,dl={t:0};let tO=0,mW=0;/* KD = delay (ms) between touching the input bar and the box starting to open, so it lines up with the keyboard rising */
+const openKb=()=>{clearTimeout(clT);clearTimeout(dl.t);if(isOpen)return;isOpen=1;mOk=0;gap=gp();K=getK();tO=performance.now();
  ap.style.transition='none';ap.style.minHeight=Math.round(H*.5)+'px';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=H+'px';void ap.offsetHeight;
  ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';
  bar.classList.add('kbo');if(chOn())ch.classList.add('kbo2');ibh();follow(260)};
 const closeKb=()=>{clearTimeout(dl.t);if(!isOpen)return;isOpen=0;gap=gp();
  ap.style.transition=EZ;ap.style.height=H+'px';bx.style.height='0px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(260);
  clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height=ap.style.minHeight='';ap.style.transition=''}},270)};
-const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;const k=Math.round(H-vv.height-vv.offsetTop);
- if(k>150&&k<H*.5&&Math.abs(k-K)>3){const sl=0;mOk=1;K=k;setK(k);gap=gp();ap.style.transition=sl?EZS:EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(260)}};
+/* the box first opens to 35% with the normal animation; the sync to the real keyboard height happens only in the last ~70ms of it, as a tiny quick correction (no visible jump) */
+const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;
+ const w=tO+250-70-performance.now();if(w>0){clearTimeout(mW);mW=setTimeout(measure,w);return}
+ const k=Math.round(H-vv.height-vv.offsetTop);
+ if(k>150&&k<H*.5&&Math.abs(k-K)>3){mOk=1;K=k;setK(k);gap=gp();ap.style.transition='height 70ms ease-out';ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(90)}};
 {let tx=0,ty=0,tm=0;ch.addEventListener('pointerdown',e=>{tx=e.clientX;ty=e.clientY;tm=1},true);ch.addEventListener('pointermove',e=>{if(tm&&Math.hypot(e.clientX-tx,e.clientY-ty)>10)tm=0},true);ch.addEventListener('pointercancel',()=>tm=0,true);
 ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement===ti&&!(e.target.closest&&e.target.closest('.inb'))){window._kbKeep=0;ti.blur()}},true)}
 /* head start: open the box the moment the finger touches the input, keyboard follows on release */
