@@ -349,7 +349,7 @@ function send(){const v=$('#ti').value.trim();if(!v)return;const _kb=document.ac
 function reply(o){}
 let mmode='a',hold,held=0;
 const hasTxt=()=>{const t=$('#ti');return t&&t.value.trim()};
-const RC={a:{mimes:['audio/ogg;codecs=opus','audio/webm;codecs=opus','audio/mp4;codecs=mp4a.40.2','audio/mp4'],max:0},v:{mimes:['video/mp4;codecs=avc1.640015,mp4a.40.2','video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4;codecs=avc1','video/mp4'],max:60,size:400}};
+const RC={a:{mimes:['audio/ogg;codecs=opus','audio/webm;codecs=opus','audio/mp4;codecs=mp4a.40.2','audio/mp4'],max:0},v:{mimes:['video/mp4;codecs=avc1.640015,mp4a.40.2','video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4;codecs=avc1','video/mp4'],max:60,size:300}};
 const pickMime=l=>l.find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||'';
 const pack5=a=>{const o=[];let b=0,n=0;a.forEach(v=>{b=(b<<5)|(v&31);n+=5;while(n>=8){n-=8;o.push((b>>n)&255)}b&=(1<<n)-1});if(n)o.push((b<<(8-n))&255);return new Uint8Array(o)};
 const fmtD=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
@@ -417,8 +417,8 @@ if(R.abort){ui(R);if(!Z&&MST){MST.getTracks().forEach(t=>{try{t.stop()}catch(e){
 const ac=R.ac=new(window.AudioContext||window.webkitAudioContext)(),an=R.an=ac.createAnalyser();an.fftSize=512;ac.createMediaStreamSource(new MediaStream(MST.getAudioTracks())).connect(an);R.buf=new Uint8Array(an.fftSize);
 let out=st;
 /* voice: boost + limit the level through Web Audio so iPhone voices are loud and clear; falls back to the raw stream if the context cannot start */
-if(!vid){try{await Promise.race([ac.resume(),new Promise(r=>setTimeout(r,400))]);if(ac.state=='running'){const sc=ac.createMediaStreamSource(new MediaStream(MST.getAudioTracks())),gn=ac.createGain(),cp=ac.createDynamicsCompressor(),ds=ac.createMediaStreamDestination();gn.gain.value=2.5;cp.threshold.value=-20;cp.knee.value=20;cp.ratio.value=6;cp.attack.value=.003;cp.release.value=.25;sc.connect(gn);gn.connect(cp);cp.connect(ds);out=ds.stream}}catch(e){}}
-if(vid){const v=R.ve=document.createElement('video');v.muted=true;v.playsInline=true;v.srcObject=new MediaStream(MST.getVideoTracks());await v.play();const cv=R.cv=document.createElement('canvas');cv.width=cv.height=S.size;R.cx=cv.getContext('2d');o.querySelector('.cam').prepend(cv);setTimeout(()=>{R.th0=R.th0||cv.toDataURL('image/jpeg',.8)},300);out=new MediaStream([...cv.captureStream(30).getVideoTracks(),...MST.getAudioTracks()])}
+{try{await Promise.race([ac.resume(),new Promise(r=>setTimeout(r,400))]);if(ac.state=='running'){const sc=ac.createMediaStreamSource(new MediaStream(MST.getAudioTracks())),gn=ac.createGain(),cp=ac.createDynamicsCompressor(),ds=ac.createMediaStreamDestination();gn.gain.value=2.5;cp.threshold.value=-20;cp.knee.value=20;cp.ratio.value=6;cp.attack.value=.003;cp.release.value=.25;sc.connect(gn);gn.connect(cp);cp.connect(ds);R.ao=ds.stream.getAudioTracks();if(!vid)out=ds.stream}}catch(e){}}
+if(vid){const v=R.ve=document.createElement('video');v.muted=true;v.playsInline=true;v.srcObject=new MediaStream(MST.getVideoTracks());await v.play();const cv=R.cv=document.createElement('canvas');cv.width=cv.height=S.size;R.cx=cv.getContext('2d');o.querySelector('.cam').prepend(cv);setTimeout(()=>{R.th0=R.th0||cv.toDataURL('image/jpeg',.8)},300);out=new MediaStream([...cv.captureStream(30).getVideoTracks(),...(R.ao&&R.ao.length?R.ao:MST.getAudioTracks())])}
 if(R.abort){ui(R);try{R.ac&&R.ac.close()}catch(e){}if(!Z&&MST){MST.getTracks().forEach(t=>{try{t.stop()}catch(e){}});MST=null}return}
 const mt=pickMime(S.mimes),mr=R.mr=new MediaRecorder(out,Object.assign(mt?{mimeType:mt}:{},{audioBitsPerSecond:vid?96000:(/opus/.test(mt)?64000:96000)},vid?{videoBitsPerSecond:1000000}:{}));
 mr.ondataavailable=e=>{e.data.size&&R.ch.push(e.data);if(R.want){R.want=0;showPv(R,mr.mimeType||mt)}};
@@ -436,7 +436,8 @@ const c=$('#hl').getContext('2d'),lv=R.lv,r0=36,tt=now/1000;c.clearRect(0,0,240,
 for(let k=0;k<16;k++){const a=k*Math.PI/8+tt*.7,rr=r0+16+lv*38*(.5+.5*Math.sin(k*2.1+tt*3));c.fillStyle='rgba(255,255,255,'+(.25+lv*.5)+')';c.beginPath();c.arc(120+Math.cos(a)*rr,120+Math.sin(a)*rr,1.5+lv*3,0,7);c.fill()}}
 if(R.vid){const v=R.ve,w=v.videoWidth,h=v.videoHeight,q2=Math.min(w,h),z=S.size,cx=R.cx;if(q2){cx.save();if(R.front){cx.translate(z,0);cx.scale(-1,1)}{const zm=Math.max(1,R.zm||1),qz=q2/zm;cx.drawImage(v,(w-qz)/2,(h-qz)/2,qz,qz,0,0,z,z)}cx.restore()}
 $('#rg').style.strokeDasharray=Math.min(100,el/600)+' 100';if(R.run&&now-R.tp>1000){R.tp=now;const t2=document.createElement('canvas');t2.width=t2.height=48;t2.getContext('2d').drawImage(R.cv,0,0,48,48);R.th.push(t2.toDataURL('image/jpeg',.5))}}
-if(S.max&&el>=S.max*1000&&R.run)fin(1)}
+if(S.max&&el>=S.max*1000&&R.run){if(R.vid)maxPause(R);else fin(1)}}
+function maxPause(R){if(Z!==R||!R.run||R.st=='pause')return;R.st='lock';moveBig(0,0);pauseRec();R.acc=Math.min(R.acc,RC.v.max*1000);R.mx=1;toast('به سقف یک دقیقه رسید')}
 function lockRec(){const R=Z;if(!R||R.st!='rec')return;R.st='lock';const o=$('#ro');o.dataset.s='lock';$('#rx').textContent='لغو';moveBig(0,0);$('#bg').innerHTML=SI.aup}
 function pauseRec(){const R=Z;if(!R||!R.mr||R.st!='lock')return;R.acc+=performance.now()-R.s0;R.run=0;R.st='pause';flashOff(R);R.mr.pause();$('#ro').dataset.s='pause';R.want=1;R.mr.requestData()}
 function showPv(R,mime){const o=$('#ro'),pl=$('#pl'),url=URL.createObjectURL(new Blob(R.ch,{type:mime}));pl.querySelectorAll('i,img').forEach(x=>x.remove());R.s=0;R.e=1;
@@ -449,7 +450,7 @@ if(R.vid){const v=R.pvv=document.createElement('video');v.src=url;v.playsInline=
 else{R.pa=new Audio(url);const L=R.pk.length,fr=document.createDocumentFragment();for(let i=0;i<48;i++){const a=Math.floor(i*L/48),b=Math.max(a+1,Math.floor((i+1)*L/48));let m=0;for(let k=a;k<b&&k<L;k++)m=Math.max(m,R.pk[k]);const e=document.createElement('i');e.style.height=4+m*28+'px';fr.appendChild(e)}pl.prepend(fr)}
 trimUI(R)}
 function playPv(){const R=Z;if(!R)return;const p=R.vid?R.pvv:R.pa;if(!p)return;if(!p.paused){p.pause();return}const d=R.acc/1000;if(p.currentTime<R.s*d||p.currentTime>=R.e*d-.05)p.currentTime=R.s*d;p.ontimeupdate=()=>{if(p.currentTime>=R.e*d)p.pause()};p.play()}
-function resumeRec(){const R=Z;if(!R||R.st!='pause')return;R.pa&&R.pa.pause();R.pvv&&R.pvv.remove();{const q=document.querySelector('#ro .snb');q&&q.remove()};R.pvv=R.pa=null;R.s=0;R.e=1;R.st='lock';R.run=1;R.s0=performance.now();R.mr.resume();$('#ro').dataset.s='lock'}
+function resumeRec(){const R=Z;if(!R||R.st!='pause')return;if(R.vid&&R.acc>=RC.v.max*1000-50){toast('حداکثر مدت ویدیو مسیج یک دقیقه است');return}R.pa&&R.pa.pause();R.pvv&&R.pvv.remove();{const q=document.querySelector('#ro .snb');q&&q.remove()};R.pvv=R.pa=null;R.s=0;R.e=1;R.st='lock';R.run=1;R.s0=performance.now();R.mr.resume();$('#ro').dataset.s='lock'}
 async function flipCam(){const R=Z;if(!R||!R.vid||R.st=='pause'||R.flipping)return;R.flipping=1;const nf=!R.front,fm=nf?'user':'environment',z=RC.v.size,old=MST.getVideoTracks()[0];
 const open=async f=>{const c={width:{ideal:z},height:{ideal:z},aspectRatio:1,facingMode:f};return Promise.race([navigator.mediaDevices.getUserMedia({video:c}),new Promise((_,j)=>setTimeout(()=>j(new Error('to')),4000))])};
 try{try{old&&old.applyConstraints({advanced:[{torch:false}]}).catch(()=>0)}catch(e){}
@@ -480,11 +481,11 @@ async function trimVid(b,mt,s,e){
   const vt=await input.getPrimaryVideoTrack();if(!vt)throw new Error('novideo');
   const at=await input.getPrimaryAudioTrack(),D=await input.computeDuration(),ts=Math.max(0,s),te=Math.min(e,D);
   if(te-ts<.05)throw new Error('short');
-  const W=vt.displayWidth,H=vt.displayHeight,br=2e6;
+  const W=vt.displayWidth,H=vt.displayHeight,br=1e6;
   let vc='avc';if(!await M.canEncodeVideo('avc',{width:W,height:H,bitrate:br})){vc=(await M.canEncodeVideo('vp9',{width:W,height:H,bitrate:br}))?'vp9':null;if(!vc)throw new Error('noenc')}
-  let audio={};if(at){const ac=(await M.canEncodeAudio('aac',{bitrate:64e3}))?'aac':(await M.canEncodeAudio('opus',{bitrate:64e3}))?'opus':null;if(!ac)throw new Error('noaenc');audio={codec:ac,bitrate:64e3,forceTranscode:true}}
+  let audio={};if(at){const ac=(await M.canEncodeAudio('aac',{bitrate:64e3}))?'aac':(await M.canEncodeAudio('opus',{bitrate:64e3}))?'opus':null;if(!ac)throw new Error('noaenc');audio={codec:ac,bitrate:ac=='aac'?96e3:64e3,forceTranscode:true}}
   const out=new M.Output({format:new M.Mp4OutputFormat({fastStart:'in-memory'}),target:new M.BufferTarget()});
-  const cv=await M.Conversion.init({input,output:out,video:{width:W,height:H,fit:'fill',bitrate:br,codec:vc,forceTranscode:true},audio,trim:{start:ts,end:te}});
+  const cv=await M.Conversion.init({input,output:out,video:{width:W,height:H,fit:'fill',bitrate:br,codec:vc,frameRate:30,keyFrameInterval:1,forceTranscode:true},audio,trim:{start:ts,end:te}});
   if(!cv.isValid)throw new Error('invalid');await cv.execute();
   const nb=new Blob([out.target.buffer],{type:'video/mp4'});if(nb.size<800)throw new Error('empty');return nb
  }catch(err){return trimBlob(b,mt,true,s,e)}}
@@ -1663,7 +1664,7 @@ function upd(A){const cu=A.m.currentTime,f=Math.min(1,cu/dd(A));
  else if(A.w){const n=Math.floor(f*A.w.length);if(n!==A.nf){A.w.forEach((i,k)=>i.classList.toggle('f',k<n));A.nf=n}const pl=!A.m.paused;if(A.pl!==pl){A.pl=pl;A.b.innerHTML=I(pl?'pause':'play',20)}}
  if(A.t=='v'&&A.ph){const dm=A.m.paused&&!A.sk;if(A.dm!==dm){A.dm=dm;A.ph.style.filter=dm?'brightness(.55)':''}}
  const pl2=!A.m.paused;if(A.bp!==pl2){A.bp=pl2;$('#pbp').innerHTML=I(pl2?'pause':'play',22);$('#pb2p').innerHTML=I(pl2?'pause':'play',22)}}
-function lp(A){A.raf=requestAnimationFrame(()=>{if(CUR!==A)return;upd(A);flt(A);if(A.m.ended){const x=A.x;deact(A);next(x);return}lp(A)})}
+function lp(A){A.raf=requestAnimationFrame(()=>{if(CUR!==A)return;upd(A);flt(A);if(A.m.ended||(A.t=='v'&&A.x.url&&!A.m.paused&&isFinite(A.m.duration)&&A.m.duration>0&&A.m.currentTime>=A.m.duration-.04)){const x=A.x;deact(A);next(x);return}lp(A)})}
 let FLP=null;
 function flOn(A){const W=112,ap=$('#app'),d=document.createElement('div');d.id='flv';d.style.cssText=`position:absolute;z-index:60;width:${W}px;height:${W}px;border-radius:50%;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.85);touch-action:none;background:#000;direction:ltr`;
  const p=FLP||{x:ap.clientWidth-W-12,y:ap.clientHeight-W-120};d.style.left=p.x+'px';d.style.top=p.y+'px';d.appendChild(A.m);
