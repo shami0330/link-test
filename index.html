@@ -1119,7 +1119,7 @@ const openKb=()=>{clearTimeout(clT);clearTimeout(dl.t);if(isOpen)return;isOpen=1
 const closeKb=()=>{clearTimeout(dl.t);clearTimeout(mW);if(!isOpen)return;isOpen=0;gap=gp();
  ap.style.transition=EZ;ap.style.height=H+'px';bx.style.height='0px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(260);
  clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height=ap.style.minHeight='';ap.style.transition=''}},270)};
-/* the box first opens to 35% with the normal animation; the sync to the real keyboard height happens only in the last ~70ms of it, as a tiny quick correction (no visible jump) */
+/* the box first opens to 35% with the normal animation; the sync to the real keyboard height happens only in the last ~10ms of it, as a tiny quick correction (no visible jump) */
 const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;
  const w=tO+250-70-performance.now();if(w>0){clearTimeout(mW);mW=setTimeout(measure,w);return}
  const k=Math.round(H-vv.height-vv.offsetTop);
