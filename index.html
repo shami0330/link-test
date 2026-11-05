@@ -1104,7 +1104,7 @@ if(window.ResizeObserver)new ResizeObserver(ibh).observe(bar);
    so the input is never hidden and iOS never scrolls/pans the page. Closing shrinks the box back right after blur. */
 const EZ='height 250ms cubic-bezier(.17,.59,.4,.77)',EZS=EZ;let K=0,isOpen=0,gap=0,raf=0,clT=0,mT=0,H=innerHeight;
 const setH=()=>{if(!isOpen&&document.activeElement!==ti)H=innerHeight};addEventListener('resize',()=>setTimeout(setH,350));addEventListener('orientationchange',()=>setTimeout(setH,450));
-const getK=()=>{try{const k=+localStorage.getItem('kbH'),h=+localStorage.getItem('kbHH');if(k>150&&h>300&&k<h*.6)return Math.round(k*H/h)}catch(e){}return Math.round(H*.35)};let mOk=0;
+const getK=()=>KC||Math.round(H*.35);let mOk=0,KC=0,NH=0,cT=0;/* KC = keyboard height calibrated once (first open), reused by every later open in this session */
 /* transparent phantom box under the keyboard: same height/animation as the app shrink, touches pass through */
 const bx=document.createElement('div');bx.id='kbBox';bx.style.cssText='position:fixed;left:0;right:0;bottom:0;height:0;background:transparent;pointer-events:none;z-index:2147483000;transition:'+EZ;document.body.appendChild(bx);
 const setK=v=>{try{localStorage.setItem('kbH',v);localStorage.setItem('kbHH',H)}catch(e){}};
@@ -1112,14 +1112,17 @@ const chOn=()=>!ch.classList.contains('r');
 const follow=d=>{if(window._kbOn&&window._kbOn())return;cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
 const gp=()=>Math.max(0,ms.scrollHeight-ms.scrollTop-ms.clientHeight);
 const openKb=()=>{clearTimeout(clT);if(isOpen)return;isOpen=1;mOk=0;gap=gp();K=getK();
- ap.style.transition='none';ap.style.minHeight=Math.round(H*.5)+'px';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=H+'px';void ap.offsetHeight;
+ if(!ap.style.height){NH=ap.offsetHeight;ap.style.transition='none';ap.style.minHeight=Math.round(H*.5)+'px';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=NH+'px';void ap.offsetHeight}
  ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';
  bar.classList.add('kbo');if(chOn())ch.classList.add('kbo2');ibh();follow(260)};
 const closeKb=()=>{if(!isOpen)return;isOpen=0;gap=gp();
- ap.style.transition=EZ;ap.style.height=H+'px';bx.style.height='0px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(260);
+ ap.style.transition=EZ;ap.style.height=(NH||H)+'px';bx.style.height='0px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(260);
  clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height=ap.style.minHeight='';ap.style.transition=''}},270)};
-const measure=()=>{if(!vv||!isOpen||document.activeElement!==ti)return;const k=Math.round(H-vv.height-vv.offsetTop);
- if(k>150&&k<H*.5&&Math.abs(k-K)>3){const sl=0;mOk=1;K=k;setK(k);gap=gp();ap.style.transition=sl?EZS:EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(260)}};
+/* one-time calibration: wait until the real keyboard height is stable, then adjust once; later opens skip this */
+const measure=()=>{if(KC||cT||!vv||!isOpen||document.activeElement!==ti)return;let last=-1,n=0;const t0=performance.now();
+ cT=setInterval(()=>{if(!isOpen||document.activeElement!==ti||performance.now()-t0>1800){clearInterval(cT);cT=0;return}
+  const k=Math.round(H-vv.height-vv.offsetTop);
+  if(k>150&&k<H*.5&&k===last){if(++n>=2){clearInterval(cT);cT=0;mOk=1;KC=k;setK(k);if(Math.abs(k-K)>3){K=k;gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(260)}}}else{n=0;last=k}},70)};
 {let tx=0,ty=0,tm=0;ch.addEventListener('pointerdown',e=>{tx=e.clientX;ty=e.clientY;tm=1},true);ch.addEventListener('pointermove',e=>{if(tm&&Math.hypot(e.clientX-tx,e.clientY-ty)>10)tm=0},true);ch.addEventListener('pointercancel',()=>tm=0,true);
 ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement===ti&&!(e.target.closest&&e.target.closest('.inb'))){window._kbKeep=0;ti.blur()}},true)}
 /* head start: open the box the moment the finger touches the input, keyboard follows on release */
@@ -2374,7 +2377,7 @@ o.addEventListener('touchend',end);o.addEventListener('touchcancel',end);
 const css=`
 /* --- chat: smoother bubbles --- */
 #msgs{overscroll-behavior:contain;transition:padding .3s cubic-bezier(.22,.9,.28,1)}
-.inb{transition:bottom .12s,padding .28s cubic-bezier(.22,.9,.28,1)}
+.inb{transition:bottom .12s,padding .25s cubic-bezier(.17,.59,.4,.77)}
 .b{animation:none;contain:layout style;-webkit-tap-highlight-color:transparent;box-shadow:0 1px 1.5px rgba(0,0,0,.12)}
 .b.st,.b.rv,.b.typ{box-shadow:none}
 .b.nw,.b.typ{animation:bin2 .38s cubic-bezier(.22,1.12,.36,1) backwards}
