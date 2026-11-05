@@ -1102,22 +1102,29 @@ const ibh=()=>ch.style.setProperty('--ibh',Math.max(0,bar.offsetHeight-3)+'px');
 if(window.ResizeObserver)new ResizeObserver(ibh).observe(bar);
 /* keyboard "pre-opened box": the app shrinks to leave an empty box the size of the keyboard BEFORE the keyboard appears,
    so the input is never hidden and iOS never scrolls/pans the page. Closing shrinks the box back right after blur. */
-const EZ='height 250ms cubic-bezier(.17,.59,.4,.77)',EZS=EZ;let K=0,isOpen=0,gap=0,raf=0,clT=0,mT=0,H=innerHeight;
+const ez=d=>'height '+d+'ms cubic-bezier(.17,.59,.4,.77)';let EZ=ez(250),EZC=EZ,DO=0,DC=0,K=0,isOpen=0,gap=0,raf=0,clT=0,mT=0,H=innerHeight;
 const setH=()=>{if(!isOpen&&document.activeElement!==ti)H=innerHeight};addEventListener('resize',()=>setTimeout(setH,350));addEventListener('orientationchange',()=>setTimeout(setH,450));
 const getK=()=>KC||Math.round(H*.35);let mOk=0,KC=0,NH=0,cT=0;/* KC = keyboard height calibrated once (first open), reused by every later open in this session */
 /* transparent phantom box under the keyboard: same height/animation as the app shrink, touches pass through */
 const bx=document.createElement('div');bx.id='kbBox';bx.style.cssText='position:fixed;left:0;right:0;bottom:0;height:0;background:transparent;pointer-events:none;z-index:2147483000;transition:'+EZ;document.body.appendChild(bx);
 const setK=v=>{try{localStorage.setItem('kbH',v);localStorage.setItem('kbHH',H)}catch(e){}};
+/* one-time speed calibration: time the real keyboard animation (first open / first close), then reuse it for the box */
+const trk=o=>{if(!vv||(o?DO:DC))return;const t0=performance.now();let last=vv.height,tf=0,tl=0;
+ const f=()=>{const t=performance.now(),h=vv.height;if(Math.abs(h-last)>1){if(!tf)tf=t;tl=t;last=h}
+  if(t-t0<1200&&(!tf||t-tl<160))return requestAnimationFrame(f);
+  const d=Math.round(Math.max(tl-tf,tf-t0));
+  if(tf&&d>=120&&d<=600){if(o){DO=d;EZ=ez(d)}else{DC=d;EZC=ez(d)}}};
+ requestAnimationFrame(f)};
 const chOn=()=>!ch.classList.contains('r');
 const follow=d=>{if(window._kbOn&&window._kbOn())return;cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
 const gp=()=>Math.max(0,ms.scrollHeight-ms.scrollTop-ms.clientHeight);
 const openKb=()=>{clearTimeout(clT);if(isOpen)return;isOpen=1;mOk=0;gap=gp();K=getK();
  if(!ap.style.height){NH=ap.offsetHeight;ap.style.transition='none';ap.style.minHeight=Math.round(H*.5)+'px';ap.style.top='0px';ap.style.bottom='auto';ap.style.height=NH+'px';void ap.offsetHeight}
- ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';
- bar.classList.add('kbo');if(chOn())ch.classList.add('kbo2');ibh();follow(260)};
-const closeKb=()=>{if(!isOpen)return;isOpen=0;gap=gp();
- ap.style.transition=EZ;ap.style.height=(NH||H)+'px';bx.style.height='0px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow(260);
- clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height=ap.style.minHeight='';ap.style.transition=''}},270)};
+ ap.style.transition=EZ;bx.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';
+ bar.classList.add('kbo');if(chOn())ch.classList.add('kbo2');ibh();follow((DO||250)+20)};
+const closeKb=()=>{if(!isOpen)return;isOpen=0;gap=gp();trk(0);
+ ap.style.transition=EZC;bx.style.transition=EZC;ap.style.height=(NH||H)+'px';bx.style.height='0px';bar.classList.remove('kbo');ch.classList.remove('kbo2');ibh();follow((DC||250)+20);
+ clearTimeout(clT);clT=setTimeout(()=>{if(!isOpen){ap.style.top=ap.style.bottom=ap.style.height=ap.style.minHeight='';ap.style.transition=''}},(DC||250)+30)};
 /* one-time calibration: wait until the real keyboard height is stable, then adjust once; later opens skip this */
 const measure=()=>{if(KC||cT||!vv||!isOpen||document.activeElement!==ti)return;let last=-1,n=0;const t0=performance.now();
  cT=setInterval(()=>{if(!isOpen||document.activeElement!==ti||performance.now()-t0>1800){clearInterval(cT);cT=0;return}
@@ -1135,7 +1142,7 @@ ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement
  ti.addEventListener('touchend',e=>{if(tp){e.preventDefault();go()}},{passive:false});
  ti.addEventListener('pointerup',e=>{if(e.pointerType=='mouse')go()});
  ti.addEventListener('click',e=>{go()})}
-ti.addEventListener('focus',()=>{if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800);setTimeout(()=>{if(isOpen&&!mOk&&document.activeElement===ti){K=getK();gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(350)}},950)});
+ti.addEventListener('focus',()=>{trk(1);if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800);setTimeout(()=>{if(isOpen&&!mOk&&document.activeElement===ti){K=getK();gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(350)}},950)});
 ti.addEventListener('blur',()=>{if(Date.now()<(window._kbKeep||0)){const f=()=>{if(Date.now()<(window._kbKeep||0)+100&&document.activeElement!==ti)ti.focus({preventScroll:true})};f();setTimeout(f,0);setTimeout(f,80)}
  setTimeout(()=>{if(document.activeElement!==ti)closeKb()},Date.now()<(window._kbKeep||0)+100?130:0)});
 if(vv){vv.addEventListener('scroll',()=>{if(isOpen&&vv.offsetTop>0)scrollTo(0,0)});addEventListener('scroll',()=>{if(isOpen&&(scrollY||pageYOffset))scrollTo(0,0)},{passive:true});vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,140);if(isOpen&&H-vv.height<80&&(document.activeElement!==ti||mOk)){window._kbKeep=0;if(document.activeElement===ti)ti.blur();closeKb()}})}
