@@ -23,7 +23,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Vazirmatn",syst
 @media (pointer:coarse){#app,#tgv{max-width:none!important}}
 /* fill the whole screen: remove the blank band under the input bar (day: white, night: black) */
 /* raise bottom controls by 20px (change --up to adjust) */
-@media (orientation:portrait){:root{--up:10px}.inb:not(.kbo){padding-bottom:calc(env(safe-area-inset-bottom) + 13px + var(--up))!important}.tabbar{bottom:calc(env(safe-area-inset-bottom) + 12px + var(--up))!important}.eb{bottom:calc(env(safe-area-inset-bottom) + 14px + var(--up))!important}.dn{bottom:calc(env(safe-area-inset-bottom) + 84px + var(--up))!important}}
+@media (orientation:portrait){:root{--up:10px}.inb:not(.kbo){padding-bottom:calc(env(safe-area-inset-bottom) + 23px + var(--up))!important}.tabbar{bottom:calc(env(safe-area-inset-bottom) + 12px + var(--up))!important}.eb{bottom:calc(env(safe-area-inset-bottom) + 14px + var(--up))!important}.dn{bottom:calc(env(safe-area-inset-bottom) + 89px + var(--up))!important}}
 @supports (height:100lvh){html,body{height:100lvh}#app{top:0;bottom:auto;margin-top:0;height:calc(100lvh + env(safe-area-inset-bottom,0px) + 5px)}}
 @media (pointer:coarse){#mc,#cr,#vw,#mp,#sp,#ng{max-width:none!important}}
 @media (pointer:coarse) and (orientation:landscape){
@@ -123,7 +123,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
 .b .mt{float:none;clear:both;width:fit-content;direction:ltr;margin:3px 0 -2px auto;font-size:12px;color:var(--t2);display:flex;gap:3px;align-items:center}.b .mt .ok{color:var(--ac);display:inline-flex}.tk{display:block;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;overflow:visible}.tm .ok{display:inline-flex;vertical-align:-1px}
 .sn{font-size:14px;font-weight:700;margin-bottom:1px}
 .rp{border-right:0;border-left:2.5px solid var(--ac);background:rgba(63,156,53,.13);border-radius:6px;padding:3px 8px;margin:0 0 5px;font-size:14px}.rp b{color:var(--ac);display:block}
-.rp span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.8}
+.rp{display:flex;align-items:center;gap:8px}.rpi{width:36px;height:36px;border-radius:7px;object-fit:cover;flex:none}#rpl .rpi{width:38px;height:38px}.rpt2{min-width:0;flex:1}.rp span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.8}
 .b.st{background:none;font-size:92px;line-height:1.1;padding:0}.b.st::after{display:none}
 .b.st .mt{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.5);color:#fff;border-radius:99px;padding:1px 8px;margin:0}
 .b.im{padding:3px}.b.im .ph{width:230px;height:260px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:90px}
@@ -145,7 +145,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
 .rpl .bar{width:2.5px;align-self:stretch;background:var(--ac);border-radius:2px}.rpl div{flex:1;min-width:0}.rpl span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t2)}
 .irow{display:flex;gap:8px;align-items:flex-end}
 .cb{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;color:var(--tx)}
-.tf{flex:1;border-radius:24px;min-height:48px;display:flex;align-items:center;padding:0 14px;gap:8px}
+.tf{flex:1;border-radius:22px;min-height:43px;display:flex;align-items:center;padding:0 14px;gap:8px}
 .tf textarea{flex:1;resize:none;max-height:120px;height:24px;line-height:24px;font-size:17px;-webkit-user-select:text;user-select:text;direction:rtl;text-align:right;padding:0}
 .tf textarea::placeholder{color:var(--t2)}
 .sbtn{background:var(--ac);color:#fff}
@@ -222,7 +222,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
   </div>
   <button class="dn gl press h" id="dn"></button>
   <div class="inb">
-   <div class="rpl gl hide" id="rpl"><i class="bar"></i><div><b style="color:var(--ac)" id="rpn"></b><span id="rpt"></span></div><button id="rpx" class="press"></button></div>
+   <div class="rpl gl hide" id="rpl"><i class="bar"></i><img id="rpi" class="rpi hide"><div><b style="color:var(--ac)" id="rpn"></b><span id="rpt"></span></div><button id="rpx" class="press"></button></div>
    <div class="irow"><button class="cb gl press" id="att"></button><div class="tf gl" id="tf"><textarea id="ti" rows="1" placeholder="پیام" dir="auto"></textarea><span style="color:var(--t2)" id="ic-st"></span></div><button class="cb gl press" id="mic"></button></div>
   </div>
  </div>
@@ -284,7 +284,7 @@ function push(id,from){const p=$(id);p.classList.add('top1');p.classList.remove(
 function pop(id,to){const p=$(id);p.classList.add('r');$(to).classList.remove('cov');setTimeout(()=>p.classList.remove('top1'),400)}
 /* chat */
 function bub(c,x,i,A){const nx=A[i+1],tail=!nx||nx.out!=x.out||nx.type=='dts';
-const rp=x.rp?`<div class="rp" dir="auto"><b>${esc(x.rp[0])}</b><span>${esc(x.rp[1])}</span></div>`:'';
+const rp=x.rp?`<div class="rp" dir="auto">${x.rp[2]?`<img class="rpi" src="${x.rp[2]}">`:''}<div class="rpt2"><b>${esc(x.rp[0])}</b><span>${esc(x.rp[1])}</span></div></div>`:'';
 const mt=`<span class="mt">${x.time}${x.out?`<span class="ok">${tkS(x.st)}</span>`:''}</span>`;
 let cl=`b ${x.out?'out':'in'} ${tail?'t':''}`,h;
 if(x.type=='st')return`<div class="${cl.replace('b ','b st ')}" data-id="${x.id}">${x.emo||x.text}${mt}</div>`;
@@ -336,7 +336,7 @@ function closeChat(){pop('#chat','#main');cur=null;drawList()}
 function updBtn(){const v=$('#ti').value.trim();const b=$('#mic');b.className='cb press '+(v?'sbtn':'gl');b.innerHTML=v?I('send',24):I(mmode=='v'?'video':'mic',24)}
 function addMsg(o){cur.msgs.push(o);const c=cur;c.last=o.type=='al'||o.type=='fl'?_lblMsg(o):o.type=='im'?'عکس':o.type=='vc'?'پیام صوتی':o.type=='st'?'استیکر':o.text;c.out=o.out;c.time=o.time;drawMsgs()}
 const AR=['باشه 👍','جدی؟ 😂','آره دقیقا','بعدا حرف می‌زنیم','عالیه!','😍😍','چه خبر؟','فهمیدم، ممنون ❤️'];
-function send(){const v=$('#ti').value.trim();if(!v)return;const _kb=document.activeElement===$('#ti');if(_kb)window._kbKeep=Date.now()+600;setTimeout(()=>{if(_kb&&document.activeElement!==$('#ti'))$('#ti').focus({preventScroll:true})},0);const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent],rid:rep.id}:{});o.st=1;addMsg(o);$('#ti').value='';$('#ti').style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();reply(o)}
+function send(){const v=$('#ti').value.trim();if(!v)return;const _kb=document.activeElement===$('#ti');if(_kb)window._kbKeep=Date.now()+600;setTimeout(()=>{if(_kb&&document.activeElement!==$('#ti'))$('#ti').focus({preventScroll:true})},0);const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent,window.rpTh||''],rid:rep.id}:{});o.st=1;addMsg(o);$('#ti').value='';$('#ti').style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();reply(o)}
 function reply(o){}
 let mmode='a',hold,held=0;
 const hasTxt=()=>{const t=$('#ti');return t&&t.value.trim()};
@@ -1444,7 +1444,7 @@ window._lblMsg=lbl;
 /* ---------- bubbles ---------- */
 const LAY={1:[1],2:[2],3:[1,2],4:[2,2],5:[2,3],6:[3,3],7:[2,2,3],8:[2,3,3],9:[3,3,3],10:[2,2,3,3]};
 const _bA=bub;bub=function(c,x,i,A){if(x.type!='al'&&x.type!='fl')return _bA(c,x,i,A);const SN=!!x.snd,PI=SN&&x._upl&&x.type=='al',SO=SN&&!PI?`<div class="dlb dlo" onclick="event.stopPropagation();sndCancel(${x.id})">${SXIC}${SARC(x)}</div>`:'';
- const nx=A[i+1],tail=!nx||nx.out!=x.out||nx.type=='dts',cl=`b ${x.out?'out':'in'} ${tail?'t':''}`,mt=`<span class="mt">${x.time}${x.out?`<span class="ok">${tkS(x.st)}</span>`:''}</span>`,rp=x.rp?`<div class="rp" dir="auto"><b>${esc(x.rp[0])}</b><span>${esc(x.rp[1])}</span></div>`:'';
+ const nx=A[i+1],tail=!nx||nx.out!=x.out||nx.type=='dts',cl=`b ${x.out?'out':'in'} ${tail?'t':''}`,mt=`<span class="mt">${x.time}${x.out?`<span class="ok">${tkS(x.st)}</span>`:''}</span>`,rp=x.rp?`<div class="rp" dir="auto">${x.rp[2]?`<img class="rpi" src="${x.rp[2]}">`:''}<div class="rpt2"><b>${esc(x.rp[0])}</b><span>${esc(x.rp[1])}</span></div></div>`:'';
  if(x.type=='fl'){const f=x.items[0],ex=(f.n.split('.').pop()||'').slice(0,4).toUpperCase();return`<div class="${cl} fl" data-id="${x.id}">${rp}<div class="fr" ${SN?'':`onclick="dlItem(${x.id},0)"`}><div class="fi ${SN?'dlf':''}">${SN?`<div class="dlb">${SXIC}${SARC(x)}</div>`:f.t?`<img src="${f.t}" draggable="false">`:esc(ex)}</div><div class="ft"><b dir="auto">${esc(f.n)}</b><span>${fmtS(f.s)}</span></div></div>${x.text?`<span dir="auto">${esc(x.text)}</span>`:''}${mt}</div>`}
  const its=x.items,n=its.length,rows=LAY[n]||[3,3,3,3];let k=0;
  const cell=(it,j)=>`<div class="ai" data-j="${j}" ${SN?'':`onclick="openVw(${x.id},${j})"`}>${it.k=='v'?`<img src="${it.t}" draggable="false">${SN?'':`<div class="pbd">${I('play',22)}</div>`}<span class="vd">${fmtT(it.d)}</span>`:`<img src="${it.u}" draggable="false">`}${PI?`<div class="dlb dlo" onclick="event.stopPropagation();itCancel(${x.id},${j})">${SXIC}${SARC({prog:it._p||0})}</div>`:''}</div>`;
@@ -1869,8 +1869,12 @@ stI.onclick=()=>popen?closeP(1):openP();
 ti.addEventListener('focus',()=>closeP(0));$('#cb').addEventListener('click',()=>closeP(0));
 {const _bb=bub;bub=function(c,x,i,A){let h=_bb(c,x,i,A);if(x.type=='st'&&x.anim)h=h.replace(/(<div class="b st[^"]*"[^>]*>)([\s\S]*?)(<span class="mt">)/,(m0,a,e,t)=>a+`<span class="gfa gf-${x.anim}">${e}</span>`+t);return h}}
 /* ============ reply on media: quote label + quote box for st/im/rv/vc ============ */
-{const _bb=bub;bub=function(c,x,i,A){let h=_bb(c,x,i,A);if(x.rp&&(x.type=='st'||x.type=='im'||x.type=='rv'||x.type=='vc')&&h.indexOf('class="rp"')<0)h=h.replace(/^(<div [^>]*>)/,'$1'+`<div class="rp" dir="auto"><b>${esc(x.rp[0])}</b><span>${esc(x.rp[1])}</span></div>`);return h}
- const _sr2=setRep;setRep=function(x){_sr2(x);if(x.text)return;const L={im:'🖼 عکس',al:'🖼 عکس / ویدیو',fl:'📎 فایل',rv:'🎥 ویدیو مسیج',vc:'🎤 ویس',st:x.emo||'استیکر'};if(L[x.type])$('#rpt').textContent=L[x.type]}}
+{const _bb=bub;bub=function(c,x,i,A){let h=_bb(c,x,i,A);if(x.rp&&(x.type=='st'||x.type=='im'||x.type=='rv'||x.type=='vc')&&h.indexOf('class="rp"')<0)h=h.replace(/^(<div [^>]*>)/,'$1'+`<div class="rp" dir="auto">${x.rp[2]?`<img class="rpi" src="${x.rp[2]}">`:''}<div class="rpt2"><b>${esc(x.rp[0])}</b><span>${esc(x.rp[1])}</span></div></div>`);return h}
+ const _sr2=setRep;setRep=function(x){_sr2(x);const it=x.items&&x.items[0],P=x.items?x.items.filter(q=>q.k=='p').length:0,V=x.items?x.items.filter(q=>q.k=='v').length:0;
+  const L={im:'🖼 عکس',al:P&&V?'🖼 عکس و ویدیو':V?'🎥 ویدیو':'🖼 عکس',fl:'📎 '+((it&&it.n)||'فایل'),rv:'🎥 ویدیو مسیج',vc:'🎤 ویس'+(x.du?' ('+x.du+')':''),st:x.emo||'استیکر'};
+  if(!x.text&&L[x.type])$('#rpt').textContent=L[x.type];
+  const th=it?(it.k=='v'?it.t:it.k=='p'?it.u:it.t||''):(x.th||'');window.rpTh=th||'';const im=$('#rpi');im.src=th||'';im.classList.toggle('hide',!th)};
+ const _am=addMsg;addMsg=function(o){if(rep&&o&&o.out&&!o.rp){o.rp=[$('#rpn').textContent,$('#rpt').textContent,window.rpTh||''];o.rid=rep.id;rep=null;$('#rpl').classList.add('hide')}return _am(o)}}
 /* ============ 3) long-press on send: when online / scheduled ============ */
 {const b=$('#mic'),od=b.onpointerdown,ou=b.onpointerup;let lt=0,lp=0;const has=()=>$('#ti').value.trim()&&!(typeof EDIT!='undefined'&&EDIT);
  let pt=0;
@@ -1878,7 +1882,7 @@ ti.addEventListener('focus',()=>closeP(0));$('#cb').addEventListener('click',()=
  b.onpointerup=e=>{clearTimeout(lt);if(lp){lp=0;return}if(pt){pt=0;send();return}ou&&ou.call(b,e)};
  const oc=b.onpointercancel;b.onpointercancel=e=>{clearTimeout(lt);oc&&oc.call(b,e)}
  function sendMenu(){const r=b.getBoundingClientRect();menu([['ارسال هنگام آنلاین شدن','send',sendOnline],['ارسال زمان‌بندی‌شده','call',schedule]],r.top-130,r.left+r.width/2)}
- function take(){const t=$('#ti'),v=t.value.trim();if(!v)return null;const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent],rid:rep.id}:{});t.value='';t.style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();return o}
+ function take(){const t=$('#ti'),v=t.value.trim();if(!v)return null;const o=m(1,v,T(),rep?{rp:[$('#rpn').textContent,$('#rpt').textContent,window.rpTh||''],rid:rep.id}:{});t.value='';t.style.height='24px';rep=null;$('#rpl').classList.add('hide');updBtn();return o}
  function deliver(o,c){o.time=T();o.st=1;if(cur===c)drawMsgs();const k=cur;cur=c;reply(o);cur=k}
  function sendOnline(){const c=cur,o=take();if(!o)return;const off=c.t=='pv'&&c.seen&&c.seen!='آنلاین';o.st=0;if(off)o.time='منتظر آنلاین شدن…';addMsg(o);if(!off){deliver(o,c);return}toast('پیام هنگام آنلاین شدن مخاطب ارسال می‌شود');setTimeout(()=>{c.seen='آنلاین';deliver(o,c)},6000)}
  function schedule(){const c=cur;if(!$('#ti').value.trim())return;const d=new Date(Date.now()+3600e3),p=n=>String(n).padStart(2,'0'),v=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
