@@ -1104,10 +1104,10 @@ if(window.ResizeObserver)new ResizeObserver(ibh).observe(bar);
    so the input is never hidden and iOS never scrolls/pans the page. Closing shrinks the box back right after blur. */
 const EZ='height 250ms cubic-bezier(.17,.59,.4,.77)',EZS=EZ;let K=0,isOpen=0,gap=0,raf=0,clT=0,mT=0,H=innerHeight;
 const setH=()=>{if(!isOpen&&document.activeElement!==ti)H=innerHeight};addEventListener('resize',()=>setTimeout(setH,350));addEventListener('orientationchange',()=>setTimeout(setH,450));
-const getK=()=>Math.round(H*.35);let mOk=0;
+const getK=()=>{try{const k=+localStorage.getItem('kbH'),h=+localStorage.getItem('kbHH');if(k>150&&h>300&&k<h*.6)return Math.round(k*H/h)}catch(e){}return Math.round(H*.35)};let mOk=0;
 /* transparent phantom box under the keyboard: same height/animation as the app shrink, touches pass through */
 const bx=document.createElement('div');bx.id='kbBox';bx.style.cssText='position:fixed;left:0;right:0;bottom:0;height:0;background:transparent;pointer-events:none;z-index:2147483000;transition:'+EZ;document.body.appendChild(bx);
-const setK=v=>{try{localStorage.setItem('kbH',v)}catch(e){}};
+const setK=v=>{try{localStorage.setItem('kbH',v);localStorage.setItem('kbHH',H)}catch(e){}};
 const chOn=()=>!ch.classList.contains('r');
 const follow=d=>{if(window._kbOn&&window._kbOn())return;cancelAnimationFrame(raf);const t0=performance.now();ms.style.scrollBehavior='auto';const f=()=>{ms.scrollTop=ms.scrollHeight-ms.clientHeight-gap;if(performance.now()-t0<d)raf=requestAnimationFrame(f);else ms.style.scrollBehavior='smooth'};f()};
 const gp=()=>Math.max(0,ms.scrollHeight-ms.scrollTop-ms.clientHeight);
@@ -1132,7 +1132,7 @@ ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement
  ti.addEventListener('touchend',e=>{if(tp){e.preventDefault();go()}},{passive:false});
  ti.addEventListener('pointerup',e=>{if(e.pointerType=='mouse')go()});
  ti.addEventListener('click',e=>{go()})}
-ti.addEventListener('focus',()=>{if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800);setTimeout(()=>{if(isOpen&&!mOk&&document.activeElement===ti){K=Math.round(H*.35);gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(350)}},950)});
+ti.addEventListener('focus',()=>{if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800);setTimeout(()=>{if(isOpen&&!mOk&&document.activeElement===ti){K=getK();gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(350)}},950)});
 ti.addEventListener('blur',()=>{if(Date.now()<(window._kbKeep||0)){const f=()=>{if(Date.now()<(window._kbKeep||0)+100&&document.activeElement!==ti)ti.focus({preventScroll:true})};f();setTimeout(f,0);setTimeout(f,80)}
  setTimeout(()=>{if(document.activeElement!==ti)closeKb()},Date.now()<(window._kbKeep||0)+100?130:0)});
 if(vv){vv.addEventListener('scroll',()=>{if(isOpen&&vv.offsetTop>0)scrollTo(0,0)});addEventListener('scroll',()=>{if(isOpen&&(scrollY||pageYOffset))scrollTo(0,0)},{passive:true});vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,140);if(isOpen&&H-vv.height-vv.offsetTop<80&&(document.activeElement!==ti||mOk)){window._kbKeep=0;if(document.activeElement===ti)ti.blur();closeKb()}})}
