@@ -1787,7 +1787,7 @@ const _b=bub;bub=function(c,x,i,A){let h=_b(c,x,i,A);if(x.ed)h=h.replace('<span 
 @keyframes gfk{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px) rotate(-8deg)}75%{transform:translateX(8px) rotate(8deg)}}
 @keyframes gfp{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}@keyframes gfw{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
 .gfa{display:inline-block}.gf-b{animation:gfb .9s ease-in-out infinite}.gf-s{animation:gfs 1.4s linear infinite}.gf-k{animation:gfk .5s ease-in-out infinite}.gf-p{animation:gfp .8s ease-in-out infinite}.gf-w{animation:gfw 1s ease-in-out infinite}
-#rob{margin:0;min-height:48px;border-radius:24px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;gap:10px;font-size:15px;color:var(--t2)}#rob button{color:var(--ac);font-weight:600}
+#rob{margin:0 auto;min-height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;padding:0 24px;gap:8px;width:max-content;max-width:100%;font-size:15px;color:var(--ac);font-weight:600;cursor:pointer}#rob svg{flex:none}
 #ng{position:fixed;inset:0;max-width:520px;margin:auto;z-index:55;background:var(--bg2);display:flex;flex-direction:column;direction:rtl}
 #ng .ngh{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;font-weight:700;font-size:18px}
 #ng .ngh button{color:var(--ac);font-size:17px;font-weight:500;padding:8px 6px;white-space:nowrap}#ng .ngl{justify-self:start}#ng .ngr{justify-self:end;font-weight:700!important}#ng .ngr.dis{opacity:.35}
@@ -1965,7 +1965,7 @@ const NOPE='فقط سازنده و مدیران دارای دسترسی مجاز
 const _oc=openChat;openChat=function(id){_oc(id);const c=cur;if(!c)return;closeP(0);
  if(c.members){const s=$('#cs');if(s)s.textContent=fa(c.members.length)+(c.t=='ch'?' مشترک':' عضو')}
  const ro=c.t=='ch'&&!can(c,'post');P.dataset.ro=ro?1:'';irow.classList.toggle('hide',ro);rob.classList.toggle('hide',!ro);
- if(ro){rob.innerHTML=`<span>فقط مدیران می‌توانند پیام ارسال کنند</span><button id="robm">${c.mute?'فعال‌سازی صدا':'بی‌صدا'}</button>`;$('#robm').onclick=()=>{c.mute=!c.mute;$('#robm').textContent=c.mute?'فعال‌سازی صدا':'بی‌صدا';drawList()}}};
+ if(ro){const dr=()=>{rob.innerHTML=(c.mute?I('bell',20):I('mute',20))+`<span>${c.mute?'باصدا':'بی‌صدا'}</span>`};dr();rob.onclick=()=>{c.mute=!c.mute;dr();drawList()}}};
 let NG=null;const BKI='<span style="display:inline-flex;transform:scaleX(-1)">'+I('back',24)+'</span>',XI=I('x',22);
 const ngOpen=()=>{NG=document.createElement('div');NG.id='ng';$('#app').appendChild(NG)},ngClose=()=>{NG&&NG.remove();NG=null};
 function page(o){NG.innerHTML=`<div class="ngh"><button class="ngl">${o.lt||''}</button><b>${o.title}</b><button class="ngr ${o.rd?'dis':''}">${o.rt||''}</button></div><div class="ngb">${o.html||''}</div>`;NG.querySelector('.ngl').onclick=o.lf;const r=NG.querySelector('.ngr');r.onclick=()=>{if(!r.classList.contains('dis')&&o.rf)o.rf()};o.bind&&o.bind(NG.querySelector('.ngb'),r)}
@@ -2485,13 +2485,14 @@ let kill=null,muted=false,spd=1;
 function openTV(items,k,meta){
  const app=document.getElementById('app');if(!app||!items.length)return;
  if(kill)kill(1);
- const n=items.length,o=document.createElement('div');o.id='tgv';
- o.innerHTML=`<div class="bg"></div><div class="pg">${items.map((it,j)=>`<div class="sl" style="left:${j*100}%"><div class="ct">${it.k=='v'?`<video src="${it.u}" poster="${it.t||''}" playsinline preload="${j==k?'auto':'metadata'}"></video>`:it.k=='e'?`<div class="em">${it.emo}</div>`:`<img src="${it.u}" draggable="false">`}</div></div>`).join('')}</div><div class="dk l"></div><div class="dk r"></div><div class="pb off"></div><div class="vctr"><button id="tvbk">${TI.b15}</button><button id="tvpp">${SV.play}</button><button id="tvfw">${TI.f15}</button></div><div class="top"><button class="btn lg" id="tvx">${TI.back}</button><div class="ttl lg"><b></b><small></small></div><button class="btn lg" id="tvd">${TI.dots}</button></div><div class="bot"></div>`;
+ meta=(items[k]&&items[k].m)||meta;const n=items.length,o=document.createElement('div');o.id='tgv';
+ o.innerHTML=`<div class="bg"></div><div class="pg">${items.map((it,j)=>`<div class="sl" style="left:${j*100}%"><div class="ct">${it.k=='v'?`<video poster="${it.t||''}" playsinline preload="${j==k?'auto':'metadata'}"></video>`:it.k=='e'?`<div class="em">${it.emo}</div>`:`<img draggable="false">`}</div></div>`).join('')}</div><div class="dk l"></div><div class="dk r"></div><div class="pb off"></div><div class="vctr"><button id="tvbk">${TI.b15}</button><button id="tvpp">${SV.play}</button><button id="tvfw">${TI.f15}</button></div><div class="top"><button class="btn lg" id="tvx">${TI.back}</button><div class="ttl lg"><b></b><small></small></div><button class="btn lg" id="tvd">${TI.dots}</button></div><div class="bot"></div>`;
  app.appendChild(o);
  const q=s=>o.querySelector(s),pg=q('.pg'),bg=q('.bg'),bot=q('.bot'),pb=q('.pb'),cts=[...o.querySelectorAll('.ct')];
  let W=o.clientWidth,H=o.clientHeight,i=k,S={sc:1,x:0,y:0},closing=0,hideT=0,seeking=0,V=null,hid=null,tapT=0,lastTap=0,ltx=0,lty=0,lp={x:0,y:0},mode=0,s0=null,vs=[],dd={x:0,y:0},uiWas=1,moved=0;
  const sizes=items.map(it=>it.w&&it.h?[it.w,it.h]:null);
  const CT=()=>cts[i],vid=()=>cts[i].querySelector('video');
+ const hy=()=>{for(let j=Math.max(0,i-2);j<=Math.min(n-1,i+2);j++){const m=cts[j].firstElementChild,u=items[j].u;if(m&&m.tagName!='DIV'&&u&&!m.getAttribute('src'))m.src=u}};
  const rel=(x,y)=>{const r=o.getBoundingClientRect();return{x:x-(r.left+W/2),y:y-(r.top+H/2)}};
  const fit=j=>{const nat=sizes[j]||[1,1];let s=Math.min(W/nat[0],H/nat[1]);if(items[j].k=='e')s*=.82;cts[j].style.width=nat[0]*s+'px';cts[j].style.height=nat[1]*s+'px'};
  items.forEach((_,j)=>{fit(j);const m=cts[j].firstElementChild;if(sizes[j])return;
@@ -2550,7 +2551,7 @@ function openTV(items,k,meta){
   setTimeout(cleanup,dur+30)};
  const killer=f=>f?cleanup():close();kill=killer;
  const rs=()=>{W=o.clientWidth;H=o.clientHeight;items.forEach((_,j)=>fit(j));S={sc:1,x:0,y:0};cts.forEach(c=>{c.style.transition='none';c.style.transform=''});setPg(0,0)};addEventListener('resize',rs);addEventListener('orientationchange',()=>setTimeout(rs,120));
- const go=ni=>{if(ni!=i){const pv=vid();pv&&pv.pause();const pc=CT();pc.style.transition='none';pc.style.transform='';i=ni;S={sc:1,x:0,y:0};hideTh(i);upd();unhide();if(meta&&meta.need)meta.need(ni,u=>{items[ni].u=u;const mm=cts[ni].firstElementChild;if(mm&&mm.tagName!='DIV'){mm.src=u;if(mm.tagName=='VIDEO'){mm.load();if(i==ni&&!closing)mm.play().catch(()=>0)}}});if(vid())setTimeout(()=>{if(!closing&&i==ni){const v=vid();v&&v.play().catch(()=>0)}},260)}setPg(0,1)};
+ const go=ni=>{if(ni!=i){const pv=vid();pv&&pv.pause();const pc=CT();pc.style.transition='none';pc.style.transform='';i=ni;S={sc:1,x:0,y:0};meta=items[ni].m||meta;hy();hideTh(i);upd();unhide();if(meta&&meta.need)meta.need(ni,u=>{items[ni].u=u;const mm=cts[ni].firstElementChild;if(mm&&mm.tagName!='DIV'){mm.src=u;if(mm.tagName=='VIDEO'){mm.load();if(i==ni&&!closing)mm.play().catch(()=>0)}}});if(vid())setTimeout(()=>{if(!closing&&i==ni){const v=vid();v&&v.play().catch(()=>0)}},260)}setPg(0,1)};
  const kd=e=>{if(e.key=='Escape')close();else if(S.sc<=1.02&&e.key=='ArrowRight')go(Math.min(n-1,i+1));else if(S.sc<=1.02&&e.key=='ArrowLeft')go(Math.max(0,i-1))};document.addEventListener('keydown',kd);
  q('#tvx').onclick=()=>close();
 q('#tvd').onclick=e=>{e.stopPropagation();menu(meta.x?[['ذخیره در دستگاه',dlCur],['حذف',askDel,'red']]:[['ذخیره در دستگاه',dlCur]],'top')};
@@ -2593,7 +2594,7 @@ q('#tvd').onclick=e=>{e.stopPropagation();menu(meta.x?[['ذخیره در دست�
  o.addEventListener('pointerup',up);o.addEventListener('pointercancel',up);
  o.addEventListener('wheel',e=>{e.preventDefault();const r=rel(e.clientX,e.clientY),sc=cl(S.sc*(e.deltaY<0?1.18:.85),1,5),r2=sc/S.sc;S.x=r.x-(r.x-S.x)*r2;S.y=r.y-(r.y-S.y)*r2;S.sc=sc;const b=bnd();S.x=cl(S.x,-b.x,b.x);S.y=cl(S.y,-b.y,b.y);if(sc==1){S.x=S.y=0}tf(1)},{passive:false});
  /* ---- open animation ---- */
- setPg(0,0);upd();
+ hy();setPg(0,0);upd();
  const t0=meta.th&&meta.th(i);hideTh(i);const c0=CT();
  bg.animate([{opacity:0},{opacity:1}],{duration:300,easing:'ease-out'});
  if(t0){const g=geom(c0,t0.getBoundingClientRect());c0.animate([{transform:g.t,clipPath:g.c},{transform:'none',clipPath:'inset(0px round 0px)'}],{duration:380,easing:EASE})}
@@ -2602,8 +2603,8 @@ q('#tvd').onclick=e=>{e.stopPropagation();menu(meta.x?[['ذخیره در دست�
  if(vid())setTimeout(()=>{if(!closing){const v=vid();v&&v.play().catch(()=>0)}},380);
 }
 window.openVw=(id,k)=>{const x=cur&&cur.msgs.find(q=>q.id==id);if(!x||!x.items||!x.items.length)return;
- const its=x.items.map(it=>({k:it.k=='v'?'v':'p',u:it.u,t:it.t,w:it.w,h:it.h,d:it.d,n:it.n,s:it.s}));
- openTV(its,k||0,{x:x,date:(x.ts?new Date(x.ts).toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'2-digit'}):''),need:(j,ap)=>window._tvNeed&&window._tvNeed(x,j,ap),name:x.out?'شما':cur.n,time:x.time,text:x.text,th:j=>{const b=document.querySelector(`#msgs .b[data-id="${id}"]`);return vis(b&&b.querySelectorAll('.ai')[j])}})};
+ const its=[];let st=0;cur.msgs.forEach(y=>{if(!y||!y.items)return;const m0={x:y,date:(y.ts?new Date(y.ts).toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'2-digit'}):''),name:y.out?'شما':cur.n,time:y.time,text:y.text};y.items.forEach((it,j)=>{if(it.k=='f'&&y.id!=id)return;if(y.id==id&&j==(k||0))st=its.length;its.push({k:it.k=='v'?'v':'p',u:it.u,t:it.t,w:it.w,h:it.h,d:it.d,n:it.n,s:it.s,m:Object.assign({},m0,{need:(jj,ap)=>window._tvNeed&&window._tvNeed(y,j,ap),th:()=>{const b=document.querySelector(`#msgs .b[data-id="${y.id}"]`);return vis(b&&b.querySelectorAll('.ai')[j])}})})})});
+ openTV(its,st,{x:x,date:(x.ts?new Date(x.ts).toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'2-digit'}):''),need:(j,ap)=>window._tvNeed&&window._tvNeed(x,j,ap),name:x.out?'شما':cur.n,time:x.time,text:x.text,th:j=>{const b=document.querySelector(`#msgs .b[data-id="${id}"]`);return vis(b&&b.querySelectorAll('.ai')[j])}})};
 window.showImg=function(emo){let th=null,x=null;try{const ev=window.event;th=ev&&ev.target&&ev.target.closest?ev.target.closest('.ph'):null;const b=th&&th.closest('.b');x=b&&cur.msgs.find(q=>q.id==b.dataset.id)}catch(_){}
  openTV([{k:'e',emo}],0,{name:x&&x.out&&!(cur&&cur.t=='ch')?'شما':(cur?cur.n:''),time:x?x.time:'',th:()=>vis(th)})};
 
