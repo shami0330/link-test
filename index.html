@@ -1121,8 +1121,8 @@ const closeKb=()=>{if(!isOpen)return;isOpen=0;gap=gp();
 /* one-time calibration: wait until the real keyboard height is stable, then adjust once; later opens skip this */
 const measure=()=>{if(KC||cT||!vv||!isOpen||document.activeElement!==ti)return;let last=-1,n=0;const t0=performance.now();
  cT=setInterval(()=>{if(!isOpen||document.activeElement!==ti||performance.now()-t0>1800){clearInterval(cT);cT=0;return}
-  const k=Math.round(H-vv.height-vv.offsetTop);
-  if(k>150&&k<H*.5&&k===last){if(++n>=2){clearInterval(cT);cT=0;mOk=1;KC=k;setK(k);if(Math.abs(k-K)>3){K=k;gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(260)}}}else{n=0;last=k}},70)};
+  const k=Math.round(H-vv.height);/* real keyboard height: independent of iOS panning (offsetTop) */
+  if(k>150&&k<H*.5&&k===last){if(++n>=2){clearInterval(cT);cT=0;mOk=1;KC=k;setK(k);if(vv.offsetTop>0)scrollTo(0,0);if(Math.abs(k-K)>3){K=k;gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(260)}}}else{n=0;last=k}},70)};
 {let tx=0,ty=0,tm=0;ch.addEventListener('pointerdown',e=>{tx=e.clientX;ty=e.clientY;tm=1},true);ch.addEventListener('pointermove',e=>{if(tm&&Math.hypot(e.clientX-tx,e.clientY-ty)>10)tm=0},true);ch.addEventListener('pointercancel',()=>tm=0,true);
 ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement===ti&&!(e.target.closest&&e.target.closest('.inb'))){window._kbKeep=0;ti.blur()}},true)}
 /* head start: open the box the moment the finger touches the input, keyboard follows on release */
@@ -1138,7 +1138,7 @@ ch.addEventListener('pointerup',e=>{const g=tm;tm=0;if(g&&document.activeElement
 ti.addEventListener('focus',()=>{if(chOn())openKb();setTimeout(measure,400);setTimeout(measure,800);setTimeout(()=>{if(isOpen&&!mOk&&document.activeElement===ti){K=getK();gap=gp();ap.style.transition=EZ;ap.style.height=(H-K)+'px';bx.style.height=K+'px';follow(350)}},950)});
 ti.addEventListener('blur',()=>{if(Date.now()<(window._kbKeep||0)){const f=()=>{if(Date.now()<(window._kbKeep||0)+100&&document.activeElement!==ti)ti.focus({preventScroll:true})};f();setTimeout(f,0);setTimeout(f,80)}
  setTimeout(()=>{if(document.activeElement!==ti)closeKb()},Date.now()<(window._kbKeep||0)+100?130:0)});
-if(vv){vv.addEventListener('scroll',()=>{if(isOpen&&vv.offsetTop>0)scrollTo(0,0)});addEventListener('scroll',()=>{if(isOpen&&(scrollY||pageYOffset))scrollTo(0,0)},{passive:true});vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,140);if(isOpen&&H-vv.height-vv.offsetTop<80&&(document.activeElement!==ti||mOk)){window._kbKeep=0;if(document.activeElement===ti)ti.blur();closeKb()}})}
+if(vv){vv.addEventListener('scroll',()=>{if(isOpen&&vv.offsetTop>0)scrollTo(0,0)});addEventListener('scroll',()=>{if(isOpen&&(scrollY||pageYOffset))scrollTo(0,0)},{passive:true});vv.addEventListener('resize',()=>{clearTimeout(mT);mT=setTimeout(measure,140);if(isOpen&&H-vv.height<80&&(document.activeElement!==ti||mOk)){window._kbKeep=0;if(document.activeElement===ti)ti.blur();closeKb()}})}
 })();
 </script>
 <script>
