@@ -106,7 +106,7 @@ button,input,textarea{font:inherit;color:inherit;border:0;background:none;outlin
 #msgs{position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top) + 130px) 10px calc(var(--ibh,56px) + 15px);display:flex;flex-direction:column;gap:5px;scroll-behavior:smooth}
 .chead{flex-direction:column;align-items:stretch;gap:8px}
 .ch1{display:flex;justify-content:space-between;align-items:center}
-.ctitle{padding:5px 28px;border-radius:99px;text-align:center;min-width:150px}
+.ctitle{padding:3px 28px;border-radius:99px;text-align:center;min-width:150px}
 .ctitle b{display:block;font-size:17px}.ctitle small{color:var(--t2);font-size:13px}
 .pinb{border-radius:22px;overflow:hidden}#pbar2{margin:6px 12px 4px}
 .pinb>div{padding:9px 16px;display:flex;align-items:center;gap:10px;font-size:15px}
@@ -335,7 +335,7 @@ function setRep(x){rep=x;$('#rpn').textContent=x.out&&cur.t!='ch'?'شما':cur.n
 function drawPin(){const c=cur,p=c.msgs.find(q=>q.id==c.pm)||(c.pinned&&c.msgs[c.msgs.length-1]);$('#pinb').classList.toggle('hide',!p&&!c.ll);$('#ll').classList.toggle('hide',!c.ll);$('#pinc').classList.toggle('hide',!p);if(p)$('#pint').textContent=p.text||'رسانه'}
 function gotoPin(){const e=$(`#msgs .b[data-id="${cur.pm}"]`);e&&e.scrollIntoView({block:'center'})}
 function openChat(id){cur=C.find(c=>c.id==id);cur.unread=0;cur.at=0;
-$('#cb').innerHTML=I('back',22)+(C.reduce((a,c)=>a+(c.unread&&!c.mute?1:0),0)||'');
+{const n=C.reduce((a,c)=>a+(c.unread&&!c.mute?1:0),0);$('#cb').innerHTML=I('back',22)+(n?`<i class="cbn">${n}</i>`:'')}
 $('#ct').innerHTML=`<b dir="auto">${esc(cur.n)}</b><small id="cs">${cur.t=='pv'?(cur.saved?'':'در حال اتصال…'):cur.t=='gp'?'۳ عضو':'۱۲۰۰ مشترک'}</small>`;
 $('#cav').innerHTML=`<div style="border:3px solid var(--gl);border-radius:50%">${av(cur,52)}</div>`;
 if(cur.t=='pv'&&!cur.saved)setTimeout(()=>{const s=$('#cs');if(s&&cur)s.textContent=cur.seen||'آنلاین'},1500);
@@ -505,6 +505,7 @@ $('#rpx').onclick=()=>{rep=null;$('#rpl').classList.add('hide')};
 $('#msgs').onscroll=e=>{const t=e.target;$('#dn').classList.toggle('h',t.scrollHeight-t.scrollTop-t.clientHeight<250)};
 $('#dn').onclick=()=>{$('#msgs').scrollTop=1e5};
 $('#cb').onclick=closeChat;
+{const ct=$('#ct'),h=document.querySelector('#chat .ch1'),fit=()=>{const H=ct.offsetHeight;H>0&&h.style.setProperty('--chh',H+'px')};fit();window.ResizeObserver&&new ResizeObserver(fit).observe(ct)}
 function openInfo(){const c=cur;if(!c||c.saved)return;if(c.uid&&window.LK&&!c._ft){c._ft=1;try{const d0=LK.UD.get(c.uid);if(d0){c.user=d0.uname||c.user;c.email=d0.email||c.email}}catch(_){}LK.api('GET','/databases/'+LK.DB+'/collections/users/documents/'+c.uid).then(d=>{c._ft=0;if(!d)return;const ch=(d.uname||'')!=(c.user||'')||(d.email||'')!=(c.email||'');c.user=d.uname||c.user;c.email=d.email||c.email;if(ch&&cur===c)openInfo()}).catch(()=>{c._ft=0})}$('#ib').innerHTML=I('back',22);
 $('#isc').innerHTML=`<div class="pfx"><div class="pfa">${av(c,400)}</div><div class="pfg"></div><div class="pfn"><h2 dir="auto">${esc(c.n)}</h2><small>${c.t=='pv'?(c.seen||'آنلاین'):c.t=='gp'?'۳ عضو':'۱۲۰۰ مشترک'}</small></div></div>
 <div class="acts">${[['call','تماس'],['video','ویدیو'],['bell','بی‌صدا'],['search','جستجو'],['more','بیشتر']].map(([i,l])=>`<button class="gl press" data-a="${i}">${I(i,26)}${l}</button>`).join('')}</div>
@@ -1916,9 +1917,9 @@ ti.addEventListener('focus',()=>closeP(0));$('#cb').addEventListener('click',()=
 /* ============ reply on media: quote label + quote box for st/im/rv/vc ============ */
 {const _bb=bub;bub=function(c,x,i,A){let h=_bb(c,x,i,A);if(x.rp&&(x.type=='st'||x.type=='im'||x.type=='rv'||x.type=='vc')&&h.indexOf('class="rp"')<0)h=h.replace(/^(<div [^>]*>)/,'$1'+`<div class="rp" dir="auto">${x.rp[2]?`<img class="rpi" src="${x.rp[2]}">`:''}<div class="rpt2"><b>${esc(x.rp[0])}</b><span>${esc(x.rp[1])}</span></div></div>`);return h}
 ;{const _bch=bub;bub=function(c,x,i,A){let h=_bch(c,x,i,A);if(!c||c.t!='ch'||!x||x.type=='dts')return h;
-const r=((((+x.id)||i)*9301+49297)%233280)/233280,mem=c.members?c.members.length:1200,v=Math.max(1,Math.round(mem*(.3+r*.5))),vs=v>=1000?(v/1000).toFixed(1).replace(/\.0$/,'')+'K':''+v;
+const v=window.VWN?VWN(x.sid):0,vs=window.VWF?VWF(v):''+v;
 h=h.replace(/^(<div class="[^"]*?)\bout\b/,'$1in').replace(/<span class="ok">[\s\S]*?<\/span>/,'').replace(/<div class="sn"[^>]*>[\s\S]*?<\/div>/,'');
-return h.replace('<span class="mt">','<span class="mt"><svg class="eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><span>'+vs+'</span><span class="cn" dir="auto">'+esc(c.n||'')+'</span><span>,</span>')}}
+return h.replace('<span class="mt">','<span class="mt"><svg class="eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><span class="vwn" data-s="'+(x.sid||'')+'">'+vs+'</span><span class="cn" dir="auto">'+esc(c.n||'')+'</span><span>,</span>')}}
  const _sr2=setRep;setRep=function(x){_sr2(x);const it=x.items&&x.items[0],P=x.items?x.items.filter(q=>q.k=='p').length:0,V=x.items?x.items.filter(q=>q.k=='v').length:0;
   const L={im:'🖼 عکس',al:P&&V?'🖼 عکس و ویدیو':V?'🎥 ویدیو':'🖼 عکس',fl:'📎 '+((it&&it.n)||'فایل'),rv:'🎥 ویدیو مسیج',vc:'🎤 ویس'+(x.du?' ('+x.du+')':''),st:x.emo||'استیکر'};
   if(!x.text&&L[x.type])$('#rpt').textContent=L[x.type];
@@ -2240,6 +2241,11 @@ runLang();
 </script>
 <style>
 #mn{z-index:62}
+#mc #mpl2{top:calc(50% + (env(safe-area-inset-top) + 50px)/2)}
+body:has(#mc) .top:not(.vmn){background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important}
+.ch1>#cb{width:var(--chh,50px);height:var(--chh,50px);min-width:0;padding:0;border-radius:50%;flex:none;position:relative}
+.ch1>#cb .cbn{position:absolute;top:-4px;left:-4px;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;background:#ff3b30;color:#fff;font-size:12px;font-weight:700;font-style:normal;display:flex;align-items:center;justify-content:center}
+#cav .av{width:calc(var(--chh,58px) - 6px)!important;height:calc(var(--chh,58px) - 6px)!important;font-size:calc((var(--chh,58px) - 6px)*.42)!important}
 #cpv{position:absolute;inset:0;z-index:61;pointer-events:none;direction:ltr;animation:pvin .28s cubic-bezier(.3,1.3,.5,1)}
 @keyframes pvin{from{opacity:0;transform:scale(.88)}}
 #cpv .ph1{position:absolute;left:12px;right:12px;top:calc(env(safe-area-inset-top) + 12px);display:flex;align-items:center;justify-content:space-between;pointer-events:none}
@@ -3240,7 +3246,7 @@ function applyRd(d){
  const c=chatOf(d.sender);if(!c||!meta.upto)return false;
  let ch=false;c.msgs.forEach(x=>{if(x.out&&x.ts&&x.ts<=meta.upto&&x.st!=2){x.st=2;ch=true}});return ch}
 function ingest(d,live){
- if(d.kind=='rd')return applyRd(d)?3:0;
+ if(d.kind=='rd')return isVw(d)?(applyVw(d)?3:0):(applyRd(d)?3:0);
  if(HID.has(d.$id)||HIDDEN.has(d.rcpt))return 0;
  const ex=IDX.get(d.$id);
  if(ex){if(!ex.type&&d.text!==ex.text&&d.kind=='t'){ex.text=d.text;ex._st=d.text;ex.ed=1;return 4}return 0}
@@ -3292,7 +3298,7 @@ function onEv(d){
   if(del){const c=GR.get(p.$id);c&&dropLocal(c)}else{applyGroup(p);drawList();drawTabs();if(cur&&cur.gid==p.$id)try{openInfo&&0}catch(e){}}
   return}
  if(del){removeLocal(p.$id);return}
- if(p.kind=='rd'){if(applyRd(p)){drawList();if(cur&&cur.uid==p.sender)keep()}return}
+ if(p.kind=='rd'){if(isVw(p)){applyVw(p);return}if(applyRd(p)){drawList();if(cur&&cur.uid==p.sender)keep()}return}
  const k=ingest(p,1);
  if(k==-1){refreshLists().then(()=>{ingest(p,1);drawList();drawContacts();drawTabs()});return}
  if(k>0){drawList();drawTabs();const x=IDX.get(p.$id),c=x&&C.find(q=>q.msgs.includes(x));
@@ -3316,6 +3322,31 @@ async function markRead(c){
  catch(e){if(e.code==409){try{await api('PATCH','/databases/'+DB+'/collections/messages/documents/'+id,{data:{meta}})}catch(x){c._rd=''}}else c._rd=''}}
 const _oc=openChat;openChat=function(id){const r=_oc.apply(this,arguments);const c=cur;if(c&&c.uid)setTimeout(()=>markRead(c),400);return r};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cur&&cur.uid)markRead(cur)});
+/* ---------- بازدید واقعی کانال (هر کاربر یک بار برای هر پست) ---------- */
+const VW=new Map();
+const vwId=(s,u)=>'w'+hid(s+'>'+u).toString(36)+hid(u+'<'+s+'x').toString(36);
+const isVw=d=>d.kind=='rd'&&typeof d.meta=='string'&&d.meta.indexOf('"vw"')>0;
+const vwCnt=sid=>{const s=VW.get(sid);return s?s.size:0};
+const vwFmt=n=>n>=1000?(n/1000).toFixed(1).replace(/\.0$/,'')+'K':''+n;
+function updVw(sid){document.querySelectorAll('.vwn[data-s="'+sid+'"]').forEach(e=>{e.textContent=vwFmt(vwCnt(sid))})}
+function applyVw(d){let m={};try{m=JSON.parse(d.meta||'{}')}catch(e){}const sid=m.vw;if(!sid||!d.sender)return false;let s=VW.get(sid);if(!s){s=new Set();VW.set(sid,s)}if(s.has(d.sender))return false;s.add(d.sender);updVw(sid);return true}
+window.VWN=vwCnt;window.VWF=vwFmt;
+async function markView(x){
+ if(!ME||!x||!x.sid||x._pend||x._vw)return;
+ const s=VW.get(x.sid);if(s&&s.has(ME.$id)){x._vw=1;return}
+ const c=C.find(q=>q.msgs&&q.msgs.includes(x));if(!c||c.t!='ch'||!c.gid)return;
+ x._vw=1;const meta=JSON.stringify({vw:x.sid}),me=ME.$id;
+ try{await api('POST','/databases/'+DB+'/collections/messages/documents',{documentId:vwId(x.sid,me),data:{chat:c.gid,sender:me,rcpt:c.gid,text:'',kind:'rd',emo:'',rn:'',rt:'',meta},permissions:['read(\"user:'+me+'\")','update(\"user:'+me+'\")','delete(\"user:'+me+'\")']});applyVw({sender:me,meta})}
+ catch(e){if(e.code==409)applyVw({sender:me,meta});else x._vw=0}}
+let vio=null;
+function watchViews(){
+ try{vio&&vio.disconnect()}catch(e){}vio=null;
+ const c=cur;if(!c||c.t!='ch'||!c.gid||!ME||!window.IntersectionObserver)return;
+ vio=new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting||cur!==c||document.hidden)return;const x=c.msgs.find(q=>q.id==en.target.dataset.id);x&&x.sid&&markView(x)}),{root:$('#msgs'),threshold:.25});
+ $$('#msgs .b[data-id]').forEach(b=>vio.observe(b))}
+{const _dmv=drawMsgs;drawMsgs=function(){const r=_dmv.apply(this,arguments);try{watchViews()}catch(e){}return r}}
+{const _ocv=openChat;openChat=function(id){const r=_ocv.apply(this,arguments);setTimeout(()=>{try{watchViews()}catch(e){}},500);return r}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)try{watchViews()}catch(e){}});
 /* ---------- آپلود و ارسال ---------- */
 function xhrUp(url,h,fd,onP,snd){return new Promise((res,rej)=>{const q=new XMLHttpRequest();q.open('POST',url);if(snd){if(snd.c)return rej(new Error('cancel'));snd.x=q}q.onabort=()=>rej(new Error('cancel'));q.withCredentials=true;Object.keys(h).forEach(k=>q.setRequestHeader(k,h[k]));q.upload.onprogress=e=>{if(e.lengthComputable&&onP)onP(e.loaded)};q.onload=()=>res({ok:q.status>=200&&q.status<300,status:q.status,headers:{get:n=>q.getResponseHeader(n)},json:()=>Promise.resolve(JSON.parse(q.responseText||'{}'))});q.onerror=()=>rej(new Error('network'));q.send(fd)})}
 async function upload(blob,name,mime,perm,onP,fid,snd){
